@@ -33,3 +33,13 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /*.zip
+
+# Sources
+/lib/_*
+/src/
+/t/_*
+/xt/
+
+# Komodo IDE
+*.komodoproject
+/.komodotools/
