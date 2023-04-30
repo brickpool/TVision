@@ -54,8 +54,8 @@ use TurboVision::Drivers::Const qw(
   :smXXXX
   :private
 );
-use TurboVision::Drivers::Win32::StdioCtl;
 use TurboVision::Drivers::Types qw( StdioCtl );
+use TurboVision::Drivers::Win32::StdioCtl;
 
 use Win32::API;
 use Win32::Console;
