@@ -38,13 +38,13 @@ our $AUTHORITY = 'github:fpc';
 use Data::Alias qw( alias );
 use PerlX::Assert;
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
-use TurboVision::Drivers::Types qw( TEvent is_TEvent );
+use TurboVision::Drivers::Types qw(
+  TEvent
+  is_TEvent
+);
 use TurboVision::Drivers::Win32::EventQ qw( :private );
 
 # ------------------------------------------------------------------------
@@ -146,7 +146,7 @@ character value.
 
 For example,
   
-  print $kbd->get_alt_char( KB_ALT_A );
+  print get_alt_char( KB_ALT_A );
 
 prints the single letter I<A>.
 
@@ -180,7 +180,7 @@ I<Alt+Ch>.
 
 For example,
 
-  $kbd->get_alt_code(Str $ch);
+  get_alt_code(Str $ch);
 
 returns C<0x1e00>, which is the value of KB_ALT_A.
 
@@ -245,14 +245,16 @@ See: I<evXXXX> constants
     alias my $event = $_[-1];
     assert { is_TEvent $event };
 
-    if ( _update_event_queue() ) {
-      $event = shift @_event_queue;
+    _update_event_queue();
+
+    for (my $i = 0; $i < @_event_queue; $i++) {
+      $event = $_event_queue[$i];
       assert { is_TEvent $event };
 
-      return
-          if $event->what == EV_KEYBOARD;
-
-      unshift @_event_queue, $event;
+      if ( $event->what & EV_KEYBOARD ) {
+        splice(@_event_queue, $i, 1);
+        return;
+      }
     }
 
     $event = TEvent->new( what => EV_NOTHING );
@@ -325,7 +327,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

@@ -35,34 +35,23 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Data::Alias qw( alias );
 use English qw( -no_match_vars );
+use PerlX::Assert;
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Drivers::Const qw(
-  :evXXXX
-);
+use TurboVision::Objects::Types qw( TPoint );
+use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
-use TurboVision::Drivers::StdioCtl;
 use TurboVision::Drivers::Types qw(
-  TEvent
   StdioCtl
+  TEvent
+  is_TEvent
 );
+use TurboVision::Drivers::Win32::EventQ qw( :private );
+use TurboVision::Drivers::Win32::StdioCtl;
 
 use Win32::Console;
-use Win32::API;
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-BEGIN {
-  use constant userDll => 'user32';
-
-  Win32::API::More->Import(userDll, 
-    'UINT GetDoubleClickTime()'
-  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-}
-
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -76,15 +65,14 @@ Nothing per default, but can export the following per request:
 
     :vars
       $button_count
-      $double_delay
       $mouse_buttons
       $mouse_int_flag
       $mouse_events
       $mouse_reverse
       $mouse_where
-      $repeat_delay
   
     :mouse
+      get_mouse_event
       show_mouse
       hide_mouse
 
@@ -102,16 +90,15 @@ our %EXPORT_TAGS = (
 
   vars => [qw(
     $button_count
-    $double_delay
     $mouse_buttons
     $mouse_events
     $mouse_int_flag
     $mouse_reverse
     $mouse_where
-    $repeat_delay
   )],
 
   mouse => [qw(
+    get_mouse_event
     show_mouse
     hide_mouse
   )],
@@ -156,21 +143,6 @@ is installed.
 =cut
 
   our $button_count = 0;
-
-=item public C<< Int $double_delay >>
-
-The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
-intervals) defining how quickly two mouse clicks must occur in order to be
-treated as a double click (rather than two separate single clicks).
-
-By default, the two mouse clicks must occur with 8/18'ths of a second to be
-considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
-
-Note: The maximum return value under Windows is 247 (ticks).
-
-=cut
-
-  our $double_delay = int( GetDoubleClickTime()*1000 / 18.2 );
 
 =item public readonly C<< Int $mouse_buttons >>
 
@@ -223,23 +195,6 @@ using the I<< TView->make_local >> method.
 
   our $mouse_where = TPoint->new(x => 0, y => 0);
 
-=item public readonly C<< Int $repeat_delay >>
-
-Determines the number of clock ticks that must occur before generating an
-I<EV_MOUSE_AUTO> event.
-
-I<EV_MOUSE_AUTO> events are automatically generated while the mouse button is
-held down.
-
-A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
-approximately 1/2 second.
-
-See: I<evXXXX> constants, I<$double_delay>
-
-=cut
-
-  our $repeat_delay = 8;
-
 =begin comment
 
 =item local C<< Int $_hide_count >>
@@ -290,8 +245,23 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
 
 =cut
 
-  func get_mouse_event(TEvent $event) {
-    $event->what( EV_NOTHING );
+  func get_mouse_event($) {
+    alias my $event = $_[-1];
+    assert { is_TEvent $event };
+
+    _update_event_queue();
+
+    for (my $i = 0; $i < @_event_queue; $i++) {
+      $event = $_event_queue[$i];
+      assert { is_TEvent $event };
+
+      if ( $event->what & EV_MOUSE ) {
+        splice(@_event_queue, $i, 1);
+        return;
+      }
+    }
+
+    $event = TEvent->new( what => EV_NOTHING );
     return;
   }
 
@@ -378,6 +348,8 @@ Returns the number of the buttons on your mouse, or zero on errors.
 # ------------------------------------------------------------------------
 
 INIT {
+  $_io = StdioCtl->instance();
+
   _detect_mouse();
 }
 
@@ -447,7 +419,7 @@ See: I<hide_mouse>, I<show_mouse>
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

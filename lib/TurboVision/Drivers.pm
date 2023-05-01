@@ -75,7 +75,8 @@ if( _TV_UNIX ){
   
 }elsif( _WIN32 ){
 
-  TurboVision::Drivers::Win32::Screen->import::into($target, qw( :all ));
+  TurboVision::Drivers::Win32::Mouse->import::into($target, qw( :all !:private ));
+  TurboVision::Drivers::Win32::Screen->import::into($target, qw( :all !:private ));
 
 }#endif _TV_UNIX
 
@@ -90,6 +91,7 @@ if( _TV_UNIX ){
   
 }elsif( _WIN32 ){
 
+  TurboVision::Drivers::Win32::Mouse->unimport::out_of($caller);
   TurboVision::Drivers::Win32::Screen->unimport::out_of($caller);
 
 }#endif _TV_UNIX

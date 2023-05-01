@@ -46,6 +46,7 @@ use POSIX qw(
 );
 
 use TurboVision::Const qw( :bool );
+use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Drivers::Const qw(
   :evXXXX
   :kbXXXX
@@ -57,7 +58,6 @@ use TurboVision::Drivers::Types qw(
   TEvent
   StdioCtl
 );
-use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Drivers::Win32::StdioCtl;
 
 use Win32::Console;
@@ -68,7 +68,8 @@ use Win32::API;
 # ------------------------------------------------------------------------
 
 BEGIN {
-  use constant kernelDll => 'kernel32';
+  use constant kernelDll  => 'kernel32';
+  use constant userDll    => 'user32';
 
   Win32::API::Struct->typedef(
     KEY_EVENT_RECORD => qw(
@@ -89,6 +90,14 @@ BEGIN {
       LPDWORD             lpNumberOfEventsRead
     )'
   ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
+
+  Win32::API::More->Import(kernelDll, 
+    'DWORD GetTickCount()'
+  ) or die "Import GetTickCount: $EXTENDED_OS_ERROR";
+
+  Win32::API::More->Import(userDll, 
+    'UINT GetDoubleClickTime()'
+  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
 }
 
 # ------------------------------------------------------------------------
@@ -101,11 +110,18 @@ Nothing per default, but can export the following per request:
 
   :all
   
+    :vars
+      $double_delay
+      $repeat_delay
+
     :private
+      $_auto_delay
+      $_auto_ticks
       $_down_buttons
       $_down_where
       @_event_queue
       $_last_buttons
+      $_last_double
       $_last_where
       $_shift_state
 
@@ -121,11 +137,19 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
+  vars => [qw(
+    $double_delay
+    $repeat_delay
+  )],
+
   private => [qw(
+    $_auto_delay
+    $_auto_ticks
     $_down_buttons
     $_down_where
     @_event_queue
     $_last_buttons
+    $_last_double
     $_last_where
     $_shift_state
 
@@ -366,21 +390,78 @@ The vertical mouse wheel was moved.
 
 =over
 
+=item public C<< Int $double_delay >>
+
+The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
+intervals) defining how quickly two mouse clicks must occur in order to be
+treated as a double click (rather than two separate single clicks).
+
+By default, the two mouse clicks must occur with 8/18'ths of a second to be
+considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
+
+Note: The maximum return value under Windows is 90 (ticks).
+
+=cut
+
+  our $double_delay = int( GetDoubleClickTime() / 55 );
+
+=item public readonly C<< Int $repeat_delay >>
+
+Determines the number of clock ticks that must occur before generating an
+I<EV_MOUSE_AUTO> event.
+
+I<EV_MOUSE_AUTO> events are automatically generated while the mouse button is
+held down.
+
+A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
+approximately 1/2 second.
+
+See: I<evXXXX> constants, I<$double_delay>
+
+=cut
+
+  our $repeat_delay = 8;
+
+=item private readonly C<< Int $_auto_delay >>
+
+Event manager variable for I<EV_MOUSE_AUTO> delay time counter.
+
+=cut
+
+  our $_auto_delay = 0;
+
+=item private readonly C<< Int $_auto_ticks >>
+
+Event manager variable for held mouse button tick counter.
+
+=cut
+
+  our $_auto_ticks = 0;
+
 =item private readonly C<< Int $_down_buttons >>
 
 Event manager variable for the current state of the mouse buttons.
 
 =cut
 
-  our $_down_buttons;
+  our $_down_buttons = 0;
 
-=item private readonly C<< TPoint $_down_where >>
+=item private readonly C<< Int $_down_ticks >>
 
-Event manager variable for the current state of the mouse position.
+Event manager variable for down mouse button tick counter.
 
 =cut
 
-  our $_down_where;
+  our $_down_ticks = 0;
+
+=item private readonly C<< TPoint $_down_where >>
+
+Event manager variable for the current state of the mouse position when the
+mouse button is pressed.
+
+=cut
+
+  our $_down_where = TPoint->new( x => 0, y => 0 );
 
 =item private readonly C<< Array @_event_queue >>
 
@@ -396,7 +477,15 @@ Event manager variable for the previous state of the mouse buttons.
 
 =cut
 
-  our $_last_buttons;
+  our $_last_buttons = 0;
+
+=item private readonly C<< Bool $_last_double >>
+
+Event manager variable for the previous state of double klick.
+
+=cut
+
+  our $_last_double = _FALSE;
 
 =item private readonly C<< TPoint $_last_where >>
 
@@ -404,7 +493,7 @@ Event manager variable for the previous mouse position.
 
 =cut
 
-  our $_last_where;
+  our $_last_where = TPoint->new( x => 0, y => 0 );
 
 =item private readonly C<< Int $_shift_state >>
 
@@ -563,37 +652,90 @@ Returns true if successful.
 =cut
 
   func _set_mouse_event(HashRef $mouse_event, TEvent $event) {
-    $event->what( EV_MOUSE );
 
-    $_last_buttons = $_down_buttons;
-    $_down_buttons = $mouse_event->{button_state};
+    # Get mouse button mask
+    my $button_mask =
+      $mouse_event->{button_state}
+      & ( MB_LEFT_BUTTON | MB_RIGHT_BUTTON | MB_MIDDLE_BUTTON )
+      ;
     # Rotation sense is represented by the sign of button_state's high word
+    my $positive = not ( $mouse_event->{button_state} & 0x8000_0000 );
     if ( $mouse_event->{event_flags} & _MOUSE_WHEELED ) {
-      $_down_buttons |= $mouse_event->{button_state} & 0x8000_0000
-                      ? MB_SCROLL_WHEEL_DOWN
-                      : MB_SCROLL_WHEEL_UP
-                      ;
+      $button_mask |= $positive ? MB_SCROLL_WHEEL_DOWN : MB_SCROLL_WHEEL_UP;
     }
-    $event->buttons( $_down_buttons );
-
-    $event->double( $mouse_event->{event_flags} & _DOUBLE_CLICK );
-
-    $_last_where = $_down_where;
-    $_down_where = TPoint(
+    # Get mouse X and Y coordinate
+    my $coordinate = TPoint->new(
       x => $mouse_event->{mouse_position}->{x},
       y => $mouse_event->{mouse_position}->{y},
     );
-    $event->where( $_down_where );
+    # X ms * 1s/1000ms * 18.2ticks/s = X/55 ticks, roughly.
+    my $timer_ticks = int( GetTickCount() / 55 );
 
-    _set_shift_state($mouse_event, $_shift_state);
+    my $double_click = 0;
+    if ( $button_mask != 0 && $_last_buttons == 0 ) {
+      $double_click = not (
+        $button_mask != $_down_buttons
+          ||
+        $coordinate != $_down_where
+          ||
+        $timer_ticks - $_down_ticks >= $double_delay
+      );
+      $_down_buttons = $button_mask;
+      $_down_where = $coordinate;
+      $_down_ticks = $_auto_ticks = $timer_ticks;
+      $_auto_delay = $repeat_delay;
+      $event->what( EV_MOUSE_DOWN );
+
+      goto LABEL_8;
+    }
+      
+    if ( $button_mask == 0 && $_last_buttons != 0 ) {
+      $event->what( EV_MOUSE_UP );
+
+      goto LABEL_8;
+    }
+
+    if ( $_last_buttons != $button_mask ) {
+      $button_mask = $_last_buttons;
+    }
+
+    if ( $coordinate != $_last_where ) {
+      $event->what( EV_MOUSE_MOVE );
+
+      goto LABEL_8;
+    }
     
+    if ( $button_mask == 0 ) {
+      $event = TEvent->new( what => EV_NOTHING );
+      return _FALSE;
+    }
+
+    if ( $timer_ticks - $_auto_ticks >= $_auto_delay ) {
+      $_auto_ticks = $timer_ticks;
+      $_auto_delay = 1;
+      $event->what( EV_MOUSE_AUTO );
+
+      goto LABEL_8;
+    }
+
+LABEL_8:
+    $_last_double = $double_click;
+    $_last_buttons = $button_mask;
+    $_last_where = $coordinate;
+
+    $event->double ( $_last_double  );
+    $event->buttons( $_last_buttons );
+    $event->where  ( $_last_where   );
+
+    _set_shift_state( $mouse_event, $_shift_state );
+
     return _TRUE;
   }
-  
+
 =item private C<< Bool _set_shift_state(HashRef $key_event, Int $shift_state) >>
 
 This subroutine sets the state of the keyboard shift (comparable to the low
-memory at C<0x40:0x17>).
+level call at memory position C<0x40:0x17>).
 
 Returns true if successful.
 
@@ -693,8 +835,13 @@ Returns true if successful.
 =cut
 
   func _store_event(TEvent $event) {
-    return _FALSE
-        if scalar(@_event_queue) >= _EVENT_Q_SIZE;
+    # Handle the event queue buffer overflow
+    while ( scalar(@_event_queue) >= _EVENT_Q_SIZE ) {
+      warn('Event queue buffer overflow')
+        if STRICT;
+
+      shift(@_event_queue);
+    }
 
     return !!push(@_event_queue, $event);
   }
@@ -708,7 +855,7 @@ Returns true if successful.
 =cut
 
   func _update_event_queue() {
-    my $event = TEvent->( what => EV_NOTHING );
+    my $event = TEvent->new( what => EV_NOTHING );
 
     my $CONSOLE = $_io->in();
 
@@ -775,7 +922,7 @@ Returns true if successful.
             next EVENT
               if !_set_key_event($key_event, $event);
 
-            return _store_event();
+            return _store_event($event);
           };
 
           $_ == _MOUSE_EVENT and do {
@@ -798,7 +945,7 @@ Returns true if successful.
             return _FALSE
                 if !_set_mouse_event($mouse_event, $event);
 
-            return _store_event();
+            return _store_event($event);
           };
         };
         
@@ -806,7 +953,7 @@ Returns true if successful.
           $event->what( EV_COMMAND );
           $event->command( _CM_SCREEN_CHANGED );
           $event->info( 0 );
-          return _store_event();
+          return _store_event($event);
         };
 
         DEFAULT: {
@@ -898,7 +1045,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

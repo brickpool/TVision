@@ -321,7 +321,7 @@ Mouse move event.
 
 =item public const C<< Int EV_MOUSE_AUTO >>
 
-Mouse auto event.
+Mouse movement with pressed key event.
 
 =cut
 
@@ -695,7 +695,7 @@ right button was pressed.
 
 =item public const C<< Int MB_LEFT_BUTTON >>
 
-Value if left button was pressed.
+Value if leftmost mouse button was pressed.
 
 =cut
 
@@ -703,7 +703,7 @@ Value if left button was pressed.
 
 =item public const C<< Int MB_RIGHT_BUTTON >>
 
-Value if right button was presseed.
+Value if the rightmost mouse button was presseed.
 
 =cut
 
@@ -711,7 +711,7 @@ Value if right button was presseed.
 
 =item public const C<< Int MB_RIGHT_BUTTON >>
 
-Value if middle button was presseed.
+Value if second button from the left was presseed.
 
 =cut
 
