@@ -641,7 +641,7 @@ __END__
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 
-=head1 SOME CODE STOLEN FROM
+=head1 CONTRIBUTOR
 
 Output via I<_stringify>, and parts of I<char_code> and I<scan_code>.
 
