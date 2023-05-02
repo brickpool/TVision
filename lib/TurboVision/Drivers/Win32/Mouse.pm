@@ -48,10 +48,23 @@ use TurboVision::Drivers::Types qw(
   TEvent
   is_TEvent
 );
-use TurboVision::Drivers::Win32::EventQ qw( :private );
+use TurboVision::Drivers::Win32::EventManager qw( :private );
 use TurboVision::Drivers::Win32::StdioCtl;
 
 use Win32::Console;
+use Win32::API;
+
+# ------------------------------------------------------------------------
+# Imports ----------------------------------------------------------------
+# ------------------------------------------------------------------------
+
+BEGIN {
+  use constant userDll => 'user32';
+
+  Win32::API::More->Import(userDll, 
+    'UINT GetDoubleClickTime()'
+  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
+}
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -65,11 +78,13 @@ Nothing per default, but can export the following per request:
 
     :vars
       $button_count
+      $double_delay
       $mouse_buttons
       $mouse_int_flag
       $mouse_events
       $mouse_reverse
       $mouse_where
+      $repeat_delay
   
     :mouse
       get_mouse_event
@@ -90,11 +105,13 @@ our %EXPORT_TAGS = (
 
   vars => [qw(
     $button_count
+    $double_delay
     $mouse_buttons
     $mouse_events
     $mouse_int_flag
     $mouse_reverse
     $mouse_where
+    $repeat_delay
   )],
 
   mouse => [qw(
@@ -143,6 +160,21 @@ is installed.
 =cut
 
   our $button_count = 0;
+
+=item public C<< Int $double_delay >>
+
+The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
+intervals) defining how quickly two mouse clicks must occur in order to be
+treated as a double click (rather than two separate single clicks).
+
+By default, the two mouse clicks must occur with 8/18'ths of a second to be
+considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
+
+Note: The maximum return value under Windows is 90 (ticks).
+
+=cut
+
+  our $double_delay = int( ( GetDoubleClickTime() || 500 ) * 18.2/1000 );
 
 =item public readonly C<< Int $mouse_buttons >>
 
@@ -194,6 +226,23 @@ using the I<< TView->make_local >> method.
 =cut
 
   our $mouse_where = TPoint->new(x => 0, y => 0);
+
+=item public readonly C<< Int $repeat_delay >>
+
+Determines the number of clock ticks that must occur before generating an
+I<EV_MOUSE_AUTO> event.
+
+I<EV_MOUSE_AUTO> events are automatically generated while the mouse button is
+held down.
+
+A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
+approximately 1/2 second.
+
+See: I<evXXXX> constants, I<$double_delay>
+
+=cut
+
+  our $repeat_delay = 8;
 
 =begin comment
 
