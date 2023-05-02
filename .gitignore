@@ -6,6 +6,7 @@
 *.o
 *.pm.tdy
 *.bs
+pod2htmd.tmp
 
 # Devel::Cover
 cover_db/
