@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::EventQ - Windows Event Queue implementation
+TurboVision::Drivers::Win32::EventManager - Windows Event Manager implementation
 
 =cut
 
-package TurboVision::Drivers::Win32::EventQ;
+package TurboVision::Drivers::Win32::EventManager;
 
 # ------------------------------------------------------------------------
 # Boilerplate ------------------------------------------------------------
@@ -63,13 +63,13 @@ use TurboVision::Drivers::Win32::StdioCtl;
 use Win32::Console;
 use Win32::API;
 
+
 # ------------------------------------------------------------------------
 # Imports ----------------------------------------------------------------
 # ------------------------------------------------------------------------
 
 BEGIN {
   use constant kernelDll  => 'kernel32';
-  use constant userDll    => 'user32';
 
   Win32::API::Struct->typedef(
     KEY_EVENT_RECORD => qw(
@@ -90,14 +90,6 @@ BEGIN {
       LPDWORD             lpNumberOfEventsRead
     )'
   ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-
-  Win32::API::More->Import(kernelDll, 
-    'DWORD GetTickCount()'
-  ) or die "Import GetTickCount: $EXTENDED_OS_ERROR";
-
-  Win32::API::More->Import(userDll, 
-    'UINT GetDoubleClickTime()'
-  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
 }
 
 # ------------------------------------------------------------------------
@@ -110,20 +102,18 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :vars
-      $double_delay
-      $repeat_delay
-
     :private
       $_auto_delay
       $_auto_ticks
       $_down_buttons
+      $_down_ticks
       $_down_where
       @_event_queue
       $_last_buttons
       $_last_double
       $_last_where
       $_shift_state
+      $_ticks
 
       _set_shift_state
       _update_event_queue
@@ -137,21 +127,18 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  vars => [qw(
-    $double_delay
-    $repeat_delay
-  )],
-
   private => [qw(
     $_auto_delay
     $_auto_ticks
     $_down_buttons
+    $_down_ticks
     $_down_where
     @_event_queue
     $_last_buttons
     $_last_double
     $_last_where
     $_shift_state
+    $_ticks
 
     _set_shift_state
     _update_event_queue
@@ -183,6 +170,8 @@ our %EXPORT_TAGS = (
 =over
 
 =item private const C<< Int _CM_SCREEN_CHANGED >>
+
+Defines a constant for changing the size of the console screen buffer
 
 =end comment
 
@@ -337,6 +326,8 @@ Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
     _VK_INSERT  => 0x2d,
   };
 
+=begin comment
+
 =item private const C<< Int _ENABLE_QUICK_EDIT_MODE >>
 
 =item private const C<< Int _ENABLE_EXTENDED_FLAGS >>
@@ -389,38 +380,6 @@ The vertical mouse wheel was moved.
 =head2 Variables
 
 =over
-
-=item public C<< Int $double_delay >>
-
-The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
-intervals) defining how quickly two mouse clicks must occur in order to be
-treated as a double click (rather than two separate single clicks).
-
-By default, the two mouse clicks must occur with 8/18'ths of a second to be
-considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
-
-Note: The maximum return value under Windows is 90 (ticks).
-
-=cut
-
-  our $double_delay = int( GetDoubleClickTime() / 55 );
-
-=item public readonly C<< Int $repeat_delay >>
-
-Determines the number of clock ticks that must occur before generating an
-I<EV_MOUSE_AUTO> event.
-
-I<EV_MOUSE_AUTO> events are automatically generated while the mouse button is
-held down.
-
-A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
-approximately 1/2 second.
-
-See: I<evXXXX> constants, I<$double_delay>
-
-=cut
-
-  our $repeat_delay = 8;
 
 =item private readonly C<< Int $_auto_delay >>
 
@@ -503,6 +462,41 @@ Key shift state.
 
   our $_shift_state = KB_INS_STATE;
 
+=item private readonly C<< Int $_ticks >>
+
+This variable returns the number of timer ticks (1 second = 18.2 ticks),
+similar to the direct memory access to the low memory address 0x40:0x6C.
+
+=cut
+
+  package System::GetDosTicks {
+    use English qw( -no_match_vars );
+    use Win32::API;
+  
+    BEGIN {
+      use constant kernelDll  => 'kernel32';
+  
+      Win32::API::More->Import(kernelDll, 
+        'DWORD GetTickCount()'
+      ) or die "Import GetTickCount: $EXTENDED_OS_ERROR";
+    }
+  
+    sub TIESCALAR {
+      my ( $type ) = @_;
+      my $obj = 0;
+      return (bless \$obj, $type);
+    }
+    
+    sub FETCH {
+      # X ms * 1s/1000ms * 18.2ticks/s = X/55 ticks, roughly.
+      return ( int( GetTickCount() / 55 ) );
+    }
+
+    1;
+  }
+  our $_ticks;
+  tie $_ticks, qw( System::GetDosTicks );
+
 =begin comment
 
 =item local C<< Object $_io >>
@@ -537,9 +531,9 @@ Saves the input codepage used by the startup console.
 
 =head2 Subroutines
 
-=over
-
 =begin comment
+
+=over
 
 =item private C<< Bool _set_key_event(HashRef $key_event, TEvent $event) >>
 
@@ -652,73 +646,75 @@ Returns true if successful.
 =cut
 
   func _set_mouse_event(HashRef $mouse_event, TEvent $event) {
+    # load mouse button delay counter
+    my ( $_repeat_delay, $_double_delay ) = do {
+      no warnings qw( once );
+      (
+        $TurboVision::Drivers::Win32::Mouse::repeat_delay,
+        $TurboVision::Drivers::Win32::Mouse::double_delay
+      );
+    };
 
     # Get mouse button mask
     my $button_mask =
       $mouse_event->{button_state}
       & ( MB_LEFT_BUTTON | MB_RIGHT_BUTTON | MB_MIDDLE_BUTTON )
       ;
+
     # Rotation sense is represented by the sign of button_state's high word
     my $positive = not ( $mouse_event->{button_state} & 0x8000_0000 );
     if ( $mouse_event->{event_flags} & _MOUSE_WHEELED ) {
       $button_mask |= $positive ? MB_SCROLL_WHEEL_DOWN : MB_SCROLL_WHEEL_UP;
     }
+
+    # Get current timer ticks
+    my $timer_ticks = $_ticks;
+
     # Get mouse X and Y coordinate
     my $coordinate = TPoint->new(
       x => $mouse_event->{mouse_position}->{x},
       y => $mouse_event->{mouse_position}->{y},
     );
-    # X ms * 1s/1000ms * 18.2ticks/s = X/55 ticks, roughly.
-    my $timer_ticks = int( GetTickCount() / 55 );
 
-    my $double_click = 0;
+    my $double_click = _FALSE;
     if ( $button_mask != 0 && $_last_buttons == 0 ) {
       $double_click = not (
         $button_mask != $_down_buttons
           ||
         $coordinate != $_down_where
           ||
-        $timer_ticks - $_down_ticks >= $double_delay
+        $timer_ticks - $_down_ticks >= $_double_delay
       );
       $_down_buttons = $button_mask;
       $_down_where = $coordinate;
       $_down_ticks = $_auto_ticks = $timer_ticks;
-      $_auto_delay = $repeat_delay;
+      $_auto_delay = $_repeat_delay;
       $event->what( EV_MOUSE_DOWN );
-
-      goto LABEL_8;
     }
-      
-    if ( $button_mask == 0 && $_last_buttons != 0 ) {
+    elsif ( $button_mask == 0 && $_last_buttons != 0 ) {
       $event->what( EV_MOUSE_UP );
-
-      goto LABEL_8;
     }
-
-    if ( $_last_buttons != $button_mask ) {
-      $button_mask = $_last_buttons;
+    elsif ( $_last_buttons != $button_mask ) {
+      if ( $button_mask > $_last_buttons ) {
+        $event->what( EV_MOUSE_DOWN );
+      }
+      else {
+        $event->what( EV_MOUSE_UP );
+      }
     }
-
-    if ( $coordinate != $_last_where ) {
+    elsif ( $coordinate != $_last_where ) {
       $event->what( EV_MOUSE_MOVE );
-
-      goto LABEL_8;
     }
-    
-    if ( $button_mask == 0 ) {
+    elsif ( $button_mask == 0 ) {
       $event = TEvent->new( what => EV_NOTHING );
       return _FALSE;
     }
-
-    if ( $timer_ticks - $_auto_ticks >= $_auto_delay ) {
+    elsif ( $timer_ticks - $_auto_ticks >= $_auto_delay ) {
       $_auto_ticks = $timer_ticks;
       $_auto_delay = 1;
       $event->what( EV_MOUSE_AUTO );
-
-      goto LABEL_8;
     }
 
-LABEL_8:
     $_last_double = $double_click;
     $_last_buttons = $button_mask;
     $_last_where = $coordinate;
@@ -732,6 +728,8 @@ LABEL_8:
     return _TRUE;
   }
 
+=begin comment
+
 =item private C<< Bool _set_shift_state(HashRef $key_event, Int $shift_state) >>
 
 This subroutine sets the state of the keyboard shift (comparable to the low
@@ -740,6 +738,8 @@ level call at memory position C<0x40:0x17>).
 Returns true if successful.
 
 See also: I<get_shift_state>
+
+=end comment
 
 =cut
 
@@ -826,6 +826,8 @@ the next event.
     return _TRUE;
   }
 
+=over
+
 =item public C<< Bool _store_event(TEvent $event) >>
 
 Store event in <get_mouse_event> and <get_key_event>
@@ -845,7 +847,7 @@ Returns true if successful.
 
     return !!push(@_event_queue, $event);
   }
-  
+
 =item public C<< Bool _update_event_queue() >>
 
 Reads the Windows events, converts them and updates the internal event queue.

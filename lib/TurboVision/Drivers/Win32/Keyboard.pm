@@ -45,7 +45,7 @@ use TurboVision::Drivers::Types qw(
   TEvent
   is_TEvent
 );
-use TurboVision::Drivers::Win32::EventQ qw( :private );
+use TurboVision::Drivers::Win32::EventManager qw( :private );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -269,7 +269,7 @@ value contains a combination of the I<kbXXXX> constants for shift states.
 =cut
 
   func get_shift_state() {
-    return $TurboVision::Drivers::Win32::EventQ::_shift_state;
+    return $TurboVision::Drivers::Win32::EventManager::_shift_state;
   }
 
 =back
