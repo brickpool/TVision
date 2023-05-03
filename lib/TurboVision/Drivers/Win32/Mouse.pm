@@ -170,11 +170,19 @@ treated as a double click (rather than two separate single clicks).
 By default, the two mouse clicks must occur with 8/18'ths of a second to be
 considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
 
-Note: The maximum return value under Windows is 90 (ticks).
+Note: For Windows, the value is the current double-click time of the system (by
+default 9 ticks, equivalent to 500ms).
 
 =cut
 
-  our $double_delay = int( ( GetDoubleClickTime() || 500 ) * 18.2/1000 );
+  our $double_delay = do {
+    eval {
+      int( ( GetDoubleClickTime() || 500 ) * 18.2/1000 );
+    }
+    or do {
+      8;
+    };
+  };
 
 =item public readonly C<< Int $mouse_buttons >>
 
@@ -437,7 +445,7 @@ __END__
 
 =back
 
-=head1 STOLEN CODE SNIPS
+=head1 CONTRIBUTOR
 
 The Windows event mapping was taken from the framework
 "A modern port of Turbo Vision 2.0", which is licensed under MIT licence
@@ -462,7 +470,7 @@ See: I<hide_mouse>, I<show_mouse>
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 
-=head1 CONTRIBUTOR
+=head1 MAINTAINER
 
 =over
 

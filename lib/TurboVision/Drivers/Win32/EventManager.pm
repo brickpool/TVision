@@ -464,32 +464,29 @@ Key shift state.
 
 =item private readonly C<< Int $_ticks >>
 
-This variable returns the number of timer ticks (1 second = 18.2 ticks),
-similar to the direct memory access to the low memory address 0x40:0x6C.
+This variable returns the number of timer ticks (1 second = 18.2 ticks), similar
+to the direct memory access to the low memory address 0x40:0x6C.
+
+Note: The variable uses the elapsed time since the start of the program (not the
+start time of the system).
 
 =cut
 
   package System::GetDosTicks {
+    use Time::HiRes qw( time );
     use English qw( -no_match_vars );
-    use Win32::API;
-  
-    BEGIN {
-      use constant kernelDll  => 'kernel32';
-  
-      Win32::API::More->Import(kernelDll, 
-        'DWORD GetTickCount()'
-      ) or die "Import GetTickCount: $EXTENDED_OS_ERROR";
-    }
-  
+
     sub TIESCALAR {
-      my ( $type ) = @_;
-      my $obj = 0;
-      return (bless \$obj, $type);
+      my $class = shift;
+      my $base_time = $BASETIME;
+      my $self = \$base_time;
+      return bless $self, $class;
     }
     
     sub FETCH {
-      # X ms * 1s/1000ms * 18.2ticks/s = X/55 ticks, roughly.
-      return ( int( GetTickCount() / 55 ) );
+      my $self = shift;
+      my $base_time = $$self;
+      return int( ( time() - $base_time ) * 18.2 );
     }
 
     1;
@@ -1041,7 +1038,7 @@ __END__
  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  DEALINGS IN THE SOFTWARE.
 
-=head1 CONTRIBUTOR
+=head1 MAINTAINER
 
 =over
 
