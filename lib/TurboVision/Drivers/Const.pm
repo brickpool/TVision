@@ -82,6 +82,20 @@ Nothing per default, but can export the following per request:
       KB_ALT_L    KB_ALT_Y
       KB_ALT_M    KB_ALT_Z
   
+      KB_CTRL_A   KB_CTRL_N
+      KB_CTRL_B   KB_CTRL_O
+      KB_CTRL_C   KB_CTRL_P
+      KB_CTRL_D   KB_CTRL_Q
+      KB_CTRL_E   KB_CTRL_R
+      KB_CTRL_F   KB_CTRL_S
+      KB_CTRL_G   KB_CTRL_T
+      KB_CTRL_H   KB_CTRL_U
+      KB_CTRL_I   KB_CTRL_V
+      KB_CTRL_J   KB_CTRL_W
+      KB_CTRL_K   KB_CTRL_X
+      KB_CTRL_L   KB_CTRL_Y
+      KB_CTRL_M   KB_CTRL_Z
+
       KB_ALT_EQUAL    KB_END
       KB_ALT_MINUS    KB_ENTER
       KB_ALT_SPACE    KB_ESC
@@ -193,6 +207,20 @@ our %EXPORT_TAGS = (
     KB_ALT_K    KB_ALT_X
     KB_ALT_L    KB_ALT_Y
     KB_ALT_M    KB_ALT_Z
+
+    KB_CTRL_A   KB_CTRL_N
+    KB_CTRL_B   KB_CTRL_O
+    KB_CTRL_C   KB_CTRL_P
+    KB_CTRL_D   KB_CTRL_Q
+    KB_CTRL_E   KB_CTRL_R
+    KB_CTRL_F   KB_CTRL_S
+    KB_CTRL_G   KB_CTRL_T
+    KB_CTRL_H   KB_CTRL_U
+    KB_CTRL_I   KB_CTRL_V
+    KB_CTRL_J   KB_CTRL_W
+    KB_CTRL_K   KB_CTRL_X
+    KB_CTRL_L   KB_CTRL_Y
+    KB_CTRL_M   KB_CTRL_Z
 
     KB_ALT_EQUAL    KB_END
     KB_ALT_MINUS    KB_ENTER
@@ -527,6 +555,41 @@ I<< TEvent->key_code >> field. For example,
     KB_ALT_K => 0x2500,   KB_ALT_X => 0x2d00,
     KB_ALT_L => 0x2600,   KB_ALT_Y => 0x1500,
     KB_ALT_M => 0x3200,   KB_ALT_Z => 0x2c00,
+  };
+
+=item Ctrl-Ch key code constants
+
+  Constant    Value     Constant    Value
+  KB_CTRL_A   0x1e01    KB_CTRL_N   0x310e
+  KB_CTRL_B   0x3002    KB_CTRL_O   0x180f
+  KB_CTRL_C   0x2e03    KB_CTRL_P   0x1910
+  KB_CTRL_D   0x2004    KB_CTRL_Q   0x1011
+  KB_CTRL_E   0x1205    KB_CTRL_R   0x1312
+  KB_CTRL_F   0x2106    KB_CTRL_S   0x1f13
+  KB_CTRL_G   0x2207    KB_CTRL_T   0x1414
+  KB_CTRL_H   0x2308    KB_CTRL_U   0x1615
+  KB_CTRL_I   0x1709    KB_CTRL_V   0x2f16
+  KB_CTRL_J   0x240a    KB_CTRL_W   0x1117
+  KB_CTRL_K   0x250b    KB_CTRL_X   0x2d18
+  KB_CTRL_L   0x260c    KB_CTRL_Y   0x1519
+  KB_CTRL_M   0x320d    KB_CTRL_Z   0x2c1a
+
+=cut
+
+  use constant {
+    KB_CTRL_A => 0x1e01,   KB_CTRL_N => 0x310e,
+    KB_CTRL_B => 0x3002,   KB_CTRL_O => 0x180f,
+    KB_CTRL_C => 0x2e03,   KB_CTRL_P => 0x1910,
+    KB_CTRL_D => 0x2004,   KB_CTRL_Q => 0x1011,
+    KB_CTRL_E => 0x1205,   KB_CTRL_R => 0x1312,
+    KB_CTRL_F => 0x2106,   KB_CTRL_S => 0x1f13,
+    KB_CTRL_G => 0x2207,   KB_CTRL_T => 0x1414,
+    KB_CTRL_H => 0x2308,   KB_CTRL_U => 0x1615,
+    KB_CTRL_I => 0x1709,   KB_CTRL_V => 0x2f16,
+    KB_CTRL_J => 0x240a,   KB_CTRL_W => 0x1117,
+    KB_CTRL_K => 0x250b,   KB_CTRL_X => 0x2d18,
+    KB_CTRL_L => 0x260c,   KB_CTRL_Y => 0x1519,
+    KB_CTRL_M => 0x320d,   KB_CTRL_Z => 0x2c1a,
   };
 
 =item Ctrl and special key code constants
