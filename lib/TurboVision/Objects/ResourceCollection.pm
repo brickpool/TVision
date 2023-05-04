@@ -6,6 +6,8 @@ TResourceCollection - Implementing a collections of resources.
 
 =head1 SYNOPSIS
 
+See the I<TStringCollection> example.
+
 =cut
 
 package TurboVision::Objects::ResourceCollection;

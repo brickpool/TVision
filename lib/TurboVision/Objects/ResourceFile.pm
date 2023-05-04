@@ -6,6 +6,23 @@ TResourceFile - Implements a stream that can be indexed by key strings.
 
 =head1 SYNOPSIS
 
+  use TurboVision::Objects;
+  ...
+    my ($res_file, $my_menu);
+    
+    # construct the menu bar as usual
+    $my_menu =  .... 
+    $res_file = TResourceFile->Init(
+      TBufStream->init( 'menu.sav', ST_CREATE, 1024 )
+    );
+
+    # Put the menu bar and name the resource "mainmenu"
+    $res_file->put($my_menu, 'mainmenu');
+
+    # Flush and close
+    undef $res_file;
+  }
+
 =cut
 
 package TurboVision::Objects::ResourceFile;
