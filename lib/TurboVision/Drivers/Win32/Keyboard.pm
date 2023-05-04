@@ -39,7 +39,11 @@ use Data::Alias qw( alias );
 use PerlX::Assert;
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Drivers::Const qw( :evXXXX );
+use TurboVision::Objects::Common qw( :tools );
+use TurboVision::Drivers::Const qw(
+  :evXXXX
+  :private
+);
 use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw(
   TEvent
@@ -135,7 +139,7 @@ The following chart shows the mapping from control keys to I<kbXXXX> values.
 =cut
 
   func ctrl_to_arrow(Int $key_code) {
-    return _WORD_STAR_CODES->($key_code) // $key_code;
+    return _WORD_STAR_CODES->( word_rec($key_code)->lo ) // $key_code;
   }
 
 =item public C<< Str get_alt_char(Int $key_code) >>
@@ -155,17 +159,17 @@ Method I<get_alt_code> maps characters back to I<Alt+Ch> combinations.
 =cut
 
   func get_alt_char(Int $key_code) {
+    return chr(0xf0)                                    # special case Alt-Space
+        if $key_code == 0x0200;
+
     return "\0"                                         # no extended key
-        if ($key_code & 0xff) == 0;
+        if $key_code & 0xff;
 
     my $hi = $key_code >> 8 & 0xff;
 
-    return chr(0xf0)                                    # special case Alt-Space
-        if $hi == 0x02;
-
     if ( $hi <= 0x83 ) {                                # highest value in list
       for my $i (0..127) {                              # search for match
-        return chr($hi)                                 # return character
+        return chr($i)                                  # return character
             if $hi == _ALT_CODES->( $i );
       }
     }
@@ -189,11 +193,11 @@ The subroutine I<get_alt_code> is the inverse function to I<get_alt_char>.
 =cut
 
   func get_alt_code(Str $ch) {
+    return 0x0200
+        if ord($ch) == 0xf0;                            # special case Alt-Space
+      
     $ch = ord( uc($ch) );
     
-    return 0x0200
-        if $ch == 0xf0;                                 # special case Alt-Space
-      
     return _ALT_CODES->($ch) << 8
         if $ch >= 0 && $ch <= 127;
 
