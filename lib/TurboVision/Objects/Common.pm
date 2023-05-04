@@ -60,7 +60,6 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Carp qw( carp confess );
-use Contextual::Return;
 use Data::Alias qw( alias );
 use Scalar::Util qw( refaddr weaken isweak );
 
@@ -74,6 +73,8 @@ use TurboVision::Objects::Types qw(
   TCollection
   TStringCollection
 );
+
+use Contextual::Return;   # must be used after 'TurboVision::Objects::Types'
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
