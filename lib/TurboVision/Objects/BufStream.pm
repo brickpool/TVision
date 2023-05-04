@@ -237,6 +237,7 @@ which helps speed up the flush function.
 
   has '_last_mode' => (
     isa       => Int,
+    init_arg  => undef,
     default   => -1,
   );
 
@@ -266,32 +267,15 @@ mode I<$mode> by calling the I<init> constructor inherited from I<TDosStream>.
     return fail
         if !defined $self;
 
-    alias my $buf_size = $self->{buf_size};               # refer to attributes
-    $buf_size = $size;
-    return $self;
-  }
-
-=begin comment
-
-=item private C<< BUILD(@) >>
-
-Allocates a buffer of I<buf_size> bytes.
-
-Note: The I<BUILD> method is called after the object is constructed.
-
-See also: I<init>
-
-=end comment
-
-=cut
-
-  method BUILD(@) {
     alias my $buffer    = $self->{buffer};                # refer to attributes
     alias my $buf_size  = $self->{buf_size};
 
-    if ( $buf_size ) {
+    $buf_size = $size;                                    # Hold buffer size
+    if ( $buf_size ) {                                    # Allocate buffer
       $buffer = '\0' x $buf_size;
     }
+
+    return $self;
   }
   
 =back
