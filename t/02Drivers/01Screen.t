@@ -9,8 +9,8 @@ else {
   plan tests => 5;
 }
 
-use TurboVision::Drivers::Win32::Screen qw( :all !:private );
 use TurboVision::Drivers::Const qw( :smXXXX );
+use TurboVision::Drivers::Win32::Screen qw( :all !:private );
 
 sleep(1);
 
