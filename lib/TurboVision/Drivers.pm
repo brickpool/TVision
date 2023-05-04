@@ -75,6 +75,8 @@ if( _TV_UNIX ){
   
 }elsif( _WIN32 ){
 
+  TurboVision::Drivers::Win32::EventManager->import::into($target, qw( :all !:private ));
+  TurboVision::Drivers::Win32::Keyboard->import::into($target, qw( :all !:private ));
   TurboVision::Drivers::Win32::Mouse->import::into($target, qw( :all !:private ));
   TurboVision::Drivers::Win32::Screen->import::into($target, qw( :all !:private ));
 
@@ -91,6 +93,8 @@ if( _TV_UNIX ){
   
 }elsif( _WIN32 ){
 
+  TurboVision::Drivers::Win32::EventManager->unimport::out_of($caller);
+  TurboVision::Drivers::Win32::Keyboard->unimport::out_of($caller);
   TurboVision::Drivers::Win32::Mouse->unimport::out_of($caller);
   TurboVision::Drivers::Win32::Screen->unimport::out_of($caller);
 
