@@ -16,9 +16,11 @@ use 5.014;
 use warnings;
 
 use Function::Parameters {
-  factory => {
-    defaults    => 'classmethod_strict',
-    shift       => '$class',
+  factory_inherit => {
+    defaults    => 'method_strict',
+    install_sub => 'around',
+    shift       => ['$super', '$class'],
+    runtime     => 1,
     name        => 'required',
   },
   around => {
@@ -54,6 +56,7 @@ use Try::Tiny;
 
 use TurboVision::Const qw( :bool );
 use TurboVision::Objects::Const qw( :stXXXX );
+use TurboVision::Objects::Common qw( fail );
 use TurboVision::Objects::Stream;
 use TurboVision::Objects::Types qw(
   TStream
@@ -71,6 +74,12 @@ I<TMemoryStream> is a stream that stores its data in dynamic memory.
 =head2 Class
 
 public class C<< TMemoryStream >>
+
+Turbo Vision Hierarchy
+
+  TObject
+    TStream
+      TMemoryStream
 
 =cut
 
@@ -211,9 +220,14 @@ and alocate the memory.
 
 =cut
 
-  factory init(Int $a_limit = 0, Int $a_block_size = 0) {
-    my ($blk_size, $limit);
-    
+  factory_inherit init(Int $a_limit = 0, Int $a_block_size = 0) {
+    my $self = $class->$super();                          # Call ancestor
+    return fail
+        if !defined $self;
+
+    alias my $blk_size    = $self->{block_size};          # refer to attributes
+          my $limit;
+
     $blk_size = $a_block_size
               ? $a_block_size                             # Set blocksize
               : _DEFAULT_BLOCK_SIZE                       # Default blocksize
@@ -224,12 +238,10 @@ and alocate the memory.
            : 1                                            # At least 1 block
            ;
 
-    my $self = $class->new(                               # Call ancestor
-      block_size => $blk_size,
-    );
-    if ( !$self->_change_list_size($limit) ) {
-      $self->error(ST_INIT_ERROR, 0);
+    if ( !$self->_change_list_size($limit) ) {            # Try allocate blocks
+      $self->error(ST_INIT_ERROR, 0);                     # Initialize error
     }
+
     return $self;
   }
 
