@@ -27,10 +27,12 @@ WriteMakefile(
     'MooseX::Types::Perl'           => 0.101343,
     'namespace::autoclean'          => 0.25,
     'PerlX::Assert'                 => 0.905,
+    'Scalar-List-Utils'             => 1.55,
     'Try::Tiny'                     => 0.22,
   },
   TEST_REQUIRES     => {
-    'Test::More'    => 0.95,
+    'Test::More'      => 0.95,
+    'Devel::Refcount' => 0.10,
   },
   LICENSE           => 'lgpl_3_0',
   dist              => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
