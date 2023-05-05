@@ -1,18 +1,18 @@
 use 5.014;
 use warnings;
-use Test::More;
 
-if( $^O ne 'MSWin32' ) {
-  plan skip_all => 'Test relevant only for Windows OS';
+BEGIN {
+  print "1..0 # Skip win32 required\n" and exit unless $^O =~ /win32|cygwin/i;
+  $| = 1;
 }
-else {
-  plan tests => 5;
-}
+
+use Test::More tests => 7;
+
+require_ok 'TurboVision::Drivers::Const';
+require_ok 'TurboVision::Drivers::Win32::Screen';
 
 use TurboVision::Drivers::Const qw( :smXXXX );
 use TurboVision::Drivers::Win32::Screen qw( :all !:private );
-
-sleep(1);
 
 ok defined($screen_mode), 'defined screen mode';
 
@@ -34,6 +34,5 @@ is $screen_height, 50, 'screen height: 50';
 
 sleep(1);
 done_video();
-sleep(1);
 
 done_testing;
