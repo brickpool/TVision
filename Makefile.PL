@@ -13,40 +13,41 @@ WriteMakefile(
   CONFIGURE_REQUIRES  => {
     'ExtUtils::MakeMaker' => 6.64,
   },
-  PREREQ_PM           => {
-    'Carp'                          => 1.17,
-    'Contextual::Return'            => 0.004014,
-    'Data::Alias'                   => 1.21,
-    'Devel::StrictMode'             => 0.003,
-    'Function::Parameters'          => 2.001003,
-    'Moose'                         => 2.1213,
-    'MooseX::ClassAttribute'        => 0.29,
-    'MooseX::HasDefaults::RO'       => 0.03,
-    'MooseX::StrictConstructor'     => 0.21,
-    'MooseX::Types::Common'         => 0.001014,
-    'MooseX::Types::Perl'           => 0.101343,
-    'namespace::autoclean'          => 0.25,
-    'PerlX::Assert'                 => 0.905,
-    'Scalar::List::Utils'           => 1.55,
-    'Try::Tiny'                     => 0.22,
+  PREREQ_PM => {
+    'Carp'                      => 1.17,
+    'Contextual::Return'        => 0.004014,
+    'Data::Alias'               => 1.21,
+    'Devel::StrictMode'         => 0.003,
+    'Function::Parameters'      => 2.001003,
+    'Moose'                     => 2.1213,
+    'MooseX::ClassAttribute'    => 0.29,
+    'MooseX::HasDefaults::RO'   => 0.03,
+    'MooseX::StrictConstructor' => 0.21,
+    'MooseX::Types::Common'     => 0.001014,
+    'MooseX::Types::Perl'       => 0.101343,
+    'namespace::autoclean'      => 0.25,
+    'PerlX::Assert'             => 0.905,
+    'Scalar::List::Utils'       => 1.55,
+    'Try::Tiny'                 => 0.22,
   },
-  TEST_REQUIRES     => {
+  TEST_REQUIRES => {
     'Test::More'      => 0.95,
     'Devel::Refcount' => 0.10,
+    'Win32::GuiTest'  => 1.64,
   },
-  LICENSE           => 'lgpl_3_0',
-  dist              => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-  test              => { TESTS => 't/*.t t/*/*.t' },
-  META_MERGE        => {
+  LICENSE     => 'lgpl_3_0',
+  dist        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+  test        => { TESTS => 't/*.t t/*/*.t' },
+  META_MERGE  => {
     'meta-spec' => { version => 2 },
-     resources => {
-      repository => {
+    resources => {
+      repository  => {
         type => 'git',
         url  => 'https://github.com/brickpool/TVision.git',
         web  => 'https://github.com/brickpool/TVision',
       },
-      bugtracker => { web => 'https://github.com/brickpool/TVision/issues' },
-      homepage   => 'http://brickpool.de',
+      bugtracker  => { web => 'https://github.com/brickpool/TVision/issues' },
+      homepage    => 'http://brickpool.de',
     },
   },
 );
