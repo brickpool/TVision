@@ -304,7 +304,6 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
 
   func get_mouse_event($) {
     alias my $event = $_[-1];
-    assert { is_TEvent $event };
 
     _update_event_queue();
 
