@@ -76,7 +76,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
   TurboVision::Drivers::Win32::EventManager->import::into($target, qw( :all !:private ));
-  TurboVision::Drivers::Win32::Keyboard->import::into($target, qw( :all !:private ));
+  TurboVision::Drivers::Win32::Keyboard->import::into($target, qw( :all ));
   TurboVision::Drivers::Win32::Mouse->import::into($target, qw( :all !:private ));
   TurboVision::Drivers::Win32::Screen->import::into($target, qw( :all !:private ));
 
