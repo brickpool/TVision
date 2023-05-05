@@ -69,7 +69,7 @@ use Win32::API;
 # ------------------------------------------------------------------------
 
 BEGIN {
-  use constant kernelDll  => 'kernel32';
+  use constant kernelDll => 'kernel32';
 
   Win32::API::Struct->typedef(
     KEY_EVENT_RECORD => qw(
@@ -860,7 +860,7 @@ Returns true if successful.
 
     # ReadConsoleInput can sleep the process, so we first check the number
     # of available input events.
-    while (my $events = $CONSOLE->GetEvents()) {
+    if (my $events = $CONSOLE->GetEvents()) {
 
       EVENT:
       while ( $events-- ) {
@@ -945,20 +945,25 @@ Returns true if successful.
                 if !_set_mouse_event($mouse_event, $event);
 
             return _store_event($event);
+            return _FALSE;
           };
-        };
         
-        $_ = _WINDOW_BUFFER_SIZE_EVENT and do {
-          $event->what( EV_COMMAND );
-          $event->command( _CM_SCREEN_CHANGED );
-          $event->info( 0 );
-          return _store_event($event);
-        };
+          #$_ = _WINDOW_BUFFER_SIZE_EVENT and do {
+          #  my @event = $CONSOLE->Input();
+          #
+          #  $event->what( EV_COMMAND );
+          #  $event->command( _CM_SCREEN_CHANGED );
+          #  $event->info( 0 );
+          #  return _store_event($event);
+          #  return _FALSE;
+          #};
+  
+          DEFAULT: {
+            # Consume event from the Windows event queue
+            $CONSOLE->Input();
+            next EVENT;
+          };
 
-        DEFAULT: {
-          # Consume event from the Windows event queue
-          $CONSOLE->Input();
-          next EVENT;
         }
       }
       
