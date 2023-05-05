@@ -39,7 +39,6 @@ use Data::Alias qw( alias );
 use PerlX::Assert;
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Objects::Common qw( :tools );
 use TurboVision::Drivers::Const qw(
   :evXXXX
   :private
@@ -112,7 +111,7 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public C<< Int ctrl_to_arrow(Int $key_code) >>
+=item public C<< Int ctrl_to_arrow(Int|Str $key_code) >>
 
 This esoteric function converts certain control-key combinations to standard
 I<kbXXXX> constant values.
@@ -138,8 +137,8 @@ The following chart shows the mapping from control keys to I<kbXXXX> values.
 
 =cut
 
-  func ctrl_to_arrow(Int $key_code) {
-    return _WORD_STAR_CODES->( word_rec($key_code)->lo ) // $key_code;
+  func ctrl_to_arrow(Int|Str $key_code) {
+    return _WORD_STAR_CODES->( $key_code ) // $key_code;
   }
 
 =item public C<< Str get_alt_char(Int $key_code) >>
@@ -247,7 +246,6 @@ See: I<evXXXX> constants
 
   func get_key_event($) {
     alias my $event = $_[-1];
-    assert { is_TEvent $event };
 
     _update_event_queue();
 

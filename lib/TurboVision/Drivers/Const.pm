@@ -1062,17 +1062,17 @@ into the corresponding I<kbXXXX> values.
 =cut
 
   use constant _WORD_STAR_CODES => sub {+{
-    0x01 => KB_HOME,                                    # Ctrl-A
-    0x03 => KB_PG_DN,                                   # Ctrl-C
-    0x04 => KB_RIGHT,                                   # Ctrl-D
-    0x05 => KB_UP,                                      # Ctrl-E
-    0x06 => KB_END,                                     # Ctrl-F
-    0x07 => KB_DEL,                                     # Ctrl-G
-    0x08 => KB_BACK,                                    # Ctrl-H
-    0x12 => KB_PG_UP,                                   # Ctrl-R
-    0x13 => KB_LEFT,                                    # Ctrl-S
-    0x16 => KB_INS,                                     # Ctrl-V
-    0x18 => KB_DOWN,                                    # Ctrl-X
+    "\cA" => KB_HOME,   ( KB_CTRL_A ) => KB_HOME,       # Ctrl-A
+    "\cC" => KB_PG_DN,  ( KB_CTRL_C ) => KB_PG_DN,      # Ctrl-C
+    "\cD" => KB_RIGHT,  ( KB_CTRL_D ) => KB_RIGHT,      # Ctrl-D
+    "\cE" => KB_UP,     ( KB_CTRL_E ) => KB_UP,         # Ctrl-E
+    "\cF" => KB_END,    ( KB_CTRL_F ) => KB_END,        # Ctrl-F
+    "\cG" => KB_DEL,    ( KB_CTRL_G ) => KB_DEL,        # Ctrl-G
+    "\cH" => KB_BACK,   ( KB_CTRL_H ) => KB_BACK,       # Ctrl-H
+    "\cR" => KB_PG_UP,  ( KB_CTRL_R ) => KB_PG_UP,      # Ctrl-R
+    "\cS" => KB_LEFT,   ( KB_CTRL_S ) => KB_LEFT,       # Ctrl-S
+    "\cV" => KB_INS,    ( KB_CTRL_V ) => KB_INS,        # Ctrl-V
+    "\cX" => KB_DOWN,   ( KB_CTRL_X ) => KB_DOWN,       # Ctrl-X
   }->{ +shift }};
 
 =item private const C<< Ref _UTF8_TO_CP437 >>

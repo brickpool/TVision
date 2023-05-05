@@ -6,7 +6,7 @@ if( $^O ne 'MSWin32' ) {
   plan skip_all => 'Test relevant only for Windows OS';
 }
 else {
-  plan tests => 11;
+  plan tests => 12;
 }
 
 use Scalar::Util qw( blessed );
@@ -18,9 +18,15 @@ use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Drivers::Win32::Keyboard qw( :kbd );
 
 is(
-  ctrl_to_arrow( ord "\cF" ), # Ctrl-F
-  KB_END,                     # End
+  ctrl_to_arrow( KB_CTRL_A ), # Ctrl-A
+  KB_HOME,
   'ctrl_to_arrow'
+);
+
+is(
+  ctrl_to_arrow( "\cF" ), # Ctrl-F
+  KB_END,
+  'ctrl_to_arrow (as string)'
 );
 
 cmp_ok(
