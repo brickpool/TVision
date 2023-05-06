@@ -38,7 +38,6 @@ our $AUTHORITY = 'github:magiblot';
 use Data::Alias qw( alias );
 use Devel::StrictMode;
 use Encode qw( decode );
-use English qw( -no_match_vars );
 use PerlX::Assert;
 use POSIX qw(
   setlocale
@@ -61,36 +60,6 @@ use TurboVision::Drivers::Types qw(
 use TurboVision::Drivers::Win32::StdioCtl;
 
 use Win32::Console;
-use Win32::API;
-
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-BEGIN {
-  use constant kernelDll => 'kernel32';
-
-  Win32::API::Struct->typedef(
-    KEY_EVENT_RECORD => qw(
-      WORD  EventType;
-      BOOL  bKeyDown;
-      WORD  wRepeatCount;
-      WORD  wVirtualKeyCode;
-      WORD  wVirtualScanCode;
-      WCHAR UnicodeChar;
-      DWORD dwControlKeyState;
-    )
-  );
-  Win32::API::More->Import(kernelDll, 
-    'BOOL ReadConsoleInputW(
-      HANDLE              hConsoleInput,
-      LPKEY_EVENT_RECORD  lpBuffer,
-      DWORD               nLength,
-      LPDWORD             lpNumberOfEventsRead
-    )'
-  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-}
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -703,7 +672,6 @@ Returns true if successful.
       $event->what( EV_MOUSE_MOVE );
     }
     elsif ( $button_mask == 0 ) {
-      $event = TEvent->new( what => EV_NOTHING );
       return _FALSE;
     }
     elsif ( $timer_ticks - $_auto_ticks >= $_auto_delay ) {
@@ -834,13 +802,15 @@ Returns true if successful.
 =cut
 
   func _store_event(TEvent $event) {
-    # Handle the event queue buffer overflow
-    while ( scalar(@_event_queue) >= _EVENT_Q_SIZE ) {
-      warn('Event queue buffer overflow')
-        if STRICT;
+    return _FALSE
+        if $event->what == EV_NOTHING;
+      
+    warn('Event queue buffer overflow')
+      if STRICT && @_event_queue >= _EVENT_Q_SIZE;
 
-      shift(@_event_queue);
-    }
+    # Handle event queue buffer overflow
+    shift(@_event_queue)
+      while @_event_queue >= _EVENT_Q_SIZE;
 
     return !!push(@_event_queue, $event);
   }
@@ -860,47 +830,17 @@ Returns true if successful.
 
     # ReadConsoleInput can sleep the process, so we first check the number
     # of available input events.
-    if (my $events = $CONSOLE->GetEvents()) {
+    while (my $events = $CONSOLE->GetEvents()) {
 
       EVENT:
       while ( $events-- ) {
-        my ($event_type) = $CONSOLE->PeekInput();
+        my @event = $CONSOLE->Input();
+        my ($event_type) = @event;
         $event_type //= 0;
 
         SWITCH: for ($event_type) {
 
           $_ == _KEY_EVENT and do {
-            my @event = do {
-              # Win32::Console::Input() may not support Unicode, so the native
-              # Windows API 'ReadConsoleInputW' call is used instead.
-              my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
-              my $ok
-              = $ir->{EventType}
-              = $ir->{bKeyDown}
-              = $ir->{wRepeatCount}
-              = $ir->{wVirtualKeyCode}
-              = $ir->{wVirtualScanCode}
-              = $ir->{UnicodeChar}
-              = $ir->{dwControlKeyState}
-              = 0;
-              ReadConsoleInputW( $CONSOLE->{handle}, $ir, 1, $ok ) && $ok
-                ?
-              ( $ir->{EventType}
-              , $ir->{bKeyDown}
-              , $ir->{wRepeatCount}
-              , $ir->{wVirtualKeyCode}
-              , $ir->{wVirtualScanCode}
-              , $ir->{UnicodeChar}
-              , $ir->{dwControlKeyState}
-              )
-                :
-              ()
-                ;
-            };
-
-            return _FALSE
-                if !@event;
-
             my $key_event = {
               event_type        => $event[0],
               key_down          => $event[1],
@@ -918,18 +858,14 @@ Returns true if successful.
             next EVENT
               if !( $key_event->{key_down} || $pasted_surrogate );
 
-            next EVENT
-              if !_set_key_event($key_event, $event);
+            return _TRUE
+                if _set_key_event($key_event, $event)
+                && _store_event($event);
 
-            return _store_event($event);
+            next EVENT;
           };
 
           $_ == _MOUSE_EVENT and do {
-            my @event = $CONSOLE->Input();
-
-            return _FALSE
-                if !@event;
-
             my $mouse_event = {
               event_type        => $event[0],
               mouse_position => {
@@ -941,32 +877,45 @@ Returns true if successful.
               event_flags       => $event[5],
             };
 
-            return _FALSE
-                if !_set_mouse_event($mouse_event, $event);
-
-            return _store_event($event);
-            return _FALSE;
+            return _TRUE
+                if _set_mouse_event($mouse_event, $event)
+                && _store_event($event);
+                
+            next EVENT;
           };
         
-          #$_ = _WINDOW_BUFFER_SIZE_EVENT and do {
-          #  my @event = $CONSOLE->Input();
-          #
-          #  $event->what( EV_COMMAND );
-          #  $event->command( _CM_SCREEN_CHANGED );
-          #  $event->info( 0 );
-          #  return _store_event($event);
-          #  return _FALSE;
-          #};
+          $_ == _WINDOW_BUFFER_SIZE_EVENT and do {
+            my $window_buffer_size_event = {
+              event_type  => $event[0],
+              size => {
+                x         => $event[1],
+                y         => $event[2],
+              },
+            };
+
+            return _TRUE
+                if my $_set_window_buffer_size_event = do {
+                  $event->what( EV_COMMAND );
+                  $event->command( _CM_SCREEN_CHANGED );
+                  $event->info(
+                    TPoint->new(
+                      x => $window_buffer_size_event->{size}->{x},
+                      y => $window_buffer_size_event->{size}->{y},
+                    )
+                  );
+                  _TRUE
+                }
+                && _store_event($event);
+
+            next EVENT;
+          };
   
           DEFAULT: {
-            # Consume event from the Windows event queue
-            $CONSOLE->Input();
             next EVENT;
           };
 
         }
       }
-      
     }
 
     return _FALSE;

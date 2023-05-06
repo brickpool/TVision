@@ -82,7 +82,6 @@ BEGIN {
       LPCONSOLE_FONT_INFO lpConsoleCurrentFont
     )'
   ) or die "Import GetCurrentConsoleFont: $EXTENDED_OS_ERROR";
-
 }
 
 # ------------------------------------------------------------------------
@@ -109,6 +108,47 @@ BEGIN {
 package Win32::Console::Fix {
 
   use parent 'Win32::Console';
+
+  use English qw( -no_match_vars );
+  use Win32::API;
+
+  BEGIN {
+    use constant kernelDll => 'kernel32';
+  
+    Win32::API::Struct->typedef(
+      KEY_EVENT_RECORD => qw(
+        WORD  EventType;
+        BOOL  bKeyDown;
+        WORD  wRepeatCount;
+        WORD  wVirtualKeyCode;
+        WORD  wVirtualScanCode;
+        WCHAR UnicodeChar;
+        DWORD dwControlKeyState;
+      )
+    );
+    Win32::API::More->Import(kernelDll, 
+      'BOOL PeekConsoleInput(
+        HANDLE              hConsoleInput,
+        LPKEY_EVENT_RECORD  lpBuffer,
+        DWORD               nLength,
+        LPDWORD             lpNumberOfEventsRead
+      )'
+    ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
+    Win32::API::More->Import(kernelDll, 
+      'BOOL ReadConsoleInputW(
+        HANDLE              hConsoleInput,
+        LPKEY_EVENT_RECORD  lpBuffer,
+        DWORD               nLength,
+        LPDWORD             lpNumberOfEventsRead
+      )'
+    ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
+  }
+
+  use constant {
+    KEY_EVENT                => 0x0001,
+    MOUSE_EVENT              => 0x0002,
+    WINDOW_BUFFER_SIZE_EVENT => 0x0004,
+  };
 
   # fix 1..3 - see below
   #========
@@ -195,6 +235,97 @@ package Win32::Console::Fix {
     return undef unless ref($self);
     return !!$self->Mode();
   }
+
+  # Unicode and WindowBufferSizeEvent support
+  #==============
+  sub Input {
+  #==============
+    my ($self) = @_;
+    return undef unless ref($self);
+    
+    my ($event_type) = do {
+      my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
+      my $ok
+      = $ir->{EventType}
+      = $ir->{bKeyDown}
+      = $ir->{wRepeatCount}
+      = $ir->{wVirtualKeyCode}
+      = $ir->{wVirtualScanCode}
+      = $ir->{UnicodeChar}
+      = $ir->{dwControlKeyState}
+      = 0;
+      PeekConsoleInput( $self->{'handle'}, $ir, 1, $ok ) && $ok
+        ?
+      ( $ir->{EventType} )
+        :
+      ()
+        ;
+    };
+    $event_type //= 0;
+
+    SWITCH: for ($event_type) {
+
+      $_ == KEY_EVENT and do {
+        my @event = do {
+          # Win32::Console::Input() may not support Unicode, so the native
+          # Windows API 'ReadConsoleInputW' call is used instead.
+          my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
+          my $ok
+          = $ir->{EventType}
+          = $ir->{bKeyDown}
+          = $ir->{wRepeatCount}
+          = $ir->{wVirtualKeyCode}
+          = $ir->{wVirtualScanCode}
+          = $ir->{UnicodeChar}
+          = $ir->{dwControlKeyState}
+          = 0;
+          ReadConsoleInputW( $self->{'handle'}, $ir, 1, $ok ) && $ok
+            ?
+          ( $ir->{EventType}
+          , $ir->{bKeyDown}
+          , $ir->{wRepeatCount}
+          , $ir->{wVirtualKeyCode}
+          , $ir->{wVirtualScanCode}
+          , $ir->{UnicodeChar}
+          , $ir->{dwControlKeyState}
+          )
+            :
+          ()
+            ;
+        };
+        return  @event
+              ? @event
+              : undef
+              ;
+      };
+
+      $_ == MOUSE_EVENT and do {
+        return
+          Win32::Console::_ReadConsoleInput($self->{'handle'});
+      };
+    
+      # Win32::Console::Input() does not support 'WindowBufferSizeEvent'
+      $_ = WINDOW_BUFFER_SIZE_EVENT and do {
+        my ( $size_x, $size_y );
+        # Calling stdout is unsafe, so it is embedded in eval
+        eval {
+          ( $size_x, $size_y )
+            = TurboVision::Drivers::Win32::StdioCtl->instance()->out()->Size();
+        } or return undef;
+
+        # Consume event from the Windows event queue
+        Win32::Console::_ReadConsoleInput($self->{'handle'});
+
+        return ( $event_type, $size_x, $size_y );
+      };
+
+      DEFAULT: {
+        return
+          Win32::Console::_ReadConsoleInput($self->{'handle'});
+      };
+    }
+  }
+
 }
 
 # ------------------------------------------------------------------------
