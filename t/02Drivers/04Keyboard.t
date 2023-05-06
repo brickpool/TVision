@@ -17,6 +17,7 @@ require_ok 'TurboVision::Drivers::Win32::Screen';
 
 use TurboVision::Drivers::Const qw( :kbXXXX :smXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( StdioCtl TEvent );
+use TurboVision::Drivers::Win32::EventManager qw( :private );
 use TurboVision::Drivers::Win32::Keyboard qw( :kbd );
 use TurboVision::Drivers::Win32::Screen qw( :screen );
 
@@ -90,18 +91,49 @@ my $CONSOLE = StdioCtl->instance()->out;
 $CONSOLE->Write( "Press Alt-X on exit\n" );
 
 Win32::GuiTest::SendKeys("%(x)", 100);      # send Alt-X in 100ms
-my $t0 = Win32::GetTickCount();             # start timer
+my $t0 = my $t1 = Win32::GetTickCount();    # set timer
 
-my $exit = 0;
-while ( not $exit ) {
+while ( $t1 - $t0 < 1000 ) {
   my $event = TEvent->new( what => EV_NOTHING );
-  get_key_event($event);
-  $exit =  $event->what     == EV_KEY_DOWN
-        && $event->key_code == KB_ALT_X
-        ;
+
+  my $get_event = do {                      # get events
+    my $get_mouse_event = do {
+      if (@_event_queue && $_event_queue[0]->what & EV_MOUSE) {
+        $event = shift @_event_queue;
+      };
+      !!$event->what;
+    };
+    if ( $event->what == EV_NOTHING ) {
+      get_key_event($event);
+      if ( $event->what == EV_NOTHING ) {
+        my $get_system_event = do {
+          if (@_event_queue && $_event_queue[0]->what == EV_COMMAND) {
+            $event = shift @_event_queue;
+          };
+          !!$event->what;
+        };
+        if ( $event->what == EV_NOTHING ) {
+          # idle
+        }
+      }
+    }
+    !!$event->what;
+  };
+
+  if ( $get_event ) {
+    my $handle_event = do {                 # handle events
+      if ( $event->what ) {
+        last  if $event->what == EV_KEY_DOWN
+              && $event->key_code == KB_ALT_X
+              ;
+      }
+      !!$event->what;
+    };
+  }
+  
+  $t1 = Win32::GetTickCount();
 }
 
-my $t1 = Win32::GetTickCount();             # stop timer
 cmp_ok (                                    # check delay
   ($t1-$t0), '<', 500
 );
