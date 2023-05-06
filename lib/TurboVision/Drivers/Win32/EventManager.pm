@@ -436,18 +436,24 @@ Key shift state.
 This variable returns the number of timer ticks (1 second = 18.2 ticks), similar
 to the direct memory access to the low memory address 0x40:0x6C.
 
-Note: The variable uses the elapsed time since the start of the program (not the
-start time of the system).
+Note: On non-Windows systems, the variable uses the elapsed time since the
+program startup (not the system startup time).
 
 =cut
 
   package System::GetDosTicks {
     use Time::HiRes qw( time );
     use English qw( -no_match_vars );
+    use constant _WIN32 => $OSNAME =~ /win32|cygwin/i;
+    use if _WIN32, 'Win32';
 
     sub TIESCALAR {
       my $class = shift;
       my $base_time = $BASETIME;
+      if ( _WIN32 ) {{
+        no strict;
+        $base_time = time() - Win32::GetTickCount()/1000;
+      }}
       my $self = \$base_time;
       return bless $self, $class;
     }
