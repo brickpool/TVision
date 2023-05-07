@@ -29,6 +29,8 @@ use MooseX::Types::Moose qw( :all );
 # ------------------------------------------------------------------------
 
 use MooseX::Types -declare => [qw(
+  TSysErrorFunc
+
   StdioCtl
   TEvent
 )];
@@ -43,6 +45,25 @@ use TurboVision::Const qw(
 # ------------------------------------------------------------------------
 
 =head1 THE TYPES
+
+=head2 Basic Types
+
+=over
+
+=item public type C<< TSysErrorFunc >>
+
+I<TSysErrorFunc> defines what the system error handler function looks like. 
+See I<$sys_error_func> and I<system_error()> for details of intercepting system
+level errors.
+
+=cut
+
+subtype TSysErrorFunc,
+  as CodeRef;
+
+=back
+
+=cut
 
 =head2 Object Types
 
