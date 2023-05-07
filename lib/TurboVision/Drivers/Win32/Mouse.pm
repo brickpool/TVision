@@ -87,6 +87,8 @@ Nothing per default, but can export the following per request:
       $repeat_delay
   
     :mouse
+      init_events
+      done_events
       get_mouse_event
       show_mouse
       hide_mouse
@@ -115,6 +117,8 @@ our %EXPORT_TAGS = (
   )],
 
   mouse => [qw(
+    init_events
+    done_events
     get_mouse_event
     show_mouse
     hide_mouse
@@ -138,6 +142,33 @@ our %EXPORT_TAGS = (
     @{$EXPORT_TAGS{all}},
       @EXPORT_OK;
 }
+
+# ------------------------------------------------------------------------
+# Constants --------------------------------------------------------------
+# ------------------------------------------------------------------------
+
+=begin comment
+
+=head2 Constants
+
+=over
+
+=item private const C<< Int _ENABLE_QUICK_EDIT_MODE >>
+
+=item private const C<< Int _ENABLE_EXTENDED_FLAGS >>
+
+Addional I<Win32::Console> modes.
+
+See also: I<SetConsoleMode>
+
+=end comment
+
+=cut
+
+  use constant {
+    _ENABLE_QUICK_EDIT_MODE => 0x0040,
+    _ENABLE_EXTENDED_FLAGS  => 0x0080,
+  };
 
 # ------------------------------------------------------------------------
 # Variables --------------------------------------------------------------
@@ -276,6 +307,18 @@ STD ioctl object I<< StdioCtl->instance() >>
 
   my $_io;
 
+=begin comment
+
+=item local C<< Int $_save_quick_mode >>
+
+Saves the quick edit mode used by the mouse.
+
+=end comment
+
+=cut
+
+  my $_save_quick_mode = _FALSE;
+
 =back
 
 =cut
@@ -287,6 +330,59 @@ STD ioctl object I<< StdioCtl->instance() >>
 =head2 Subroutines
 
 =over
+
+=item public C<< init_events() >>
+
+This internal procedure initializes Turbo Vision's mouse event handler, and
+initializes and displays the mouse, if installed.
+
+<init_events> is automatically called by I<< TApplication->Init >>, and is
+terminated by calling its corresponding I<done_events> procedure.
+
+=cut
+
+  func init_events() {
+    my $CONSOLE = $_io->in();
+
+    my $mode = $CONSOLE->Mode();
+    $_save_quick_mode = !!(
+      $mode & ( _ENABLE_EXTENDED_FLAGS | _ENABLE_QUICK_EDIT_MODE )
+    );
+    # Disable the Quick Edit mode, which inhibits the mouse.
+    $mode |= _ENABLE_EXTENDED_FLAGS;
+    $mode &= ~_ENABLE_QUICK_EDIT_MODE;
+    $CONSOLE->Mode( $mode );
+
+    show_mouse();
+
+    return;
+  }
+
+=item public C<< done_events() >>
+
+This is a Turbo Vision internal routine that will not normally be used by your
+applications.
+
+I<done_events> disables the mouse event handler and hides the mouse.
+
+=cut
+
+  func done_events() {
+    hide_mouse();
+
+    # Restore Quick Edit mode
+    if ( $_save_quick_mode ) {
+      my $CONSOLE = $_io->in();
+      my $mode = $CONSOLE->Mode();
+      $CONSOLE->Mode(
+          $mode
+        | _ENABLE_QUICK_EDIT_MODE
+        | _ENABLE_EXTENDED_FLAGS
+      );
+    }
+
+    return;
+  }
 
 =item public C<< get_mouse_event(TEvent $event) >>
 
@@ -449,7 +545,7 @@ __END__
 The Windows event mapping was taken from the framework
 "A modern port of Turbo Vision 2.0", which is licensed under MIT licence
 
-See: I<hide_mouse>, I<show_mouse>
+See: I<init_events>, I<done_events>, I<hide_mouse>, I<show_mouse>
 
 =over
 

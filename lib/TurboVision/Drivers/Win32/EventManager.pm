@@ -297,9 +297,7 @@ Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
 
 =begin comment
 
-=item private const C<< Int _ENABLE_QUICK_EDIT_MODE >>
-
-=item private const C<< Int _ENABLE_EXTENDED_FLAGS >>
+=item private const C<< Int _ENABLE_INSERT_MODE >>
 
 Addional I<Win32::Console> modes.
 
@@ -310,8 +308,7 @@ See also: I<SetConsoleMode>
 =cut
 
   use constant {
-    _ENABLE_QUICK_EDIT_MODE  => 0x0040,
-    _ENABLE_EXTENDED_FLAGS   => 0x0080,
+    _ENABLE_INSERT_MODE     => 0x0020,
   };
 
 =begin comment
@@ -483,7 +480,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =begin comment
 
-=item local C<< Int $_cp_input >>
+=item local C<< Int $_save_cp_input >>
 
 Saves the input codepage used by the startup console.
 
@@ -491,7 +488,7 @@ Saves the input codepage used by the startup console.
 
 =cut
 
-  my $_cp_input = 850;
+  my $_save_cp_input = 850;
 
 =back
 
@@ -721,33 +718,33 @@ See also: I<get_shift_state>
     assert { exists $event->{event_type}        };
     assert { exists $event->{control_key_state} };
     
-    $shift_state &= KB_INS_STATE;                      # clear all excl. insert
+    $shift_state &= KB_INS_STATE;                       # clear all excl. insert
 
-    $shift_state |= KB_SHIFT                           # set shift state
+    $shift_state |= KB_SHIFT                            # set shift state
       if $event->{control_key_state}
         & SHIFT_PRESSED;
 
-    $shift_state |= KB_CTRL_SHIFT                      # set ctrl state
+    $shift_state |= KB_CTRL_SHIFT                       # set ctrl state
       if $event->{control_key_state}
         & ( RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED );
 
-    $shift_state |= KB_ALT_SHIFT                       # set alt state
+    $shift_state |= KB_ALT_SHIFT                        # set alt state
       if $event->{control_key_state}
         & LEFT_ALT_PRESSED;
 
-    $shift_state |= KB_SCROLL_STATE                    # set scroll lock state
+    $shift_state |= KB_SCROLL_STATE                     # set scroll lock state
       if $event->{control_key_state}
         & SCROLLLOCK_ON;
 
-    $shift_state |= KB_NUM_STATE                       # set num lock state
+    $shift_state |= KB_NUM_STATE                        # set num lock state
       if $event->{control_key_state}
         & NUMLOCK_ON;
 
-    $shift_state |= KB_CAPS_STATE                      # set caps lock state
+    $shift_state |= KB_CAPS_STATE                       # set caps lock state
       if $event->{control_key_state}
         & CAPSLOCK_ON;
 
-    $shift_state ^= KB_INS_STATE                       # toggle insert state
+    $shift_state ^= KB_INS_STATE                        # toggle insert state
       if $event->{event_type} == _KEY_EVENT
       && $event->{virtual_key_code} == _VK_INSERT;
 
@@ -937,26 +934,25 @@ Returns true if successful.
 
 INIT {
   $_io = StdioCtl->instance();
-  my $CONSOLE = $_io->in();
 
+  my $CONSOLE = $_io->in();
   my $mode = $CONSOLE->Mode();
-  # Report Ctrl+C and Shift+Arrow events.
-  $mode &= ~ENABLE_PROCESSED_INPUT;
-  # Disable the Quick Edit mode, which inhibits the mouse.
-  $mode |= _ENABLE_EXTENDED_FLAGS;    
-  $mode &= ~_ENABLE_QUICK_EDIT_MODE;
-  $CONSOLE->Mode( $mode );
-  
+  $_shift_state = $mode & _ENABLE_INSERT_MODE
+                  ? KB_INS_STATE
+                  : 0
+                  ;
+
   # Set the console and the environment in UTF-8 mode.
-  $_cp_input = Win32::Console::InputCP();
+  $_save_cp_input = Win32::Console::InputCP();
   Win32::Console::InputCP(_CP_UTF8);
   # Note that this must be done again after SetConsoleCP();
   setlocale( LC_ALL, ".UTF-8" );
+
 }
 
 END {
   # Restore the console and the environment codepage.
-  Win32::Console::InputCP($_cp_input);
+  Win32::Console::InputCP($_save_cp_input);
 }
 
 1;
