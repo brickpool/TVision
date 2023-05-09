@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::Utility - Utility Routines
+TurboVision::Drivers::Utility - Utility Routines
 
 =cut
 
-package TurboVision::Drivers::Win32::Utility;
+package TurboVision::Drivers::Utility;
 
 # ------------------------------------------------------------------------
 # Boilerplate ------------------------------------------------------------
@@ -63,7 +63,7 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  kbd => [qw(
+  util => [qw(
     ctrl_to_arrow
     get_alt_char
     get_alt_code
