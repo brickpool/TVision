@@ -41,6 +41,9 @@ use TurboVision::Const qw( :platform );
 use TurboVision::Drivers::Const;
 use TurboVision::Drivers::Types;
 
+use if _WIN32, 'TurboVision::Drivers::Win32::EventManager';
+use if _WIN32, 'TurboVision::Drivers::Win32::Keyboard';
+use if _WIN32, 'TurboVision::Drivers::Win32::Mouse';
 use if _WIN32, 'TurboVision::Drivers::Win32::Screen';
 
 use Import::Into;
@@ -56,7 +59,11 @@ The following is the equivalent notation that is imported here:
 
   use TurboVision::Drivers::Const qw( :all !:private );
   use TurboVision::Drivers::Types qw( :all );
-  
+  use TurboVision::Drivers::Utility qw( :all );
+
+  use TurboVision::Drivers::_::EventManager qw( :all !:private );
+  use TurboVision::Drivers::_::Keyboard qw( :all );
+  use TurboVision::Drivers::_::Mouse qw( :all !:private );
   use TurboVision::Drivers::_::Screen qw( :all );
   
 =cut
@@ -70,6 +77,7 @@ sub import {
   my $target = caller;
   TurboVision::Drivers::Const->import::into($target, qw( :all !:private ));
   TurboVision::Drivers::Types->import::into($target, qw( :all ));
+  TurboVision::Drivers::Utility->import::into($target, qw( :all ));
 
 if( _TV_UNIX ){
   
@@ -88,6 +96,7 @@ sub unimport {
   my $caller = caller;
   TurboVision::Drivers::Const->unimport::out_of($caller);
   TurboVision::Drivers::Types->unimport::out_of($caller);
+  TurboVision::Drivers::Utility->unimport::out_of($caller);
 
 if( _TV_UNIX ){
   
