@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::EventManager - Windows Event Manager implementation
+TurboVision::Drivers::Win32::EventManager - Event Manager implementation
 
 =cut
 
@@ -58,6 +58,7 @@ use TurboVision::Drivers::Types qw(
   StdioCtl
 );
 use TurboVision::Drivers::Win32::StdioCtl;
+require TurboVision::Drivers::Win32::Mouse;
 
 use Win32::Console;
 
@@ -71,6 +72,10 @@ Nothing per default, but can export the following per request:
 
   :all
   
+    :events
+      init_events
+      done_events
+
     :private
       $_auto_delay
       $_auto_ticks
@@ -95,6 +100,11 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
+
+  events => [qw(
+    init_events
+    done_events
+  )],
 
   private => [qw(
     $_auto_delay
@@ -138,6 +148,82 @@ our %EXPORT_TAGS = (
 
 =over
 
+=item private const C<< Ref _ALT_CVT >>
+
+=item private const C<< Ref _CTRL_CVT >>
+
+=item private const C<< Ref _NORMAL_CVT >>
+
+=item private const C<< Ref _SHIFT_CVT >>
+
+Scancode mapping tables.
+
+=end comment
+
+=cut
+
+  use constant _ALT_CVT => sub {+[
+         0,      0, 0x7800, 0x7900, 0x7a00, 0x7b00, 0x7c00, 0x7d00,
+    0x7e00, 0x7f00, 0x8000, 0x8100, 0x8200, 0x8300, 0x0800,      0,
+    0x1000, 0x1100, 0x1200, 0x1300, 0x1400, 0x1500, 0x1600, 0x1700,
+    0x1800, 0x1900,      0,      0,      0,      0, 0x1e00, 0x1f00,
+    0x2000, 0x2100, 0x2200, 0x2300, 0x2400, 0x2500, 0x2600,      0,
+         0,      0,      0,      0, 0x2c00, 0x2d00, 0x2e00, 0x2f00,
+    0x3000, 0x3100, 0x3200,      0,      0,      0,      0,      0,
+         0, 0x0200,      0, 0x6800, 0x6900, 0x6a00, 0x6b00, 0x6c00,
+    0x6d00, 0x6e00, 0x6f00, 0x7000, 0x7100,      0,      0, 0x9700,
+    0x9800, 0x9900,      0, 0x9b00,      0, 0x9d00,      0, 0x9f00,
+    0xa000, 0xa100, 0xa200, 0xa300,      0,      0,      0, 0x8b00,
+    0x8c00
+  ]->[ +shift ]};
+
+  use constant _CTRL_CVT => sub {+[
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+    0x0011, 0x0017, 0x0005, 0x0012, 0x0014, 0x0019, 0x0015, 0x0009,
+    0x000f, 0x0010,      0,      0,      0,      0, 0x0001, 0x0013,
+    0x0004, 0x0006, 0x0007, 0x0008, 0x000a, 0x000b, 0x000c,      0,
+         0,      0,      0,      0, 0x001a, 0x0018, 0x0003, 0x0016,
+    0x0002, 0x000e, 0x000d,      0,      0,      0,      0,      0,
+         0,      0,      0, 0x5e00, 0x5f00, 0x6000, 0x6100, 0x6200,
+    0x6300, 0x6400, 0x6500, 0x6600, 0x6700,      0,      0, 0x7700,
+    0x8d00, 0x8400,      0, 0x7300,      0, 0x7400,      0, 0x7500,
+    0x9100, 0x7600, 0x0400, 0x0600,      0,      0,      0, 0x8900,
+    0x8a00
+  ]->[ +shift ]};
+
+  use constant _NORMAL_CVT => sub {+[
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0, 0x8500,
+    0x8600
+  ]->[ +shift ]};
+
+  use constant _SHIFT_CVT => sub {+[
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0, 0x0f00,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0,      0, 0x5400, 0x5500, 0x5600, 0x5700, 0x5800,
+    0x5900, 0x5a00, 0x5b00, 0x5c00, 0x5d00,      0,      0,      0,
+         0,      0,      0,      0,      0,      0,      0,      0,
+         0,      0, 0x0500, 0x0700,      0,      0,      0, 0x8700,
+    0x8800
+  ]->[ +shift ]};
+
+=begin comment
+
 =item private const C<< Int _CM_SCREEN_CHANGED >>
 
 Defines a constant for changing the size of the console screen buffer
@@ -150,6 +236,18 @@ Defines a constant for changing the size of the console screen buffer
 
 =begin comment
 
+=item private const C<< Int _CP_UTF8 >>
+
+Windows code page value for UTF-8.
+
+=end comment
+
+=cut
+
+  use constant _CP_UTF8 => 65001;
+
+=begin comment
+
 =item private const C<< Int _CTRL_Z >>
 
 Ctrl-Z is the last Ctrl+key.
@@ -159,6 +257,48 @@ Ctrl-Z is the last Ctrl+key.
 =cut
 
   use constant _CTRL_Z  => 0x1a;
+
+=begin comment
+
+=item private const C<< Int _ENABLE_INSERT_MODE >>
+
+=item private const C<< Int _ENABLE_QUICK_EDIT_MODE >>
+
+=item private const C<< Int _ENABLE_EXTENDED_FLAGS >>
+
+Addional I<Win32::Console> modes.
+
+See also: I<SetConsoleMode>
+
+=end comment
+
+=cut
+
+  use constant {
+    _ENABLE_INSERT_MODE     => 0x0020,
+    _ENABLE_QUICK_EDIT_MODE => 0x0040,
+    _ENABLE_EXTENDED_FLAGS  => 0x0080,
+  };
+
+=begin comment
+
+=item private const C<< Int _DOUBLE_CLICK >>
+
+=item private const C<< Int _MOUSE_WHEELED >>
+
+The second click (button press) of a double-click occurred. The first click is
+returned as a regular button-press event.
+
+The vertical mouse wheel was moved.
+
+=end comment
+
+=cut
+
+  use constant {
+    _DOUBLE_CLICK  => 0x0002,
+    _MOUSE_WHEELED => 0x0004,
+  };
 
 =begin comment
 
@@ -186,94 +326,6 @@ console screen buffer).
 
 =begin comment
 
-=item private const C<< Int _CP_UTF8 >>
-
-Windows code page value for UTF-8.
-
-=end comment
-
-=cut
-
-  use constant _CP_UTF8 => 65001;
-
-=begin comment
-
-=item private const C<< Ref _SHIFT_CVT >>
-
-=item private const C<< Ref _CTRL_CVT >>
-
-=item private const C<< Ref _ALT_CVT >>
-
-=item private const C<< Ref _NORMAL_CVT >>
-
-Scancode mapping tables.
-
-=end comment
-
-=cut
-
-  use constant _CTRL_CVT => sub {+[
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-    0x0011, 0x0017, 0x0005, 0x0012, 0x0014, 0x0019, 0x0015, 0x0009,
-    0x000f, 0x0010,      0,      0,      0,      0, 0x0001, 0x0013,
-    0x0004, 0x0006, 0x0007, 0x0008, 0x000a, 0x000b, 0x000c,      0,
-         0,      0,      0,      0, 0x001a, 0x0018, 0x0003, 0x0016,
-    0x0002, 0x000e, 0x000d,      0,      0,      0,      0,      0,
-         0,      0,      0, 0x5e00, 0x5f00, 0x6000, 0x6100, 0x6200,
-    0x6300, 0x6400, 0x6500, 0x6600, 0x6700,      0,      0, 0x7700,
-    0x8d00, 0x8400,      0, 0x7300,      0, 0x7400,      0, 0x7500,
-    0x9100, 0x7600, 0x0400, 0x0600,      0,      0,      0, 0x8900,
-    0x8a00
-  ]->[ +shift ]};
-
-  use constant _ALT_CVT => sub {+[
-         0,      0, 0x7800, 0x7900, 0x7a00, 0x7b00, 0x7c00, 0x7d00,
-    0x7e00, 0x7f00, 0x8000, 0x8100, 0x8200, 0x8300, 0x0800,      0,
-    0x1000, 0x1100, 0x1200, 0x1300, 0x1400, 0x1500, 0x1600, 0x1700,
-    0x1800, 0x1900,      0,      0,      0,      0, 0x1e00, 0x1f00,
-    0x2000, 0x2100, 0x2200, 0x2300, 0x2400, 0x2500, 0x2600,      0,
-         0,      0,      0,      0, 0x2c00, 0x2d00, 0x2e00, 0x2f00,
-    0x3000, 0x3100, 0x3200,      0,      0,      0,      0,      0,
-         0, 0x0200,      0, 0x6800, 0x6900, 0x6a00, 0x6b00, 0x6c00,
-    0x6d00, 0x6e00, 0x6f00, 0x7000, 0x7100,      0,      0, 0x9700,
-    0x9800, 0x9900,      0, 0x9b00,      0, 0x9d00,      0, 0x9f00,
-    0xa000, 0xa100, 0xa200, 0xa300,      0,      0,      0, 0x8b00,
-    0x8c00
-  ]->[ +shift ]};
-
-  use constant _SHIFT_CVT => sub {+[
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0, 0x0f00,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0, 0x5400, 0x5500, 0x5600, 0x5700, 0x5800,
-    0x5900, 0x5a00, 0x5b00, 0x5c00, 0x5d00,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0, 0x0500, 0x0700,      0,      0,      0, 0x8700,
-    0x8800
-  ]->[ +shift ]};
-
-  use constant _NORMAL_CVT => sub {+[
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0,      0,
-         0,      0,      0,      0,      0,      0,      0, 0x8500,
-    0x8600
-  ]->[ +shift ]};
-
-=begin comment
-
 =item private const C<< Int _VK_SHIFT >>
 
 =item private const C<< Int _VK_CONTROL >>
@@ -293,42 +345,6 @@ Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
     _VK_CONTROL => 0x11,
     _VK_MENU    => 0x12,
     _VK_INSERT  => 0x2d,
-  };
-
-=begin comment
-
-=item private const C<< Int _ENABLE_INSERT_MODE >>
-
-Addional I<Win32::Console> modes.
-
-See also: I<SetConsoleMode>
-
-=end comment
-
-=cut
-
-  use constant {
-    _ENABLE_INSERT_MODE     => 0x0020,
-  };
-
-=begin comment
-
-=item private const C<< Int _DOUBLE_CLICK >>
-
-=item private const C<< Int _MOUSE_WHEELED >>
-
-The second click (button press) of a double-click occurred. The first click is
-returned as a regular button-press event.
-
-The vertical mouse wheel was moved.
-
-=end comment
-
-=cut
-
-  use constant {
-    _DOUBLE_CLICK  => 0x0002,
-    _MOUSE_WHEELED => 0x0004,
   };
 
 =begin comment
@@ -490,6 +506,20 @@ Saves the input codepage used by the startup console.
 
   my $_save_cp_input = 850;
 
+=begin comment
+
+=item local C<< Int $_save_quick_mode >>
+
+Saves the quick edit mode used by the mouse.
+
+=end comment
+
+=cut
+
+  my $_save_quick_mode = _FALSE;
+
+=back
+
 =back
 
 =cut
@@ -500,9 +530,60 @@ Saves the input codepage used by the startup console.
 
 =head2 Subroutines
 
-=begin comment
+=item public C<< init_events() >>
 
-=over
+This internal procedure initializes Turbo Vision's mouse event handler, and
+initializes and displays the mouse, if installed.
+
+<init_events> is automatically called by I<< TApplication->Init >>, and is
+terminated by calling its corresponding I<done_events> procedure.
+
+=cut
+
+  func init_events() {
+    my $CONSOLE = $_io->in();
+
+    my $mode = $CONSOLE->Mode();
+    $_save_quick_mode = !!(
+      $mode & ( _ENABLE_EXTENDED_FLAGS | _ENABLE_QUICK_EDIT_MODE )
+    );
+    # Disable the Quick Edit mode, which inhibits the mouse.
+    $mode |= _ENABLE_EXTENDED_FLAGS;
+    $mode &= ~_ENABLE_QUICK_EDIT_MODE;
+    $CONSOLE->Mode( $mode );
+
+    TurboVision::Drivers::Win32::Mouse::show_mouse();
+
+    return;
+  }
+
+=item public C<< done_events() >>
+
+This is a Turbo Vision internal routine that will not normally be used by your
+applications.
+
+I<done_events> disables the mouse event handler and hides the mouse.
+
+=cut
+
+  func done_events() {
+    TurboVision::Drivers::Win32::Mouse::hide_mouse();
+
+    # Restore Quick Edit mode
+    if ( $_save_quick_mode ) {
+      my $CONSOLE = $_io->in();
+      my $mode = $CONSOLE->Mode();
+      $CONSOLE->Mode(
+          $mode
+        | _ENABLE_QUICK_EDIT_MODE
+        | _ENABLE_EXTENDED_FLAGS
+      );
+    }
+
+    return;
+  }
+
+=begin comment
 
 =item private C<< Bool _set_key_event(HashRef $key_event, TEvent $event) >>
 
