@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::SystemError - System Error Handler
+TurboVision::Drivers::Win32::SystemError - System Error Handler implementation
 
 =cut
 
