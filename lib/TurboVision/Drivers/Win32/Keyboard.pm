@@ -48,20 +48,7 @@ use TurboVision::Drivers::Types qw(
   TEvent
   is_TEvent
 );
-require TurboVision::Drivers::Win32::EventManager;
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-alias our @_event_queue
-  = @TurboVision::Drivers::Win32::EventManager::_event_queue;
-
-alias our $_shift_state
-  = $TurboVision::Drivers::Win32::EventManager::_shift_state;
-
-*_update_event_queue
-  = \&TurboVision::Drivers::Win32::EventManager::_update_event_queue;
+use TurboVision::Drivers::Win32::EventManager qw( :private );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------

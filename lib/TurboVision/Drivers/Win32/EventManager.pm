@@ -58,7 +58,6 @@ use TurboVision::Drivers::Types qw(
   StdioCtl
 );
 use TurboVision::Drivers::Win32::StdioCtl;
-require TurboVision::Drivers::Win32::Mouse;
 
 use Win32::Console;
 
@@ -552,6 +551,7 @@ terminated by calling its corresponding I<done_events> procedure.
     $mode &= ~_ENABLE_QUICK_EDIT_MODE;
     $CONSOLE->Mode( $mode );
 
+    require TurboVision::Drivers::Win32::Mouse;
     TurboVision::Drivers::Win32::Mouse::show_mouse();
 
     return;
@@ -567,6 +567,7 @@ I<done_events> disables the mouse event handler and hides the mouse.
 =cut
 
   func done_events() {
+    require TurboVision::Drivers::Win32::Mouse;
     TurboVision::Drivers::Win32::Mouse::hide_mouse();
 
     # Restore Quick Edit mode
@@ -1028,7 +1029,6 @@ INIT {
   Win32::Console::InputCP(_CP_UTF8);
   # Note that this must be done again after SetConsoleCP();
   setlocale( LC_ALL, ".UTF-8" );
-
 }
 
 END {

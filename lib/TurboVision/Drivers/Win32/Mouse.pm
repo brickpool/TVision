@@ -49,7 +49,7 @@ use TurboVision::Drivers::Types qw(
   is_TEvent
 );
 use TurboVision::Drivers::Win32::StdioCtl;
-require TurboVision::Drivers::Win32::EventManager;
+use TurboVision::Drivers::Win32::EventManager qw( :private );
 
 use Win32::Console;
 use Win32::API;
@@ -57,12 +57,6 @@ use Win32::API;
 # ------------------------------------------------------------------------
 # Imports ----------------------------------------------------------------
 # ------------------------------------------------------------------------
-
-alias our @_event_queue
-  = @TurboVision::Drivers::Win32::EventManager::_event_queue;
-
-*_update_event_queue
-  = \&TurboVision::Drivers::Win32::EventManager::_update_event_queue;
 
 BEGIN {
   use constant userDll => 'user32';
@@ -148,7 +142,7 @@ our %EXPORT_TAGS = (
 # ------------------------------------------------------------------------
 # Variables --------------------------------------------------------------
 # ------------------------------------------------------------------------
-  
+
 =head2 Variables
 
 =over
