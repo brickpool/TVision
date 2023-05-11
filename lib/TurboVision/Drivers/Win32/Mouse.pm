@@ -50,21 +50,9 @@ use TurboVision::Drivers::Types qw(
 );
 use TurboVision::Drivers::Win32::StdioCtl;
 use TurboVision::Drivers::Win32::EventManager qw( :private );
+use TurboVision::Drivers::Win32::LowLevel qw( GetDoubleClickTime );
 
 use Win32::Console;
-use Win32::API;
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-BEGIN {
-  use constant userDll => 'user32';
-
-  Win32::API::More->Import(userDll, 
-    'UINT GetDoubleClickTime()'
-  ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-}
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------

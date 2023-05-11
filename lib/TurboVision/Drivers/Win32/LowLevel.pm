@@ -50,6 +50,8 @@ Nothing per default, but can export the following per request:
   GWL_STYLE
   WS_SIZEBOX
 
+  GetDoubleClickTime
+
   GetWindowLong
   SetWindowLong
 
@@ -60,6 +62,8 @@ use Exporter qw(import);
 our @EXPORT_OK = qw(
   GWL_STYLE
   WS_SIZEBOX
+
+  GetDoubleClickTime
 
   GetWindowLong
   SetWindowLong
@@ -83,7 +87,7 @@ Parameter for I<SetWindowLong>. Sets a new window style.
 
 =item public const C<< Int WS_SIZEBOX >>
 
-Defines if the window should have a sizing border (default).
+Defines if the window should have a sizing border.
 
 Note: After the window has been created, these style cannot be modified.
 
@@ -114,6 +118,19 @@ Name of the library file used for the I<Windows and Messages> subs.
 =head2 Subroutines
 
 =over
+
+=item public C<< Int GetDoubleClickTime() >>
+
+Retrieves the current double-click time for the mouse; for more info consult the
+original API documentation.
+
+=cut
+
+BEGIN {
+  Win32::API::More->Import(_userDll, 
+    'UINT GetDoubleClickTime()'
+  ) or die "Import GetDoubleClickTime: $EXTENDED_OS_ERROR";
+}
 
 =item public C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
 
@@ -184,4 +201,5 @@ __END__
 
 =head1 SEE ALSO
 
+L<Keyboard and Mouse Input|https://learn.microsoft.com/en-us/windows/win32/api/_inputdev/>, 
 L<Windows and Messages|https://learn.microsoft.com/en-us/windows/win32/api/_winmsg/>
