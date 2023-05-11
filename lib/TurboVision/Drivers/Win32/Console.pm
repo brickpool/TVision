@@ -210,9 +210,6 @@ BEGIN {
   sub _ReadConsoleInputW {
   #======================
     my ($handle) = @_;
-    state $cnt = 0;
-    warn "_ReadConsoleInput: $cnt\n";
-    $cnt++;
     return !!0 unless is_Int($handle);
     
     my ($event_type) = do {
