@@ -597,7 +597,7 @@ Set CRT data areas
 
 Set CRT mode to value in I<$mode>.
 
-See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844/12342329>
+See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
 =cut
 
@@ -613,29 +613,43 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844/1
     $cols ||= $oldc;
     $rows ||= $oldr;
 
+    # Does the window have a resize frame
+    my $frame = do {
+      my ($title, $hWnd);
+      ( $title = $CONSOLE->Title() )
+        &&
+      ( $hWnd = FindWindow(undef, $title) )
+        &&
+      ( ( GetWindowLong($hWnd, GWL_STYLE)//0 ) & ~WS_SIZEBOX )
+        ?
+      0
+        :
+      1
+    };
+
     if ( $oldr <= $rows ) {
       if ( $oldc <= $cols ) {
         # increasing both dimensions
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
       }
       else {
         # shorten width, increasing height
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $oldr-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $oldr-$frame );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
       }
     }
     else {
       if ( $oldc <= $cols ) {
         # increasing width, shorten height
-        $CONSOLE->Window( _TRUE, 0, 0, $oldc-1, $rows-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $oldc-$frame, $rows-$frame );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
       }
       else {
         # shorten both dimensions
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
         $CONSOLE->Size( $cols, $rows );
       }
     }
