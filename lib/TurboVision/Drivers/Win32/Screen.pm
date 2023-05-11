@@ -59,6 +59,7 @@ use TurboVision::Drivers::Win32::StdioCtl;
 use TurboVision::Drivers::Win32::LowLevel qw(
   GWL_STYLE
   WS_SIZEBOX
+  FindWindow
   GetWindowLong
   SetWindowLong
 );
@@ -323,6 +324,7 @@ and terminates Turbo Vision's video support.
     }
     clear_screen();
     _set_cursor_type( $cursor_lines );                  # Restore cursor shape
+    _enable_window_resizing();                          # Enable window resizing
     $_startup_mode = 0xffff;                            # Reset the startup mode
 
     return
@@ -360,6 +362,7 @@ I<cursor_lines>.
       $_startup_mode = $mode;                           # Set the startup mode
       $cursor_lines = _get_cursor_type();               # Set the startup cursor
       _set_cursor_type( 0x2000 );                       # hide text-mode cursor
+      _disable_window_resizing();                       # Lock window resizing
     }
     if ( $mode != $screen_mode ) {
       _set_crt_mode( $mode );
@@ -466,20 +469,38 @@ Detect video modes.
 
 =item private C<< _disable_window_resizing() >>
 
-See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192/12342329>
+See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192>
+and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
 
 =end comment
 
 =cut
 
   func _disable_window_resizing() {
-    my $CONSOLE = $_io->out;
-    my $hWnd = $CONSOLE->{handle};
-  
-    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE);
-    warn "SetWindowLong failed"
-      if !SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_SIZEBOX);
-  
+    my $CONSOLE = $_io->out // return;
+    my $title = $CONSOLE->Title() || return;
+    my $hWnd = FindWindow(undef, $title) || return;
+    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
+    SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_SIZEBOX);
+    return;
+  }
+
+=begin comment
+
+=item private C<< _enable_window_resizing() >>
+
+See: I<_disable_window_resizing>
+
+=end comment
+
+=cut
+
+  func _enable_window_resizing() {
+    my $CONSOLE = $_io->out // return;
+    my $title = $CONSOLE->Title() || return;
+    my $hWnd = FindWindow(undef, $title) || return;
+    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
+    SetWindowLong($hWnd, GWL_STYLE, $dwStyle | WS_SIZEBOX);
     return;
   }
 
@@ -662,7 +683,6 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
 
 INIT {
   $_io = StdioCtl->instance();
-  _disable_window_resizing();
 
   _detect_video();
 }
@@ -693,7 +713,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =item *
 

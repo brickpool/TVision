@@ -52,6 +52,7 @@ Nothing per default, but can export the following per request:
 
   GetDoubleClickTime
 
+  FindWindow
   GetWindowLong
   SetWindowLong
 
@@ -65,6 +66,7 @@ our @EXPORT_OK = qw(
 
   GetDoubleClickTime
 
+  FindWindow
   GetWindowLong
   SetWindowLong
 );
@@ -89,7 +91,7 @@ Parameter for I<SetWindowLong>. Sets a new window style.
 
 Defines if the window should have a sizing border.
 
-Note: After the window has been created, these style cannot be modified.
+Note: After the window is created, the style cannot be changed.
 
 =cut
 
@@ -130,6 +132,19 @@ BEGIN {
   Win32::API::More->Import(_userDll, 
     'UINT GetDoubleClickTime()'
   ) or die "Import GetDoubleClickTime: $EXTENDED_OS_ERROR";
+}
+
+=item public C<< Int FindWindow(Str|Undef $lpClassName, Str|Undef $lpWindowName) >>
+
+Retrieves a handle to the top-level window whose name match the specified
+strings; for more info consult the original API documentation.
+
+=cut
+
+BEGIN {
+  Win32::API::More->Import(_userDll,
+    'HWND FindWindow(LPCSTR lpClassName, LPCSTR lpWindowName)'
+  ) or die "Import FindWindow: $EXTENDED_OS_ERROR";
 }
 
 =item public C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
