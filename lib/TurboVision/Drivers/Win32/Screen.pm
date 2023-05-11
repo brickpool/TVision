@@ -56,25 +56,14 @@ use TurboVision::Drivers::Const qw(
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::StdioCtl;
+use TurboVision::Drivers::Win32::LowLevel qw(
+  GWL_STYLE
+  WS_SIZEBOX
+  GetWindowLong
+  SetWindowLong
+);
 
-use Win32::API;
 use Win32::Console;
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-BEGIN {
-  use constant userDll => 'user32';
-
-  Win32::API::More->Import(userDll,
-    'LONG GetWindowLong(HWND hWnd, int nIndex)'
-  ) or die "Import GetWindowLong: $EXTENDED_OS_ERROR";
-
-  Win32::API::More->Import(userDll,
-    'LONG SetWindowLong(HWND hWnd, int nIndex, LONG dwNewLong)'
-  ) or die "Import SetWindowLong: $EXTENDED_OS_ERROR";
-}
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -269,8 +258,6 @@ See: I<screen_mode>
 
 =begin comment
 
-=over
-
 =item local C<< Object $_io >>
 
 STD ioctl object I<< StdioCtl->instance() >>
@@ -280,6 +267,19 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
+
+=begin comment
+
+=item local C<< Int $_startup_resize_mode >>
+
+This internal variable stores the existing mode of a console's input buffer
+before Turbo Vision switches to a new screen mode.
+
+=end comment
+
+=cut
+
+  my $_startup_resize_mode = -1;
 
 =back
 
@@ -315,10 +315,8 @@ and terminates Turbo Vision's video support.
 =cut
 
   func done_video() {
-    my $CONSOLE = $_io->out;
-
     return
-      if $_startup_mode == 0xffff;
+        if $_startup_mode == 0xffff;
       
     if ( $_startup_mode != $screen_mode ) {
       _set_crt_mode( $_startup_mode );
@@ -326,6 +324,21 @@ and terminates Turbo Vision's video support.
     clear_screen();
     _set_cursor_type( $cursor_lines );                  # Restore cursor shape
     $_startup_mode = 0xffff;                            # Reset the startup mode
+
+    return
+        if $_startup_resize_mode == -1;
+      
+    # Restore buffer size settings
+    my $CONSOLE = $_io->in();
+    my $resize_mode = $CONSOLE->Mode();
+    if ( $_startup_resize_mode & ENABLE_WINDOW_INPUT ) {
+      $resize_mode &= ~ENABLE_WINDOW_INPUT
+    }
+    else {
+      $resize_mode |= ENABLE_WINDOW_INPUT
+    }
+    $CONSOLE->Mode( $resize_mode );
+    $_startup_resize_mode = -1;
     return;
   };
 
@@ -342,18 +355,26 @@ I<cursor_lines>.
 =cut
 
   func init_video() {
-    
     my $mode = _get_crt_mode();
     if ( $_startup_mode == 0xffff ) {
       $_startup_mode = $mode;                           # Set the startup mode
       $cursor_lines = _get_cursor_type();               # Set the startup cursor
       _set_cursor_type( 0x2000 );                       # hide text-mode cursor
-#      _disable_window_resizing();
     }
     if ( $mode != $screen_mode ) {
       _set_crt_mode( $mode );
     }
     _set_crt_data();
+
+    return
+        if $_startup_resize_mode != -1;
+
+    # Report changes in buffer size
+    my $CONSOLE = $_io->in();
+    my $resize_mode = $CONSOLE->Mode();
+    $resize_mode |= ENABLE_WINDOW_INPUT;
+    $CONSOLE->Mode( $resize_mode | ENABLE_WINDOW_INPUT );
+    $_startup_resize_mode = $resize_mode;
     return;
   };
 
@@ -374,13 +395,13 @@ color selection constant. For example,
 
   $screen->set_video_mode( SM_CO80 + SM_FONT8X8 );
 
-Normally, you should use I<< TProgram->setscreen_mode >>, which has the same
+Normally, you should use I<< TProgram->set_screen_mode >>, which has the same
 parameter value, to change the screen color or screen size.
 
 The routine I<setscreen_mode> properly handles resetting of the application
 palettes, repositioning the mouse pointer and so on.
 
-See: I<< TProgram->setscreen_mode >>, I<smXXXX> constants
+See: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
 
 =cut
 
@@ -451,19 +472,16 @@ See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192/123423
 
 =cut
 
-  #func _disable_window_resizing() {
-  #  use constant GWL_STYLE      => -16;
-  #  use constant WS_THICKFRAME  => 0x00040000;
-  #  
-  #  my $CONSOLE = $_io->out;
-  #  my $hWnd = $CONSOLE->{handle};
-  #
-  #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE);
-  #  SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_THICKFRAME);
-  #  my $ret = SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_THICKFRAME);
-  #
-  #  return;
-  #}
+  func _disable_window_resizing() {
+    my $CONSOLE = $_io->out;
+    my $hWnd = $CONSOLE->{handle};
+  
+    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE);
+    warn "SetWindowLong failed"
+      if !SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_SIZEBOX);
+  
+    return;
+  }
 
 =item public C<< Int _fix_crt_mode(Int $mode) >>
 
@@ -644,11 +662,7 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
 
 INIT {
   $_io = StdioCtl->instance();
-  my $CONSOLE = $_io->in();
-
-  my $mode = $CONSOLE->Mode();
-  #$mode |= ENABLE_WINDOW_INPUT;     # Report changes in buffer size
-  $CONSOLE->Mode( $mode );
+  _disable_window_resizing();
 
   _detect_video();
 }

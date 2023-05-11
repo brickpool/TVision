@@ -48,7 +48,7 @@ use Win32::API;
 Nothing per default, but can export the following per request:
 
   GWL_STYLE
-  WS_THICKFRAME
+  WS_SIZEBOX
 
   GetWindowLong
   SetWindowLong
@@ -59,7 +59,7 @@ use Exporter qw(import);
 
 our @EXPORT_OK = qw(
   GWL_STYLE
-  WS_THICKFRAME
+  WS_SIZEBOX
 
   GetWindowLong
   SetWindowLong
