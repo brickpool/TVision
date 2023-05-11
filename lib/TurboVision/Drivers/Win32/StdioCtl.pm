@@ -52,281 +52,9 @@ use TurboVision::Const qw(
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
 
-use Win32::API;
 use Win32::Console;
+use TurboVision::Drivers::Win32::Console;
 use Win32API::File;
-
-# ------------------------------------------------------------------------
-# Imports ----------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-BEGIN {
-  use constant kernelDll => 'kernel32';
-
-  Win32::API::Struct->typedef(
-    COORD => qw(
-      SHORT X;
-      SHORT Y;
-    )
-  );
-  Win32::API::Struct->typedef(
-    CONSOLE_FONT_INFO => qw(
-      DWORD nFont;
-      COORD dwFontSize;
-    )
-  );
-  Win32::API::More->Import(kernelDll, 
-    'BOOL GetCurrentConsoleFont(
-      HANDLE              hConsoleOutput,
-      BOOL                bMaximumWindow,
-      LPCONSOLE_FONT_INFO lpConsoleCurrentFont
-    )'
-  ) or die "Import GetCurrentConsoleFont: $EXTENDED_OS_ERROR";
-}
-
-# ------------------------------------------------------------------------
-# Fix Module Win32::Console version 0.10
-# ------------------------------------------------------------------------
-#
-# 1. Since you didn't open those handles (that's not what GetStdHandle does),
-#    you don't need to close them.
-# 2. The parameter 'dwShareMode' can be 0 (zero), indicating that the buffer
-#    cannot be shared
-# 3. Note that standard I/O handles should be INVALID_HANDLE_VALUE instead
-#    of 0 (NULL).
-# 4. Close shortcut is not implemented.
-# 5. Writing 0 bytes causes the cursor to become invisible for a short time
-#    in old versions of the Windows console.
-#
-# https://rt.cpan.org/Public/Bug/Display.html?id=33513
-# https://docs.microsoft.com/en-us/windows/console/createconsolescreenbuffer
-# https://stackoverflow.com/a/14730120/12342329
-# https://rt.cpan.org/Public/Bug/Display.html?id=64676
-#
-# ------------------------------------------------------------------------
-
-package Win32::Console::Fix {
-
-  use parent 'Win32::Console';
-
-  use English qw( -no_match_vars );
-  use Win32::API;
-
-  BEGIN {
-    use constant kernelDll => 'kernel32';
-  
-    Win32::API::Struct->typedef(
-      KEY_EVENT_RECORD => qw(
-        WORD  EventType;
-        BOOL  bKeyDown;
-        WORD  wRepeatCount;
-        WORD  wVirtualKeyCode;
-        WORD  wVirtualScanCode;
-        WCHAR UnicodeChar;
-        DWORD dwControlKeyState;
-      )
-    );
-    Win32::API::More->Import(kernelDll, 
-      'BOOL PeekConsoleInput(
-        HANDLE              hConsoleInput,
-        LPKEY_EVENT_RECORD  lpBuffer,
-        DWORD               nLength,
-        LPDWORD             lpNumberOfEventsRead
-      )'
-    ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-    Win32::API::More->Import(kernelDll, 
-      'BOOL ReadConsoleInputW(
-        HANDLE              hConsoleInput,
-        LPKEY_EVENT_RECORD  lpBuffer,
-        DWORD               nLength,
-        LPDWORD             lpNumberOfEventsRead
-      )'
-    ) or die "Import ReadConsoleInput: $EXTENDED_OS_ERROR";
-  }
-
-  use constant {
-    KEY_EVENT                => 0x0001,
-    MOUSE_EVENT              => 0x0002,
-    WINDOW_BUFFER_SIZE_EVENT => 0x0004,
-  };
-
-  # fix 1..3 - see below
-  #========
-  sub new {
-  #========
-    require Win32API::File;
-
-    my ($class, $param1, $param2) = @_;
-    my $self = {};
-
-    if ( defined( $param1 )
-    && (
-             $param1 == Win32::Console::constant("STD_INPUT_HANDLE",  0)
-          || $param1 == Win32::Console::constant("STD_OUTPUT_HANDLE", 0)
-          || $param1 == Win32::Console::constant("STD_ERROR_HANDLE",  0)
-        )
-    ) {
-      $self->{'handle'} = Win32::Console::_GetStdHandle( $param1 );
-      # fix 1 - Close only non standard handle
-      $self->{'handle_is_std'} = 1;
-    }
-    else {
-      if ( !$param1 ) {
-        $param1 = Win32::Console::constant("GENERIC_READ", 0)
-                | Win32::Console::constant("GENERIC_WRITE", 0)
-                ;
-      }
-      # fix 2 - The value 0 (zero) is also a permitted value
-      if ( !defined( $param2 ) ) {
-        $param2 = Win32::Console::constant("FILE_SHARE_READ", 0)
-                | Win32::Console::constant("FILE_SHARE_WRITE", 0)
-                ;
-      }
-      $self->{'handle'} = Win32::Console::_CreateConsoleScreenBuffer(
-          $param1
-        , $param2
-        , Win32::Console::constant("CONSOLE_TEXTMODE_BUFFER", 0)
-      );
-    }
-    # fix 3 - If handle is undefined, 0 or -1 then the handle is invalid.
-    if (
-         $self->{'handle'}
-      && $self->{'handle'} != Win32API::File::INVALID_HANDLE_VALUE
-    ) {
-      bless $self, $class;
-      return $self;
-    }
-    return;
-  }
-
-  # fix 1 - Close only non standard handle
-  #============
-  sub DESTROY {
-  #============
-    my ($self) = @_;
-    $self->Close() unless $self->{'handle_is_std'};
-    return;
-  }
-
-  # fix 4 - Implement Close
-  #==========
-  sub Close {
-  #==========
-    my ($self) = @_;
-    return undef unless ref($self);
-    return Win32::Console::_CloseHandle($self->{'handle'});
-  }
-
-  # fix 5 - Writing 0 bytes
-  #==========
-  sub Write {
-  #==========
-    my ($self, $string) = @_;
-    return undef unless ref($self);
-    return undef unless length($string);
-    return Win32::Console::_WriteConsole($self->{'handle'}, $string);
-  }
-
-  # Ok, this is an extension
-  #==============
-  sub isConsole {
-  #==============
-    my ($self) = @_;
-    return undef unless ref($self);
-    return !!$self->Mode();
-  }
-
-  # Unicode and WindowBufferSizeEvent support
-  #==============
-  sub Input {
-  #==============
-    my ($self) = @_;
-    return undef unless ref($self);
-    
-    my ($event_type) = do {
-      my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
-      my $ok
-      = $ir->{EventType}
-      = $ir->{bKeyDown}
-      = $ir->{wRepeatCount}
-      = $ir->{wVirtualKeyCode}
-      = $ir->{wVirtualScanCode}
-      = $ir->{UnicodeChar}
-      = $ir->{dwControlKeyState}
-      = 0;
-      PeekConsoleInput( $self->{'handle'}, $ir, 1, $ok ) && $ok
-        ?
-      ( $ir->{EventType} )
-        :
-      ()
-        ;
-    };
-    $event_type //= 0;
-
-    SWITCH: for ($event_type) {
-
-      $_ == KEY_EVENT and do {
-        my @event = do {
-          # Win32::Console::Input() may not support Unicode, so the native
-          # Windows API 'ReadConsoleInputW' call is used instead.
-          my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
-          my $ok
-          = $ir->{EventType}
-          = $ir->{bKeyDown}
-          = $ir->{wRepeatCount}
-          = $ir->{wVirtualKeyCode}
-          = $ir->{wVirtualScanCode}
-          = $ir->{UnicodeChar}
-          = $ir->{dwControlKeyState}
-          = 0;
-          ReadConsoleInputW( $self->{'handle'}, $ir, 1, $ok ) && $ok
-            ?
-          ( $ir->{EventType}
-          , $ir->{bKeyDown}
-          , $ir->{wRepeatCount}
-          , $ir->{wVirtualKeyCode}
-          , $ir->{wVirtualScanCode}
-          , $ir->{UnicodeChar}
-          , $ir->{dwControlKeyState}
-          )
-            :
-          ()
-            ;
-        };
-        return  @event
-              ? @event
-              : undef
-              ;
-      };
-
-      $_ == MOUSE_EVENT and do {
-        return
-          Win32::Console::_ReadConsoleInput($self->{'handle'});
-      };
-    
-      # Win32::Console::Input() does not support 'WindowBufferSizeEvent'
-      $_ = WINDOW_BUFFER_SIZE_EVENT and do {
-        my ( $size_x, $size_y );
-        # Calling stdout is unsafe, so it is embedded in eval
-        eval {
-          ( $size_x, $size_y )
-            = TurboVision::Drivers::Win32::StdioCtl->instance()->out()->Size();
-        } or return undef;
-
-        # Consume event from the Windows event queue
-        Win32::Console::_ReadConsoleInput($self->{'handle'});
-
-        return ( $event_type, $size_x, $size_y );
-      };
-
-      DEFAULT: {
-        return
-          Win32::Console::_ReadConsoleInput($self->{'handle'});
-      };
-    }
-  }
-
-}
 
 # ------------------------------------------------------------------------
 # Class Defnition --------------------------------------------------------
@@ -503,7 +231,7 @@ I<new> or I<init>. It initializes the console.
     my $console;
     my $have_console = _FALSE;
 
-    $console = Win32::Console::Fix->new( STD_INPUT_HANDLE );
+    $console = Win32::Console->new( STD_INPUT_HANDLE );
     if ( $console && $console->isConsole() ) {
       $have_console = _TRUE;
       if ( !$self->_has_input ) {
@@ -511,7 +239,7 @@ I<new> or I<init>. It initializes the console.
       }
     }
 
-    $console = Win32::Console::Fix->new( STD_OUTPUT_HANDLE );
+    $console = Win32::Console->new( STD_OUTPUT_HANDLE );
     if ( $console && $console->isConsole()  ) {
       $have_console = _TRUE;
       if ( !$self->_has_startup ) {
@@ -519,7 +247,7 @@ I<new> or I<init>. It initializes the console.
       }
     }
 
-    $console = Win32::Console::Fix->new( STD_ERROR_HANDLE );
+    $console = Win32::Console->new( STD_ERROR_HANDLE );
     if ( $console && $console->isConsole() ) {
       $have_console = _TRUE;
       if ( !$self->_has_startup ) {
@@ -535,7 +263,7 @@ I<new> or I<init>. It initializes the console.
 
     if ( !$self->_has_input ) {
       # Create a new generic object
-      $console = Win32::Console::Fix->new();              
+      $console = Win32::Console->new();              
       if ( $console && $console->isConsole() ) {
         # If object is a valid console, close the old handle
         $console->Close();
@@ -553,7 +281,7 @@ I<new> or I<init>. It initializes the console.
     }
 
     if ( !$self->_has_startup ) {
-      $console = Win32::Console::Fix->new();
+      $console = Win32::Console->new();
       if ( $console && $console->isConsole() ) {
         $console->Close();
         $console->{handle} = Win32API::File::createFile(
@@ -568,7 +296,7 @@ I<new> or I<init>. It initializes the console.
       }
     }
 
-    $console = Win32::Console::Fix->new( GENERIC_READ | GENERIC_WRITE, 0 );
+    $console = Win32::Console->new( GENERIC_READ | GENERIC_WRITE, 0 );
     if ( $console && $console->isConsole() ) {
       $self->_output( $console );
       if ( my @info = $self->_startup->Info() ) {
@@ -684,7 +412,7 @@ Gets the font size.
     $fontInfo->{nFont} = 0;
     $fontInfo->{dwFontSize}->{X} = 0;
     $fontInfo->{dwFontSize}->{Y} = 0;
-    if ( GetCurrentConsoleFont( $self->out->{handle}, _FALSE, $fontInfo ) ) {
+    if ( Win32::Console::_GetCurrentConsoleFont( $self->out->{handle}, _FALSE, $fontInfo ) ) {
       return {
         x => $fontInfo->{dwFontSize}->{X},
         y => $fontInfo->{dwFontSize}->{Y},

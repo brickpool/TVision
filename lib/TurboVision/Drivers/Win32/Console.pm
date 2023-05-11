@@ -143,8 +143,10 @@ BEGIN {
                             , \&_GetCurrentConsoleFont);
 
   # Update Windows Console API Function
+  $wincon->add_package_symbol('&_ReadConsoleInputA'
+                            , \&Win32::Console::_ReadConsoleInput);
   $wincon->add_package_symbol('&_ReadConsoleInput'
-                            , \&_ReadConsoleInput);
+                            , \&_ReadConsoleInputW);
 
   # Update patched Win32::Console constructor/destructor
   $wincon->add_package_symbol('&new'
@@ -203,11 +205,14 @@ BEGIN {
     ()
   }
 
-  # _ReadConsoleInput with Unicode and WindowBufferSizeEvent support
+  # _ReadConsoleInputW with Unicode (and WindowBufferSizeEvent) support
   #======================
-  sub _ReadConsoleInput {
+  sub _ReadConsoleInputW {
   #======================
     my ($handle) = @_;
+    state $cnt = 0;
+    warn "_ReadConsoleInput: $cnt\n";
+    $cnt++;
     return !!0 unless is_Int($handle);
     
     my ($event_type) = do {
@@ -268,7 +273,7 @@ BEGIN {
 
       $_ == MOUSE_EVENT and do {
         return
-          Win32::Console::_ReadConsoleInput($handle);
+          Win32::Console::_ReadConsoleInputA($handle);
       };
     
       # Win32::Console::Input() does not support 'WindowBufferSizeEvent'
@@ -281,14 +286,14 @@ BEGIN {
         } or return undef;
 
         # Consume event from the Windows event queue
-        Win32::Console::_ReadConsoleInput($handle);
+        Win32::Console::_ReadConsoleInputA($handle);
 
         return ( $event_type, $size_x, $size_y );
       };
 
       DEFAULT: {
         return
-          Win32::Console::_ReadConsoleInput($handle);
+          Win32::Console::_ReadConsoleInputA($handle);
       };
     }
   }
@@ -405,7 +410,7 @@ BEGIN {
   #==========
     my($self) = @_;
     return undef unless ref($self);
-    return _ReadConsoleInput($self->{'handle'});
+    return _ReadConsoleInputW($self->{'handle'});
   }
 
   # fix 5 - Writing 0 bytes
