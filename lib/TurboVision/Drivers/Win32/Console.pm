@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::Console - Windows low level implementation
+TurboVision::Drivers::Win32::Console - Win32::Console patches and extensions
 
 =head1 SYNOPSIS
 
@@ -12,7 +12,7 @@ Simply integrate this module into your package or script.
   use TurboVision::Drivers::Win32::Console;
 
 Note: Loading this module must be done after C<use Win32::Console>, otherwise
-the extensions and patches for I<Win32::Console> will not be installed
+the patches and extensions for I<Win32::Console> will not be installed
 correctly.
 
 =cut
@@ -47,7 +47,6 @@ our $AUTHORITY = 'github:brickpool';
 # ------------------------------------------------------------------------
 
 use English qw( -no_match_vars );
-use List::Util qw( min max );
 
 use Class::MOP::Package;
 
