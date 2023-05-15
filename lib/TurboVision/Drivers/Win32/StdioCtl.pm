@@ -232,7 +232,7 @@ I<new> or I<init>. It initializes the console.
     my $have_console = _FALSE;
 
     $console = Win32::Console->new( STD_INPUT_HANDLE );
-    if ( $console && $console->isConsole() ) {
+    if ( $console && $console->is_valid() ) {
       $have_console = _TRUE;
       if ( !$self->_has_input ) {
         $self->_input( $console );
@@ -240,7 +240,7 @@ I<new> or I<init>. It initializes the console.
     }
 
     $console = Win32::Console->new( STD_OUTPUT_HANDLE );
-    if ( $console && $console->isConsole()  ) {
+    if ( $console && $console->is_valid()  ) {
       $have_console = _TRUE;
       if ( !$self->_has_startup ) {
         $self->_startup( $console );
@@ -248,7 +248,7 @@ I<new> or I<init>. It initializes the console.
     }
 
     $console = Win32::Console->new( STD_ERROR_HANDLE );
-    if ( $console && $console->isConsole() ) {
+    if ( $console && $console->is_valid() ) {
       $have_console = _TRUE;
       if ( !$self->_has_startup ) {
         $self->_startup( $console );
@@ -264,7 +264,7 @@ I<new> or I<init>. It initializes the console.
     if ( !$self->_has_input ) {
       # Create a new generic object
       $console = Win32::Console->new();              
-      if ( $console && $console->isConsole() ) {
+      if ( $console && $console->is_valid() ) {
         # If object is a valid console, close the old handle
         $console->Close();
         # Assign a handle created by CreateFile() to the object
@@ -282,7 +282,7 @@ I<new> or I<init>. It initializes the console.
 
     if ( !$self->_has_startup ) {
       $console = Win32::Console->new();
-      if ( $console && $console->isConsole() ) {
+      if ( $console && $console->is_valid() ) {
         $console->Close();
         $console->{handle} = Win32API::File::createFile(
           'CONOUT$',
@@ -297,7 +297,7 @@ I<new> or I<init>. It initializes the console.
     }
 
     $console = Win32::Console->new( GENERIC_READ | GENERIC_WRITE, 0 );
-    if ( $console && $console->isConsole() ) {
+    if ( $console && $console->is_valid() ) {
       $self->_output( $console );
       if ( my @info = $self->_startup->Info() ) {
         my ($left, $top, $right, $bottom) = @info[5..8];
