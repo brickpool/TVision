@@ -18,7 +18,7 @@ can_ok(
   qw(
     _GetCurrentConsoleFont
     Close
-    isConsole
+    is_valid
   )
 );
 
@@ -37,13 +37,13 @@ isa_ok(
 );
 
 ok(
-  $CONSOLE->{_patched},
+  exists $CONSOLE->{'handle_is_std'},
   '$CONSOLE is patched'
 );
 
 ok(
-  $CONSOLE->isConsole,
-  '$CONSOLE->isConsole'
+  $CONSOLE->is_valid,
+  '$CONSOLE->is_valid'
 );
 
 done_testing;

@@ -163,8 +163,8 @@ BEGIN {
   # Add new Win32::Console methods
   $wincon->add_package_symbol('&Close'
                             , \&Close);
-  $wincon->add_package_symbol('&isConsole'
-                            , \&isConsole);
+  $wincon->add_package_symbol('&is_valid'
+                            , \&is_valid);
 }
 
 # ------------------------------------------------------------------------
@@ -333,7 +333,7 @@ BEGIN {
   sub new {
   #========
     my ($class, $param1, $param2) = @_;
-    my $self = { '_patched' => 1 };
+    my $self = { 'handle_is_std' => 0 };
 
     if ( defined( $param1 )
     && (
@@ -422,7 +422,7 @@ BEGIN {
 
   # Ok, this is an extension
   #==============
-  sub isConsole {
+  sub is_valid {
   #==============
     my ($self) = @_;
     return undef unless ref($self);
