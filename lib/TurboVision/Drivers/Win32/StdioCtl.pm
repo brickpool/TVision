@@ -67,7 +67,7 @@ for device-specific input/output operations and other operations which cannot be
 expressed by regular system calls. 
 
 I<StdioCtl> is singleton a class that has only one instance in an application.
-The module I<MooseX::Singleton> uses metaclass roles to do the magic.
+The module is similar to the functionalities of I<MooseX::Singleton>.
 
 =head2 Class
 
@@ -428,10 +428,6 @@ Gets the font size.
 =back
 
 =head2 Inheritance
-
-Methods inherited from role C<MooseX::Singleton>
-
-  instance, initialize, _clear_instance, new
 
 Methods inherited from class C<Object>
 

@@ -88,7 +88,6 @@ Nothing per default, but can export the following per request:
       $_shift_state
       $_ticks
 
-      _set_shift_state
       _update_event_queue
 
 =cut
@@ -442,6 +441,16 @@ Key shift state.
 =cut
 
   our $_shift_state = KB_INS_STATE;
+  INIT {
+    eval {
+      $_shift_state = StdioCtl->instance->in->Mode & _ENABLE_INSERT_MODE
+                    ? KB_INS_STATE
+                    : 0
+                    ;
+    }
+    or
+      warn $@;
+  };
 
 =item private readonly C<< Int $_ticks >>
 
@@ -492,6 +501,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
+  INIT { $_io = StdioCtl->instance() }
 
 =begin comment
 
@@ -1015,15 +1025,6 @@ Returns true if successful.
 # ------------------------------------------------------------------------
 
 INIT {
-  $_io = StdioCtl->instance();
-
-  my $CONSOLE = $_io->in();
-  my $mode = $CONSOLE->Mode();
-  $_shift_state = $mode & _ENABLE_INSERT_MODE
-                  ? KB_INS_STATE
-                  : 0
-                  ;
-
   # Set the console and the environment in UTF-8 mode.
   $_save_cp_input = Win32::Console::InputCP();
   Win32::Console::InputCP(_CP_UTF8);

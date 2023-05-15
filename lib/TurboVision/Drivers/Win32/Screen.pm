@@ -56,13 +56,13 @@ use TurboVision::Drivers::Const qw(
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::StdioCtl;
-use TurboVision::Drivers::Win32::LowLevel qw(
-  GWL_STYLE
-  WS_SIZEBOX
-  FindWindow
-  GetWindowLong
-  SetWindowLong
-);
+#use TurboVision::Drivers::Win32::LowLevel qw(
+#  GWL_STYLE
+#  WS_SIZEBOX
+#  FindWindow
+#  GetWindowLong
+#  SetWindowLong
+#);
 
 use Win32::Console;
 
@@ -268,10 +268,11 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
+  INIT { $_io = StdioCtl->instance() }
 
 =begin comment
 
-=item local C<< Int $_startup_resize_mode >>
+=item local C<< Int $_startup_console_mode >>
 
 This internal variable stores the existing mode of a console's input buffer
 before Turbo Vision switches to a new screen mode.
@@ -280,7 +281,7 @@ before Turbo Vision switches to a new screen mode.
 
 =cut
 
-  my $_startup_resize_mode = -1;
+  my $_startup_console_mode;
 
 =back
 
@@ -324,23 +325,22 @@ and terminates Turbo Vision's video support.
     }
     clear_screen();
     _set_cursor_type( $cursor_lines );                  # Restore cursor shape
-    _enable_window_resizing();                          # Enable window resizing
     $_startup_mode = 0xffff;                            # Reset the startup mode
 
     return
-        if $_startup_resize_mode == -1;
+        unless defined $_startup_console_mode;
       
     # Restore buffer size settings
     my $CONSOLE = $_io->in();
-    my $resize_mode = $CONSOLE->Mode();
-    if ( $_startup_resize_mode & ENABLE_WINDOW_INPUT ) {
-      $resize_mode &= ~ENABLE_WINDOW_INPUT
+    my $mode = $CONSOLE->Mode();
+    if ( $_startup_console_mode & ENABLE_WINDOW_INPUT ) {
+      $mode &= ~ENABLE_WINDOW_INPUT
     }
     else {
-      $resize_mode |= ENABLE_WINDOW_INPUT
+      $mode |= ENABLE_WINDOW_INPUT
     }
-    $CONSOLE->Mode( $resize_mode );
-    $_startup_resize_mode = -1;
+    $CONSOLE->Mode( $mode );
+    $_startup_console_mode = undef;
     return;
   };
 
@@ -362,7 +362,6 @@ I<cursor_lines>.
       $_startup_mode = $mode;                           # Set the startup mode
       $cursor_lines = _get_cursor_type();               # Set the startup cursor
       _set_cursor_type( 0x2000 );                       # hide text-mode cursor
-      _disable_window_resizing();                       # Lock window resizing
     }
     if ( $mode != $screen_mode ) {
       _set_crt_mode( $mode );
@@ -370,14 +369,14 @@ I<cursor_lines>.
     _set_crt_data();
 
     return
-        if $_startup_resize_mode != -1;
+        if defined $_startup_console_mode;
 
     # Report changes in buffer size
     my $CONSOLE = $_io->in();
-    my $resize_mode = $CONSOLE->Mode();
-    $resize_mode |= ENABLE_WINDOW_INPUT;
-    $CONSOLE->Mode( $resize_mode | ENABLE_WINDOW_INPUT );
-    $_startup_resize_mode = $resize_mode;
+    $mode = $CONSOLE->Mode();
+    $_startup_console_mode = $mode;
+    $mode |= ENABLE_WINDOW_INPUT;
+    $CONSOLE->Mode( $mode );
     return;
   };
 
@@ -463,45 +462,6 @@ Detect video modes.
     my $mode = _get_crt_mode();                         # Get current mode
     $mode = _fix_crt_mode($mode);                       # Correct the mode
     $screen_mode = $mode;                               # Set screen mode attr
-  }
-
-=begin comment
-
-=item private C<< _disable_window_resizing() >>
-
-See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192>
-and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
-
-=end comment
-
-=cut
-
-  func _disable_window_resizing() {
-    my $CONSOLE = $_io->out // return;
-    my $title = $CONSOLE->Title() || return;
-    my $hWnd = FindWindow(undef, $title) || return;
-    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
-    SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_SIZEBOX);
-    return;
-  }
-
-=begin comment
-
-=item private C<< _enable_window_resizing() >>
-
-See: I<_disable_window_resizing>
-
-=end comment
-
-=cut
-
-  func _enable_window_resizing() {
-    my $CONSOLE = $_io->out // return;
-    my $title = $CONSOLE->Title() || return;
-    my $hWnd = FindWindow(undef, $title) || return;
-    my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
-    SetWindowLong($hWnd, GWL_STYLE, $dwStyle | WS_SIZEBOX);
-    return;
   }
 
 =item public C<< Int _fix_crt_mode(Int $mode) >>
@@ -613,43 +573,29 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
     $cols ||= $oldc;
     $rows ||= $oldr;
 
-    # Does the window have a resize frame
-    my $frame = do {
-      my ($title, $hWnd);
-      ( $title = $CONSOLE->Title() )
-        &&
-      ( $hWnd = FindWindow(undef, $title) )
-        &&
-      ( ( GetWindowLong($hWnd, GWL_STYLE)//0 ) & ~WS_SIZEBOX )
-        ?
-      0
-        :
-      1
-    };
-
     if ( $oldr <= $rows ) {
       if ( $oldc <= $cols ) {
         # increasing both dimensions
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
       }
       else {
         # shorten width, increasing height
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $oldr-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $oldr-1 );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
       }
     }
     else {
       if ( $oldc <= $cols ) {
         # increasing width, shorten height
-        $CONSOLE->Window( _TRUE, 0, 0, $oldc-$frame, $rows-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $oldc-1, $rows-1 );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
       }
       else {
         # shorten both dimensions
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-$frame, $rows-$frame );
+        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
         $CONSOLE->Size( $cols, $rows );
       }
     }
@@ -687,6 +633,53 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
     $CONSOLE->Cursor(-1, -1, $size, $visible);
   };
 
+
+=begin comment
+
+=item private C<< _get_windows_resizing() >>
+
+Does the window have a resize frame?
+
+=end comment
+
+=cut
+
+  #func _get_windows_resizing() {
+  #  my $CONSOLE = $_io->out;
+  #  my $title = $CONSOLE->Title() || return undef;
+  #  my $hWnd = FindWindow(undef, $title) || return undef;
+  #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
+  #  return
+  #      !!( $dwStyle & ~WS_SIZEBOX )
+  #};
+
+=begin comment
+
+=item private C<< _set_window_resizing(Bool $enable) >>
+
+Enable or disable the Window resize frame.
+
+See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192>
+and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
+
+=end comment
+
+=cut
+
+  #func _set_window_resizing(Bool $enable) {
+  #  my $CONSOLE = $_io->out;
+  #  my $title = $CONSOLE->Title() || return;
+  #  my $hWnd = FindWindow(undef, $title) || return;
+  #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
+  #  if ( $enable ) {
+  #    SetWindowLong($hWnd, GWL_STYLE, $dwStyle | WS_SIZEBOX);
+  #  }
+  #  else {
+  #    SetWindowLong($hWnd, GWL_STYLE, $dwStyle & ~WS_SIZEBOX);
+  #  }
+  #  return;
+  #}
+
 =back
 
 =cut
@@ -696,8 +689,6 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
 # ------------------------------------------------------------------------
 
 INIT {
-  $_io = StdioCtl->instance();
-
   _detect_video();
 }
 

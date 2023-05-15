@@ -253,6 +253,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
+  INIT { $_io = StdioCtl->instance() }
 
 =back
 
@@ -328,10 +329,6 @@ See: I<$sys_error_func>
 =back
 
 =cut
-
-INIT {
-  $_io = StdioCtl->instance();
-}
 
 1;
 

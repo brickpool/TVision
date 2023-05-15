@@ -38,11 +38,7 @@ our $AUTHORITY = 'github:fpc';
 use Data::Alias qw( alias );
 use PerlX::Assert;
 
-use TurboVision::Const qw( :bool );
-use TurboVision::Drivers::Const qw(
-  :evXXXX
-  :private
-);
+use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw(
   TEvent

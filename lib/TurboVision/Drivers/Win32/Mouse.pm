@@ -263,6 +263,9 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
+  INIT { $_io = StdioCtl->instance() }
+
+=back
 
 =cut
 
@@ -390,8 +393,6 @@ Returns the number of the buttons on your mouse, or zero on errors.
 # ------------------------------------------------------------------------
 
 INIT {
-  $_io = StdioCtl->instance();
-
   _detect_mouse();
 }
 
