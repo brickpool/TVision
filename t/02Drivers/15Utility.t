@@ -8,8 +8,10 @@ BEGIN {
 
 use Test::More tests => 10;
 
-require_ok 'TurboVision::Drivers::Const';
-require_ok 'TurboVision::Drivers::Utility';
+BEGIN {
+  use_ok 'TurboVision::Drivers::Const';
+  use_ok 'TurboVision::Drivers::Utility';
+}
 
 use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Drivers::Utility qw( :util );

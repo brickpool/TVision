@@ -6,9 +6,7 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 3;
-
-require_ok 'TurboVision::Drivers::Win32::EventManager';
+use Test::More tests => 2;
 
 use TurboVision::Drivers::Win32::EventManager qw( $_ticks );
 

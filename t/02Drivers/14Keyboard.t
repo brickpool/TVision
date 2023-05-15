@@ -6,15 +6,9 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 3;
 
 use Scalar::Util qw( blessed );
-
-require_ok 'TurboVision::Drivers::Const';
-require_ok 'TurboVision::Drivers::Types';
-require_ok 'TurboVision::Drivers::Win32::EventManager';
-require_ok 'TurboVision::Drivers::Win32::Keyboard';
-require_ok 'TurboVision::Drivers::Win32::Screen';
 
 use TurboVision::Drivers::Const qw( :kbXXXX :smXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( StdioCtl TEvent );

@@ -6,10 +6,7 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 7;
-
-require_ok 'TurboVision::Drivers::Const';
-require_ok 'TurboVision::Drivers::Win32::Screen';
+use Test::More tests => 5;
 
 use TurboVision::Drivers::Const qw( :smXXXX );
 use TurboVision::Drivers::Win32::Screen qw( :all !:private );
