@@ -117,7 +117,6 @@ our %EXPORT_TAGS = (
     $_shift_state
     $_ticks
 
-    _set_shift_state
     _update_event_queue
   )],
 
@@ -246,6 +245,18 @@ Windows code page value for UTF-8.
 
 =begin comment
 
+=item private const C<< Int _CTRL_C >>
+
+Ctrl-C is the Ctrl-Break key.
+
+=end comment
+
+=cut
+
+  use constant _CTRL_C  => ord( "\cC" );
+
+=begin comment
+
 =item private const C<< Int _CTRL_Z >>
 
 Ctrl-Z is the last Ctrl+key.
@@ -254,7 +265,7 @@ Ctrl-Z is the last Ctrl+key.
 
 =cut
 
-  use constant _CTRL_Z  => 0x1a;
+  use constant _CTRL_Z  => ord( "\cZ" );
 
 =begin comment
 
@@ -639,7 +650,8 @@ Returns true if successful.
     return _FALSE
         if !_set_unicode_event($key_event, $event);
     
-    _set_shift_state($key_event, $_shift_state);
+    _update_shift_state( $key_event );
+    _update_ctrl_break( $key_event );
 
     $event->what( EV_KEY_DOWN );
     $event->scan_code( $key_event->{virtual_scan_code} );
@@ -814,62 +826,7 @@ Returns true if successful.
     $event->buttons( $_last_buttons );
     $event->where  ( $_last_where   );
 
-    _set_shift_state( $mouse_event, $_shift_state );
-
-    return _TRUE;
-  }
-
-=begin comment
-
-=item private C<< Bool _set_shift_state(HashRef $key_event, Int $shift_state) >>
-
-This subroutine sets the state of the keyboard shift (comparable to the low
-level call at memory position C<0x40:0x17>).
-
-Returns true if successful.
-
-See also: I<get_shift_state>
-
-=end comment
-
-=cut
-
-  func _set_shift_state(HashRef $event, $) {
-    alias my $shift_state = $_[-1];
-    
-    assert { is_Int $shift_state                };
-    assert { exists $event->{event_type}        };
-    assert { exists $event->{control_key_state} };
-    
-    $shift_state &= KB_INS_STATE;                       # clear all excl. insert
-
-    $shift_state |= KB_SHIFT                            # set shift state
-      if $event->{control_key_state}
-        & SHIFT_PRESSED;
-
-    $shift_state |= KB_CTRL_SHIFT                       # set ctrl state
-      if $event->{control_key_state}
-        & ( RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED );
-
-    $shift_state |= KB_ALT_SHIFT                        # set alt state
-      if $event->{control_key_state}
-        & LEFT_ALT_PRESSED;
-
-    $shift_state |= KB_SCROLL_STATE                     # set scroll lock state
-      if $event->{control_key_state}
-        & SCROLLLOCK_ON;
-
-    $shift_state |= KB_NUM_STATE                        # set num lock state
-      if $event->{control_key_state}
-        & NUMLOCK_ON;
-
-    $shift_state |= KB_CAPS_STATE                       # set caps lock state
-      if $event->{control_key_state}
-        & CAPSLOCK_ON;
-
-    $shift_state ^= KB_INS_STATE                        # toggle insert state
-      if $event->{event_type} == _KEY_EVENT
-      && $event->{virtual_key_code} == _VK_INSERT;
+    _update_shift_state( $mouse_event );
 
     return _TRUE;
   }
@@ -1048,6 +1005,89 @@ Returns true if successful.
     }
 
     return _FALSE;
+  }
+
+=begin comment
+
+=item private C<< Bool _update_ctrl_break_hit(HashRef $key_event) >>
+
+This function provides similar handling of Ctrl-C events as provided by the
+I<Int1BHandler> assembly routine in the library implemented by Borland.
+
+Returns true if successful.
+
+=end comment
+
+=cut
+
+  func _update_ctrl_break(HashRef $event) {
+    assert { exists $event->{event_type}        };
+    assert { exists $event->{char}              };
+    assert { exists $event->{control_key_state} };
+    
+    if (
+       $event->{event_type} == _KEY_EVENT
+    && $event->{control_key_state} & ( RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED )
+    && $event->{char} == _CTRL_C
+    ) {{
+      no warnings 'once';
+      require TurboVision::Drivers::Win32::SystemError;
+      $TurboVision::Drivers::Win32::SystemError::ctrl_break_hit = _TRUE;
+    }}
+
+    return _TRUE;
+  }
+
+=begin comment
+
+=item private C<< Bool _update_shift_state(HashRef $key_event) >>
+
+This subroutine sets the state of the keyboard shift (comparable to the low
+level call at memory position C<0x40:0x17>).
+
+Returns true if successful.
+
+See also: I<get_shift_state>
+
+=end comment
+
+=cut
+
+  func _update_shift_state(HashRef $event) {
+    assert { exists $event->{event_type}        };
+    assert { exists $event->{control_key_state} };
+    
+    $_shift_state &= KB_INS_STATE;                      # clear all excl. insert
+
+    $_shift_state |= KB_SHIFT                           # set shift state
+      if $event->{control_key_state}
+        & SHIFT_PRESSED;
+
+    $_shift_state |= KB_CTRL_SHIFT                      # set ctrl state
+      if $event->{control_key_state}
+        & ( RIGHT_CTRL_PRESSED | LEFT_CTRL_PRESSED );
+
+    $_shift_state |= KB_ALT_SHIFT                       # set alt state
+      if $event->{control_key_state}
+        & LEFT_ALT_PRESSED;
+
+    $_shift_state |= KB_SCROLL_STATE                    # set scroll lock state
+      if $event->{control_key_state}
+        & SCROLLLOCK_ON;
+
+    $_shift_state |= KB_NUM_STATE                       # set num lock state
+      if $event->{control_key_state}
+        & NUMLOCK_ON;
+
+    $_shift_state |= KB_CAPS_STATE                      # set caps lock state
+      if $event->{control_key_state}
+        & CAPSLOCK_ON;
+
+    $_shift_state ^= KB_INS_STATE                       # toggle insert state
+      if $event->{event_type} == _KEY_EVENT
+      && $event->{virtual_key_code} == _VK_INSERT;
+
+    return _TRUE;
   }
 
 =back
