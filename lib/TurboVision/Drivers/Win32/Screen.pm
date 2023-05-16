@@ -498,8 +498,9 @@ Return CRT mode.
     my $height = _ctr_rows();
     my $width  = _ctr_cols();
 
-    return $width >= 40 && $height >= 24 ? $width | $height << 8
-          :                                SM_CO80      # Default mode
+    return $width >= 40 && $height >= 24
+          ? $width | $height << 8
+          : SM_CO80                                     # Default mode
           ;                               
   }
 
@@ -616,8 +617,10 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
   func _set_cursor_type(Int $cursor) {
     my $size = -1;
     # If bit 5 of "Scan Row Start" is not set, that this means "Show cursor"
-    my $visible = $cursor & 0x2000 ? 0 : 1;
-    
+    my $visible = $cursor & 0x2000
+                ? 0
+                : 1
+                ;
     if ( $visible ) {
       my $scan_row_start = $cursor >> 8 & 0xff;
       my $scan_row_end   = $cursor & 0xff;

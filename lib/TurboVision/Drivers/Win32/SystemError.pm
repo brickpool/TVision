@@ -35,6 +35,8 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Data::Alias qw( alias );
+
 use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::StdioCtl;
@@ -326,6 +328,47 @@ See: I<$sys_error_func>
 
   }
 
+=begin comment
+
+  use English qw( -no_match_vars );
+  use Win32::API;
+  use Win32::API::Callback;
+
+BEGIN {
+  use constant _kernelDll => 'kernel32';
+  Win32::API->Import(_kernelDll, 
+    'SetConsoleCtrlHandler', 'KN', 'N'
+  ) or die "Import SetConsoleCtrlHandler: $EXTENDED_OS_ERROR";
+}
+
+INIT{
+  use constant {
+    _CTRL_C_EVENT     => 0,
+    _CTRL_BREAK_EVENT => 1,
+  };
+
+  my $_ctrl_break_handler = sub ($) {
+    print STDERR '1';
+    return 0;
+
+    alias my $ctrl_type = $_[-1];
+    return 0
+        if $ctrl_type != _CTRL_C_EVENT
+        && $ctrl_type != _CTRL_BREAK_EVENT;
+
+    $ctrl_break_hit = _TRUE;
+    return 1;
+  };
+
+  my $_handler_routine = Win32::API::Callback->new($_ctrl_break_handler, "N", "N");
+  SetConsoleCtrlHandler($_handler_routine, 1)
+    or die "SetConsoleCtrlHandler: $EXTENDED_OS_ERROR";
+}
+
+=end comment
+
+=cut
+
 =back
 
 =cut
@@ -352,7 +395,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *

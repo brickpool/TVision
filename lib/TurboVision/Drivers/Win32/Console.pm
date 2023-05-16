@@ -186,7 +186,7 @@ BEGIN {
   sub _GetCurrentConsoleFont {
   #===========================
     my ($handle, $maxWindow) = @_;
-    return !!0
+    return !! 0
         if !( is_Int($handle) && is_Bool($maxWindow) );
 
     my $fontInfo = Win32::API::Struct->new('CONSOLE_FONT_INFO');
@@ -195,14 +195,12 @@ BEGIN {
     = $fontInfo->{dwFontSize}->{Y}
     = 0;
     return GetCurrentConsoleFont( $handle, $maxWindow, $fontInfo )
-      ?
-    (
-      $fontInfo->{nFont},
-      $fontInfo->{dwFontSize}->{X},
-      $fontInfo->{dwFontSize}->{Y},
-    )
-      :
-    ()
+      ? (
+          $fontInfo->{nFont},
+          $fontInfo->{dwFontSize}->{X},
+          $fontInfo->{dwFontSize}->{Y},
+        )
+      : ()
   }
 
   # _ReadConsoleInputW with Unicode (and WindowBufferSizeEvent) support
@@ -210,24 +208,24 @@ BEGIN {
   sub _ReadConsoleInputW {
   #======================
     my ($handle) = @_;
-    return !!0 unless is_Int($handle);
+    return !! 0
+        if not is_Int($handle);
     
     my ($event_type) = do {
       my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
       my $ok
-      = $ir->{EventType}
-      = $ir->{bKeyDown}
-      = $ir->{wRepeatCount}
-      = $ir->{wVirtualKeyCode}
-      = $ir->{wVirtualScanCode}
-      = $ir->{UnicodeChar}
-      = $ir->{dwControlKeyState}
-      = 0;
+        = $ir->{EventType}
+        = $ir->{bKeyDown}
+        = $ir->{wRepeatCount}
+        = $ir->{wVirtualKeyCode}
+        = $ir->{wVirtualScanCode}
+        = $ir->{UnicodeChar}
+        = $ir->{dwControlKeyState}
+        = 0
+        ;
       PeekConsoleInput( $handle, $ir, 1, $ok ) && $ok
-        ?
-      ( $ir->{EventType} )
-        :
-      ()
+        ? ( $ir->{EventType} )
+        : ()
         ;
     };
     $event_type //= 0;
@@ -240,26 +238,24 @@ BEGIN {
           # Windows API 'ReadConsoleInputW' call is used instead.
           my $ir = Win32::API::Struct->new('KEY_EVENT_RECORD');
           my $ok
-          = $ir->{EventType}
-          = $ir->{bKeyDown}
-          = $ir->{wRepeatCount}
-          = $ir->{wVirtualKeyCode}
-          = $ir->{wVirtualScanCode}
-          = $ir->{UnicodeChar}
-          = $ir->{dwControlKeyState}
-          = 0;
+            = $ir->{EventType}
+            = $ir->{bKeyDown}
+            = $ir->{wRepeatCount}
+            = $ir->{wVirtualKeyCode}
+            = $ir->{wVirtualScanCode}
+            = $ir->{UnicodeChar}
+            = $ir->{dwControlKeyState}
+            = 0
+            ;
           ReadConsoleInputW( $handle, $ir, 1, $ok ) && $ok
-            ?
-          ( $ir->{EventType}
-          , $ir->{bKeyDown}
-          , $ir->{wRepeatCount}
-          , $ir->{wVirtualKeyCode}
-          , $ir->{wVirtualScanCode}
-          , $ir->{UnicodeChar}
-          , $ir->{dwControlKeyState}
-          )
-            :
-          ()
+            ? ( $ir->{EventType},
+                $ir->{bKeyDown},
+                $ir->{wRepeatCount},
+                $ir->{wVirtualKeyCode},
+                $ir->{wVirtualScanCode},
+                $ir->{UnicodeChar},
+                $ir->{dwControlKeyState} )
+            : ()
             ;
         };
         return  @event
@@ -285,7 +281,11 @@ BEGIN {
         # Consume event from the Windows event queue
         Win32::Console::_ReadConsoleInputA($handle);
 
-        return ( $event_type, $size_x, $size_y );
+        return (
+          $event_type,
+          $size_x,
+          $size_y
+        );
       };
 
       DEFAULT: {
@@ -426,7 +426,7 @@ BEGIN {
   #==============
     my ($self) = @_;
     return undef unless ref($self);
-    return !!$self->Mode();
+    return !! $self->Mode();
   }
 
 1;

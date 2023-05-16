@@ -753,7 +753,10 @@ Returns true if successful.
     # Rotation sense is represented by the sign of button_state's high word
     my $positive = not ( $mouse_event->{button_state} & 0x8000_0000 );
     if ( $mouse_event->{event_flags} & _MOUSE_WHEELED ) {
-      $button_mask |= $positive ? MB_SCROLL_WHEEL_DOWN : MB_SCROLL_WHEEL_UP;
+      $button_mask |= $positive
+                    ? MB_SCROLL_WHEEL_DOWN
+                    : MB_SCROLL_WHEEL_UP
+                    ;
     }
 
     # Get current timer ticks
@@ -903,7 +906,10 @@ the next event.
         # convert UTF-16 data into Perl's internal string
         # and set UTF8 flag to on if needed
         my $ch = do {
-          my $check = STRICT ? Encode::FB_CROAK : Encode::FB_QUIET;
+          my $check = STRICT
+                    ? Encode::FB_CROAK
+                    : Encode::FB_QUIET
+                    ;
           pop @utf16 unless $utf16[1];
           my $bytes = pack('v*', @utf16);
           my $string = decode('UTF-16LE', $bytes, $check);
@@ -935,7 +941,7 @@ Returns true if successful.
     shift(@_event_queue)
       while @_event_queue >= _EVENT_Q_SIZE;
 
-    return !!push(@_event_queue, $event);
+    return !! push(@_event_queue, $event);
   }
 
 =item public C<< Bool _update_event_queue() >>
