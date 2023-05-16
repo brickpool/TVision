@@ -14,7 +14,6 @@ use TurboVision::Drivers::Win32::Keyboard qw( :kbd );
 use TurboVision::Drivers::Win32::SystemError qw( :all );
 
 use Win32;
-use Win32::Console;
 use Win32::GuiTest;
 
 init_sys_error();

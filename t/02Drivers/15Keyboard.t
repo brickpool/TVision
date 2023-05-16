@@ -15,7 +15,6 @@ use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::Win32::Keyboard qw( :all );
 
 use Win32;
-use Win32::Console;
 use Win32::GuiTest;
 
 #----------
