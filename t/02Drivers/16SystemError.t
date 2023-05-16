@@ -6,7 +6,7 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :kbXXXX :evXXXX );
@@ -23,11 +23,6 @@ init_sys_error();
 note 'vars';
 #----------
 ok (
-  !$ctrl_break_hit, 
-  '$ctrl_break_hit'
-);
-
-ok (
   $sys_err_active, 
   '$sys_err_active'
 );
@@ -37,16 +32,22 @@ ok (
   '$fail_sys_errors'
 );
 
+ok (
+  !$ctrl_break_hit, 
+  '$ctrl_break_hit'
+);
+
 #-----------------
 note 'SystemError';
 #-----------------
-use constant ERR => 15;
+use constant ERR => 9;
+$fail_sys_errors = _TRUE;
+my $ret = eval {
+  Win32::SetLastError(ERR + 19);
+  $sys_error_func->(ERR, 0);
+};
 ok(
-  defined( eval {
-    Win32::SetLastError(ERR + 19);
-    Win32::GuiTest::SendKeys(" ", 200);
-    $sys_error_func->(ERR, 0);
-  } ),
+  $ret,
   '$sys_error_func'
 );
 
@@ -78,5 +79,10 @@ ok (
 );
 
 done_sys_error();
+
+ok (
+  !$sys_err_active, 
+  '$sys_err_active'
+);
 
 done_testing;
