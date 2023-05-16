@@ -1,17 +1,7 @@
 use 5.014;
 use warnings;
 
-BEGIN {
-  print "1..0 # Skip win32 required\n" and exit unless $^O =~ /win32|cygwin/i;
-  $| = 1;
-}
-
-use Test::More tests => 10;
-
-BEGIN {
-  use_ok 'TurboVision::Drivers::Const';
-  use_ok 'TurboVision::Drivers::Utility';
-}
+use Test::More tests => 8;
 
 use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Drivers::Utility qw( :util );

@@ -6,9 +6,19 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
-use TurboVision::Drivers::Win32::EventManager qw( $_ticks );
+BEGIN {
+  # Otherwise it is too late to execute the INIT block of Mouse.pm
+  use_ok 'TurboVision::Drivers::Win32::Mouse';
+}
+
+use TurboVision::Drivers::Win32::EventManager qw(
+  :events
+  $_ticks
+);
+
+init_events();
 
 ok (
   defined($_ticks),
@@ -25,5 +35,7 @@ cmp_ok (
 );
 
 diag('measured delta: ', $t2 - $t1, ' ticks.');
+
+done_events();
 
 done_testing;
