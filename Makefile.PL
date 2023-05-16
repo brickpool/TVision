@@ -19,6 +19,7 @@ WriteMakefile(
     'Data::Alias'               => 1.21,
     'Devel::StrictMode'         => 0.003,
     'Function::Parameters'      => 2.001003,
+    'Import::Into'              => 1.002005,
     'Moose'                     => 2.1213,
     'MooseX::ClassAttribute'    => 0.29,
     'MooseX::HasDefaults::RO'   => 0.03,
