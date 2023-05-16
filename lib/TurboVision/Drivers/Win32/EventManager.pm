@@ -513,7 +513,19 @@ Saves the input codepage used by the startup console.
 
 =cut
 
-  my $_save_cp_input = 850;
+  my $_save_cp_input;
+
+=begin comment
+
+=item local C<< Str $_save_locale >>
+
+Saves the old locale used by the startup console.
+
+=end comment
+
+=cut
+
+  my $_save_locale;
 
 =begin comment
 
@@ -550,17 +562,26 @@ terminated by calling its corresponding I<done_events> procedure.
 =cut
 
   func init_events() {
+    # Disable the Quick Edit mode, which inhibits the mouse.
     my $CONSOLE = $_io->in();
-
     my $mode = $CONSOLE->Mode();
     $_save_quick_mode = !!(
       $mode & ( _ENABLE_EXTENDED_FLAGS | _ENABLE_QUICK_EDIT_MODE )
     );
-    # Disable the Quick Edit mode, which inhibits the mouse.
     $mode |= _ENABLE_EXTENDED_FLAGS;
     $mode &= ~_ENABLE_QUICK_EDIT_MODE;
     $CONSOLE->Mode( $mode );
 
+    # Set the console and the environment in UTF-8 mode.
+    my $code_page = Win32::Console::InputCP();
+    Win32::Console::InputCP(_CP_UTF8);
+    $_save_cp_input = $code_page if not defined $_save_cp_input;
+    # Note that this must be done again after SetConsoleCP();
+    my $locale = setlocale( LC_ALL );
+    setlocale( LC_ALL, ".UTF-8" );
+    $_save_locale = $locale if not defined $_save_locale;
+
+    # show mouse (init mouse)
     require TurboVision::Drivers::Win32::Mouse;
     TurboVision::Drivers::Win32::Mouse::show_mouse();
 
@@ -577,6 +598,7 @@ I<done_events> disables the mouse event handler and hides the mouse.
 =cut
 
   func done_events() {
+    # hide mouse (done mouse)
     require TurboVision::Drivers::Win32::Mouse;
     TurboVision::Drivers::Win32::Mouse::hide_mouse();
 
@@ -590,6 +612,12 @@ I<done_events> disables the mouse event handler and hides the mouse.
         | _ENABLE_EXTENDED_FLAGS
       );
     }
+
+    # Restore the console and the environment codepage.
+    Win32::Console::InputCP($_save_cp_input)
+      if $_save_cp_input;
+    setlocale( LC_ALL, $_save_locale )
+      if $_save_locale;
 
     return;
   }
@@ -1019,23 +1047,6 @@ Returns true if successful.
 =back
 
 =cut
-
-# ------------------------------------------------------------------------
-# Initialization ---------------------------------------------------------
-# ------------------------------------------------------------------------
-
-INIT {
-  # Set the console and the environment in UTF-8 mode.
-  $_save_cp_input = Win32::Console::InputCP();
-  Win32::Console::InputCP(_CP_UTF8);
-  # Note that this must be done again after SetConsoleCP();
-  setlocale( LC_ALL, ".UTF-8" );
-}
-
-END {
-  # Restore the console and the environment codepage.
-  Win32::Console::InputCP($_save_cp_input);
-}
 
 1;
 
