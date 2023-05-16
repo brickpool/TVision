@@ -35,6 +35,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use English qw( -no_match_vars );
 use Data::Alias qw( alias );
 
 use TurboVision::Const qw( :bool );
@@ -106,6 +107,65 @@ our %EXPORT_TAGS = (
     @{$EXPORT_TAGS{all}},
       @EXPORT_OK;
 }
+
+# ------------------------------------------------------------------------
+# Constants --------------------------------------------------------------
+# ------------------------------------------------------------------------
+
+=begin comment
+
+=head2 Constants
+
+=over
+
+=item public const C<< Int _MB_ICONERROR >>
+
+A stop-sign icon appears in the message box.
+
+=end comment
+
+=cut
+
+  use constant _MB_ICONERROR      => 0x00000010;
+
+=item public const C<< Int _MB_RETRYCANCEL >>
+
+The message box contains two push buttons: Retry and Cancel.
+
+=end comment
+
+=cut
+
+  use constant _MB_RETRYCANCEL    => 0x00000005;
+
+=item public const C<< Int _MB_SETFOREGROUND >>
+
+The message box becomes the foreground window.
+
+=end comment
+
+=cut
+
+  use constant _MB_SETFOREGROUND  => 0x00010000;
+
+=item public const C<< Int _IDRETRY >>
+
+The Retry button was selected.
+
+=end comment
+
+=cut
+
+  use constant _IDRETRY           => 4;
+
+
+=begin comment
+
+=back
+
+=end comment
+
+=cut
 
 # ------------------------------------------------------------------------
 # Variables --------------------------------------------------------------
@@ -272,8 +332,8 @@ STD ioctl object I<< StdioCtl->instance() >>
 =item public C<< init_sys_error() >>
 
 This internal routine, called by I<< TApplication->init >>, initializes system
-error trapping by redirecting the handling of I<Keyboard>, I<Ctrl-Break>,
-I<System>, I<Ctrl-C> and I<Critical-Error>, and clearing Ctrl-Break state.
+error trapping by redirecting the handling of I<Ctrl-C>, I<Ctrl-Break> and
+I<Critical-Error>, and clearing Ctrl-Break state.
 
 System error trapping is terminated by calling the corresponding
 I<done_sys_error> routine.
@@ -282,12 +342,11 @@ I<done_sys_error> routine.
 
   func init_sys_error() {
     my $CONSOLE = $_io->in();                           # get input console
-
     my $mode = $CONSOLE->Mode();                        # save Ctrl+C status
     $save_ctrl_break = !!( $mode & ENABLE_PROCESSED_INPUT );
-    $mode &= ~ENABLE_PROCESSED_INPUT;                   # Report Ctrl+C and ...
-    $CONSOLE->Mode( $mode );                            # ... Shift+Arrow events
-
+    $CONSOLE->Mode( $mode & ~ENABLE_PROCESSED_INPUT );  # Report Ctrl+C and ...
+                                                        # ... Shift+Arrow events
+    $sys_err_active = _TRUE;
     return;
   }
 
@@ -295,18 +354,24 @@ I<done_sys_error> routine.
 
 This internal routine is called automatically by I<< TApplication->DEMOLISH >>,
 terminating Turbo Vision's system error trapping and restoring the handling of
-I<Keyboard>, I<Ctrl-Break>, I<System>, I<Ctrl-C> and I<Critical-Error>, to their
-original settings.
+I<Ctrl-C>, I<Ctrl-Break> and I<Critical-Error>, to their original settings.
 
 =cut
 
   func done_sys_error() {
-    my $CONSOLE = $_io->in();                           # get input console
+    return
+        if not $sys_err_active;
+    $sys_err_active = _FALSE;
 
+    my $CONSOLE = $_io->in();                           # get input console
     my $mode = $CONSOLE->Mode();                        # restore Ctrl-C status
-    $mode |= ENABLE_PROCESSED_INPUT if $save_ctrl_break;
-    $CONSOLE->Mode( $mode );
-    
+    if ( $save_ctrl_break ) {
+      $CONSOLE->Mode( $mode | ENABLE_PROCESSED_INPUT )
+    }
+    else {
+      $CONSOLE->Mode( $mode & ~ENABLE_PROCESSED_INPUT )
+    }
+
     return;
   }
 
@@ -326,48 +391,24 @@ See: I<$sys_error_func>
     return 1                                          # Return 1 for ignored
         if $fail_sys_errors;                          # Check error ignore
 
-  }
+    if ( $error_code >= 0
+      && $error_code <= 15
+      && $error_code == $EXTENDED_OS_ERROR-19
+    ) {
+      $drive = chr($drive + ord 'A');
+      my $str = $EXTENDED_OS_ERROR;
+      $str =~ s/\%1/$drive/;
+      return
+          Win32::MsgBox(
+            $str, _MB_RETRYCANCEL | _MB_ICONERROR | _MB_SETFOREGROUND, ''
+          ) == _IDRETRY
+          ? 0
+          : 1
+          ;
+    }
 
-=begin comment
-
-  use English qw( -no_match_vars );
-  use Win32::API;
-  use Win32::API::Callback;
-
-BEGIN {
-  use constant _kernelDll => 'kernel32';
-  Win32::API->Import(_kernelDll, 
-    'SetConsoleCtrlHandler', 'KN', 'N'
-  ) or die "Import SetConsoleCtrlHandler: $EXTENDED_OS_ERROR";
-}
-
-INIT{
-  use constant {
-    _CTRL_C_EVENT     => 0,
-    _CTRL_BREAK_EVENT => 1,
-  };
-
-  my $_ctrl_break_handler = sub ($) {
-    print STDERR '1';
-    return 0;
-
-    alias my $ctrl_type = $_[-1];
-    return 0
-        if $ctrl_type != _CTRL_C_EVENT
-        && $ctrl_type != _CTRL_BREAK_EVENT;
-
-    $ctrl_break_hit = _TRUE;
     return 1;
-  };
-
-  my $_handler_routine = Win32::API::Callback->new($_ctrl_break_handler, "N", "N");
-  SetConsoleCtrlHandler($_handler_routine, 1)
-    or die "SetConsoleCtrlHandler: $EXTENDED_OS_ERROR";
-}
-
-=end comment
-
-=cut
+  }
 
 =back
 
