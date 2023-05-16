@@ -32,8 +32,8 @@ WriteMakefile(
     'Try::Tiny'                 => 0.22,
   },
   TEST_REQUIRES => {
-    'Test::More'      => 0.95,
     'Devel::Refcount' => 0.10,
+    'Test::More'      => 0.95,
     'Win32::GuiTest'  => 1.64,
   },
   LICENSE     => 'lgpl_3_0',
