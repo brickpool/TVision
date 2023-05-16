@@ -59,7 +59,7 @@ use TurboVision::Drivers::Win32::StdioCtl;
 #use TurboVision::Drivers::Win32::LowLevel qw(
 #  GWL_STYLE
 #  WS_SIZEBOX
-#  FindWindow
+#  GetConsoleWindow
 #  GetWindowLong
 #  SetWindowLong
 #);
@@ -645,9 +645,7 @@ Does the window have a resize frame?
 =cut
 
   #func _get_windows_resizing() {
-  #  my $CONSOLE = $_io->out;
-  #  my $title = $CONSOLE->Title() || return undef;
-  #  my $hWnd = FindWindow(undef, $title) || return undef;
+  #  my $hWnd = GetConsoleWindow() || return undef;
   #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
   #  return
   #      !!( $dwStyle & ~WS_SIZEBOX )
@@ -667,9 +665,7 @@ and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
 =cut
 
   #func _set_window_resizing(Bool $enable) {
-  #  my $CONSOLE = $_io->out;
-  #  my $title = $CONSOLE->Title() || return;
-  #  my $hWnd = FindWindow(undef, $title) || return;
+  #  my $hWnd = GetConsoleWindow() || return;
   #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
   #  if ( $enable ) {
   #    SetWindowLong($hWnd, GWL_STYLE, $dwStyle | WS_SIZEBOX);

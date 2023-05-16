@@ -6,14 +6,14 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 8;
+use Test::More tests => 7;
 
 use TurboVision::Drivers::Win32::LowLevel qw(
   GWL_STYLE
   WS_SIZEBOX
-  
+
+  GetConsoleWindow
   GetDoubleClickTime
-  FindWindow
   GetWindowLong
   SetWindowLong
 );
@@ -51,21 +51,15 @@ isa_ok(
   'Win32::Console'
 );
 
-my $title = $CONSOLE->Title();
-ok(
-  $title,
-  '$CONSOLE->Title'
-);
-
-my $hWnd = FindWindow(undef, $title);
+my $hWnd = GetConsoleWindow();
 ok(
   $hWnd,
-  'FindWindow'
+  'GetConsoleWindow'
 );
 
 my $dwStyle = GetWindowLong($hWnd, GWL_STYLE);
 ok(
-  defined $dwStyle,
+  $dwStyle,
   'GetWindowLong'
 );
 

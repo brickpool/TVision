@@ -64,9 +64,8 @@ our @EXPORT_OK = qw(
   GWL_STYLE
   WS_SIZEBOX
 
+  GetConsoleWindow
   GetDoubleClickTime
-
-  FindWindow
   GetWindowLong
   SetWindowLong
 );
@@ -91,23 +90,26 @@ Parameter for I<SetWindowLong>. Sets a new window style.
 
 Defines if the window should have a sizing border.
 
-Note: After the window is created, the style cannot be changed.
-
 =cut
 
   use constant WS_SIZEBOX => 0x00040000;
 
 =begin comment
 
+=item private const C<< Int _kernelDll >>
+
 =item private const C<< Int _userDll >>
 
-Name of the library file used for the I<Windows and Messages> subs.
+Name of the library files used for the I<Windows and Messages> subs.
 
 =end comment
 
 =cut
 
-  use constant _userDll => 'user32';
+  use constant {
+    _kernelDll  => 'kernel32',
+    _userDll    => 'user32',
+  };
 
 =back
 
@@ -121,6 +123,19 @@ Name of the library file used for the I<Windows and Messages> subs.
 
 =over
 
+=item public C<< Int GetConsoleWindow() >>
+
+Retrieves the window handle from the calling process that is used by the
+console; for more info consult the original API documentation.
+
+=cut
+
+BEGIN {
+  Win32::API::More->Import(_kernelDll,
+    'HWND GetConsoleWindow()'
+  ) or die "Import GetConsoleWindow: $EXTENDED_OS_ERROR";
+}
+
 =item public C<< Int GetDoubleClickTime() >>
 
 Retrieves the current double-click time for the mouse; for more info consult the
@@ -132,19 +147,6 @@ BEGIN {
   Win32::API::More->Import(_userDll, 
     'UINT GetDoubleClickTime()'
   ) or die "Import GetDoubleClickTime: $EXTENDED_OS_ERROR";
-}
-
-=item public C<< Int FindWindow(Str|Undef $lpClassName, Str|Undef $lpWindowName) >>
-
-Retrieves a handle to the top-level window whose name match the specified
-strings; for more info consult the original API documentation.
-
-=cut
-
-BEGIN {
-  Win32::API::More->Import(_userDll,
-    'HWND FindWindow(LPCSTR lpClassName, LPCSTR lpWindowName)'
-  ) or die "Import FindWindow: $EXTENDED_OS_ERROR";
 }
 
 =item public C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
