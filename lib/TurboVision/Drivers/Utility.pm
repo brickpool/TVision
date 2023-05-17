@@ -59,6 +59,14 @@ Nothing per default, but can export the following per request:
 
     :str
       format_str
+      print_str
+      
+    :move
+      c_str_len
+      move_buf
+      move_c_str
+      move_char
+      move_str
 
 =cut
 
@@ -79,6 +87,15 @@ our %EXPORT_TAGS = (
 
   str => [qw(
     format_str
+    print_str
+  )],
+
+  move => [qw(
+    c_str_len
+    move_buf
+    move_c_str
+    move_char
+    move_str
   )],
 
 );
@@ -101,6 +118,8 @@ our %EXPORT_TAGS = (
 # ------------------------------------------------------------------------
 
 =head2 Subroutines
+
+B<Keyboard support routines>
 
 =over
 
@@ -220,6 +239,12 @@ Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
   func get_ctrl_code(Str $ch) {
     return get_alt_code($ch) | ord($ch) - 0x40;         # Ctrl+key code
   }
+
+=back
+
+B<String routines>
+
+=over
 
 =item public C<< format_str(Str $result, Str $format, @params) >>
 
@@ -343,6 +368,160 @@ built in function I<print>.
 
   func print_str(Str $s) {
     print $s;
+    return;
+  }
+
+=back
+
+B<Buffer move routines>
+
+=over
+
+=item public C<< Int c_str_len(Str $s) >>
+
+Returns the length of control strings, which are any strings containing
+short-cut characters surrounded by tilde '~' characters, minus the number of
+tilde characters. For example,
+
+  c_str_len( '~F~ile' );
+
+has a length of 4.
+
+=cut
+
+  func c_str_len(Str $s) {
+    $s =~ s/~//g;
+    return length $s
+  }
+
+=item public C<< move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) >>
+
+I<move_buf> is typically used for copying text and video attribute to a
+I<TDrawBuffer>-type array.
+
+Such an array holds character bytes in the I<low bytes> of each element and
+attribute values in the I<high bytes>. 
+
+I<move_buf> copies I<$count> elements from I<$source> into the I<low bytes> of
+the I<$dest> destination parameter, setting each I<high bytes> to the I<$attr>
+value (or leaving the attribute as is if I<$attr> equals zero).
+
+See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
+I<< TView->write_line >>.
+
+=cut
+
+  func move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) {
+    for (my $i = 0; $i < $count; $i++) {
+      alias my $p = $dest->[$i];                      # Pointer to element
+      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
+      $p->{lo} = $source->[$i]->{lo};                 # Copy source data
+    }
+    return;
+  }
+
+=item public C<< move_c_str(ArrayRef $dest, Str $str, @attrs) >>
+
+I<move_c_str> copies a string to a I<TDrawBuffer> array such that the text is
+alternately one of two different colors.
+
+I<move_c_str> copies the I<$str> string parameter to the I<$dest> (a
+I<TDrawBuffer> array) and sets each character's attributes using either the
+I<first or second element> of the I<@attrs> array.
+
+Initially, I<move_c_str> uses the second element of I<@attrs>, but upon
+encountering a "~" tilde character, I<move_c_str> switches to the first element
+of I<@attrs>.
+
+Each tilde in the string causes I<move_c_str> to toggle to the other I<@attrs>
+attribute element.
+
+I<move_c_str> is used by Turbo Vision for setting up pulldown menu strings where
+the hot keys are set off in a different color from the rest of the text.
+
+For example, 
+
+  new_sub_menu('~R~un', HC_NO_CONTEXT, new_menu( ...
+
+You use I<move_c_str> like this:
+
+  my $a_buffer = [];
+  ...
+  move_c_str( $a_buffer, 'This ~is~ some text.', 0x07, 0x70 );
+  $self->write_line( 10, 10, 18, 1, $a_buffer );
+
+This sets the word 'is' to the attribute C<0x07> and the rest of the text to
+C<0x70>.
+
+See: I<TDrawBuffer>, I<move_char>, I<move_buf>, I<move_str>,
+I<< TView->write_buf >> and I<< TView->write_line >>.
+
+=cut
+
+  func move_c_str(ArrayRef $dest, Str $str, @attrs) {
+    assert { $_ = @attrs == 2 };
+    assert { is_Int $attrs[0] };
+    assert { is_Int $attrs[1] };
+  
+    my $j = 0;                                        # Start position
+    for ( my $i = 0; $i < length($str); $i++ ) {      # For each character
+      if ( substr($str, $i, 1) ne '~' ) {             # Not tilde character
+        alias my $p = $dest->[$j];                    # Pointer to element
+        if ( $attrs[1] != 0 ) {
+          $p->{hi} = $attrs[1];                       # Copy attribute
+          $p->{lo} = substr($str, $i, 1);             # Copy string char
+          $j++;                                       # Next position
+        }
+      }
+      else {
+        @attrs = ( $attrs[1], $attrs[0] );            # Complete exchange
+      }
+    }
+    return;
+  }
+
+
+=item public C<< move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) >>
+
+Similar to move_buf, except that this copies the single character I<$c>,
+I<$count> number of times, into each I<low byte> of the I<$dest> parameter
+(which should be a I<TDrawBuffer> type), and if I<$attr> is non-zero, copies
+I<$attr> to each I<high byte> position in the array of elements.
+
+See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
+I<< TView->write_line >>.
+
+=cut
+
+  func move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) {
+    assert { $_ = length $c == 1 };
+
+    for (my $i = 0; $i < $count; $i++) {
+      alias my $p = $dest->[$i];                      # Pointer to element
+      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
+      $p->{lo} = $c;                                  # Copy character 
+    }
+    return;
+  }
+
+=item public C<< move_str(ArrayRef $dest, Str $str, Int $attr) >>
+
+I<move_str> copies the I<$str> string parameter to the I<$dest> (a
+I<TDrawBuffer> array) and sets each character's attributes to the video
+attribute contained in I<$attr>.
+
+See: I<TDrawBuffer>, I<move_char>, I<move_buf>, I<move_c_str>,
+I<< TView->write_buf >> and I<< TView->write_line >>.
+
+=cut
+
+  func move_str(ArrayRef $dest, Str $str, Int $attr) {
+    for (my $i = 0; $i < length($str); $i++) {
+      alias my $p = $dest->[$i];                      # Pointer to element
+      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
+      $p->{lo} = substr($str, $i, 1);                 # Copy string char
+    }
+    return;
   }
 
 =back
@@ -406,4 +585,4 @@ __END__
 
 =head1 SEE ALSO
 
-L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>, 
+L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>

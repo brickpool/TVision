@@ -1,7 +1,7 @@
 use 5.014;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 19;
 
 use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Drivers::Utility qw( :all );
@@ -97,5 +97,66 @@ cmp_ok(
 #--------------------------
 note 'Buffer move routines';
 #--------------------------
+
+is (
+  c_str_len( '~F~ile' ),
+  4,
+  'c_str_len'
+);
+
+my $a_buffer = [];
+move_c_str( $a_buffer, 'This ~is~ some text.', 0x07, 0x70 );
+my $str = join('', map { $_->{lo} } @{ $a_buffer } );
+ok (
+  length($str) == 18
+    &&
+  $a_buffer->[4]->{hi} == 0x70
+    &&
+  $a_buffer->[6]->{hi} == 0x07
+    &&
+  $a_buffer->[7]->{hi} == 0x70
+  ,
+  'move_c_str'
+);
+
+my $src = $a_buffer;
+my $dest = [];
+move_buf($dest, $src, 0x77, 5);
+$str = join('', map { $_->{lo} } @{ $dest } );
+ok (
+  length($str) == 5
+    &&
+  $dest->[4]->{lo} eq $src->[4]->{lo}
+    &&
+  $dest->[4]->{hi} == 0x77
+  ,
+  'move_buf'
+);
+
+$dest = [];
+move_char($dest, '#', 0x07, 5);
+$str = join('', map { $_->{lo} } @{ $dest } );
+ok (
+  length($str) == 5
+    &&
+  $dest->[4]->{lo} eq '#'
+    &&
+  $dest->[4]->{hi} == 0x07
+  ,
+  'move_char'
+);
+
+$dest = [];
+move_str($dest, 'String', 0x70);
+$str = join('', map { $_->{lo} } @{ $dest } );
+ok (
+  length($str) == 6
+    &&
+  $dest->[0]->{lo} eq 'S'
+    &&
+  $dest->[0]->{hi} == 0x70
+  ,
+  'move_str'
+);
 
 done_testing;
