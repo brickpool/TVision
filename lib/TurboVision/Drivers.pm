@@ -142,7 +142,7 @@ __END__
 
 =item *
 
-2022 by J. Schneider L<https://github.com/brickpool/>
+2022-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

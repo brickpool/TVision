@@ -36,7 +36,6 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use English qw( -no_match_vars );
 use PerlX::Assert;
 
 use TurboVision::Const qw( :bool );
@@ -158,7 +157,7 @@ treated as a double click (rather than two separate single clicks).
 By default, the two mouse clicks must occur with 8/18'ths of a second to be
 considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
 
-Note: For Windows, the value is the current double-click time of the system (by
+B<Note>: For Windows, the value is the current double-click time of the system (by
 default 9 ticks, equivalent to 500ms).
 
 =cut

@@ -11,7 +11,7 @@ Simply integrate this module into your package or script.
   use Win32::Console;
   use TurboVision::Drivers::Win32::Console;
 
-Note: Loading this module must be done after C<use Win32::Console>, otherwise
+B<Note>: Loading this module must be done after C<use Win32::Console>, otherwise
 the patches and extensions for I<Win32::Console> will not be installed
 correctly.
 

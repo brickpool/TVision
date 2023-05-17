@@ -63,7 +63,7 @@ Nothing per default, but can export the following per request:
       $sys_err_active
       $fail_sys_errors
   
-    :syserr
+    :err
       init_sys_error
       done_sys_error
       system_error
@@ -87,7 +87,7 @@ our %EXPORT_TAGS = (
     $fail_sys_errors
   )],
 
-  syserr => [qw(
+  err => [qw(
     init_sys_error
     done_sys_error
     system_error
@@ -212,8 +212,8 @@ Table of System Error Codes
   14          Device access error
   15          Drive swap notification (floppy disks have changed)
 
-Note: I<$error_code> corresponds to the system error codes 19 to 34 of MS-DOS or
-Windows (I<$^E> or I<$EXTENDED_OS_ERROR>).
+B<Note>: I<$error_code> corresponds to the system error codes 19 to 34 of MS-DOS
+or Windows (I<$^E> or I<$EXTENDED_OS_ERROR>).
 
 See: I<sys_color_attr>, I<sys_err_active>, I<sys_error_func>, I<sys_mono_attr>,
 I<system_error>, I<TSysErrorFunc>, I<init_sys_error>.
@@ -398,16 +398,16 @@ See: I<$sys_error_func>
       $drive = chr($drive + ord 'A');
       my $str = $EXTENDED_OS_ERROR;
       $str =~ s/\%1/$drive/;
-      return
-          Win32::MsgBox(
-            $str, _MB_RETRYCANCEL | _MB_ICONERROR | _MB_SETFOREGROUND, ''
-          ) == _IDRETRY
-          ? 0
-          : 1
-          ;
+      my $choice = Win32::MsgBox(
+        $str, _MB_ICONERROR | _MB_SETFOREGROUND | _MB_RETRYCANCEL, ''
+      );
+      return $choice == _IDRETRY
+            ? 0
+            : 1
+            ;
     }
 
-    return 1;
+    return;
   }
 
 =back

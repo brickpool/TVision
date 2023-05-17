@@ -468,7 +468,7 @@ Key shift state.
 This variable returns the number of timer ticks (1 second = 18.2 ticks), similar
 to the direct memory access to the low memory address 0x40:0x6C.
 
-Note: On non-Windows systems, the variable uses the elapsed time since the
+B<Note>: On non-Windows systems, the variable uses the elapsed time since the
 program startup (not the system startup time).
 
 =cut
