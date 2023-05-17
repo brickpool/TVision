@@ -35,6 +35,9 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Data::Alias qw( alias );
+use PerlX::Assert;
+
 use TurboVision::Drivers::Const qw( :private );
 
 # ------------------------------------------------------------------------
@@ -47,12 +50,15 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :util
+    :kbd
       ctrl_to_arrow
       get_alt_char
       get_alt_code
       get_ctrl_char
       get_ctrl_code
+
+    :str
+      format_str
 
 =cut
 
@@ -63,12 +69,16 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  util => [qw(
+  kbd => [qw(
     ctrl_to_arrow
     get_alt_char
     get_alt_code
     get_ctrl_char
     get_ctrl_code
+  )],
+
+  str => [qw(
+    format_str
   )],
 
 );
@@ -209,6 +219,130 @@ Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 
   func get_ctrl_code(Str $ch) {
     return get_alt_code($ch) | ord($ch) - 0x40;         # Ctrl+key code
+  }
+
+=item public C<< format_str(Str $result, Str $format, @params) >>
+
+I<format_str> takes a string I<$format> and a list of parameters in I<@params>
+and produces a formatted string that is returned in Result.
+
+I<format_str> is typically used to insert parameter values into predefined
+strings, such as those used for error messages, or general program strings
+stored in a resource file.
+
+The Format string contains both text and imbedded formatting information, as in
+this example:
+
+  'File %s is %d bytes in size.'
+
+The formatting characters I<%s> and I<%d> indicate that a string and a decimal
+value, respectively, should be substituted in these locations.
+
+The values for the substitutions are specified in the Params parameter as shown
+in the example code, below.
+
+I<$format> specifiers have the form I<< % [-] [nnn] X >>, where the brackets
+indicate optional items and I<X> is a format character.
+
+  Table of Format Specifiers
+  %   Marks the beginning of a format specifier
+  
+  -   Indicates the items should be left justified (default is right justified)
+  
+  nnn Specifies the width of the result, where nnn is in the range from 0 to
+      255.
+      
+      0 is equivalent to not specifying a width.
+      
+      If nnn is less than the width needed to display a particular item, the
+      item is truncated to fit within the width value.
+      
+      For example, %3s allocates 3 character spaces. If the string parameter
+      contains 'Turbo', then only the last 3 characters 'rbo' will be inserted
+      into the result.
+      
+      If you use %-3s, then only the first 3 characters will be inserted, giving
+      'Tur'.
+  
+  s   Format character indicating the parameter is a string pointer.
+  
+  d   Format character indicating the parameter is a Longint and is to be
+      displayed in decimal.
+  
+  c   Format character specifying the low byte of the parameter is a character
+      value.
+  
+  x   Format character specifying the parameter is a Longint to be displayed in
+      hexadecimal.
+  
+  #   Resets the parameter index to the optional nnn value.
+
+The I<@params> parameter variable contains the data corresponding to each item
+specified in the $<format> string. There are two ways to pass the variable
+I<@params>: B<1)> Pass the individual parameters comma separated, B<2)> Or use
+an array.
+
+B<Note>: This utility routine is for compatiblity only; please use the Perl
+built in function I<sprintf>.
+
+=cut
+
+  func format_str($, Str $format, @params) {
+    alias my $result = $_[-2 -scalar(@params)];
+    assert { is_Str $result };
+
+    # convert '% [-] 000 X' to '% [-] X'
+    $format =~ s/(%\-?)0{1,3}([sdcx])/$1$2/;
+
+    # convert '% [-] [nnn] #' to '% [-] [nnn] $'
+    $format =~ s/(%\-?\d{1,3})#/$1\$/;
+
+    # set maximum width incl. left-justify for '% [-] nnn s'
+    $format = do {
+      my $fmt = '';
+      my $i = 0;
+      foreach ( split /(%\-?\d{0,3}s)/, $format ) {
+        # Check format identifier and existing parameters
+        if ( /%(\-?\d{1,3})s/ && defined $params[$i] ) {
+          my $flags = $1;
+          my $width = abs $1;
+          $params[$i] = $flags+0 < 0
+            ? substr($params[$i], 0, $width)
+            : substr($params[$i], -$width)
+            ;
+          if ( $width > length $params[$i] ) {
+            if ( $flags =~ /^[1-9]/ ) {
+              $_ = '%s';
+            }
+            elsif ( $flags =~ /\-0/ ) {
+              while ( $width > length $params[$i] ) {
+                $params[$i] .= '0';
+              }
+              $_ = '%s';
+            }
+          }
+        }
+        $fmt .= $_;
+        $i++ if /%\-?\d{0,3}s/;
+      }
+      $fmt;
+    };
+
+    $result = sprintf($format, @params);
+    return;
+  }
+
+=item public C<< print_str(Str $s) >>
+
+Writes the string <$s> to STDOUT.
+
+B<Note>: This utility routine is for compatiblity only; please use the Perl
+built in function I<print>.
+
+=cut
+
+  func print_str(Str $s) {
+    print $s;
   }
 
 =back

@@ -1,11 +1,14 @@
 use 5.014;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 14;
 
 use TurboVision::Drivers::Const qw( :kbXXXX );
-use TurboVision::Drivers::Utility qw( :util );
+use TurboVision::Drivers::Utility qw( :all );
 
+#-------------------------------
+note 'Keyboard support routines';
+#-------------------------------
 is(
   ctrl_to_arrow( KB_CTRL_A ), # Ctrl-A
   KB_HOME,
@@ -50,5 +53,49 @@ is(
   KB_CTRL_Z,
   'get_ctrl_code'
 );
+
+#---------------------
+note 'String routines';
+#---------------------
+my $result = '';
+format_str($result, "<%7s>", 'String');
+cmp_ok(
+  $result, 'eq', '<String>',
+  'format_str <String>'
+);
+
+format_str($result, "<%-7s>", 'String');
+cmp_ok(
+  $result, 'eq', '<String >',
+  'format_str <String >'
+);
+
+format_str($result, "<%4s>", 'String');
+cmp_ok(
+  $result, 'eq', '<ring>',
+  'format_str <ring>'
+);
+
+format_str($result, "<%-3s>", 'String');
+cmp_ok(
+  $result, 'eq', '<Str>',
+  'format_str <Str>'
+);
+
+format_str($result, "<%07s>", 'String');
+cmp_ok(
+  $result, 'eq', '<0String>',
+  'format_str <0String>'
+);
+
+format_str($result, "<%-07s>", 'String');
+cmp_ok(
+  $result, 'eq', '<String0>',
+  'format_str <String0>'
+);
+
+#--------------------------
+note 'Buffer move routines';
+#--------------------------
 
 done_testing;
