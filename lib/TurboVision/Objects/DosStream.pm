@@ -272,8 +272,9 @@ I<seek> or beginning at the end of the previous I<read> operation).
     if ( !$num_bytes || $num_bytes != $count ) {
       # Error was detected
       $buf = "\0" x $count;
-      my $errno = !defined $num_bytes ? POSIX::errno()    # Specific read error
-                :                       EFAULT            # Non specific error
+      my $errno = !defined $num_bytes
+                ? POSIX::errno()                          # Specific read error
+                : EFAULT                                  # Non specific error
                 ;
       $self->error(ST_READ_ERROR, $errno);
       return;
@@ -360,8 +361,9 @@ Use I<write> to copy I<$count> bytes from the I<$buf> parameter to the stream.
     my $num_bytes = syswrite($self->handle, $buf, $count);
     if ( !$num_bytes || $num_bytes != $count ) {
       # Error was detected
-      my $errno = !defined $num_bytes ? POSIX::errno()    # Specific read error
-                :                       EFAULT            # Non specific error
+      my $errno = !defined $num_bytes
+                ? POSIX::errno()                          # Specific read error
+                : EFAULT                                  # Non specific error
                 ;
       $self->error(ST_WRITE_ERROR, $errno);
       $num_bytes //= 0;                                   # Clear bytes moved
@@ -480,7 +482,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

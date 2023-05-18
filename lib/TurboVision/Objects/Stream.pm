@@ -250,8 +250,9 @@ object.
 
     my ($buffer, $n);
     while ( $count > 0 ) {
-      $n = $count > _SIZE_OF_BUFFER ? _SIZE_OF_BUFFER
-         :                            $count
+      $n = $count > _SIZE_OF_BUFFER
+         ? _SIZE_OF_BUFFER
+         : $count
          ;
       $s->read($buffer, $n);
       last if $self->status != ST_OK;
@@ -316,12 +317,14 @@ on error.
       word( $buf )->unpack() // 0;
     };
     # look for the related entry
-    my $rec = TStreamRec->_has_stream_types ? TStreamRec->_stream_types
-            :                                 undef
+    my $rec = TStreamRec->_has_stream_types
+            ? TStreamRec->_stream_types
+            : undef
             ;
     while ( $rec && $rec->obj_type != $type ) {
-      $rec = $rec->has_next ? $rec->next
-           :                  undef
+      $rec = $rec->has_next
+           ? $rec->next
+           : undef
            ;
     }
 
@@ -352,8 +355,9 @@ It returns the stream's current position, or C<-1> on error.
   method get_pos() {
     alias my $position = $self->{_position};              # refer to attributes
 
-    return $self->status == ST_OK ? $position             # Return position
-          :                         -1                    # Stream in error
+    return $self->status == ST_OK
+          ? $position                                     # Return position
+          : -1                                            # Stream in error
           ;
   }
  
@@ -368,8 +372,9 @@ It returns the total size, or C<-1> on error.
   method get_size() {
     alias my $stream_size = $self->{_stream_size};        # refer to attributes
 
-    return $self->status == ST_OK ? $stream_size          # Return stream size
-          :                         -1                    # Stream in error
+    return $self->status == ST_OK
+          ? $stream_size                                  # Return stream size
+          : -1                                            # Stream in error
           ;
   }
  
@@ -389,20 +394,23 @@ I<error> and doesn't write anything to the stream.
 
     # look for the related entry
     my ($rec, $class);
-    $rec = TStreamRec->_has_stream_types ? TStreamRec->_stream_types
-         :                                 undef
+    $rec = TStreamRec->_has_stream_types
+         ? TStreamRec->_stream_types
+         : undef
          ;
     $class = ref $p;
     while ( $rec && $rec->vmt_link ne $class ) {
-      $rec = $rec->has_next ? $rec->next
-           :                  undef
+      $rec = $rec->has_next
+           ? $rec->next
+           : undef
            ;
     }
 
     # Error if no entry found or not valid
     if ( !$rec || !$rec->obj_type || !$rec->has_store ) {
-      my $info = $rec ? $rec->obj_type
-               :        0
+      my $info = $rec
+               ? $rec->obj_type
+               : 0
                ;
       $self->error(ST_PUT_ERROR, $info);
       return;
@@ -681,7 +689,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

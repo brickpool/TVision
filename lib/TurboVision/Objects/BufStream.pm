@@ -334,8 +334,9 @@ Flushes the stream's buffer provided the stream's status is I<stOK>.
       my $num_bytes = syswrite($self->handle, $buffer, $buf_ptr);
       if ( !$num_bytes || $num_bytes != $buf_ptr ) {
         # We have an error
-        my $errno = !defined $num_bytes ? POSIX::errno() # Specific write error
-                  :                       EFAULT         # Non specific error
+        my $errno = !defined $num_bytes
+                  ? POSIX::errno()                        # Specific write error
+                  : EFAULT                                # Non specific error
                   ;
         $self->error(ST_ERROR, $errno);
       }
@@ -397,10 +398,10 @@ If the stream's status is I<stOK>, reads I<$count> bytes into the I<$buf>.
         if ( !$num_bytes || $num_bytes != $amount ) {
           # Error was detected
           $buf = "\0" x $count;
-          my $errno
-            = !defined $num_bytes ? POSIX::errno()        # Specific read error
-            :                       EFAULT                # Non specific error
-            ;
+          my $errno = !defined $num_bytes
+                    ? POSIX::errno()                      # Specific read error
+                    : EFAULT                              # Non specific error
+                    ;
           $self->error(ST_READ_ERROR, $errno);
           return;
         }
@@ -497,10 +498,10 @@ current position.
         $buf_ptr = 0;                                     # Reset buf_ptr
         if ( !$num_bytes || $num_bytes != $buf_size ) {
           # We have an error
-          my $errno
-            = !defined $num_bytes ? POSIX::errno()        # Specific read error
-            :                       EFAULT                # Unknown write error
-            ;
+          my $errno = !defined $num_bytes
+                    ? POSIX::errno()                      # Specific read error
+                    : EFAULT                              # Unknown write error
+                    ;
           $self->error(ST_WRITE_ERROR, $errno);
           return;
         }
@@ -609,7 +610,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
