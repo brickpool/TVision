@@ -63,7 +63,7 @@ Nothing per default, but can export the following per request:
       $sys_err_active
       $fail_sys_errors
   
-    :err
+    :error
       init_sys_error
       done_sys_error
       system_error
@@ -87,7 +87,7 @@ our %EXPORT_TAGS = (
     $fail_sys_errors
   )],
 
-  err => [qw(
+  syserr => [qw(
     init_sys_error
     done_sys_error
     system_error
