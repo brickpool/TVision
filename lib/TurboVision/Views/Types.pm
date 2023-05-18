@@ -29,7 +29,19 @@ use MooseX::Types::Moose qw( :all );
 # ------------------------------------------------------------------------
 
 use MooseX::Types -declare => [qw(
+  TPalette
   TDrawBuffer
+  TTitleStr
+  TScrollChars
+  TVideoBuf
+
+  TView
+  TFrame
+  TScrollBar
+  TScroller
+  TListViewer
+  TGroup
+  TWindow
 )];
 use namespace::autoclean;
 
@@ -42,6 +54,20 @@ use namespace::autoclean;
 =head2 Basic Types
 
 =over
+
+=item public type C<< TPalette >>
+
+Defines the data type used for storing color palettes.
+
+Since all color palettes are equivalent to strings, you can use, if you wish,
+all of the various string manipulation functions, including indexing (with
+C<substr>), copy (with C<=>), delete (C<undef>), insert (also C<substr>) and so
+on.
+
+=cut
+
+subtype TPalette,
+  as Str;
 
 =item public type C<< TDrawBuffer >>
 
@@ -68,6 +94,37 @@ See: I<TView> methods I<write_buf> and I<write_line>.
 subtype TDrawBuffer,
   as ArrayRef[Ref];
 
+=item public type C<< TTitleStr >>
+
+Defines a type used by I<TWindow> for window title strings.
+
+=cut
+
+subtype TTitleStr,
+  as Str;
+
+=item public type C<< TScrollChars >>
+
+This is an internal type used inside I<TScrollBar> to store the characters used
+to draw a I<TScrollBar> object on the display.
+
+=cut
+
+subtype TScrollChars,
+  as Str;
+
+=item public type C<< TVideoBuf >>
+
+This defines the internal type used in video buffer declarations in I<TGroup>.
+
+Video buffers are used to store screen images in cache memory (see
+I<get_buf_mem>) for rapid screen update.
+
+=cut
+
+subtype TVideoBuf,
+  as ArrayRef[Int];
+
 =back
 
 =cut
@@ -78,12 +135,36 @@ The Views type hierarchy looks like this
 
   TObject
     TView
+      TFrame
+      TScrollBar
+      TScroller
+      TListViewer
+      TGroup
+        TWindow
 
 =cut
 
-#class_type TView, {
-#  class => 'TurboVision::Views::View'
-#};
+class_type TView, {
+  class => 'TurboVision::Views::View'
+};
+class_type TFrame, {
+  class => 'TurboVision::Views::Frame'
+};
+class_type TScrollBar, {
+  class => 'TurboVision::Views::ScrollBar'
+};
+class_type TScroller, {
+  class => 'TurboVision::Views::Scroller'
+};
+class_type TListViewer, {
+  class => 'TurboVision::Views::ListViewer'
+};
+class_type TGroup, {
+  class => 'TurboVision::Views::Group'
+};
+class_type TWindow, {
+  class => 'TurboVision::Views::Window'
+};
 
 1;
 
