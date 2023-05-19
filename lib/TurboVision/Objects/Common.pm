@@ -88,6 +88,7 @@ Nothing per default, but can export the following per request:
   
     :tools
       byte
+      integer
       longint
       long_div
       long_mul
@@ -113,6 +114,7 @@ our @EXPORT_OK = qw(
 our %EXPORT_TAGS = (
   tools => [qw(
     byte
+    integer
     longint
     long_div
     long_mul
@@ -199,6 +201,57 @@ Usage:
           '^unpack$' => sub {
             return FAIL if not is_Str $value;
             return unpack(_UINT8_T, $value);
+          },
+        }
+      );
+    }
+    return FAIL;
+  }
+
+=item public type C<< Object integer() >>
+
+=item public type C<< Object integer(Str|Int $value) >>
+
+The utility I<integer> helps to convert an signed long (16-bit) value into a
+number to the base 256 (packed string).
+
+A I<integer> data type support only positive I<Int> values in a range of:
+C<-32768..32767>
+
+Usage:
+
+  $ = integer()->type;       # int16 template for the conversion
+  $ = integer()->size;       # Size of a int16 value in bytes
+
+  $ = integer($int)->cast;   # Conversion of an integer to a int16 value
+  $ = integer($int)->pack;   # Conversion from int16 to a number in base 256
+  $ = integer($str)->unpack; # Conversion of a number with base 256 into int32
+
+=cut
+
+  func integer(Int|Str|Undef $value=) {
+    if ( !defined($value) ) {
+      return (
+        METHOD {
+          '^size$' => sub { _SIZE_OF_INT16 },
+          '^type$' => sub { _INT16_T       },
+        }
+      );
+    }
+    else {
+      return (
+        METHOD {
+          '^cast$'   => sub {
+            return FAIL if not is_Int $value;
+            return unpack(_INT16_T, pack(_INT16_T, $value));
+          },
+          '^pack$'   => sub {
+            return FAIL if not is_Int $value;
+            return pack(_INT16_T, $value);
+          },
+          '^unpack$' => sub {
+            return FAIL if not is_Str $value;
+            return unpack(_INT16_T, $value);
           },
         }
       );

@@ -65,11 +65,13 @@ Nothing per default, but can export the following per request:
       _WIN32
 
     :sizedef
+      _SIZE_OF_INT16
       _SIZE_OF_INT32
       _SIZE_OF_UINT8
       _SIZE_OF_UINT16
 
     :typedef
+      _INT16_T
       _INT32_T
       _SIMPLE_STR_T
       _STR_T
@@ -104,12 +106,14 @@ our %EXPORT_TAGS = (
   )],
 
   sizedef => [qw(
+    _SIZE_OF_INT16
     _SIZE_OF_INT32
     _SIZE_OF_UINT8
     _SIZE_OF_UINT16
   )],
 
   typedef => [qw(
+    _INT16_T
     _INT32_T
     _SIMPLE_STR_T
     _STR_T
@@ -256,6 +260,14 @@ True if C<$^O ne 'MSWin32'>.
 
 =over
 
+=item private const C<< Int _SIZE_OF_INT16 >>
+
+This variable is the size of an Perl's I16 in bytes.
+
+=cut
+
+  use constant _SIZE_OF_INT16   => $Config{i16size};
+
 =item private const C<< Int _SIZE_OF_INT32 >>
 
 This variable is the size of an Perl's I32 in bytes.
@@ -287,6 +299,15 @@ This variable is the size of an Perl's U16 in bytes.
 =head2 Constants to define a type (I<:typedef>)
 
 =over
+
+=item private const C<< Str _INT16_T >>
+
+Template for pack/unpack of an signed short (16-bit) value in "VAX"
+(little-endian) order.
+
+=cut
+
+  use constant _INT16_T       => 'v!';
 
 =item private const C<< Str _INT32_T >>
 
