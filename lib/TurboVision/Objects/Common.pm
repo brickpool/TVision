@@ -163,8 +163,7 @@ program and have been assigned to the I<Objects> module.
 The utility I<byte> helps to convert an unsigned char (octet) value into a
 number to the base 256 (packed string).
 
-A I<byte> data type support only positive I<Int> values in a range of:
-C<0..65535>
+A I<byte> data type support only positive I<Int> values in a range of: C<0..255>
 
 Usage:
 
@@ -556,7 +555,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

@@ -298,13 +298,13 @@ I<$aDY> to I<< a->y >> and I<< b->y >>.
     return;
   }
 
-=item public C<< Union(TRect $r) >>
+=item public C<< union(TRect $r) >>
 
 Changes the rectangle to be the union of itself and the rectangle I<$r>.
 
 =cut
 
-  method Union(TRect $r) {
+  method union(TRect $r) {
     $self->a->x( $r->a->x ) if $r->a->x < $self->a->x;
     $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
     $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
@@ -332,7 +332,7 @@ Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
 
 =item private static C<< Bool _not_equal(TRect $one, TRect $two) >>
 
-Overload not equal comparison C<==> so we can write code like
+Overload not equal comparison C<!=> so we can write code like
 C<< $one != $two >>.
 
 =cut
@@ -433,7 +433,7 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
