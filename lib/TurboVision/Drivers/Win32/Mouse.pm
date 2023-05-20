@@ -305,7 +305,7 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
       }
     }
 
-    $event = TEvent->new( what => EV_NOTHING );
+    $event = TEvent->new();
     return;
   }
 

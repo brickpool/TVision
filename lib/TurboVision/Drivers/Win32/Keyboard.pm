@@ -128,7 +128,7 @@ See: I<evXXXX> constants
       }
     }
 
-    $event = TEvent->new( what => EV_NOTHING );
+    $event = TEvent->new();
     return;
   }
 

@@ -115,7 +115,6 @@ Event type.
   has 'what' => (
     is        => 'rw',
     isa       => Int,
-    required  => 1,
     default   => EV_NOTHING,
   );
 

@@ -1,6 +1,6 @@
 use 5.014;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw( TEvent );
@@ -10,6 +10,11 @@ my $ev = TEvent->new( what => EV_MESSAGE, info_long => 1 );
 isa_ok(
   $ev,
   TEvent->class(),
+);
+
+is(
+  TEvent->new->what, EV_NOTHING,
+  'TEvent->new'
 );
 
 ok(

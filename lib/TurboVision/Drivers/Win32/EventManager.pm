@@ -910,7 +910,7 @@ Returns true if successful.
 =cut
 
   func _update_event_queue() {
-    my $event = TEvent->new( what => EV_NOTHING );
+    my $event = TEvent->new();
 
     my $CONSOLE = $_io->in();
 
