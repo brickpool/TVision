@@ -15,6 +15,12 @@ use_ok 'TurboVision::Objects::Point';
 my $pt = TPoint->new(x => 1, y => 2);
 isa_ok( $pt, TPoint->class );
 
+my $c = $pt->clone;
+is(
+  $pt->x + $pt->y, $c->x + $c->y,
+  'TPoint->clone'
+);
+
 my $a = $pt + $pt;
 my $d = $pt - $pt;
 

@@ -117,6 +117,25 @@ I<y> is the screen row of the point.
   # TPoint -----------------------------------------------------------------
   # ------------------------------------------------------------------------
   
+=head2 Methods
+
+=item public C<< TPoint clone() >>
+
+Creates and returns a copy of this object.
+
+I<return> clone of this object
+
+=cut
+
+  method clone() {
+    return TPoint->new(
+      x => $self->x,
+      y => $self->y,
+    );
+  }
+
+=back
+
 =head2 Overload Methods
 
 =over
