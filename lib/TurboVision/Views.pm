@@ -38,6 +38,7 @@ use Carp qw( confess );
 
 use TurboVision::Const qw( :platform );
 
+use TurboVision::Views::Common;
 use TurboVision::Views::Const;
 use TurboVision::Views::Types;
 
@@ -52,6 +53,7 @@ and classes of the I<TurboVision::Views::X> module hierarchy.
 
 The following is the equivalent notation that is imported here:
 
+  use TurboVision::Views::Common qw( :all );
   use TurboVision::Views::Const qw( :all );
   use TurboVision::Views::Types qw( :all );
 
@@ -64,12 +66,14 @@ sub import {
   }
 
   my $target = caller;
+  TurboVision::Views::Common->import::into($target, qw( :all ));
   TurboVision::Views::Const->import::into($target, qw( :all ));
   TurboVision::Views::Types->import::into($target, qw( :all ));
 }
 
 sub unimport {
   my $caller = caller;
+  TurboVision::Views::Common->unimport::out_of($caller);
   TurboVision::Views::Const->unimport::out_of($caller);
   TurboVision::Views::Types->unimport::out_of($caller);
 }
