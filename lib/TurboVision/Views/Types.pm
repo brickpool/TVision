@@ -29,6 +29,7 @@ use MooseX::Types::Moose qw( :all );
 # ------------------------------------------------------------------------
 
 use MooseX::Types -declare => [qw(
+  TCommandSet
   TPalette
   TDrawBuffer
   TTitleStr
@@ -54,6 +55,46 @@ use namespace::autoclean;
 =head2 Basic Types
 
 =over
+
+=item public type C<< TCommandSet >>
+
+In Turbo Vision, command codes are assigned values from 0 to 65535, with
+values in the range of 0 to 255 reserved for items that can be selectively
+disabled.
+
+TCommandSet is used to hold a set of up to 256 commands, specifically those that
+can be disabled, and is used as a parameter for the I<TView> methods,
+I<enable_commands>, I<disable_commands>, I<get_commands> and I<set_commands>.
+
+The foloowing listing illustrates the use of a I<TCommandSet> type.
+
+   1  # tcmdset.pl
+   2  # Example using TCommandSet, from 'TVSHELL8.PAS'
+   3  use Array::Utils qw( array_minus );
+   4  ...
+   5    my $commands_on;
+   6    my $commands_off;
+   7    ...
+   8    $commands_on = [CM_USE_DOS, CM_DELETE];
+   9    $commands_off = [ @$commands_on ];
+  10  
+  11    if ( $set_up_data->prog_options & 2 == 2 ) {
+  12      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
+  13    }
+  14  
+  15    if ( $set_up_data->prog_options & 4 == 4 ) {
+  16      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
+  17    }
+  18  
+  19    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
+  20  
+  21    $self->disable_commands( $commands_off );
+  22    $self->enable_commands( $commands_on );
+
+=cut
+
+subtype TCommandSet,
+  as ArrayRef[Int];
 
 =item public type C<< TPalette >>
 
