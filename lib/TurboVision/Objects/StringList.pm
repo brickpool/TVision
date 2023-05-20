@@ -121,8 +121,7 @@ package TurboVision::Objects::StringList {
 
 =item public constant C<< Object RStringList >>
 
-I<TStringList> has been registered using
-I<< TStreamRec->register_type(RStringList) >>.
+I<TStringList> is registered with I<< TStreamRec->register_type(RStringList) >>.
 
 =cut
 

@@ -133,7 +133,9 @@ package TurboVision::Objects::StrListMaker {
 
 =item public constant C<< Object RStrListMaker >>
 
-I<TStrListMaker> has been registered using
+Defining a registration record constant for I<TStrListMaker>.
+
+I<TStrListMaker> is registered with
 I<< TStreamRec->register_type(RStrListMaker) >>.
 
 =cut
