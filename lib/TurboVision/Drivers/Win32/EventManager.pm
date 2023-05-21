@@ -117,6 +117,7 @@ our %EXPORT_TAGS = (
     $_shift_state
     $_ticks
 
+    _store_event
     _update_event_queue
   )],
 
@@ -372,7 +373,7 @@ Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
 
 =over
 
-=item private readonly C<< Int $_auto_delay >>
+=item package-private readonly C<< Int $_auto_delay >>
 
 Event manager variable for I<EV_MOUSE_AUTO> delay time counter.
 
@@ -380,7 +381,7 @@ Event manager variable for I<EV_MOUSE_AUTO> delay time counter.
 
   our $_auto_delay = 0;
 
-=item private readonly C<< Int $_auto_ticks >>
+=item package-private readonly C<< Int $_auto_ticks >>
 
 Event manager variable for held mouse button tick counter.
 
@@ -388,7 +389,7 @@ Event manager variable for held mouse button tick counter.
 
   our $_auto_ticks = 0;
 
-=item private readonly C<< Int $_down_buttons >>
+=item package-private readonly C<< Int $_down_buttons >>
 
 Event manager variable for the current state of the mouse buttons.
 
@@ -396,7 +397,7 @@ Event manager variable for the current state of the mouse buttons.
 
   our $_down_buttons = 0;
 
-=item private readonly C<< Int $_down_ticks >>
+=item package-private readonly C<< Int $_down_ticks >>
 
 Event manager variable for down mouse button tick counter.
 
@@ -404,7 +405,7 @@ Event manager variable for down mouse button tick counter.
 
   our $_down_ticks = 0;
 
-=item private readonly C<< TPoint $_down_where >>
+=item package-private readonly C<< TPoint $_down_where >>
 
 Event manager variable for the current state of the mouse position when the
 mouse button is pressed.
@@ -413,7 +414,7 @@ mouse button is pressed.
 
   our $_down_where = TPoint->new( x => 0, y => 0 );
 
-=item private readonly C<< Array @_event_queue >>
+=item package-private readonly C<< Array @_event_queue >>
 
 Event manager queue for the I<TEvent> records.
 
@@ -421,7 +422,7 @@ Event manager queue for the I<TEvent> records.
 
   our @_event_queue = ();
 
-=item private readonly C<< Int $_last_buttons >>
+=item package-private readonly C<< Int $_last_buttons >>
 
 Event manager variable for the previous state of the mouse buttons.
 
@@ -429,7 +430,7 @@ Event manager variable for the previous state of the mouse buttons.
 
   our $_last_buttons = 0;
 
-=item private readonly C<< Bool $_last_double >>
+=item package-private readonly C<< Bool $_last_double >>
 
 Event manager variable for the previous state of double klick.
 
@@ -437,7 +438,7 @@ Event manager variable for the previous state of double klick.
 
   our $_last_double = _FALSE;
 
-=item private readonly C<< TPoint $_last_where >>
+=item package-private readonly C<< TPoint $_last_where >>
 
 Event manager variable for the previous mouse position.
 
@@ -445,7 +446,7 @@ Event manager variable for the previous mouse position.
 
   our $_last_where = TPoint->new( x => 0, y => 0 );
 
-=item private readonly C<< Int $_shift_state >>
+=item package-private readonly C<< Int $_shift_state >>
 
 Key shift state.
 
@@ -463,7 +464,7 @@ Key shift state.
       warn $@;
   };
 
-=item private readonly C<< Int $_ticks >>
+=item package-private readonly C<< Int $_ticks >>
 
 This variable returns the number of timer ticks (1 second = 18.2 ticks), similar
 to the direct memory access to the low memory address 0x40:0x6C.
@@ -503,7 +504,7 @@ program startup (not the system startup time).
 
 =begin comment
 
-=item local C<< Object $_io >>
+=item private C<< Object $_io >>
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -516,7 +517,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =begin comment
 
-=item local C<< Int $_save_cp_input >>
+=item private C<< Int $_save_cp_input >>
 
 Saves the input codepage used by the startup console.
 
@@ -528,7 +529,7 @@ Saves the input codepage used by the startup console.
 
 =begin comment
 
-=item local C<< Str $_save_locale >>
+=item private C<< Str $_save_locale >>
 
 Saves the old locale used by the startup console.
 
@@ -540,7 +541,7 @@ Saves the old locale used by the startup console.
 
 =begin comment
 
-=item local C<< Int $_save_quick_mode >>
+=item private C<< Int $_save_quick_mode >>
 
 Saves the quick edit mode used by the mouse.
 
@@ -562,12 +563,14 @@ Saves the quick edit mode used by the mouse.
 
 =head2 Subroutines
 
-=item public C<< init_events() >>
+=over
+
+=item public static C<< init_events() >>
 
 This internal procedure initializes Turbo Vision's mouse event handler, and
 initializes and displays the mouse, if installed.
 
-<init_events> is automatically called by I<< TApplication->Init >>, and is
+I<init_events> is automatically called by I<< TApplication->Init >>, and is
 terminated by calling its corresponding I<done_events> procedure.
 
 =cut
@@ -599,7 +602,7 @@ terminated by calling its corresponding I<done_events> procedure.
     return;
   }
 
-=item public C<< done_events() >>
+=item public static C<< done_events() >>
 
 This is a Turbo Vision internal routine that will not normally be used by your
 applications.
@@ -635,7 +638,7 @@ I<done_events> disables the mouse event handler and hides the mouse.
 
 =begin comment
 
-=item private C<< Bool _set_key_event(HashRef $key_event, TEvent $event) >>
+=item private static C<< Bool _set_key_event(HashRef $key_event, TEvent $event) >>
 
 The routine translates the Windows I<KEY_EVENT_RECORD> to Turbo Vision's
 I<TEvent>.
@@ -735,7 +738,7 @@ Returns true if successful.
 
 =begin comment
 
-=item private C<< Bool _set_mouse_event(HashRef $mouse_event, TEvent $event) >>
+=item private static C<< Bool _set_mouse_event(HashRef $mouse_event, TEvent $event) >>
 
 The routine translates the Windows I<MOUSE_EVENT_RECORD> to Turbo Vision's
 I<TEvent>.
@@ -833,7 +836,7 @@ Returns true if successful.
 
 =begin comment
 
-=item private C<< Bool _set_unicode_event(HashRef $key_event, TEvent $event) >>
+=item private static C<< Bool _set_unicode_event(HashRef $key_event, TEvent $event) >>
 
 Returns true unless the event contains a UTF-16 surrogate, in this case we need
 the next event.
@@ -877,11 +880,9 @@ the next event.
     return _TRUE;
   }
 
-=over
+=item package-private static C<< Bool _store_event(TEvent $event) >>
 
-=item public C<< Bool _store_event(TEvent $event) >>
-
-Store event in <get_mouse_event> and <get_key_event>
+Store event in I<get_mouse_event> and I<get_key_event>
 
 Returns true if successful.
 
@@ -901,7 +902,7 @@ Returns true if successful.
     return !! push(@_event_queue, $event);
   }
 
-=item public C<< Bool _update_event_queue() >>
+=item package-private static C<< Bool _update_event_queue() >>
 
 Reads the Windows events, converts them and updates the internal event queue.
 
@@ -1009,7 +1010,7 @@ Returns true if successful.
 
 =begin comment
 
-=item private C<< Bool _update_ctrl_break_hit(HashRef $key_event) >>
+=item private static C<< Bool _update_ctrl_break_hit(HashRef $key_event) >>
 
 This function provides similar handling of Ctrl-C events as provided by the
 I<Int1BHandler> assembly routine in the library implemented by Borland.
@@ -1040,7 +1041,7 @@ Returns true if successful.
 
 =begin comment
 
-=item private C<< Bool _update_shift_state(HashRef $key_event) >>
+=item private static C<< Bool _update_shift_state(HashRef $key_event) >>
 
 This subroutine sets the state of the keyboard shift (comparable to the low
 level call at memory position C<0x40:0x17>).
