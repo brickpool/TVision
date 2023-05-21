@@ -119,11 +119,11 @@ our %EXPORT_TAGS = (
 
 =head2 Subroutines
 
-B<Keyboard support routines>
+B<Keyboard support routines> (exported with C<:kbd>)
 
 =over
 
-=item public C<< Int ctrl_to_arrow(Int|Str $key_code) >>
+=item public static C<< Int ctrl_to_arrow(Int|Str $key_code) >>
 
 This esoteric function converts certain control-key combinations to standard
 I<kbXXXX> constant values.
@@ -153,7 +153,7 @@ The following chart shows the mapping from control keys to I<kbXXXX> values.
     return _WORD_STAR_CODES->( $key_code ) // $key_code;
   }
 
-=item public C<< Str get_alt_char(Int $key_code) >>
+=item public static C<< Str get_alt_char(Int $key_code) >>
 
 When I<$key_code> specifies an I<Alt+Ch> character combination, where I<Ch> is a
 letter from 'A' to 'Z', I<get_alt_char> extracts and returns the I<Ch>
@@ -188,7 +188,7 @@ Method I<get_alt_code> maps characters back to I<Alt+Ch> combinations.
     return "\0";
   }
 
-=item public C<< Int get_alt_code(Str $ch) >>
+=item public static C<< Int get_alt_code(Str $ch) >>
 
 Maps a single character 'A' to 'Z' to the Keycode equivalent value for pressing
 I<Alt+Ch>.
@@ -215,7 +215,7 @@ The subroutine I<get_alt_code> is the inverse function to I<get_alt_char>.
     return 0;
   }
 
-=item public C<< Str get_ctrl_char(Int $key_code) >>
+=item public static C<< Str get_ctrl_char(Int $key_code) >>
 
 Returns the ASCII character for the I<Ctrl+Key> scancode that was given.
 
@@ -230,7 +230,7 @@ Returns the ASCII character for the I<Ctrl+Key> scancode that was given.
     return "\0";
   }
 
-=item public C<< Int get_ctrl_code(Str $ch) >>
+=item public static C<< Int get_ctrl_code(Str $ch) >>
 
 Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 
@@ -242,11 +242,11 @@ Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 
 =back
 
-B<String routines>
+B<String routines> (exported with C<:str>)
 
 =over
 
-=item public C<< format_str(Str $result, Str $format, @params) >>
+=item public static C<< format_str(Str $result, Str $format, @params) >>
 
 I<format_str> takes a string I<$format> and a list of parameters in I<@params>
 and produces a formatted string that is returned in Result.
@@ -303,7 +303,7 @@ indicate optional items and I<X> is a format character.
   #   Resets the parameter index to the optional nnn value.
 
 The I<@params> parameter variable contains the data corresponding to each item
-specified in the $<format> string. There are two ways to pass the variable
+specified in the I<$format> string. There are two ways to pass the variable
 I<@params>: B<1)> Pass the individual parameters comma separated, B<2)> Or use
 an array.
 
@@ -357,9 +357,9 @@ built in function I<sprintf>.
     return;
   }
 
-=item public C<< print_str(Str $s) >>
+=item public static C<< print_str(Str $s) >>
 
-Writes the string <$s> to STDOUT.
+Writes the string I<$s> to STDOUT.
 
 B<Note>: This utility routine is for compatiblity only; please use the Perl
 built in function I<print>.
@@ -373,11 +373,11 @@ built in function I<print>.
 
 =back
 
-B<Buffer move routines>
+B<Buffer move routines> (exported with C<:move>)
 
 =over
 
-=item public C<< Int c_str_len(Str $s) >>
+=item public static C<< Int c_str_len(Str $s) >>
 
 Returns the length of control strings, which are any strings containing
 short-cut characters surrounded by tilde '~' characters, minus the number of
@@ -394,16 +394,16 @@ has a length of 4.
     return length $s
   }
 
-=item public C<< move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) >>
+=item public static C<< move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) >>
 
 I<move_buf> is typically used for copying text and video attribute to a
 I<TDrawBuffer>-type array.
 
-Such an array holds character bytes in the I<low bytes> of each element and
-attribute values in the I<high bytes>. 
+Such an array holds character bytes in the I<"low bytes"> of each element and
+attribute values in the I<"high bytes">. 
 
-I<move_buf> copies I<$count> elements from I<$source> into the I<low bytes> of
-the I<$dest> destination parameter, setting each I<high bytes> to the I<$attr>
+I<move_buf> copies I<$count> elements from I<$source> into the I<"low bytes"> of
+the I<$dest> destination parameter, setting each I<"high bytes"> to the I<$attr>
 value (or leaving the attribute as is if I<$attr> equals zero).
 
 See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
@@ -420,7 +420,7 @@ I<< TView->write_line >>.
     return;
   }
 
-=item public C<< move_c_str(ArrayRef $dest, Str $str, @attrs) >>
+=item public static C<< move_c_str(ArrayRef $dest, Str $str, @attrs) >>
 
 I<move_c_str> copies a string to a I<TDrawBuffer> array such that the text is
 alternately one of two different colors.
@@ -481,12 +481,12 @@ I<< TView->write_buf >> and I<< TView->write_line >>.
   }
 
 
-=item public C<< move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) >>
+=item public static C<< move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) >>
 
 Similar to move_buf, except that this copies the single character I<$c>,
-I<$count> number of times, into each I<low byte> of the I<$dest> parameter
+I<$count> number of times, into each I<"low byte"> of the I<$dest> parameter
 (which should be a I<TDrawBuffer> type), and if I<$attr> is non-zero, copies
-I<$attr> to each I<high byte> position in the array of elements.
+I<$attr> to each I<"high byte"> position in the array of elements.
 
 See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
 I<< TView->write_line >>.
@@ -504,7 +504,7 @@ I<< TView->write_line >>.
     return;
   }
 
-=item public C<< move_str(ArrayRef $dest, Str $str, Int $attr) >>
+=item public static C<< move_str(ArrayRef $dest, Str $str, Int $attr) >>
 
 I<move_str> copies the I<$str> string parameter to the I<$dest> (a
 I<TDrawBuffer> array) and sets each character's attributes to the video
