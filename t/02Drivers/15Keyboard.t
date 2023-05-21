@@ -12,7 +12,7 @@ use Scalar::Util qw( blessed );
 
 use TurboVision::Drivers::Const qw( :kbXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
-use TurboVision::Drivers::Win32::Keyboard qw( :all );
+use TurboVision::Drivers::EventManager qw( :kbd );
 
 use Win32;
 use Win32::GuiTest;

@@ -4,6 +4,12 @@
 
 TurboVision::Drivers::Win32::Keyboard - Event Manager Keyboard implementation
 
+=head1 DESCRIPTION
+
+This module implements I<EventManager> routines for the Windows platform. A
+direct use of this module is not intended. All important information is
+described in the associated POD of the calling module.
+
 =cut
 
 package TurboVision::Drivers::Win32::Keyboard;
@@ -44,7 +50,8 @@ use TurboVision::Drivers::Types qw(
   TEvent
   is_TEvent
 );
-use TurboVision::Drivers::Win32::EventManager qw( :private );
+
+use TurboVision::Drivers::Win32::EventQ qw( :private );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -56,9 +63,8 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :kbd
-      get_key_event
-      get_shift_state
+    :private
+      _get_key_event
 
 =cut
 
@@ -69,9 +75,8 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  kbd => [qw(
-    get_key_event
-    get_shift_state
+  private => [qw(
+    _get_key_event
   )],
 
 );
@@ -97,23 +102,14 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public static C<< get_key_event(TEvent $event) >>
+=item package-private static C<< _get_key_event(TEvent $event) >>
 
-Emulates the BIOS function INT 16h, Function 01h "Read LowLevel Status" to
-determine if a key has been pressed on the keyboard.
-
-If so, I<< $event->what >> is set to I<EV_KEY_DOWN> and I<< $event->key_code >>
-is set to the scan code of the key.
-
-If no keys have been pressed, I<< $event->what >> is set to I<EV_NOTHING>.
-
-This is an internal procedure called by I<< TProgram->get_event >>.
-
-See: I<evXXXX> constants
+This internal routine implements I<get_key_event> for I<Windows>; more
+information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func get_key_event($) {
+  func _get_key_event($) {
     alias my $event = $_[-1];
 
     _update_event_queue();
@@ -130,17 +126,6 @@ See: I<evXXXX> constants
 
     $event = TEvent->new();
     return;
-  }
-
-=item public static C<< Int get_shift_state() >>
-
-Returns a integer (octal) containing the current Shift key state. The return
-value contains a combination of the I<kbXXXX> constants for shift states.
-
-=cut
-
-  func get_shift_state() {
-    return $_shift_state;
   }
 
 =back

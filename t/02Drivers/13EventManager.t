@@ -6,17 +6,10 @@ BEGIN {
   $| = 1;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 2;
 
-BEGIN {
-  # Otherwise it is too late to execute the INIT block of Mouse.pm
-  use_ok 'TurboVision::Drivers::Win32::Mouse';
-}
-
-use TurboVision::Drivers::Win32::EventManager qw(
-  :events
-  $_ticks
-);
+use TurboVision::Drivers::Win32::EventQ qw( $_ticks );
+use TurboVision::Drivers::EventManager qw( :events );
 
 init_events();
 

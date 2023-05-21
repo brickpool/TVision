@@ -36,18 +36,14 @@ our $AUTHORITY = 'github:brickpool';
 
 use Carp qw( confess );
 
-use TurboVision::Const qw( :platform );
-
 use TurboVision::Drivers::Const;
-use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types;
-use TurboVision::Drivers::Utility;
 
-use if _WIN32, 'TurboVision::Drivers::Win32::Mouse';
-use if _WIN32, 'TurboVision::Drivers::Win32::EventManager';
-use if _WIN32, 'TurboVision::Drivers::Win32::Keyboard';
-use if _WIN32, 'TurboVision::Drivers::Win32::Screen';
-use if _WIN32, 'TurboVision::Drivers::Win32::SystemError';
+use TurboVision::Drivers::Event;
+use TurboVision::Drivers::EventManager;
+use TurboVision::Drivers::ScreenManager;
+use TurboVision::Drivers::SystemError;
+use TurboVision::Drivers::Utility;
 
 use Import::Into;
 
@@ -61,15 +57,14 @@ and classes of the I<TurboVision::Drivers::X> module hierarchy.
 The following is the equivalent notation that is imported here:
 
   use TurboVision::Drivers::Const qw( :all !:private );
-  use TurboVision::Drivers::Event;
   use TurboVision::Drivers::Types qw( :all );
+
+  use TurboVision::Drivers::Event;
+  use TurboVision::Drivers::EventManager qw( :all );
+  use TurboVision::Drivers::ScreenManager qw( :all );
+  use TurboVision::Drivers::SystemError qw( :all );
   use TurboVision::Drivers::Utility qw( :all );
 
-  use TurboVision::Drivers::X::Mouse qw( :all !:private );
-  use TurboVision::Drivers::X::EventManager qw( :all !:private );
-  use TurboVision::Drivers::X::Keyboard qw( :all );
-  use TurboVision::Drivers::X::Screen qw( :all !:private );
-  use TurboVision::Drivers::X::SystemError qw( :all );
 
 =cut
 
@@ -82,40 +77,22 @@ sub import {
   my $target = caller;
   TurboVision::Drivers::Const->import::into($target, qw( :all !:private ));
   TurboVision::Drivers::Types->import::into($target, qw( :all ));
+
+  TurboVision::Drivers::ScreenManager->import::into($target, qw( :all ));
+  TurboVision::Drivers::SystemError->import::into($target, qw( :all ));
+  TurboVision::Drivers::EventManager->import::into($target, qw( :all ));
   TurboVision::Drivers::Utility->import::into($target, qw( :all ));
-
-if( _TV_UNIX ){
-  
-}elsif( _WIN32 ){
-
-  TurboVision::Drivers::Win32::Mouse->import::into($target, qw( :all !:private ));
-  TurboVision::Drivers::Win32::EventManager->import::into($target, qw( :all !:private ));
-  TurboVision::Drivers::Win32::Keyboard->import::into($target, qw( :all ));
-  TurboVision::Drivers::Win32::Screen->import::into($target, qw( :all !:private ));
-  TurboVision::Drivers::Win32::SystemError->import::into($target, qw( :all ));
-
-}#endif _TV_UNIX
-
 }
 
 sub unimport {
   my $caller = caller;
   TurboVision::Drivers::Const->unimport::out_of($caller);
   TurboVision::Drivers::Types->unimport::out_of($caller);
+
+  TurboVision::Drivers::EventManager->unimport::out_of($caller);
+  TurboVision::Drivers::ScreenManager->unimport::out_of($caller);
+  TurboVision::Drivers::SystemError->unimport::out_of($caller);
   TurboVision::Drivers::Utility->unimport::out_of($caller);
-
-if( _TV_UNIX ){
-  
-}elsif( _WIN32 ){
-
-  TurboVision::Drivers::Win32::Mouse->unimport::out_of($caller);
-  TurboVision::Drivers::Win32::EventManager->unimport::out_of($caller);
-  TurboVision::Drivers::Win32::Keyboard->unimport::out_of($caller);
-  TurboVision::Drivers::Win32::Screen->unimport::out_of($caller);
-  TurboVision::Drivers::Win32::SystemError->unimport::out_of($caller);
-
-}#endif _TV_UNIX
-
 }
 
 1;

@@ -11,7 +11,7 @@ use Test::More tests => 7;
 use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :kbXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
-use TurboVision::Drivers::Win32::Keyboard qw( :kbd );
+use TurboVision::Drivers::EventManager qw( :kbd );
 use TurboVision::Drivers::SystemError qw( :all );
 
 use Win32;

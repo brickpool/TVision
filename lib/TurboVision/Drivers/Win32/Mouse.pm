@@ -4,6 +4,12 @@
 
 TurboVision::Drivers::Win32::Mouse - Event Manager Mouse implementation
 
+=head1 DESCRIPTION
+
+This module implements I<EventManager> routines for the Windows platform. A
+direct use of this module is not intended. All important information is
+described in the associated POD of the calling module.
+
 =cut
 
 package TurboVision::Drivers::Win32::Mouse;
@@ -38,8 +44,6 @@ our $AUTHORITY = 'github:fpc';
 use Data::Alias qw( alias );
 use PerlX::Assert;
 
-use TurboVision::Const qw( :bool );
-use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw(
@@ -47,9 +51,10 @@ use TurboVision::Drivers::Types qw(
   TEvent
   is_TEvent
 );
+use TurboVision::Drivers::EventManager qw( :vars );
+
 use TurboVision::Drivers::Win32::StdioCtl;
-use TurboVision::Drivers::Win32::EventManager qw( :private );
-use TurboVision::Drivers::Win32::LowLevel qw( GetDoubleClickTime );
+use TurboVision::Drivers::Win32::EventQ qw( :private );
 
 use Win32::Console;
 
@@ -63,22 +68,11 @@ Nothing per default, but can export the following per request:
 
   :all
 
-    :vars
-      $button_count
-      $double_delay
-      $mouse_buttons
-      $mouse_int_flag
-      $mouse_events
-      $mouse_reverse
-      $mouse_where
-      $repeat_delay
-  
-    :mouse
-      get_mouse_event
-      hide_mouse
-      show_mouse
-
     :private
+      _get_mouse_event
+      _hide_mouse
+      _show_mouse
+
       _detect_mouse
 
 =cut
@@ -90,24 +84,11 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  vars => [qw(
-    $button_count
-    $double_delay
-    $mouse_buttons
-    $mouse_events
-    $mouse_int_flag
-    $mouse_reverse
-    $mouse_where
-    $repeat_delay
-  )],
-
-  mouse => [qw(
-    get_mouse_event
-    hide_mouse
-    show_mouse
-  )],
-  
   private => [qw(
+    _get_mouse_event
+    _hide_mouse
+    _show_mouse
+
     _detect_mouse
   )],
 
@@ -130,116 +111,11 @@ our %EXPORT_TAGS = (
 # Variables --------------------------------------------------------------
 # ------------------------------------------------------------------------
 
+=begin comment
+
 =head2 Variables
 
 =over
-
-=item public readonly C<< Int $button_count >>
-
-If a mouse is installed, I<$button_count> holds the number of buttons on the
-mouse.
-
-If zero, then no mouse is installed.
-
-Check the value of I<$button_count> when your program needs to know if a mouse
-is installed.
-
-=cut
-
-  our $button_count = 0;
-
-=item public C<< Int $double_delay >>
-
-The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
-intervals) defining how quickly two mouse clicks must occur in order to be
-treated as a double click (rather than two separate single clicks).
-
-By default, the two mouse clicks must occur with 8/18'ths of a second to be
-considered a double click event (with I<< TEvent->double >> set to I<TRUE>).
-
-B<Note>: For Windows, the value is the current double-click time of the system (by
-default 9 ticks, equivalent to 500ms).
-
-=cut
-
-  our $double_delay = do {
-    eval {
-      int( ( GetDoubleClickTime() || 500 ) * 18.2/1000 );
-    }
-    or do {
-      8;
-    };
-  };
-
-=item public readonly C<< Int $mouse_buttons >>
-
-Contains the current state of the mouse buttons.
-
-See the I<mbXXXX> constants for the bit settings in this variable.
-
-=cut
-
-  our $mouse_buttons = 0;
-
-=item public readonly C<< Bool $mouse_events >>
-
-The I<init_events> procedure detects the prescence of a mouse, and if a mouse
-is found, sets I<$mouse_events> to I<TRUE>.
-
-If no mouse is found, then $mouse_events is set to I<FALSE> and no mouse event
-processing occurs.
-
-=cut
-
-  our $mouse_events = _FALSE;
-
-=item public readonly C<< Int $mouse_int_flag >>
-
-This is an internal variable used by Turbo Vision.
-
-=cut
-
-  our $mouse_int_flag = 0;
-
-=item public readonly C<< Bool $mouse_reverse >>
-
-When set to I<TRUE>, this field causes the I<< TEvent->buttons >> field to
-reverse the I<MB_LEFT_BUTTON> and I<MB_RIGHT_BUTTON> flags.
-
-=cut
-
-  our $mouse_reverse = _FALSE;
-
-=item public readonly C<< TPoint $mouse_where >>
-
-This I<TPoint>-typed variable is set by the mouse handler and contains the
-coordinates of the mouse in global or screen coordinates.
-
-You can convert the coordinates to view or window relative coordinates
-using the I<< TView->make_local >> method.
-
-=cut
-
-  our $mouse_where = TPoint->new(x => 0, y => 0);
-
-=item public readonly C<< Int $repeat_delay >>
-
-Determines the number of clock ticks that must occur before generating an
-I<EV_MOUSE_AUTO> event.
-
-I<EV_MOUSE_AUTO> events are automatically generated while the mouse button is
-held down.
-
-A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
-approximately 1/2 second.
-
-See: I<evXXXX> constants, I<$double_delay>
-
-=cut
-
-  our $repeat_delay = 8;
-
-=begin comment
 
 =item private C<< Int $_hide_count >>
 
@@ -262,7 +138,6 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
-  INIT { $_io = StdioCtl->instance() }
 
 =back
 
@@ -276,21 +151,14 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =over
 
-=item public static C<< get_mouse_event(TEvent $event) >>
+=item package-private static C<< _get_mouse_event(TEvent $event) >>
 
-Similar to I<get_key_event>, but for mouse events.
-
-This internal routine checks Turbo Vision's internal mouse event queue, and if a
-mouse event has occurred, sets I<< $event->what >> to the appropriate
-I<EV_MOUSE_XXXX> constant; I<< $event->buttons >> to I<MB_LEFT_BUTTON> or
-I<MB_RIGHT_BUTTON>; I<< $event->double >> to True or False; and
-I<< event->where >> to the mouse position in I<TApplication> coordinates.
-
-If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
+This internal routine implements I<get_mouse_event> for I<Windows>; more
+information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func get_mouse_event($) {
+  func _get_mouse_event($) {
     alias my $event = $_[-1];
 
     _update_event_queue();
@@ -309,26 +177,22 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
     return;
   }
 
-=item public static C<< hide_mouse() >>
+=item package-private static C<< _hide_mouse() >>
 
-This routine is used to hide the mouse, making it invisible on the screen.
-
-Each time I<hide_mouse> is called, it increments an internal "hide" counter.
-
-The routine I<show_mouse> decrements the internal counter and when the counter
-returns to zero, the mouse cursor will reappear.
-
-Therefore, you can nest calls to I<hide_mouse> and I<show_mouse> but there must
-always be the same number of each.
+This internal routine implements I<hide_mouse> for I<Windows>; more
+information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func hide_mouse() {
+  func _hide_mouse() {
     return
         if !$mouse_events;
 
     if ( $_hide_count == 0 ) {
-      my $CONSOLE = $_io->in();
+      my $CONSOLE = do {
+        $_io //= StdioCtl->instance();
+        $_io->in();
+      };
       my $mode = $CONSOLE->Mode();
       $CONSOLE->Mode($mode & ~ENABLE_MOUSE_INPUT);
     }
@@ -337,27 +201,23 @@ always be the same number of each.
     return;
   }
 
-=item public static C<< show_mouse() >>
+=item package-private static C<< _show_mouse() >>
 
-The routine I<show_mouse> is the opposite of the I<hide_mouse>.
-
-Call I<hide_mouse> to hide the mouse cursor and simultaneously increment a
-"mouse hidden counter".
-
-The routine I<show_mouse> decrements the counter, and when it reaches zero,
-makes the mouse cursor visible again on the screen.
-
-See: I<hide_mouse>
+This internal routine implements I<show_mouse> for I<Windows>; more
+information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func show_mouse() {
+  func _show_mouse() {
     return
         if !$mouse_events;
 
     $_hide_count-- if $_hide_count > 0;
     if ( $_hide_count == 0 ) {
-      my $CONSOLE = $_io->in();
+      my $CONSOLE = do {
+        $_io //= StdioCtl->instance();
+        $_io->in();
+      };
       my $mode = $CONSOLE->Mode();
       $CONSOLE->Mode($mode | ENABLE_MOUSE_INPUT);
     }
@@ -374,7 +234,10 @@ Returns the number of the buttons on your mouse, or zero on errors.
 =cut
 
   func _detect_mouse() {
-    my $CONSOLE = $_io->in();
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->in();
+    };
     $button_count = $CONSOLE->MouseButtons() // 0;
     if ( $button_count ) {
       my $mode = $CONSOLE->Mode();
@@ -386,14 +249,6 @@ Returns the number of the buttons on your mouse, or zero on errors.
 =back
 
 =cut
-
-# ------------------------------------------------------------------------
-# Initialization ---------------------------------------------------------
-# ------------------------------------------------------------------------
-
-INIT {
-  _detect_mouse();
-}
 
 1;
 
