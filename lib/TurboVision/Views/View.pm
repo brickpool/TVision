@@ -77,7 +77,7 @@ use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Utility qw(
   :move
 );
-use TurboVision::Drivers::Win32::Keyboard qw(
+use TurboVision::Drivers::EventManager qw(
   :kbd
 );
 # Views
@@ -93,6 +93,7 @@ use TurboVision::Views::Const qw(
   :sfXXXX
 );
 use TurboVision::Views::Types qw(
+  TCommandSet
   TView
   TGroup
 );
@@ -666,7 +667,7 @@ See: I<get_data>, I<set_data>
     return 0;                                             # Transfer size
   }
 
-=item public C<< disable_commands(ArrayRef[Int] $commands) >>
+=item public C<< disable_commands(TCommandSet $commands) >>
 
 <$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be disabled.
@@ -678,7 +679,7 @@ See: I<< TView->enable_commands >>
 
 =cut
 
-  method disable_commands(ArrayRef[Int] $commands) {
+  method disable_commands(TCommandSet $commands) {
     state $empty_set = pack('b*', 0 x 256);
     $commands = do {
       my $bit_set = $empty_set;
@@ -908,7 +909,7 @@ See: I<< TView->draw >>
     return;
   }
 
-=item public C<< enable_commands(ArrayRef[Int] $commands) >>
+=item public C<< enable_commands(TCommandSet $commands) >>
 
 <$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be enabled.
@@ -920,7 +921,7 @@ See: I<< TView->enable_commands >>
 
 =cut
 
-  method enable_commands(ArrayRef[Int] $commands) {
+  method enable_commands(TCommandSet $commands) {
     state $empty_set = pack('b*', 0 x 256);
     $commands = do {
       my $bit_set = $empty_set;
