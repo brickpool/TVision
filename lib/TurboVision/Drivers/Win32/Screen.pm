@@ -4,16 +4,11 @@
 
 TurboVision::Drivers::Win32::Screen - Windows Video Display Manager
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-  use 5.014;
-  use TurboVision::Drivers::Screen qw( :all );
-  
-  init_video();
-  say "screen width:\t$screen_width";
-  say "screen height:\t$screen_height";
-  ...
-  done_video();
+This module implements I<ScreenManager> routines for the Windows platform. A
+direct use of this module is not intended. All important information is
+described in the associated POD of the calling module.
 
 =cut
 
@@ -55,6 +50,8 @@ use TurboVision::Drivers::Const qw(
   :private
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
+use TurboVision::Drivers::ScreenManager qw( :vars );
+
 use TurboVision::Drivers::Win32::StdioCtl;
 #use TurboVision::Drivers::Win32::LowLevel qw(
 #  GWL_STYLE
@@ -76,23 +73,12 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :vars
-      $check_snow
-      $cursor_lines
-      $hi_res_screen
-      $screen_buffer
-      $screen_height
-      $screen_mode
-      $screen_width
-      
-    :screen
-      clear_screen
-      done_video
-      init_video
-      set_video_mode
-
     :private
-      $_startup_mode
+      _clear_screen
+      _done_video
+      _init_video
+      _set_video_mode
+
       _ctr_cols
       _ctr_rows
       _detect_video
@@ -111,25 +97,13 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
-  vars => [qw(
-    $check_snow
-    $cursor_lines
-    $hi_res_screen
-    $screen_buffer
-    $screen_height
-    $screen_mode
-    $screen_width
-  )],
-
-  screen => [qw(
-    clear_screen
-    done_video
-    init_video
-    set_video_mode
-  )],
 
   private => [qw(
-    $_startup_mode
+    _clear_screen
+    _done_video
+    _init_video
+    _set_video_mode
+
     _ctr_cols
     _ctr_rows
     _detect_video
@@ -140,6 +114,7 @@ our %EXPORT_TAGS = (
     _set_crt_mode
     _set_cursor_type
   )],
+
 );
 
 # add all the other %EXPORT_TAGS ":class" tags to the ":all" class and
@@ -159,105 +134,11 @@ our %EXPORT_TAGS = (
 # Variables --------------------------------------------------------------
 # ------------------------------------------------------------------------
   
+=begin comment
+
 =head2 Variables
 
 =over
-
-=item public readonly C<< Bool $check_snow >>
-
-If a CGA adaptor is detected, Turbo Vision sets I<check_snow> to C<TRUE>.
-
-Older CGA video adaptor cards require special programming to avoid "snow" or
-static-like lines on the display.
-
-If the CGA video adaptor does not require snow checking, the program may set
-I<check_snow> to C<FALSE>, resulting in faster output to the screen.
-
-B<Note>: This variable is for compatiblity only.
-
-=cut
-
-  our $check_snow = _FALSE;
-
-=item public readonly C<< Int $cursor_lines >>
-
-Contains the height of the video cursor encoded such that the high 4 bits
-contains the top scan line and the low 4 bits contain the bottom scan
-line.
-
-See: I<< TView->show_cursor >>, I<< TView->hide_cursor >>,
-I<< TView->normal_cursor >> (to set cursor shape to an underline),
-I<< TView->block_cursor >> (to set cursor to a solid block).
-
-See: I<set_video_mode>
-
-=cut
-
-  our $cursor_lines = 0;
-
-=item public readonly C<< Bool $hi_res_screen >>
-
-Returns true if the screen supports 43 or 50 line modes, false if these
-modes are not supported.
-
-=cut
-
-  our $hi_res_screen = _FALSE;
-
-=item public readonly C<< Ref screen_buffer >>
-
-This internal reference is initialized by I<init_video> and keeps track of the
-location of the video screen buffer.
-
-See: I<screen_mode>
-
-=cut
-
-  our $screen_buffer = {};
-
-=item public readonly C<< Int $screen_height >>
-
-Holds the current height of the screen, in lines. For example, C<25>, C<43> or
-C<50> would be typical values.
-
-See: I<set_video_mode>
-
-=cut
-
-  our $screen_height = 0;
-
-=item public readonly C<< Int $screen_mode >>
-
-Contains the current video mode as determined by the I<smXXXX> constants
-passed to the I<set_video_mode> routine.
-
-See: I<set_video_mode>, I<smXXXX> constants
-
-=cut
-
-  our $screen_mode = 0;
-
-=item public readonly C<< Int $screen_width >>
-
-Holds the current width of the screen in number of characters per line (for
-example, 80).
-
-=cut
-
-  our $screen_width = 0;
-
-=item package-private C<< Int $_startup_mode >>
-
-This internal variable stores the existing screen mode before Turbo Vision
-switches to a new screen mode.
-
-See: I<screen_mode>
-
-=cut
-
-  our $_startup_mode = 0xffff;
-
-=begin comment
 
 =item private C<< Object $_io >>
 
@@ -268,7 +149,6 @@ STD ioctl object I<< StdioCtl->instance() >>
 =cut
 
   my $_io;
-  INIT { $_io = StdioCtl->instance() }
 
 =begin comment
 
@@ -283,7 +163,11 @@ before Turbo Vision switches to a new screen mode.
 
   my $_startup_console_mode;
 
+=begin comment
+
 =back
+
+=end comment
 
 =cut
 
@@ -295,43 +179,48 @@ before Turbo Vision switches to a new screen mode.
 
 =over
 
-=item public static C<< clear_screen() >>
+=item package-private static C<< _clear_screen() >>
 
-After I<init_video> has been called by I<< TApplication->init >>, this
-routine will clear the screen. However, most Turbo Vision applications will have
-no need to use this routine.
+This internal routine implements I<clear_screen> for I<Windows>; more
+information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func clear_screen() {
-    my $CONSOLE = $_io->out;
+  func _clear_screen() {
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->out();
+    };
     $CONSOLE->Cls($ATTR_NORMAL);
     return;
   }
 
-=item public static C<< done_video() >>
+=item package-private static C<< _done_video() >>
 
-This internal routine is called automatically by I<< TApplication->DEMOLISH >>
-and terminates Turbo Vision's video support.
+This internal routine implements I<done_video> for I<Windows>; more
+information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func done_video() {
+  func _done_video() {
     return
-        if $_startup_mode == 0xffff;
+        if $startup_mode == 0xffff;
       
-    if ( $_startup_mode != $screen_mode ) {
-      _set_crt_mode( $_startup_mode );
+    if ( $startup_mode != $screen_mode ) {
+      _set_crt_mode( $startup_mode );
     }
-    clear_screen();
+    _clear_screen();
     _set_cursor_type( $cursor_lines );                  # Restore cursor shape
-    $_startup_mode = 0xffff;                            # Reset the startup mode
+    $startup_mode = 0xffff;                            # Reset the startup mode
 
     return
         unless defined $_startup_console_mode;
       
     # Restore buffer size settings
-    my $CONSOLE = $_io->in();
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->in();
+    };
     my $mode = $CONSOLE->Mode();
     if ( $_startup_console_mode & ENABLE_WINDOW_INPUT ) {
       $mode &= ~ENABLE_WINDOW_INPUT
@@ -344,22 +233,17 @@ and terminates Turbo Vision's video support.
     return;
   };
 
-=item public static C<< init_video() >>
+=item package-private static C<< _init_video() >>
 
-This internal routine, called by I<< TApplication->init >>, initialize's Turbo
-Vision's video display manager and switches the display to the mode specified in
-the I<screen_mode> variable.
-
-The routine I<init_video> initializes the variables I<screen_width>,
-I<screen_height>, I<hi_res_screen>, I<check_snow>, I<screen_buffer> and
-I<cursor_lines>.
+This internal routine implements I<init_video> for I<Windows>; more
+information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func init_video() {
+  func _init_video() {
     my $mode = _get_crt_mode();
-    if ( $_startup_mode == 0xffff ) {
-      $_startup_mode = $mode;                           # Set the startup mode
+    if ( $startup_mode == 0xffff ) {
+      $startup_mode = $mode;                           # Set the startup mode
       $cursor_lines = _get_cursor_type();               # Set the startup cursor
       _set_cursor_type( 0x2000 );                       # hide text-mode cursor
     }
@@ -372,7 +256,10 @@ I<cursor_lines>.
         if defined $_startup_console_mode;
 
     # Report changes in buffer size
-    my $CONSOLE = $_io->in();
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->in();
+    };
     $mode = $CONSOLE->Mode();
     $_startup_console_mode = $mode;
     $mode |= ENABLE_WINDOW_INPUT;
@@ -380,34 +267,14 @@ I<cursor_lines>.
     return;
   };
 
-=item public static C<< set_video_mode(Int $mode) >>
+=item package-private static C<< _set_video_mode(Int $mode) >>
 
-Use this (or more commonly I<< TProgram->set_screen_mode >> to select 25 or
-43/50 line screen height, in conjunction with selecting the color, black & white
-or monochrome palettes.
-
-To change to the color palette, write,
-
-  $screen->set_video_mode( SM_CO80 );
-
-where I<SM_CO80> is one of the I<smXXXX> screen mode constants.
-
-Optionally, to select 43/50 line mode, add the I<SM_FONT8X8> constant to the
-color selection constant. For example,
-
-  $screen->set_video_mode( SM_CO80 + SM_FONT8X8 );
-
-Normally, you should use I<< TProgram->set_screen_mode >>, which has the same
-parameter value, to change the screen color or screen size.
-
-The routine I<setscreen_mode> properly handles resetting of the application
-palettes, repositioning the mouse pointer and so on.
-
-See: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
+This internal routine implements I<set_video_mode> for I<Windows>; more
+information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func set_video_mode(Int $mode) {
+  func _set_video_mode(Int $mode) {
     $mode = _fix_crt_mode($mode);                       # Correct the mode
     _set_crt_mode($mode);
     _set_crt_data();
@@ -423,6 +290,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
 =cut
 
   func _ctr_cols() {
+    $_io //= StdioCtl->instance();
     assert { is_Object( $_io ) };
 
     my $width;
@@ -442,6 +310,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
 =cut
 
   func _ctr_rows() {
+    $_io //= StdioCtl->instance();
     assert { is_Object( $_io ) };
 
     my $height;
@@ -513,7 +382,10 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
 
   func _get_cursor_type() {
     # Get windows console cursor appearance
-    my $CONSOLE = $_io->out;
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->out();
+    };
     my (undef, undef, $size, $visible) = $CONSOLE->Cursor();
     $size    //= 0;
     $visible &&= $size;
@@ -564,7 +436,10 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
   func _set_crt_mode(Int $mode) {
     my $resolution = _SCREEN_RESOLUTION->( $mode ) // $mode;
-    my $CONSOLE = $_io->out;
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->out();
+    };
 
     my $oldr = _ctr_rows();
     my $oldc = _ctr_cols();
@@ -632,10 +507,12 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
       $size = 100 if $size > 100;                       # Full-block cursor
     }
 
-    my $CONSOLE = $_io->out;
+    my $CONSOLE = do {
+      $_io //= StdioCtl->instance();
+      $_io->out();
+    };
     $CONSOLE->Cursor(-1, -1, $size, $visible);
   };
-
 
 =begin comment
 
@@ -683,14 +560,6 @@ and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
 
 =cut
 
-# ------------------------------------------------------------------------
-# Initialization ---------------------------------------------------------
-# ------------------------------------------------------------------------
-
-INIT {
-  _detect_video();
-}
-
 1;
 
 __END__
@@ -709,8 +578,6 @@ __END__
  subclasses created in this way are not subject to the obligations that an LGPL
  imposes on licensees.
 
- POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
-
 =head1 AUTHORS
  
 =over
@@ -719,13 +586,9 @@ __END__
 
 2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
-=item *
-
-1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)
-
 =back
 
-=head1 STOLEN CODE SNIPS
+=head1 CONTRIBUTOR
 
 Adjustment of the window dimensions to the screen buffer or vice versa.
 

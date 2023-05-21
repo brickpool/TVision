@@ -9,7 +9,7 @@ BEGIN {
 use Test::More tests => 5;
 
 use TurboVision::Drivers::Const qw( :smXXXX );
-use TurboVision::Drivers::Win32::Screen qw( :all !:private );
+use TurboVision::Drivers::ScreenManager qw( :all );
 
 ok defined($screen_mode), 'defined screen mode';
 
