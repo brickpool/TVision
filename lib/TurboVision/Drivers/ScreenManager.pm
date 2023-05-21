@@ -31,7 +31,7 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 
 # authority '...'
-our $AUTHORITY = 'github:fpc';
+our $AUTHORITY = 'github:brickpool';
 
 # ------------------------------------------------------------------------
 # Used Modules -----------------------------------------------------------
