@@ -62,8 +62,8 @@ In Turbo Vision, command codes are assigned values from 0 to 65535, with
 values in the range of 0 to 255 reserved for items that can be selectively
 disabled.
 
-TCommandSet is used to hold a set of up to 256 commands, specifically those that
-can be disabled, and is used as a parameter for the I<TView> methods,
+I<TCommandSet> is used to hold a set of up to 256 commands, specifically those
+that can be disabled, and is used as a parameter for the I<TView> methods,
 I<enable_commands>, I<disable_commands>, I<get_commands> and I<set_commands>.
 
 The foloowing listing illustrates the use of a I<TCommandSet> type.
