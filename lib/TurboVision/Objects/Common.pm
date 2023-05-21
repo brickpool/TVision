@@ -112,6 +112,7 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
+
   tools => [qw(
     byte
     integer
@@ -123,6 +124,7 @@ our %EXPORT_TAGS = (
     word
     word_rec
   )],
+
   subs => [qw(
     abstract
     dispose_str
@@ -130,6 +132,7 @@ our %EXPORT_TAGS = (
     new_str
     register_objects
   )],
+
 );
 
 # add all the other %EXPORT_TAGS ":class" tags to the ":all" class and
@@ -158,9 +161,9 @@ program and have been assigned to the I<Objects> module.
 
 =over
 
-=item public type C<< Object byte() >>
+=item public static C<< Object byte() >>
 
-=item public type C<< Object byte(Str|Int $value) >>
+=item public static C<< Object byte(Str|Int $value) >>
 
 The utility I<byte> helps to convert an unsigned char (octet) value into a
 number to the base 256 (packed string).
@@ -208,9 +211,9 @@ Usage:
     return FAIL;
   }
 
-=item public type C<< Object integer() >>
+=item public static C<< Object integer() >>
 
-=item public type C<< Object integer(Str|Int $value) >>
+=item public static C<< Object integer(Str|Int $value) >>
 
 The utility I<integer> helps to convert an signed long (16-bit) value into a
 number to the base 256 (packed string).
@@ -259,9 +262,9 @@ Usage:
     return FAIL;
   }
 
-=item public type C<< Object longint() >>
+=item public static C<< Object longint() >>
 
-=item public type C<< Object longint(Str|Int $value) >>
+=item public static C<< Object longint(Str|Int $value) >>
 
 The utility I<longint> helps to convert an signed long (32-bit) value into a
 number to the base 256 (packed string).
@@ -382,9 +385,9 @@ See: I<refaddr> from I<Scalar::Util>
     );
   }
 
-=item public type C<< Object word() >>
+=item public static C<< Object word() >>
 
-=item public type C<< Object word(Str|Int $value) >>
+=item public static C<< Object word(Str|Int $value) >>
 
 The utility I<word> helps to convert an unsigned short (16-bit) value into a
 number to the base 256 (packed string).
@@ -545,6 +548,8 @@ module: I<TCollection>, <TStringCollection>
 
     TStreamRec->register_type(TCollection->RCollection);
     TStreamRec->register_type(TStringCollection->RStringCollection);
+    
+    return;
   }
 
 =back
