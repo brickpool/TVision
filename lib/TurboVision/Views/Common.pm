@@ -108,9 +108,12 @@ window are active.
 
 =cut
 
-  our $cur_command_set = pack( 'b*', 1 x 256 );
-  vec ($cur_command_set, $_, 1) = 0                       # All active but these
-    foreach CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV;
+  our $cur_command_set = do {
+    my $set = pack( 'b*', 1 x 256 );
+    vec ($set, $_, 1) = 0                                 # All active but these
+      foreach CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV;
+    $set;
+  };
 
 =back
 
@@ -124,7 +127,7 @@ window are active.
 
 =over
 
-=item public C<< get_mouse_event(TEvent $event) >>
+=item public static C<< get_mouse_event(TEvent $event) >>
 
 ...
 
