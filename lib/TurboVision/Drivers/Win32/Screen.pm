@@ -246,7 +246,7 @@ example, 80).
 
   our $screen_width = 0;
 
-=item private C<< Int $_startup_mode >>
+=item package-private C<< Int $_startup_mode >>
 
 This internal variable stores the existing screen mode before Turbo Vision
 switches to a new screen mode.
@@ -259,7 +259,7 @@ See: I<screen_mode>
 
 =begin comment
 
-=item local C<< Object $_io >>
+=item private C<< Object $_io >>
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -272,7 +272,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =begin comment
 
-=item local C<< Int $_startup_console_mode >>
+=item private C<< Int $_startup_console_mode >>
 
 This internal variable stores the existing mode of a console's input buffer
 before Turbo Vision switches to a new screen mode.
@@ -295,7 +295,7 @@ before Turbo Vision switches to a new screen mode.
 
 =over
 
-=item public C<< clear_screen() >>
+=item public static C<< clear_screen() >>
 
 After I<init_video> has been called by I<< TApplication->init >>, this
 routine will clear the screen. However, most Turbo Vision applications will have
@@ -309,7 +309,7 @@ no need to use this routine.
     return;
   }
 
-=item public C<< done_video() >>
+=item public static C<< done_video() >>
 
 This internal routine is called automatically by I<< TApplication->DEMOLISH >>
 and terminates Turbo Vision's video support.
@@ -344,7 +344,7 @@ and terminates Turbo Vision's video support.
     return;
   };
 
-=item public C<< init_video() >>
+=item public static C<< init_video() >>
 
 This internal routine, called by I<< TApplication->init >>, initialize's Turbo
 Vision's video display manager and switches the display to the mode specified in
@@ -380,7 +380,7 @@ I<cursor_lines>.
     return;
   };
 
-=item public C<< set_video_mode(Int $mode) >>
+=item public static C<< set_video_mode(Int $mode) >>
 
 Use this (or more commonly I<< TProgram->set_screen_mode >> to select 25 or
 43/50 line screen height, in conjunction with selecting the color, black & white
@@ -414,7 +414,7 @@ See: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
     return;
   }
 
-=item private C<< Int _ctr_cols() >>
+=item package-private static C<< Int _ctr_cols() >>
 
 Returns the number of columns or 0 in case of error.
 
@@ -433,7 +433,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
     return $width;
   }
 
-=item private C<< Int _ctr_rows() >>
+=item package-private static C<< Int _ctr_rows() >>
 
 Returns the number of rows or 0 in case of error.
 
@@ -452,7 +452,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
     return $height;
   }
 
-=item private C<< _detect_video() >>
+=item package-private static C<< _detect_video() >>
 
 Detect video modes.
 
@@ -464,7 +464,7 @@ Detect video modes.
     $screen_mode = $mode;                               # Set screen mode attr
   }
 
-=item public C<< Int _fix_crt_mode(Int $mode) >>
+=item package-private static C<< Int _fix_crt_mode(Int $mode) >>
 
 Fix CRT mode in I<$mode> if required.
 
@@ -488,7 +488,7 @@ columns. E.g. 1950h (0x1950) corresponds to a C<80x25> mode.
     return _STANDARD_CRT_MODE->( $resolution ) // $resolution;
   }
 
-=item private C<< Int _get_crt_mode() >>
+=item package-private static C<< Int _get_crt_mode() >>
 
 Return CRT mode.
 
@@ -504,7 +504,7 @@ Return CRT mode.
           ;                               
   }
 
-=item private C<< Int _get_cursor_type() >>
+=item package-private static C<< Int _get_cursor_type() >>
 
 Return the shape of the cursor, like interrupt
 L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
@@ -537,7 +537,7 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
     return $cursor;
   };
 
-=item private C<< _set_crt_data() >>
+=item package-private static C<< _set_crt_data() >>
 
 Set CRT data areas
 
@@ -554,7 +554,7 @@ Set CRT data areas
     $screen_buffer = {};                                # Init screen buffer
   }
 
-=item private C<< _set_crt_mode(Int $mode) >>
+=item package-private static C<< _set_crt_mode(Int $mode) >>
 
 Set CRT mode to value in I<$mode>.
 
@@ -607,7 +607,7 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
     return;
   }
 
-=item private C<< _set_cursor_type(Int $cursor) >>
+=item package-private static C<< _set_cursor_type(Int $cursor) >>
 
 Set the shape of the cursor, as interrupt
 L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
@@ -639,7 +639,7 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
 
 =begin comment
 
-=item private C<< _get_windows_resizing() >>
+=item private static C<< _get_windows_resizing() >>
 
 Does the window have a resize frame?
 
@@ -656,7 +656,7 @@ Does the window have a resize frame?
 
 =begin comment
 
-=item private C<< _set_window_resizing(Bool $enable) >>
+=item private static C<< _set_window_resizing(Bool $enable) >>
 
 Enable or disable the Window resize frame.
 

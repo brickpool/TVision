@@ -241,7 +241,7 @@ See: I<evXXXX> constants, I<$double_delay>
 
 =begin comment
 
-=item local C<< Int $_hide_count >>
+=item private C<< Int $_hide_count >>
 
 Internal "hide" counter for the routines I<hide_mouse> and I<show_mouse>.
 
@@ -253,7 +253,7 @@ Internal "hide" counter for the routines I<hide_mouse> and I<show_mouse>.
 
 =begin comment
 
-=item local C<< Object $_io >>
+=item private C<< Object $_io >>
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -276,7 +276,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =over
 
-=item public C<< get_mouse_event(TEvent $event) >>
+=item public static C<< get_mouse_event(TEvent $event) >>
 
 Similar to I<get_key_event>, but for mouse events.
 
@@ -309,7 +309,7 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
     return;
   }
 
-=item public C<< hide_mouse() >>
+=item public static C<< hide_mouse() >>
 
 This routine is used to hide the mouse, making it invisible on the screen.
 
@@ -337,7 +337,7 @@ always be the same number of each.
     return;
   }
 
-=item public C<< show_mouse() >>
+=item public static C<< show_mouse() >>
 
 The routine I<show_mouse> is the opposite of the I<hide_mouse>.
 
@@ -365,7 +365,7 @@ See: I<hide_mouse>
     return;
   }
 
-=item private C<< Int _detect_mouse() >>
+=item package-private static C<< Int _detect_mouse() >>
 
 Detect mouse driver and set I<$button_count>.
 

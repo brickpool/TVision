@@ -97,7 +97,7 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public C<< get_key_event(TEvent $event) >>
+=item public static C<< get_key_event(TEvent $event) >>
 
 Emulates the BIOS function INT 16h, Function 01h "Read LowLevel Status" to
 determine if a key has been pressed on the keyboard.
@@ -132,7 +132,7 @@ See: I<evXXXX> constants
     return;
   }
 
-=item public C<< Int get_shift_state() >>
+=item public static C<< Int get_shift_state() >>
 
 Returns a integer (octal) containing the current Shift key state. The return
 value contains a combination of the I<kbXXXX> constants for shift states.

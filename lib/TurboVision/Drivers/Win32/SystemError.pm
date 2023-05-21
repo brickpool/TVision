@@ -118,7 +118,7 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public const C<< Int _MB_ICONERROR >>
+=item private const C<< Int _MB_ICONERROR >>
 
 A stop-sign icon appears in the message box.
 
@@ -128,7 +128,9 @@ A stop-sign icon appears in the message box.
 
   use constant _MB_ICONERROR      => 0x00000010;
 
-=item public const C<< Int _MB_RETRYCANCEL >>
+=begin comment
+
+=item private const C<< Int _MB_RETRYCANCEL >>
 
 The message box contains two push buttons: Retry and Cancel.
 
@@ -138,7 +140,9 @@ The message box contains two push buttons: Retry and Cancel.
 
   use constant _MB_RETRYCANCEL    => 0x00000005;
 
-=item public const C<< Int _MB_SETFOREGROUND >>
+=begin comment
+
+=item private const C<< Int _MB_SETFOREGROUND >>
 
 The message box becomes the foreground window.
 
@@ -148,7 +152,9 @@ The message box becomes the foreground window.
 
   use constant _MB_SETFOREGROUND  => 0x00010000;
 
-=item public const C<< Int _IDRETRY >>
+=begin comment
+
+=item private const C<< Int _IDRETRY >>
 
 The Retry button was selected.
 
@@ -157,7 +163,6 @@ The Retry button was selected.
 =cut
 
   use constant _IDRETRY           => 4;
-
 
 =begin comment
 
@@ -306,7 +311,7 @@ line.
 
 =begin comment
 
-=item local C<< Object $_io >>
+=item private C<< Object $_io >>
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -329,7 +334,7 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =over
 
-=item public C<< init_sys_error() >>
+=item public static C<< init_sys_error() >>
 
 This internal routine, called by I<< TApplication->init >>, initializes system
 error trapping by redirecting the handling of I<Ctrl-C>, I<Ctrl-Break> and
@@ -350,7 +355,7 @@ I<done_sys_error> routine.
     return;
   }
 
-=item public C<< done_sys_error() >>
+=item public static C<< done_sys_error() >>
 
 This internal routine is called automatically by I<< TApplication->DEMOLISH >>,
 terminating Turbo Vision's system error trapping and restoring the handling of
@@ -375,7 +380,7 @@ I<Ctrl-C>, I<Ctrl-Break> and I<Critical-Error>, to their original settings.
     return;
   }
 
-=item public C<< Int system_error(Int $error_code, Int $drive) >>
+=item public static C<< Int system_error(Int $error_code, Int $drive) >>
 
 This function handles system errors (such as DOS critical errors). See
 I<$sys_error_func> for details on the parameters and their values.

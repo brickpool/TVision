@@ -50,9 +50,8 @@ Nothing per default, but can export the following per request:
   GWL_STYLE
   WS_SIZEBOX
 
+  GetConsoleWindow
   GetDoubleClickTime
-
-  FindWindow
   GetWindowLong
   SetWindowLong
 
@@ -123,7 +122,7 @@ Name of the library files used for the I<Windows and Messages> subs.
 
 =over
 
-=item public C<< Int GetConsoleWindow() >>
+=item public static C<< Int GetConsoleWindow() >>
 
 Retrieves the window handle from the calling process that is used by the
 console; for more info consult the original API documentation.
@@ -136,7 +135,7 @@ BEGIN {
   ) or die "Import GetConsoleWindow: $EXTENDED_OS_ERROR";
 }
 
-=item public C<< Int GetDoubleClickTime() >>
+=item public static C<< Int GetDoubleClickTime() >>
 
 Retrieves the current double-click time for the mouse; for more info consult the
 original API documentation.
@@ -149,7 +148,7 @@ BEGIN {
   ) or die "Import GetDoubleClickTime: $EXTENDED_OS_ERROR";
 }
 
-=item public C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
+=item public static C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
 
 Retrieves a windows property; for more info consult the original API
 documentation.
@@ -162,7 +161,7 @@ BEGIN {
   ) or die "Import GetWindowLong: $EXTENDED_OS_ERROR";
 }
 
-=item public C<< Int SetWindowLong(Int $hWnd, Int $nIndex, Int dwNewLong) >>
+=item public static C<< Int SetWindowLong(Int $hWnd, Int $nIndex, Int dwNewLong) >>
 
 Sets a windows property; for more info consult the original API documentation.
 
