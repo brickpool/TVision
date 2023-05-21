@@ -44,6 +44,8 @@ use Exporter qw( import );
 Nothing per default, but can export the following per request:
 
   :all
+    EVENT_Q_SIZE
+
     :evXXXX
       EV_MOUSE_DOWN
       EV_MOUSE_UP
@@ -156,7 +158,6 @@ Nothing per default, but can export the following per request:
     :private
       _ALT_CODES
       _CP437_TO_UTF8
-      _EVENT_Q_SIZE
       _SCREEN_RESOLUTION
       _STANDARD_CRT_MODE
       _WORD_STAR_CODES
@@ -165,6 +166,7 @@ Nothing per default, but can export the following per request:
 =cut
 
 our @EXPORT_OK = qw(
+  EVENT_Q_SIZE
 );
 
 our %EXPORT_TAGS = (
@@ -285,7 +287,6 @@ our %EXPORT_TAGS = (
   private => [qw(
     _ALT_CODES
     _CP437_TO_UTF8
-    _EVENT_Q_SIZE
     _UTF8_TO_CP437
     _SCREEN_RESOLUTION
     _STANDARD_CRT_MODE
@@ -318,6 +319,18 @@ tbd
 # ------------------------------------------------------------------------
 
 =head1 CONSTANTS
+
+=head2 Drivers used public constants
+
+=item public const C<< Int EVENT_Q_SIZE >>
+
+Event manager constant for the queue size.
+
+=cut
+
+  use constant EVENT_Q_SIZE => 16;
+
+=back
 
 =head2 Event type masks
 
@@ -860,7 +873,7 @@ Monochrome mode, 80x25 chars.
 
 =cut
 
-=head2 Drivers used private constants.
+=head2 Drivers used private constants
 
 =over
 
@@ -963,14 +976,6 @@ Codepage 437 to Unicode translation map.
     ord "\x{00b0}", ord "\x{2219}", ord "\x{00b7}", ord "\x{221a}",
     ord "\x{207f}", ord "\x{00b2}", ord "\x{25a0}", ord "\x{00a0}",
   ]->[ +shift ]};
-
-=item private const C<< Int _EVENT_Q_SIZE >>
-
-Event manager constant for the queue size.
-
-=cut
-
-  use constant _EVENT_Q_SIZE => 16;
 
 =item private const C<< Ref _SCREEN_RESOLUTION >>
 
