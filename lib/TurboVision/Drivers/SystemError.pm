@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::SystemError - System Error Handler implementation
+TurboVision::Drivers::SystemError - System Error Handler implementation
 
 =cut
 
-package TurboVision::Drivers::Win32::SystemError;
+package TurboVision::Drivers::SystemError;
 
 # ------------------------------------------------------------------------
 # Boilerplate ------------------------------------------------------------
@@ -14,15 +14,6 @@ package TurboVision::Drivers::Win32::SystemError;
 
 use 5.014;
 use warnings;
-
-use Function::Parameters {
-  func => {
-    defaults    => 'function_strict',
-    name        => 'required',
-  },
-};
-
-use MooseX::Types::Moose qw( :all );
 
 # version '...'
 our $VERSION = '2.000_001';
@@ -35,14 +26,10 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use English qw( -no_match_vars );
-use Data::Alias qw( alias );
-
-use TurboVision::Const qw( :bool );
-use TurboVision::Drivers::Types qw( StdioCtl );
-use TurboVision::Drivers::Win32::StdioCtl;
-
-use Win32::Console;
+use TurboVision::Const qw(
+  :bool
+  :platform
+);
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -63,7 +50,7 @@ Nothing per default, but can export the following per request:
       $sys_err_active
       $fail_sys_errors
   
-    :error
+    :syserr
       init_sys_error
       done_sys_error
       system_error
@@ -107,70 +94,6 @@ our %EXPORT_TAGS = (
     @{$EXPORT_TAGS{all}},
       @EXPORT_OK;
 }
-
-# ------------------------------------------------------------------------
-# Constants --------------------------------------------------------------
-# ------------------------------------------------------------------------
-
-=begin comment
-
-=head2 Constants
-
-=over
-
-=item private const C<< Int _MB_ICONERROR >>
-
-A stop-sign icon appears in the message box.
-
-=end comment
-
-=cut
-
-  use constant _MB_ICONERROR      => 0x00000010;
-
-=begin comment
-
-=item private const C<< Int _MB_RETRYCANCEL >>
-
-The message box contains two push buttons: Retry and Cancel.
-
-=end comment
-
-=cut
-
-  use constant _MB_RETRYCANCEL    => 0x00000005;
-
-=begin comment
-
-=item private const C<< Int _MB_SETFOREGROUND >>
-
-The message box becomes the foreground window.
-
-=end comment
-
-=cut
-
-  use constant _MB_SETFOREGROUND  => 0x00010000;
-
-=begin comment
-
-=item private const C<< Int _IDRETRY >>
-
-The Retry button was selected.
-
-=end comment
-
-=cut
-
-  use constant _IDRETRY           => 4;
-
-=begin comment
-
-=back
-
-=end comment
-
-=cut
 
 # ------------------------------------------------------------------------
 # Variables --------------------------------------------------------------
@@ -309,19 +232,6 @@ line.
 
   our $fail_sys_errors = _FALSE;
 
-=begin comment
-
-=item private C<< Object $_io >>
-
-STD ioctl object I<< StdioCtl->instance() >>
-
-=end comment
-
-=cut
-
-  my $_io;
-  INIT { $_io = StdioCtl->instance() }
-
 =back
 
 =cut
@@ -345,13 +255,15 @@ I<done_sys_error> routine.
 
 =cut
 
-  func init_sys_error() {
-    my $CONSOLE = $_io->in();                           # get input console
-    my $mode = $CONSOLE->Mode();                        # save Ctrl+C status
-    $save_ctrl_break = !!( $mode & ENABLE_PROCESSED_INPUT );
-    $CONSOLE->Mode( $mode & ~ENABLE_PROCESSED_INPUT );  # Report Ctrl+C and ...
-                                                        # ... Shift+Arrow events
-    $sys_err_active = _TRUE;
+  sub init_sys_error {
+if( _TV_UNIX ){
+
+}elsif( _WIN32 ){
+
+    require TurboVision::Drivers::Win32::SysError;
+    goto &TurboVision::Drivers::Win32::SysError::_init_sys_error;
+
+}#endif _TV_UNIX
     return;
   }
 
@@ -363,20 +275,15 @@ I<Ctrl-C>, I<Ctrl-Break> and I<Critical-Error>, to their original settings.
 
 =cut
 
-  func done_sys_error() {
-    return
-        if not $sys_err_active;
-    $sys_err_active = _FALSE;
+  sub done_sys_error {
+if( _TV_UNIX ){
 
-    my $CONSOLE = $_io->in();                           # get input console
-    my $mode = $CONSOLE->Mode();                        # restore Ctrl-C status
-    if ( $save_ctrl_break ) {
-      $CONSOLE->Mode( $mode | ENABLE_PROCESSED_INPUT )
-    }
-    else {
-      $CONSOLE->Mode( $mode & ~ENABLE_PROCESSED_INPUT )
-    }
+}elsif( _WIN32 ){
 
+    require TurboVision::Drivers::Win32::SysError;
+    goto &TurboVision::Drivers::Win32::SysError::_done_sys_error;
+
+}#endif _TV_UNIX
     return;
   }
 
@@ -392,26 +299,15 @@ See: I<$sys_error_func>
 
 =cut
 
-  func system_error(Int $error_code, Int $drive) {
-    return 1                                          # Return 1 for ignored
-        if $fail_sys_errors;                          # Check error ignore
+  sub system_error {
+if( _TV_UNIX ){
 
-    if ( $error_code >= 0
-      && $error_code <= 15
-      && $error_code == $EXTENDED_OS_ERROR-19
-    ) {
-      $drive = chr($drive + ord 'A');
-      my $str = $EXTENDED_OS_ERROR;
-      $str =~ s/\%1/$drive/;
-      my $choice = Win32::MsgBox(
-        $str, _MB_ICONERROR | _MB_SETFOREGROUND | _MB_RETRYCANCEL, ''
-      );
-      return $choice == _IDRETRY
-            ? 0
-            : 1
-            ;
-    }
+}elsif( _WIN32 ){
 
+    require TurboVision::Drivers::Win32::SysError;
+    goto &TurboVision::Drivers::Win32::SysError::_system_error;
+
+}#endif _TV_UNIX
     return;
   }
 
@@ -454,21 +350,6 @@ __END__
 
 =back
 
-=head1 CONTRIBUTOR
-
-The Windows event mapping was taken from the framework
-"A modern port of Turbo Vision 2.0", which is licensed under MIT licence
-
-See: I<init_sys_error>, I<done_sys_error>
-
-=over
-
-=item *
-
-2019-2021 by magiblot E<lt>magiblot@hotmail.comE<gt>
-
-=back
-
 =head1 DISCLAIMER OF WARRANTIES
  
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -491,5 +372,4 @@ See: I<init_sys_error>, I<done_sys_error>
 
 =head1 SEE ALSO
 
-L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>, 
-L<win32con.cpp|https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/source/platform/win32con.cpp>
+L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>

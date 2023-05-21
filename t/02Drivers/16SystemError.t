@@ -12,7 +12,7 @@ use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :kbXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::Win32::Keyboard qw( :kbd );
-use TurboVision::Drivers::Win32::SystemError qw( :all );
+use TurboVision::Drivers::SystemError qw( :all );
 
 use Win32;
 use Win32::GuiTest;
