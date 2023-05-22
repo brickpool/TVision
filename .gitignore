@@ -45,3 +45,4 @@ inc/
 # Komodo IDE
 *.komodoproject
 /.komodotools/
+doc/podstyle.css

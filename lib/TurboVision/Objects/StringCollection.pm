@@ -198,7 +198,7 @@ Methods inherited from class C<TCollection>
   first_that, for_each, free, free_all, free_item, last_that, pack,
   selt_limit
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
 

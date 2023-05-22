@@ -349,7 +349,7 @@ Methods inherited from class C<TObject>
 
   init
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
 

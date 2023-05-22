@@ -429,7 +429,7 @@ Gets the font size.
 
 =head2 Inheritance
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   BUILDARGS, does, DOES, dump, DESTROY
 

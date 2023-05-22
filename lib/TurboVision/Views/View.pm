@@ -135,14 +135,15 @@ While many of the methods are primarly used internally and to
 create new descendant-type objects, most applications will encounter at
 least the following I<TView> methods:
 
-I<grow_mode>, I<drag_mode>, I<help_ctx>, I<state>, I<options> and I<event_mask>.
+L</grow_mode>, L</drag_mode>, L</help_ctx>, L</state>, L</options> and
+L</event_mask>.
 
-Commonly used methods include I<block_cursor>, I<clear_event>,
-I<command_enabled>, I<data_size>, I<disable_commands>, I<draw>, I<draw_view>,
-I<enable_commands>, I<get_color>, I<get_commands>, I<get_help_ctx>,
-I<get_palette>, I<get_state>, I<hide_cursor>, I<normal_cursor>, I<select>,
-I<set_commands>, I<set_state>, I<show>, I<show_cursor>, I<valid>, I<write_line>
-and I<write_str>.
+Commonly used methods include L</block_cursor>, L</clear_event>,
+L</command_enabled>, L</data_size>, L</disable_commands>, L</draw>,
+L</draw_view>, L</enable_commands>, L</get_color>, L</get_commands>,
+L</get_help_ctx>, L</get_palette>, L</get_state>, L</hide_cursor>,
+L</normal_cursor>, L</select>, L</set_commands>, L</set_state>, L</show>,
+L</show_cursor>, L</valid>, L</write_line> and L</write_str>.
 
 =head2 Class
 
@@ -164,6 +165,8 @@ package TurboVision::Views::View {
   # ------------------------------------------------------------------------
 
 =head2 Constants
+
+=for html <span id="RView">
 
 =over
 
@@ -198,7 +201,7 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
 
 =item private C<< HashRef $static_var2 >>
 
-Helper variable for I<TView> methods I<exposed> and I<write_str>.
+Helper variable for I<TView> methods L</exposed> and L</write_str>.
 
 =end comment
 
@@ -224,6 +227,8 @@ Helper variable for I<TView> methods I<exposed> and I<write_str>.
 
 =head2 Attributes
 
+=for html <span id="cursor">
+
 =over
 
 =item public readonly C<< TPoint cursor >>
@@ -237,6 +242,8 @@ Records the position of the display cursor.
     default   => sub { TPoint->new() },
     writer    => '_cursor',
   );
+
+=for html <span id="drag_mode">
 
 =item public C<< Int drag_mode >>
 
@@ -254,6 +261,8 @@ See: I<dmXXXX> constants for more information on these settings.
     isa       => Int,
     required  => 1,
   );
+
+=for html <span id="event_mask">
 
 =item public C<< Int event_mask >>
 
@@ -274,6 +283,8 @@ See: I<evXXXX> constants
     required  => 1,
   );
 
+=for html <span id="grow_mode">
+
 =item public C<< Int grow_mode >>
 
 The bit settings in I<grow_mode> indicate how the view will change shape when
@@ -291,6 +302,8 @@ See: I<gfXXXX> constants for more information on these bit settings.
     default   => 0,
   );
 
+=for html <span id="help_ctx">
+
 =item public C<< Int help_ctx >>
 
 Holds the view's help context setting.
@@ -306,6 +319,8 @@ I<help_ctx> will have a default of I<HC_NO_CONTEXT>.
     default => HC_NO_CONTEXT,
   );
 
+=for html <span id="next">
+
 =item public readonly C<< TView|Undef next >>
 
 I<next> maintains a circular list pointing to the next view, in Z-order.
@@ -317,6 +332,8 @@ I<next> maintains a circular list pointing to the next view, in Z-order.
     init_arg  => undef,
     writer    => '_next',
   );
+
+=for html <span id="options">
 
 =item public C<< Int options >>
 
@@ -332,6 +349,8 @@ constants.
     default   => 0,
   );
 
+=for html <span id="origin">
+
 =item public readonly C<< TPoint origin >>
 
 Describes the upper left corner of the view.
@@ -343,6 +362,8 @@ Describes the upper left corner of the view.
     required  => 1,
     writer    => '_origin',
   );
+
+=for html <span id="owner">
 
 =item public readonly C<< TGroup|Undef owner >>
 
@@ -356,6 +377,8 @@ Points to the I<TGroup> that owns this view.
     writer    => '_owner',
   );
 
+=for html <span id="size">
+
 =item public readonly C<< TPoint size >>
 
 Contains the size of the view.
@@ -368,12 +391,14 @@ Contains the size of the view.
     writer    => '_size',
   );
 
+=for html <span id="state">
+
 =item public readonly C<< Int state >>
 
 The I<state> bits retain information about many view options, including the
 cursor shape, if the cursor is visible or if the view is selected.
 
-See: I<sfXXXX> constants, I<< TView->set_state >>, I<< TView->get_state >>
+See: I<sfXXXX> constants, L</set_state>, L</get_state>
 
 =cut
 
@@ -395,6 +420,8 @@ See: I<sfXXXX> constants, I<< TView->set_state >>, I<< TView->get_state >>
 
 =head2 Constructors
 
+=for html <span id="init">
+
 =over
 
 =item public C<< TView->init(TRect $bounds) >>
@@ -402,8 +429,8 @@ See: I<sfXXXX> constants, I<< TView->set_state >>, I<< TView->get_state >>
 Creates an initializes a I<TView> object and places it according to the Bounds
 parameter.
 
-You may wish to directly assign values other than defaults, to I<state>,
-I<options>, I<event_mask>, I<grow_mode> and I<drag_mode>.
+You may wish to directly assign values other than defaults, to L</state>,
+L</options>, L</event_mask>, L</grow_mode> and L</drag_mode>.
 
 =cut
 
@@ -419,6 +446,8 @@ I<options>, I<event_mask>, I<grow_mode> and I<drag_mode>.
       size        => $bounds->b - $bounds->a,
     );
   };
+
+=for html <span id="load">
 
 =item public C<< TView->load(TStream $s) >>
 
@@ -499,6 +528,8 @@ Creates and reads a view from stream I<$s>.
 
 =head2 Destructors
 
+=for html <span id="DEMOLISH">
+
 =over
 
 =item public C<< DEMOLISH() >>
@@ -524,6 +555,8 @@ Deletes the view after erasing it from the screen.
 
 =head2 Methods
 
+=for html <section id="block_cursor"/>
+
 =over
 
 =item public C<< block_cursor() >>
@@ -531,7 +564,7 @@ Deletes the view after erasing it from the screen.
 Changes the cursor to the solid block cursor by setting the I<SF_CURSOR_INS>
 bit in the I<state> attribute.
 
-See: I<TView->normal_cursor>
+See: L</normal_cursor>
 
 =cut
 
@@ -540,10 +573,12 @@ See: I<TView->normal_cursor>
     return;
   }
 
+=for html <span id="calc_bounds">
+
 =item public C<< calc_bounds(TRect $bounds, TPoint $delta) >>
 
 I<calc_bounds> is used internally to resize and shape this view in the case
-that the I<owner>'s view was changed in size.
+that the L</owner>'s view was changed in size.
 
 =cut
 
@@ -609,6 +644,8 @@ that the I<owner>'s view was changed in size.
     return;
   }
 
+=for html <span id="change_bounds">
+
 =item public C<< change_bounds(TRect $bounds) >>
 
 This internal procedure repositions the view.
@@ -621,11 +658,13 @@ This internal procedure repositions the view.
     return;
   }
 
+=for html <span id="clear_event">
+
 =item public C<< clear_event(TEvent $event) >>
 
-In your I<handle_event> methods or overridden I<handle_event> methods, whenever
-you have finished processing an event, you must signal that the event is
-finished by calling I<clear_event>, which sets
+In your L</handle_event> methods or overridden L</handle_event> methods,
+whenever you have finished processing an event, you must signal that the event
+is finished by calling I<clear_event>, which sets
 I<< $event->what( EV_NOTHING ) >>; and I<< $event->info_ptr( $self ) >> so that
 other views can determine who it was that process the event.
 
@@ -637,6 +676,7 @@ other views can determine who it was that process the event.
     return;
   }
 
+=for html <span id="command_enabled">
 
 =item public C<< Bool command_enabled(Int $command) >>
 
@@ -654,12 +694,14 @@ been disabled.
         || vec( $cur_command_set, $command, 1 );          # Check command
   }
 
+=for html <span id="data_size">
+
 =item public C<< Int data_size() >>
 
-Used in conjunction with I<get_data> and I<set_data> to copy the views data to
+Used in conjunction with L</get_data> and L</set_data> to copy the views data to
 and from a data record.
 
-See: I<get_data>, I<set_data>
+See: L</get_data>, L</set_data>
 
 =cut
 
@@ -667,15 +709,17 @@ See: I<get_data>, I<set_data>
     return 0;                                             # Transfer size
   }
 
+=for html <span id="disable_commands">
+
 =item public C<< disable_commands(TCommandSet $commands) >>
 
-<$commands> is a array reference containing a set of commands, specified by
+I<$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be disabled.
 
 Calling I<disable_commands> causes these I<$commands> to become greyed out on
 the menus and status line.
 
-See: I<< TView->enable_commands >>
+See: L</enable_commands>
 
 =cut
 
@@ -692,14 +736,16 @@ See: I<< TView->enable_commands >>
     return;
   }
 
+=for html <span id="drag_view">
+
 =item public C<< drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size) >>
 
 I<drag_view> handles redrawing the view while it is being dragged across the
 string.
 
 I<$limits> defines the rectangle in which the view can be dragged, and
-I<min_size> and I<max_size> set the minimum and maximum sizes to which the view
-can be resized.
+I<$min_size> and I<$max_size> set the minimum and maximum sizes to which the
+view can be resized.
 
 =cut
 
@@ -847,6 +893,8 @@ can be resized.
     return;
   }
 
+=for html <span id="draw">
+
 =item public C<< draw() >>
 
 The I<draw> method is the only method that should write data to the view's
@@ -867,13 +915,13 @@ Instead, I<draw> would update only the lines that are actually visible.
 Sometimes you do not need to redraw the entire view because, perhaps, only a
 portion of the screen was overwritten by another view such as a dialog.
 
-Call I<get_clip_rect> to fetch the coordinates of the minimum area that needs
+Call L</get_clip_rect> to fetch the coordinates of the minimum area that needs
 updating.
 
-The use of I<get_clip_rect> can noticeably improve performance by minimizing the
-amount of time spent updating the screen.
+The use of L</get_clip_rect> can noticeably improve performance by minimizing
+the amount of time spent updating the screen.
 
-See: I<< TView->draw_view >>, I<< TView->get_clip_rect >>
+See: L</draw_view>, L</get_clip_rect>
 
 =cut
 
@@ -884,17 +932,19 @@ See: I<< TView->draw_view >>, I<< TView->get_clip_rect >>
     return;
   }
 
+=for html <span id="draw_view">
+
 =item public C<< draw_view() >>
 
 I<draw_view> is the preferred method to call when you need to update the view.
 
 That's because I<draw_view> makes a check to determine if the view is exposed
-(not hidden behind another view) before attempting to call I<draw>.
+(not hidden behind another view) before attempting to call L</draw>.
 
-I<draw> doesn't care if the view is visible since Turbo Vision will
+L</draw> doesn't care if the view is visible since Turbo Vision will
 automatically clip away text that doesn't currently appear in a view.
 
-See: I<< TView->draw >>
+See: L</draw>
 
 =cut
 
@@ -909,15 +959,17 @@ See: I<< TView->draw >>
     return;
   }
 
+=for html <span id="enable_commands">
+
 =item public C<< enable_commands(TCommandSet $commands) >>
 
 <$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be enabled.
 
-I<enable_commands> is the inverse of I<disable_commands> and restores commands
+I<enable_commands> is the inverse of L</disable_commands> and restores commands
 to an operable state.
 
-See: I<< TView->enable_commands >>
+See: L</disable_commands>
 
 =cut
 
@@ -933,6 +985,8 @@ See: I<< TView->enable_commands >>
     $cur_command_set |= $commands;                        # Update command set
     return;
   }
+
+=for html <span id="end_modal">
 
 =item public C<< end_modal(Int $command) >>
 
@@ -950,6 +1004,8 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
     return;
   }
 
+=for html <span id="event_avail">
+
 =item public C<< Bool event_avail() >>
 
 Returns True if an event is available.
@@ -964,6 +1020,8 @@ Returns True if an event is available.
     return $event->what != EV_NOTHING;                    # Return result
   }
 
+=for html <span id="execute">
+
 =item public C<< Int execute() >>
 
 I<execute> is overridden in I<TGroup> descendants to provide the event loop that
@@ -976,6 +1034,8 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
   method execute() {
     return CM_CANCEL;                                     # Return cancel
   }
+
+=for html <span id="exposed">
 
 =item public C<< Bool exposed() >>
 
@@ -1003,13 +1063,13 @@ If the view is completely hidden, then I<exposed> returns False.
     return _FALSE;
   }
 
-
+=for html <span id="hide">
 
 =item public C<< hide() >>
 
 Hides the view.
 
-See: I<< TView->show >>
+See: L</show>
 
 =cut
 
@@ -1019,6 +1079,18 @@ See: I<< TView->show >>
     return;
   }
 
+=for html <span id="set_state">
+
+=item public C<< set_state(Int $a_state, Bool $enable) >>
+
+Use I<set_state> to either set or clear bits in the L</state> variable.
+
+If I<$enable> is True, then the bits specified by I<$a_state> are set, and
+if I<$enable> is False, then the bits specified by
+I<$a_state> are cleared.
+
+=cut
+
   method set_state(Int $a_state, Bool $enable) {
     return;
   }
@@ -1027,7 +1099,7 @@ See: I<< TView->show >>
 
 =head2 Inheritance
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
 

@@ -453,7 +453,7 @@ Methods inherited from class C<TStream>
   copy_from, error, flush, get, get_pos, get_size, put, read_str, reset, seek,
   write_str
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
 

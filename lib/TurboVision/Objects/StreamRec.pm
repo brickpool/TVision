@@ -253,7 +253,7 @@ I<TStreamRec>.
 
 =head2 Inheritance
 
-Methods inherited from class C<Object>
+Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
 
