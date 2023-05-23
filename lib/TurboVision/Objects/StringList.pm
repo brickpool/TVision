@@ -97,7 +97,7 @@ program, but should be used in separate programs.
 
 =head2 Class
 
-public class C<< TStringList >>
+public class I<< TStringList >>
 
 Turbo Vision Hierarchy
 

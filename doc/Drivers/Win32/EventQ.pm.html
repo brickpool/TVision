@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Drivers::Win32::EventQ &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Drivers::Win32::EventQ
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+  <li><a href="#EXPORTS">EXPORTS</a>
+    <ul>
+      <li><a href="#Variables">Variables</a></li>
+      <li><a href="#EventQ-Variables">EventQ Variables</a></li>
+      <li><a href="#Subroutines">Subroutines</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Drivers::Win32::EventQ - Event Manager implementation</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>This module implements <i>EventManager</i> routines for the Windows platform. A direct use of this module is not intended. All important information is described in the associated POD of the calling module.</p>
+
+<h1 id="EXPORTS">EXPORTS</h1>
+
+<p>Nothing per default, but can export the following per request:</p>
+
+<pre><code>  :all
+  
+    :events
+      init_events
+      done_events
+
+    :private
+      $_auto_delay
+      $_auto_ticks
+      $_down_buttons
+      $_down_ticks
+      $_down_where
+      @_event_queue
+      $_last_buttons
+      $_last_double
+      $_last_where
+      $_shift_state
+      $_ticks
+
+      _store_event
+      _update_event_queue</code></pre>
+
+<h2 id="Variables">Variables</h2>
+
+<h2 id="EventQ-Variables">EventQ Variables</h2>
+
+<dl>
+
+<dt id="auto_delay"><i>$_auto_delay</i></dt>
+<dd>
+
+<pre><code>  our $_auto_delay : Int;</code></pre>
+
+<p>Event manager variable for <i>EV_MOUSE_AUTO</i> delay time counter.</p>
+
+</dd>
+<dt id="auto_ticks"><i>$_auto_ticks</i></dt>
+<dd>
+
+<pre><code>  our $_auto_ticks : Int;</code></pre>
+
+<p>Event manager variable for held mouse button tick counter.</p>
+
+</dd>
+<dt id="down_buttons"><i>$_down_buttons</i></dt>
+<dd>
+
+<pre><code>  our $_down_buttons : Int;</code></pre>
+
+<p>Event manager variable for the current state of the mouse buttons.</p>
+
+</dd>
+<dt id="down_ticks"><i>$_down_ticks</i></dt>
+<dd>
+
+<pre><code>  our $_down_ticks : Int;</code></pre>
+
+<p>Event manager variable for down mouse button tick counter.</p>
+
+</dd>
+<dt id="down_where"><i>$_down_where</i></dt>
+<dd>
+
+<pre><code>  our $_down_where : TPoint;</code></pre>
+
+<p>Event manager variable for the current state of the mouse position when the mouse button is pressed.</p>
+
+</dd>
+<dt id="event_queue"><i>@_event_queue</i></dt>
+<dd>
+
+<pre><code>  our @_event_queue : Array;</code></pre>
+
+<p>Event manager queue for the <i>TEvent</i> records.</p>
+
+</dd>
+<dt id="last_buttons"><i>$_last_buttons</i></dt>
+<dd>
+
+<pre><code>  our $_last_buttons : Int;</code></pre>
+
+<p>Event manager variable for the previous state of the mouse buttons.</p>
+
+</dd>
+<dt id="last_double"><i>$_last_double</i></dt>
+<dd>
+
+<pre><code>  our $_last_double : Bool;</code></pre>
+
+<p>Event manager variable for the previous state of double klick.</p>
+
+</dd>
+<dt id="last_where"><i>$_last_where</i></dt>
+<dd>
+
+<pre><code>  our $_last_where : TPoint;</code></pre>
+
+<p>Event manager variable for the previous mouse position.</p>
+
+</dd>
+<dt id="shift_state"><i>$_shift_state</i></dt>
+<dd>
+
+<pre><code>  our $_shift_state : Int;</code></pre>
+
+<p>Key shift state.</p>
+
+</dd>
+<dt id="ticks"><i>$_ticks</i></dt>
+<dd>
+
+<pre><code>  our $_ticks : Int;</code></pre>
+
+<p>This (magic) variable returns the number of timer ticks (1 second = 18.2 ticks), similar to the direct memory access to the BIOS low memory address 0x40:0x6C.</p>
+
+</dd>
+</dl>
+
+<h2 id="Subroutines">Subroutines</h2>
+
+<dl>
+
+<dt id="init_events"><i>init_events</i></dt>
+<dd>
+
+<pre><code>  func init_events()</code></pre>
+
+<p>This internal routine implements <i>init_events</i> for <i>Windows</i>; more information about the routine is described in the <i>EventManager</i> module.</p>
+
+</dd>
+<dt id="done_events"><i>done_events</i></dt>
+<dd>
+
+<pre><code>  func done_events()</code></pre>
+
+<p>This internal routine implements <i>done_events</i> for <i>Windows</i>; more information about the routine is described in the <i>EventManager</i> module.</p>
+
+</dd>
+<dt id="store_event"><i>_store_event</i></dt>
+<dd>
+
+<pre><code>  func _store_event(TEvent $event) : Bool </code></pre>
+
+<p>Store event in <i>get_mouse_event</i> and <i>get_key_event</i></p>
+
+<p>Returns true if successful.</p>
+
+</dd>
+<dt id="update_event_queue"><i>_update_event_queue</i></dt>
+<dd>
+
+<pre><code>  func _update_event_queue() : Bool</code></pre>
+
+<p>Reads the Windows events, converts them and updates the internal event queue.</p>
+
+<p>Returns true if successful.</p>
+
+</dd>
+</dl>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Turbo Vision library.
+
+ Copyright (c) 2019-2021 by magiblot
+
+ This library content was taken from the framework
+ &quot;A modern port of Turbo Vision 2.0&quot;, which is licensed under MIT licence.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2019-2021 by magiblot &lt;magiblot@hotmail.com&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas">drivers.pas</a>, <a href="https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/source/platform/win32con.cpp">win32con.cpp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

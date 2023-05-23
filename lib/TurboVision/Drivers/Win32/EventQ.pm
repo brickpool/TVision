@@ -81,6 +81,10 @@ Nothing per default, but can export the following per request:
 
   :all
   
+    :events
+      init_events
+      done_events
+
     :private
       $_auto_delay
       $_auto_ticks
@@ -94,9 +98,6 @@ Nothing per default, but can export the following per request:
       $_shift_state
       $_ticks
 
-      _init_events
-      _done_events
-
       _store_event
       _update_event_queue
 
@@ -108,6 +109,11 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
+
+  events => [qw(
+    init_events
+    done_events
+  )],
 
   private => [qw(
     $_auto_delay
@@ -121,9 +127,6 @@ our %EXPORT_TAGS = (
     $_last_where
     $_shift_state
     $_ticks
-
-    _init_events
-    _done_events
 
     _store_event
     _update_event_queue
@@ -154,13 +157,18 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item private const C<< Ref _ALT_CVT >>
+=item I<_ALT_CVT>
 
-=item private const C<< Ref _CTRL_CVT >>
+=item I<_CTRL_CVT>
 
-=item private const C<< Ref _NORMAL_CVT >>
+=item I<_NORMAL_CVT>
 
-=item private const C<< Ref _SHIFT_CVT >>
+=item I<_SHIFT_CVT>
+
+  constant _ALT_CVT = < Ref >;
+  constant _CTRL_CVT = < Ref >;
+  constant _NORMAL_CVT = < Ref >;
+  constant _SHIFT_CVT = < Ref >;
 
 Scancode mapping tables.
 
@@ -230,7 +238,9 @@ Scancode mapping tables.
 
 =begin comment
 
-=item private const C<< Int _CM_SCREEN_CHANGED >>
+=item I<_CM_SCREEN_CHANGED>
+
+  constant _CM_SCREEN_CHANGED = < Int >;
 
 Defines a constant for changing the size of the console screen buffer
 
@@ -242,7 +252,9 @@ Defines a constant for changing the size of the console screen buffer
 
 =begin comment
 
-=item private const C<< Int _CP_UTF8 >>
+=item I<_CP_UTF8>
+
+  constant _CP_UTF8 = < Int >;
 
 Windows code page value for UTF-8.
 
@@ -254,7 +266,9 @@ Windows code page value for UTF-8.
 
 =begin comment
 
-=item private const C<< Int _CTRL_C >>
+=item I<_CTRL_C>
+
+  constant _CTRL_C = < Int >;
 
 Ctrl-C is the Ctrl-Break key.
 
@@ -266,7 +280,9 @@ Ctrl-C is the Ctrl-Break key.
 
 =begin comment
 
-=item private const C<< Int _CTRL_Z >>
+=item I<_CTRL_Z>
+
+  constant _CTRL_Z = < Int >;
 
 Ctrl-Z is the last Ctrl+key.
 
@@ -278,15 +294,19 @@ Ctrl-Z is the last Ctrl+key.
 
 =begin comment
 
-=item private const C<< Int _ENABLE_INSERT_MODE >>
+=item I<_ENABLE_INSERT_MODE>
 
-=item private const C<< Int _ENABLE_QUICK_EDIT_MODE >>
+=item I<_ENABLE_QUICK_EDIT_MODE>
 
-=item private const C<< Int _ENABLE_EXTENDED_FLAGS >>
+=item I<_ENABLE_EXTENDED_FLAGS>
 
-Addional I<Win32::Console> modes.
+  constant _ENABLE_INSERT_MODE = < Int >;
+  constant _ENABLE_QUICK_EDIT_MODE = < Int >;
+  constant _ENABLE_EXTENDED_FLAGS = < Int >;
 
-See also: I<SetConsoleMode>
+Addional L<Win32::Console> modes.
+
+See also: L<SetConsoleMode|https://learn.microsoft.com/en-us/windows/console/console-functions>
 
 =end comment
 
@@ -300,9 +320,12 @@ See also: I<SetConsoleMode>
 
 =begin comment
 
-=item private const C<< Int _DOUBLE_CLICK >>
+=item I<_DOUBLE_CLICK>
 
-=item private const C<< Int _MOUSE_WHEELED >>
+=item I<_MOUSE_WHEELED>
+
+  constant _DOUBLE_CLICK = < Int >;
+  constant _MOUSE_WHEELED = < Int >;
 
 The second click (button press) of a double-click occurred. The first click is
 returned as a regular button-press event.
@@ -320,11 +343,15 @@ The vertical mouse wheel was moved.
 
 =begin comment
 
-=item private const C<< Int _KEY_EVENT >>
+=item I<_KEY_EVENT>
 
-=item private const C<< Int _MOUSE_EVENT >>
+=item I<_MOUSE_EVENT>
 
-=item private const C<< Int _WINDOW_BUFFER_SIZE_EVENT >>
+=item I<_WINDOW_BUFFER_SIZE_EVENT>
+
+  constant _KEY_EVENT = < Int >;
+  constant _MOUSE_EVENT = < Int >;
+  constant _WINDOW_BUFFER_SIZE_EVENT = < Int >;
 
 The event constant for identifying an I<_KEY_EVENT_RECORD> structure
 (information about a keyboard event), an I<_MOUSE_EVENT_RECORD> structure
@@ -344,13 +371,18 @@ console screen buffer).
 
 =begin comment
 
-=item private const C<< Int _VK_SHIFT >>
+=item I<_VK_SHIFT>
 
-=item private const C<< Int _VK_CONTROL >>
+=item I<_VK_CONTROL>
 
-=item private const C<< Int _VK_MENU >>
+=item I<_VK_MENU>
 
-=item private const C<< Int _VK_INSERT >>
+=item I<_VK_INSERT>
+
+  constant _VK_SHIFT = < Int >;
+  constant _VK_CONTROL = < Int >;
+  constant _VK_MENU = < Int >;
+  constant _VK_INSERT = < Int >;
 
 Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
 
@@ -383,7 +415,9 @@ Virtual-Key Codes for Shift, Ctrl, Alt and Insert.
 
 =over
 
-=item public readonly C<< Int $_auto_delay >>
+=item I<$_auto_delay>
+
+  our $_auto_delay : Int;
 
 Event manager variable for I<EV_MOUSE_AUTO> delay time counter.
 
@@ -391,7 +425,9 @@ Event manager variable for I<EV_MOUSE_AUTO> delay time counter.
 
   our $_auto_delay = 0;
 
-=item public readonly C<< Int $_auto_ticks >>
+=item I<$_auto_ticks>
+
+  our $_auto_ticks : Int;
 
 Event manager variable for held mouse button tick counter.
 
@@ -399,7 +435,9 @@ Event manager variable for held mouse button tick counter.
 
   our $_auto_ticks = 0;
 
-=item public readonly C<< Int $_down_buttons >>
+=item I<$_down_buttons>
+
+  our $_down_buttons : Int;
 
 Event manager variable for the current state of the mouse buttons.
 
@@ -407,7 +445,9 @@ Event manager variable for the current state of the mouse buttons.
 
   our $_down_buttons = 0;
 
-=item public readonly C<< Int $_down_ticks >>
+=item I<$_down_ticks>
+
+  our $_down_ticks : Int;
 
 Event manager variable for down mouse button tick counter.
 
@@ -415,7 +455,9 @@ Event manager variable for down mouse button tick counter.
 
   our $_down_ticks = 0;
 
-=item public readonly C<< TPoint $_down_where >>
+=item I<$_down_where>
+
+  our $_down_where : TPoint;
 
 Event manager variable for the current state of the mouse position when the
 mouse button is pressed.
@@ -424,7 +466,9 @@ mouse button is pressed.
 
   our $_down_where = TPoint->new();
 
-=item public readonly C<< Array @_event_queue >>
+=item I<@_event_queue>
+
+  our @_event_queue : Array;
 
 Event manager queue for the I<TEvent> records.
 
@@ -432,7 +476,9 @@ Event manager queue for the I<TEvent> records.
 
   our @_event_queue = ();
 
-=item public readonly C<< Int $_last_buttons >>
+=item I<$_last_buttons>
+
+  our $_last_buttons : Int;
 
 Event manager variable for the previous state of the mouse buttons.
 
@@ -440,7 +486,9 @@ Event manager variable for the previous state of the mouse buttons.
 
   our $_last_buttons = 0;
 
-=item public readonly C<< Bool $_last_double >>
+=item I<$_last_double>
+
+  our $_last_double : Bool;
 
 Event manager variable for the previous state of double klick.
 
@@ -448,7 +496,9 @@ Event manager variable for the previous state of double klick.
 
   our $_last_double = _FALSE;
 
-=item public readonly C<< TPoint $_last_where >>
+=item I<$_last_where>
+
+  our $_last_where : TPoint;
 
 Event manager variable for the previous mouse position.
 
@@ -456,7 +506,9 @@ Event manager variable for the previous mouse position.
 
   our $_last_where = TPoint->new();
 
-=item public readonly C<< Int $_shift_state >>
+=item I<$_shift_state>
+
+  our $_shift_state : Int;
 
 Key shift state.
 
@@ -464,29 +516,25 @@ Key shift state.
 
   our $_shift_state = KB_INS_STATE;
 
-=item public readonly C<< Int $_ticks >>
+=item I<$_ticks>
 
-This variable returns the number of timer ticks (1 second = 18.2 ticks), similar
-to the direct memory access to the low memory address 0x40:0x6C.
+  our $_ticks : Int;
 
-B<Note>: On non-Windows systems, the variable uses the elapsed time since the
-program startup (not the system startup time).
+This (magic) variable returns the number of timer ticks (1 second = 18.2 ticks),
+similar to the direct memory access to the BIOS low memory address 0x40:0x6C.
 
 =cut
 
   package System::GetDosTicks {
     use Time::HiRes qw( time );
-    use English qw( -no_match_vars );
-    use TurboVision::Const qw( :platform );
-    use if _WIN32, 'Win32';
 
     sub TIESCALAR {
       my $class = shift;
-      my $base_time = $BASETIME;
-      if ( _WIN32 ) {{
+      my $base_time;
+      {
         no strict;
         $base_time = time() - Win32::GetTickCount()/1000;
-      }}
+      }
       my $self = \$base_time;
       return bless $self, $class;
     }
@@ -504,7 +552,9 @@ program startup (not the system startup time).
 
 =begin comment
 
-=item private C<< Object $_io >>
+=item I<$_io>
+
+  my $_io = < StdioCtl >;
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -516,7 +566,9 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =begin comment
 
-=item private C<< Int $_save_cp_input >>
+=item I<$_save_cp_input>
+
+  my $_save_cp_input = < Int >;
 
 Saves the input codepage used by the startup console.
 
@@ -528,7 +580,9 @@ Saves the input codepage used by the startup console.
 
 =begin comment
 
-=item private C<< Str $_save_locale >>
+=item I<$_save_locale>
+
+  my $_save_locale = < Str >;
 
 Saves the old locale used by the startup console.
 
@@ -540,7 +594,9 @@ Saves the old locale used by the startup console.
 
 =begin comment
 
-=item private C<< Int $_save_quick_mode >>
+=item I<$_save_quick_mode>
+
+  my $_save_quick_mode = < Bool >;
 
 Saves the quick edit mode used by the mouse.
 
@@ -562,10 +618,12 @@ Saves the quick edit mode used by the mouse.
 
 =over
 
-=item package-private static C<< _init_events() >>
+=item I<init_events>
+
+  func init_events()
 
 This internal routine implements I<init_events> for I<Windows>; more
-information about the routine is described in the module I<EventManager>.
+information about the routine is described in the I<EventManager> module.
 
 =cut
 
@@ -607,10 +665,12 @@ information about the routine is described in the module I<EventManager>.
     return;
   }
 
-=item package-private static C<< _done_events() >>
+=item I<done_events>
+
+  func done_events()
 
 This internal routine implements I<done_events> for I<Windows>; more
-information about the routine is described in the module I<EventManager>.
+information about the routine is described in the I<EventManager> module.
 
 =cut
 
@@ -645,7 +705,9 @@ information about the routine is described in the module I<EventManager>.
 
 =begin comment
 
-=item private static C<< Bool _set_key_event(HashRef $key_event, TEvent $event) >>
+=item I<_set_key_event>
+
+  func _set_key_event(HashRef $key_event, TEvent $event) : Bool
 
 The routine translates the Windows I<KEY_EVENT_RECORD> to Turbo Vision's
 I<TEvent>.
@@ -745,7 +807,9 @@ Returns true if successful.
 
 =begin comment
 
-=item private static C<< Bool _set_mouse_event(HashRef $mouse_event, TEvent $event) >>
+=item I<_set_mouse_event>
+
+  func _set_mouse_event(HashRef $mouse_event, TEvent $event) : Bool
 
 The routine translates the Windows I<MOUSE_EVENT_RECORD> to Turbo Vision's
 I<TEvent>.
@@ -843,7 +907,9 @@ Returns true if successful.
 
 =begin comment
 
-=item private static C<< Bool _set_unicode_event(HashRef $key_event, TEvent $event) >>
+=item I<_set_unicode_event>
+
+  func _set_unicode_event(HashRef $key_event, TEvent $event) : Bool 
 
 Returns true unless the event contains a UTF-16 surrogate, in this case we need
 the next event.
@@ -887,7 +953,9 @@ the next event.
     return _TRUE;
   }
 
-=item package-private static C<< Bool _store_event(TEvent $event) >>
+=item I<_store_event>
+
+  func _store_event(TEvent $event) : Bool 
 
 Store event in I<get_mouse_event> and I<get_key_event>
 
@@ -909,7 +977,9 @@ Returns true if successful.
     return !! push(@_event_queue, $event);
   }
 
-=item package-private static C<< Bool _update_event_queue() >>
+=item I<_update_event_queue>
+
+  func _update_event_queue() : Bool
 
 Reads the Windows events, converts them and updates the internal event queue.
 
@@ -1020,7 +1090,9 @@ Returns true if successful.
 
 =begin comment
 
-=item private static C<< Bool _update_ctrl_break_hit(HashRef $key_event) >>
+=item I<_update_ctrl_break_hit>
+
+  func _update_ctrl_break_hit(HashRef $key_event) : Bool
 
 This function provides similar handling of Ctrl-C events as provided by the
 I<Int1BHandler> assembly routine in the library implemented by Borland.
@@ -1051,9 +1123,11 @@ Returns true if successful.
 
 =begin comment
 
-=item private static C<< Bool _update_shift_state(HashRef $key_event) >>
+=item I<_update_shift_state>
 
-This subroutine sets the state of the keyboard shift (comparable to the low
+  func _update_shift_state(HashRef $key_event) : Bool
+
+This subroutine sets the state of the keyboard shift (comparable to the BIOS low
 level call at memory position C<0x40:0x17>).
 
 Returns true if successful.

@@ -6,7 +6,7 @@
 *.o
 *.pm.tdy
 *.bs
-*.html
+/*.html
 pod2htmd.tmp
 
 # Devel::Cover
@@ -45,4 +45,3 @@ inc/
 # Komodo IDE
 *.komodoproject
 /.komodotools/
-doc/podstyle.css

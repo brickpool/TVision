@@ -61,10 +61,10 @@ Nothing per default, but can export the following per request:
 
   :all
 
-    :private
-      _init_sys_error
-      _done_sys_error
-      _system_error
+    :syserr
+      init_sys_error
+      done_sys_error
+      system_error
 
 =cut
 
@@ -75,10 +75,10 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  private => [qw(
-    _init_sys_error
-    _done_sys_error
-    _system_error
+  syserr => [qw(
+    init_sys_error
+    done_sys_error
+    system_error
   )],
   
 );
@@ -196,14 +196,16 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =over
 
-=item package-private static C<< _init_sys_error() >>
+=item I<init_sys_error>
+
+  func init_sys_error()
 
 This internal routine implements I<init_sys_error> for I<Windows>; more
 information about the routine is described in the module I<SystemError>.
 
 =cut
 
-  func _init_sys_error() {
+  func init_sys_error() {
     my $CONSOLE = do {
       $_io //= StdioCtl->instance();
       $_io->in();
@@ -218,14 +220,16 @@ information about the routine is described in the module I<SystemError>.
     return;
   }
 
-=item package-private static C<< _done_sys_error() >>
+=item I<done_sys_error>
+
+  func done_sys_error()
 
 This internal routine implements I<done_sys_error> for I<Windows>; more
 information about the routine is described in the module I<SystemError>.
 
 =cut
 
-  func _done_sys_error() {
+  func done_sys_error() {
     return
         if not $sys_err_active;
     $sys_err_active = _FALSE;
@@ -246,14 +250,16 @@ information about the routine is described in the module I<SystemError>.
     return;
   }
 
-=item package-private static C<< Int _system_error(Int $error_code, Int $drive) >>
+=item I<system_error>
+
+  func system_error(Int $error_code, Int $drive) : Int
 
 This internal routine implements I<system_error> for I<Windows>; more
 information about the routine is described in the module I<SystemError>.
 
 =cut
 
-  func _system_error(Int $error_code, Int $drive) {
+  func system_error(Int $error_code, Int $drive) {
     return 1                                          # Return 1 for ignored
         if $fail_sys_errors;                          # Check error ignore
 

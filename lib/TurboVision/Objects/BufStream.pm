@@ -148,11 +148,11 @@ for access, the I<< TBufStream->read >> and I<< TBufStream->write >> methods for
 performing input and output. For random access streams, you will use
 I<< TBufStream->seek >> to position the file pointer to the proper object
 reocrd. You may also wish to use I<< TBufStream->flush >> or
-<< TBufStream->truncate >>, as appropriate.
+I<< TBufStream->truncate >>, as appropriate.
 
 =head2 Class
 
-public class C<< TBufStream >>
+public class I<< TBufStream >>
 
 Turbo Vision Hierarchy
 

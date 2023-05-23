@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::Rect &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::Rect
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Constructors">Constructors</a></li>
+      <li><a href="#Methods">Methods</a>
+        <ul>
+          <li><a href="#Object-Methods">Object Methods</a></li>
+          <li><a href="#Overload-Methods">Overload Methods</a></li>
+        </ul>
+      </li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TRect - Defines two coordinates of a rectangle.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use TurboVision::Objects;
+  
+  my $bounds = TRect-&gt;new();
+  my $a_rectangle;
+  ...
+  # Initialize to the coordinates (0,0) and (80,2)
+  $bounds-&gt;assign(0, 0, 80, 2);
+  ...
+  # Copy the contents of $bounds to $a_rectangle
+  $a_rectangle-&gt;copy( $bounds );</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p><i>TRect</i> is a simple object representing a rectangle on the screen.</p>
+
+<p><i>TRect</i> primarly defines two coordinates, <i>a</i> and <i>b</i>, which are the upper left and the lower right corners of a rectangle. <i>TRect</i> parameters are used throughout Turbo Vision to specify the screen location and size of windows, dialog boxes and entry fields.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TRect</i></p>
+
+<p><i>TRect</i> is a standalone object.</p>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="public-TPoint-a">public <code>TPoint a</code></dt>
+<dd>
+
+<p><i>a</i> is the point defining the top left corner of a rectangle on the screen.</p>
+
+</dd>
+<dt id="public-TPoint-b">public <code>TPoint b</code></dt>
+<dd>
+
+<p><i>b</i> is the point defining the bottom right corner of a rectangle on the screen.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constructors">Constructors</h2>
+
+<dl>
+
+<dt id="public-TRect-init-Int-ax-Int-ay-Int-bx-Int-by">public <code>TRect-&gt;init(Int $ax, Int $ay, Int $bx, Int $by)</code></dt>
+<dd>
+
+<p>Public constructor</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<h3 id="Object-Methods">Object Methods</h3>
+
+<dl>
+
+<dt id="public-assign-Int-ax-Int-ay-Int-bx-Int-by">public <code>assign(Int $ax, Int $ay, Int $bx, Int $by)</code></dt>
+<dd>
+
+<p>Assigns the parameter values to the rectangle&#39;s point attributes. <i>$ax</i> becomes <i>a-&gt;x</i>, <i>$bx</i> becomes <i>b-&gt;x</i>, and so on.</p>
+
+</dd>
+<dt id="public-Bool-contains-TPoint-p">public <code>Bool contains(TPoint $p)</code></dt>
+<dd>
+
+<p>Returns true if the rectangle contains the point <i>$p</i>.</p>
+
+</dd>
+<dt id="public-copy-TRect-r">public <code>copy(TRect $r)</code></dt>
+<dd>
+
+<p><i>copy</i> sets all attributes equal to those in rectangle <i>$r</i>.</p>
+
+</dd>
+<dt id="public-Bool-empty">public <code>Bool empty()</code></dt>
+<dd>
+
+<p>Returns true if the rectangle is empty</p>
+
+</dd>
+<dt id="public-Bool-equals-TRect-r">public <code>Bool equals(TRect $r)</code></dt>
+<dd>
+
+<p>Returns true if <i>$r</i> is the same as the rectangle.</p>
+
+</dd>
+<dt id="public-grow-Int-aDX-Int-aDY">public <code>grow(Int $aDX, Int $aDY)</code></dt>
+<dd>
+
+<p>Changes the size of the rectangle by subtracting <i>$aDX</i> from <i>a-&gt;x</i>, adding <i>$aDX</i> to <i>b-&gt;x</i>, subtracting <i>$aDY</i> from <i>a-&gt;y</i>, and adding <i>$aDY</i> to <i>b-&gt;y</i>.</p>
+
+</dd>
+<dt id="public-intersect-TRect-r">public <code>intersect(TRect $r)</code></dt>
+<dd>
+
+<p>Changes the location and size of the rectangle to the region defined by the intersection of the current location and that of <i>$r</i>.</p>
+
+</dd>
+<dt id="public-move-Int-aDX-Int-aDY">public <code>move(Int $aDX, Int $aDY)</code></dt>
+<dd>
+
+<p>Moves the rectangle by adding <i>$aDX</i> to <i>a-&gt;x</i> and <i>b-&gt;x</i> and adding <i>$aDY</i> to <i>a-&gt;y</i> and <i>b-&gt;y</i>.</p>
+
+</dd>
+<dt id="public-union-TRect-r">public <code>union(TRect $r)</code></dt>
+<dd>
+
+<p>Changes the rectangle to be the union of itself and the rectangle <i>$r</i>.</p>
+
+</dd>
+</dl>
+
+<h3 id="Overload-Methods">Overload Methods</h3>
+
+<dl>
+
+<dt id="private-static-Bool-_equal-TRect-one-TRect-two">private static <code>Bool _equal(TRect $one, TRect $two)</code></dt>
+<dd>
+
+<p>Overload equal comparison <code>==</code> so we can write code like <code>$one == $two</code>.</p>
+
+</dd>
+<dt id="private-static-Bool-_not_equal-TRect-one-TRect-two">private static <code>Bool _not_equal(TRect $one, TRect $two)</code></dt>
+<dd>
+
+<p>Overload not equal comparison <code>!=</code> so we can write code like <code>$one != $two</code>.</p>
+
+</dd>
+<dt id="private-Str-_stringify">private <code>Str _stringify()</code></dt>
+<dd>
+
+<p>Overload stringify so we can write code like <code>print $rect</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+<li><p>1999-2000 by Frank ZAGO &lt;zago@ecoledoc.ipc.fr&gt;</p>
+
+</li>
+<li><p>1999-2000 by MH Spiegel</p>
+
+</li>
+<li><p>1996, 1999-2000 by Leon de Boer &lt;ldeboer@ibm.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021,2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>TPoint</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

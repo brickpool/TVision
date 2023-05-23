@@ -87,7 +87,7 @@ record.
 
 =head2 Class
 
-public class C<< TDosStream >>
+public class I<< TDosStream >>
 
 Turbo Vision Hierarchy
 

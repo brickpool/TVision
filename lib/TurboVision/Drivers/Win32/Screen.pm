@@ -73,12 +73,13 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :private
-      _clear_screen
-      _done_video
-      _init_video
-      _set_video_mode
+    :screen
+      clear_screen
+      done_video
+      init_video
+      set_video_mode
 
+    :private
       _ctr_cols
       _ctr_rows
       _detect_video
@@ -98,12 +99,14 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  private => [qw(
-    _clear_screen
-    _done_video
-    _init_video
-    _set_video_mode
+  screen => [qw(
+    clear_screen
+    done_video
+    init_video
+    set_video_mode
+  )],
 
+  private => [qw(
     _ctr_cols
     _ctr_rows
     _detect_video
@@ -140,7 +143,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item private C<< Object $_io >>
+=item I<$_io>
+
+  my $_io = < StdioCtl >;
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -152,7 +157,9 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =begin comment
 
-=item private C<< Int $_startup_console_mode >>
+=item I<$_startup_console_mode>
+
+  my $_startup_console_mode = < Int >;
 
 This internal variable stores the existing mode of a console's input buffer
 before Turbo Vision switches to a new screen mode.
@@ -179,14 +186,16 @@ before Turbo Vision switches to a new screen mode.
 
 =over
 
-=item package-private static C<< _clear_screen() >>
+=item I<clear_screen>
+
+  func clear_screen()
 
 This internal routine implements I<clear_screen> for I<Windows>; more
 information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func _clear_screen() {
+  func clear_screen() {
     my $CONSOLE = do {
       $_io //= StdioCtl->instance();
       $_io->out();
@@ -195,21 +204,23 @@ information about the routine is described in the module I<ScreenManager>.
     return;
   }
 
-=item package-private static C<< _done_video() >>
+=item I<done_video>
+
+  func done_video()
 
 This internal routine implements I<done_video> for I<Windows>; more
 information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func _done_video() {
+  func done_video() {
     return
         if $startup_mode == 0xffff;
       
     if ( $startup_mode != $screen_mode ) {
       _set_crt_mode( $startup_mode );
     }
-    _clear_screen();
+    clear_screen();
     _set_cursor_type( $cursor_lines );                  # Restore cursor shape
     $startup_mode = 0xffff;                            # Reset the startup mode
 
@@ -233,14 +244,16 @@ information about the routine is described in the module I<ScreenManager>.
     return;
   };
 
-=item package-private static C<< _init_video() >>
+=item I<init_video>
+
+  func init_video()
 
 This internal routine implements I<init_video> for I<Windows>; more
 information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func _init_video() {
+  func init_video() {
     my $mode = _get_crt_mode();
     if ( $startup_mode == 0xffff ) {
       $startup_mode = $mode;                           # Set the startup mode
@@ -267,21 +280,25 @@ information about the routine is described in the module I<ScreenManager>.
     return;
   };
 
-=item package-private static C<< _set_video_mode(Int $mode) >>
+=item I<set_video_mode>
+
+  func set_video_mode(Int $mode)
 
 This internal routine implements I<set_video_mode> for I<Windows>; more
 information about the routine is described in the module I<ScreenManager>.
 
 =cut
 
-  func _set_video_mode(Int $mode) {
+  func set_video_mode(Int $mode) {
     $mode = _fix_crt_mode($mode);                       # Correct the mode
     _set_crt_mode($mode);
     _set_crt_data();
     return;
   }
 
-=item package-private static C<< Int _ctr_cols() >>
+=item I<_ctr_cols>
+
+  func _ctr_cols() : Int
 
 Returns the number of columns or 0 in case of error.
 
@@ -301,7 +318,9 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
     return $width;
   }
 
-=item package-private static C<< Int _ctr_rows() >>
+=item I<_ctr_rows>
+
+  func _ctr_rows() : Int
 
 Returns the number of rows or 0 in case of error.
 
@@ -321,7 +340,9 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
     return $height;
   }
 
-=item package-private static C<< _detect_video() >>
+=item I<_detect_video>
+
+  func _detect_video()
 
 Detect video modes.
 
@@ -331,9 +352,12 @@ Detect video modes.
     my $mode = _get_crt_mode();                         # Get current mode
     $mode = _fix_crt_mode($mode);                       # Correct the mode
     $screen_mode = $mode;                               # Set screen mode attr
+    return;
   }
 
-=item package-private static C<< Int _fix_crt_mode(Int $mode) >>
+=item I<_fix_crt_mode>
+
+  func _fix_crt_mode(Int $mode) : Int
 
 Fix CRT mode in I<$mode> if required.
 
@@ -357,7 +381,9 @@ columns. E.g. 1950h (0x1950) corresponds to a C<80x25> mode.
     return _STANDARD_CRT_MODE->( $resolution ) // $resolution;
   }
 
-=item package-private static C<< Int _get_crt_mode() >>
+=item I<_get_crt_mode>
+
+  func _get_crt_mode() : Int
 
 Return CRT mode.
 
@@ -373,7 +399,9 @@ Return CRT mode.
           ;                               
   }
 
-=item package-private static C<< Int _get_cursor_type() >>
+=item I<_get_cursor_type>
+
+  func _get_cursor_type() : Int
 
 Return the shape of the cursor, like interrupt
 L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
@@ -409,9 +437,30 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
     return $cursor;
   };
 
-=item package-private static C<< _set_crt_data() >>
+=begin comment
 
-Set CRT data areas
+=item I<_get_windows_resizing>
+
+  func _get_windows_resizing() : Bool
+
+Does the window have a resize frame?
+
+=end comment
+
+=cut
+
+  #func _get_windows_resizing() {
+  #  my $hWnd = GetConsoleWindow() || return undef;
+  #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
+  #  return
+  #      !!( $dwStyle & ~WS_SIZEBOX )
+  #};
+
+=item I<_set_crt_data>
+
+  func _set_crt_data()
+
+Set CRT data areas.
 
 =cut
 
@@ -424,9 +473,12 @@ Set CRT data areas
                                                         # Set CGA snow
     $check_snow    = !( $screen_mode == SM_MONO || $hi_res_screen );
     $screen_buffer = {};                                # Init screen buffer
+    return;
   }
 
-=item package-private static C<< _set_crt_mode(Int $mode) >>
+=item I<_set_crt_mode>
+
+  func _set_crt_mode(Int $mode)
 
 Set CRT mode to value in I<$mode>.
 
@@ -482,7 +534,9 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
     return;
   }
 
-=item package-private static C<< _set_cursor_type(Int $cursor) >>
+=item I<_set_cursor_type>
+
+  func _set_cursor_type(Int $cursor)
 
 Set the shape of the cursor, as interrupt
 L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
@@ -512,28 +566,15 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
       $_io->out();
     };
     $CONSOLE->Cursor(-1, -1, $size, $visible);
+    
+    return;
   };
 
 =begin comment
 
-=item private static C<< _get_windows_resizing() >>
+=item I<_set_window_resizing>
 
-Does the window have a resize frame?
-
-=end comment
-
-=cut
-
-  #func _get_windows_resizing() {
-  #  my $hWnd = GetConsoleWindow() || return undef;
-  #  my $dwStyle = GetWindowLong($hWnd, GWL_STYLE) || 0;
-  #  return
-  #      !!( $dwStyle & ~WS_SIZEBOX )
-  #};
-
-=begin comment
-
-=item private static C<< _set_window_resizing(Bool $enable) >>
+  func _set_window_resizing(Bool $enable)
 
 Enable or disable the Window resize frame.
 

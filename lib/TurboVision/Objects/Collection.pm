@@ -221,7 +221,7 @@ I<load> and I<store> methods.
 
 =head2 Class
 
-public class C<< TCollection >>
+public class I<< TCollection >>
 
 Turbo Vision Hierarchy
 

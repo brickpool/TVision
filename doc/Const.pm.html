@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Const &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Const
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#EXPORTS">EXPORTS</a></li>
+  <li><a href="#CONSTANTS">CONSTANTS</a>
+    <ul>
+      <li><a href="#Unclassified-constants">Unclassified constants</a></li>
+      <li><a href="#Boolean-constants-:bool">Boolean constants (:bool)</a></li>
+      <li><a href="#Limit-value-constants-:limits">Limit value constants (:limits)</a></li>
+      <li><a href="#Platform-dependent-constants-:platform">Platform dependent constants (:platform)</a></li>
+      <li><a href="#Constants-to-define-the-size-:sizedef">Constants to define the size (:sizedef)</a></li>
+      <li><a href="#Constants-to-define-a-type-:typedef">Constants to define a type (:typedef)</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Const - Private constants used by Turbo Vision</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use TurboVision::Const qw(
+    _EMPTY_STRING
+    :bool
+  );
+  ...</code></pre>
+
+<h1 id="EXPORTS">EXPORTS</h1>
+
+<p>Nothing per default, but can export the following per request:</p>
+
+<pre><code>  :all
+    _EMPTY_STRING
+    
+    :bool
+      _FALSE
+      _TRUE
+
+    :limits
+      _INT32_MIN
+      _INT32_MAX
+      _SIMPLE_STR_MAX
+      _UINT8_MAX
+      _UINT16_MAX
+
+    :platform
+      _TV_UNIX
+      _WIN32
+
+    :sizedef
+      _SIZE_OF_INT16
+      _SIZE_OF_INT32
+      _SIZE_OF_UINT8
+      _SIZE_OF_UINT16
+
+    :typedef
+      _INT16_T
+      _INT32_T
+      _SIMPLE_STR_T
+      _STR_T
+      _UINT8_T
+      _UINT16_T
+      _UINT32_T</code></pre>
+
+<h1 id="CONSTANTS">CONSTANTS</h1>
+
+<h2 id="Unclassified-constants">Unclassified constants</h2>
+
+<dl>
+
+<dt id="EMPTY_STRING"><i>_EMPTY_STRING</i></dt>
+<dd>
+
+<pre><code>  constant _EMPTY_STRING = &lt; Str &gt;;</code></pre>
+
+<p>An empty string <code>q{}</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Boolean-constants-:bool">Boolean constants (<i>:bool</i>)</h2>
+
+<dl>
+
+<dt id="FALSE"><i>_FALSE</i></dt>
+<dd>
+
+<pre><code>  constant _FALSE = &lt; Bool &gt;;</code></pre>
+
+<p>False constant.</p>
+
+</dd>
+<dt id="TRUE"><i>_TRUE</i></dt>
+<dd>
+
+<pre><code>  constant _TRUE = &lt; Bool &gt;;</code></pre>
+
+<p>True constant.</p>
+
+</dd>
+</dl>
+
+<h2 id="Limit-value-constants-:limits">Limit value constants (<i>:limits</i>)</h2>
+
+<dl>
+
+<dt id="INT32_MIN"><i>_INT32_MIN</i></dt>
+<dd>
+
+<pre><code>  constant _INT32_MIN = &lt; Int &gt;;</code></pre>
+
+<p>Minimum value for a variable of the type signed long (32-bit).</p>
+
+</dd>
+<dt id="INT32_MAX"><i>_INT32_MAX</i></dt>
+<dd>
+
+<pre><code>  constant _INT32_MAX = &lt; Int &gt;;</code></pre>
+
+<p>Maximum value for a variable of the type signed long (32-bit).</p>
+
+</dd>
+<dt id="SIMPLE_STR_MAX"><i>_SIMPLE_STR_MAX</i></dt>
+<dd>
+
+<pre><code>  constant _SIMPLE_STR_MAX = &lt; Int &gt;;</code></pre>
+
+<p>This variable is the size of a string of type Moose <i>SimpleStr</i> in bytes.</p>
+
+</dd>
+<dt id="UINT8_MAX"><i>_UINT8_MAX</i></dt>
+<dd>
+
+<pre><code>  constant _UINT8_MAX = &lt; Int &gt;;</code></pre>
+
+<p>Maximum value for a variable of the type unsigned char (octet).</p>
+
+</dd>
+<dt id="UINT16_MAX"><i>_UINT16_MAX</i></dt>
+<dd>
+
+<pre><code>  constant _UINT16_MAX = &lt; Int &gt;;</code></pre>
+
+<p>Maximum value for a variable of the type unsigned short (16-bit).</p>
+
+</dd>
+</dl>
+
+<h2 id="Platform-dependent-constants-:platform">Platform dependent constants (<i>:platform</i>)</h2>
+
+<dl>
+
+<dt id="WIN32"><i>_WIN32</i></dt>
+<dd>
+
+<pre><code>  constant _WIN32 = &lt; Bool &gt;;</code></pre>
+
+<p>True if <code>$^O eq &#39;MSWin32&#39;</code>.</p>
+
+</dd>
+<dt id="TV_UNIX"><i>_TV_UNIX</i></dt>
+<dd>
+
+<pre><code>  constant _TV_UNIX = &lt; Bool &gt;;</code></pre>
+
+<p>True if <code>$^O ne &#39;MSWin32&#39;</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constants-to-define-the-size-:sizedef">Constants to define the size (<i>:sizedef</i>)</h2>
+
+<dl>
+
+<dt id="SIZE_OF_INT16"><i>_SIZE_OF_INT16</i></dt>
+<dd>
+
+<pre><code>  constant _SIZE_OF_INT16 = &lt; Int &gt;;</code></pre>
+
+<p>This variable is the size of an Perl&#39;s I16 in bytes.</p>
+
+</dd>
+<dt id="SIZE_OF_INT32"><i>_SIZE_OF_INT32</i></dt>
+<dd>
+
+<pre><code>  constant _SIZE_OF_INT32 = &lt; Int &gt;;</code></pre>
+
+<p>This variable is the size of an Perl&#39;s I32 in bytes.</p>
+
+</dd>
+<dt id="SIZE_OF_UINT8"><i>_SIZE_OF_UINT8</i></dt>
+<dd>
+
+<pre><code>  constant _SIZE_OF_UINT8 = &lt; Int &gt;;</code></pre>
+
+<p>This variable is the size of an Perl&#39;s U8 in bytes.</p>
+
+</dd>
+<dt id="SIZE_OF_UINT16"><i>_SIZE_OF_UINT16</i></dt>
+<dd>
+
+<pre><code>  constant _SIZE_OF_UINT16 = &lt; Int &gt;;</code></pre>
+
+<p>This variable is the size of an Perl&#39;s U16 in bytes.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constants-to-define-a-type-:typedef">Constants to define a type (<i>:typedef</i>)</h2>
+
+<dl>
+
+<dt id="INT16_T"><i>_INT16_T</i></dt>
+<dd>
+
+<pre><code>  constant _INT16_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of an signed short (16-bit) value in &quot;VAX&quot; (little-endian) order.</p>
+
+</dd>
+<dt id="INT32_T"><i>_INT32_T</i></dt>
+<dd>
+
+<pre><code>  constant _INT32_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of an signed long (32-bit) value in &quot;VAX&quot; (little-endian) order.</p>
+
+</dd>
+<dt id="SIMPLE_STR_T"><i>_SIMPLE_STR_T</i></dt>
+<dd>
+
+<pre><code>  constant _SIMPLE_STR_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of a string of the Moose type <i>SimpleStr</i> value as &quot;length/string&quot;.</p>
+
+</dd>
+<dt id="STR_T"><i>_STR_T</i></dt>
+<dd>
+
+<pre><code>  constant _STR_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of a string of the Moose type <i>Str</i> value as &quot;length/string&quot;.</p>
+
+</dd>
+<dt id="UINT8_T"><i>_UINT8_T</i></dt>
+<dd>
+
+<pre><code>  constant _UINT8_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of an unsigned char (octet) value.</p>
+
+</dd>
+<dt id="UINT16_T"><i>_UINT16_T</i></dt>
+<dd>
+
+<pre><code>  constant _UINT16_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of an unsigned short (16-bit) value in &quot;VAX&quot; (little-endian) order.</p>
+
+</dd>
+<dt id="UINT32_T"><i>_UINT32_T</i></dt>
+<dd>
+
+<pre><code>  constant _UINT32_T = &lt; Str &gt;;</code></pre>
+
+<p>Template for pack/unpack of an unsigned short (32-bit) value in &quot;VAX&quot; (little-endian) order.</p>
+
+</dd>
+</dl>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2022,2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="http://metacpan.org/module/Exporter">Exporter</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::Const &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::Const
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#EXPORTS">EXPORTS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+  <li><a href="#CONSTANTS">CONSTANTS</a>
+    <ul>
+      <li><a href="#Collection-error-codes">Collection error codes</a></li>
+      <li><a href="#Collection-size">Collection size</a></li>
+      <li><a href="#Stream-error-state-masks">Stream error state masks</a></li>
+      <li><a href="#Stream-access-mode-constants">Stream access mode constants</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Objects::Const - Constants used by <i>Objects</i></p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use TurboVision::Objects::Const qw(
+    MAX_COLLECTION_SIZE
+    :stXXXX
+  );
+  ...</code></pre>
+
+<h1 id="EXPORTS">EXPORTS</h1>
+
+<p>Nothing per default, but can export the following per request:</p>
+
+<pre><code>  :all
+    MAX_COLLECTION_SIZE
+  
+    :coXXXX
+      CO_INDEX_ERROR
+      CO_OVERFLOW
+  
+    :stXXXX
+      ST_OK
+      ST_ERROR
+      ST_INIT_ERROR
+      ST_READ_ERROR
+      ST_WRITE_ERROR
+      ST_GET_ERROR
+      ST_PUT_ERROR
+      ST_CREATE
+      ST_OPEN_READ
+      ST_OPEN_WRITE
+      ST_OPEN</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>tbd</p>
+
+<h1 id="CONSTANTS">CONSTANTS</h1>
+
+<h2 id="Collection-error-codes">Collection error codes</h2>
+
+<dl>
+
+<dt id="public-const-Int-CO_INDEX_ERROR">public const <code>Int CO_INDEX_ERROR</code></dt>
+<dd>
+
+<p>Index out of range</p>
+
+</dd>
+<dt id="public-const-Int-CO_OVERFLOW">public const <code>Int CO_OVERFLOW</code></dt>
+<dd>
+
+<p>Overflow</p>
+
+</dd>
+</dl>
+
+<h2 id="Collection-size">Collection size</h2>
+
+<dl>
+
+<dt id="public-const-Int-MAX_COLLECTION_SIZE">public const <code>Int MAX_COLLECTION_SIZE</code></dt>
+<dd>
+
+<p><i>MAX_COLLECTION_SIZE</i> determines the maximum number of elements a collection can contain.</p>
+
+</dd>
+</dl>
+
+<h2 id="Stream-error-state-masks">Stream error state masks</h2>
+
+<dl>
+
+<dt id="public-const-Int-ST_OK">public const <code>Int ST_OK</code></dt>
+<dd>
+
+<p>No stream error</p>
+
+</dd>
+<dt id="public-const-Int-ST_ERROR">public const <code>Int ST_ERROR</code></dt>
+<dd>
+
+<p>Access error</p>
+
+</dd>
+<dt id="public-const-Int-ST_INIT_ERROR">public const <code>Int ST_INIT_ERROR</code></dt>
+<dd>
+
+<p>Initialize error</p>
+
+</dd>
+<dt id="public-const-Int-ST_READ_ERROR">public const <code>Int ST_READ_ERROR</code></dt>
+<dd>
+
+<p>Stream read error</p>
+
+</dd>
+<dt id="public-const-Int-ST_WRITE_ERROR">public const <code>Int ST_WRITE_ERROR</code></dt>
+<dd>
+
+<p>Stream write error</p>
+
+</dd>
+<dt id="public-const-Int-ST_GET_ERROR">public const <code>Int ST_GET_ERROR</code></dt>
+<dd>
+
+<p>Get object error</p>
+
+</dd>
+<dt id="public-const-Int-ST_PUT_ERROR">public const <code>Int ST_PUT_ERROR</code></dt>
+<dd>
+
+<p>Put object error</p>
+
+</dd>
+</dl>
+
+<h2 id="Stream-access-mode-constants">Stream access mode constants</h2>
+
+<dl>
+
+<dt id="public-const-Int-ST_CREATE">public const <code>Int ST_CREATE</code></dt>
+<dd>
+
+<p>Create new file</p>
+
+</dd>
+<dt id="public-const-Int-ST_OPEN_READ">public const <code>Int ST_OPEN_READ</code></dt>
+<dd>
+
+<p>Read access only</p>
+
+</dd>
+<dt id="public-const-Int-ST_OPEN_WRITE">public const <code>Int ST_OPEN_WRITE</code></dt>
+<dd>
+
+<p>Write access only</p>
+
+</dd>
+<dt id="public-const-Int-ST_OPEN">public const <code>Int ST_OPEN</code></dt>
+<dd>
+
+<p>Read/write access</p>
+
+</dd>
+</dl>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>Exporter</i>, <i>Objects</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

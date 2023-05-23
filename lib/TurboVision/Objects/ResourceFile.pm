@@ -108,7 +108,7 @@ of the I<TResourceFile> object.
 
 =head2 Class
 
-public class C<< TResourceFile >>
+public class I<< TResourceFile >>
 
 Turbo Vision Hierarchy
 

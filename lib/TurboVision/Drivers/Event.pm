@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-TEvent - event record definition
+TEvent - A record definition for all types of events.
 
 =head1 SYNOPSIS
 
@@ -92,7 +92,12 @@ record or another object.
 
 =head2 Class
 
-public class C<< TEvent >>
+public class I<< TEvent >>
+
+Turbo Vision Hierarchy
+
+  Moose::Object
+    TEvent
 
 =cut
 

@@ -2,8 +2,7 @@
 
 =head1 NAME
 
-TurboVision::Views - Import I<TurboVision::Views::X> packages into one
-package
+TurboVision::Views - Import I<TurboVision::Views::X> packages into one package
 
 =head1 SYNOPSIS
 

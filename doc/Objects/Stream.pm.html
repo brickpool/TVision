@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::Stream &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::Stream
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a>
+        <ul>
+          <li><a href="#Class-Attributes">Class Attributes</a></li>
+          <li><a href="#Object-Attributes">Object Attributes</a></li>
+        </ul>
+      </li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TStream - General abstract class providing I/O to and from a storage device.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<p>See the <i>TBufStream</i> example.</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p><i>TStream</i> is the root of the various stream objects. For your applications, you must use the descendants, <i>TDosStream</i>, <i>TBufStream</i> or <i>TMemoryStream</i>.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TStream</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  TObject
+    TStream
+      TDosStream
+        TBufStream
+      TMemoryStream</code></pre>
+
+<h2 id="Attributes">Attributes</h2>
+
+<h3 id="Class-Attributes">Class Attributes</h3>
+
+<dl>
+
+<dt id="public-static-CodeRef-stream_error">public static <code>CodeRef stream_error</code></dt>
+<dd>
+
+<p><i>stream_error</i> allows you to globally override all stream error handling. For this purpose, an subroutine reference is assigned to the class variable. A <i>TStream</i> object is passed as a parameter.</p>
+
+<pre><code>  package main;
+
+  TStream-&gt;stream_error( sub {
+    printf &quot;Catch stream error info #%d\n&quot;, shift-&gt;error_info
+  } );
+  ...
+  $stream-&gt;error(ST_ERROR, 1);  # &#39;Catch stream error info #1&#39;</code></pre>
+
+</dd>
+</dl>
+
+<h3 id="Object-Attributes">Object Attributes</h3>
+
+<dl>
+
+<dt id="public-Int-error_info">public <code>Int error_info</code></dt>
+<dd>
+
+<p>Whenever an error has occurred (indicated by <i>status</i> != ST_OK), the <i>error_info</i> attribute contains additional information.</p>
+
+<p>For some values these will be additional <i>stXXXX</i> constants, although for OS-level file errors, <i>error_info</i> will contain the system errno code (like <code>$!</code> use).</p>
+
+</dd>
+<dt id="public-Int-status">public <code>Int status</code></dt>
+<dd>
+
+<p>Holds either &lt;ST_OK&gt; or the last error code. See the <i>stXXXX</i> constants for possible <i>status</i> values.</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="public-copy_from-TStream-s-Int-count">public <code>copy_from(TStream $s, Int $count)</code></dt>
+<dd>
+
+<p>This method copies <i>$count</i> bytes from stream <i>$s</i> to the current stream object.</p>
+
+</dd>
+<dt id="public-error-Int-code-Int-info">public <code>error(Int $code, Int $info)</code></dt>
+<dd>
+
+<p>The various stream methods call <i>error</i> when a problem is encountered. The method <i>error</i>, in turn, calls the subroutine referenced to the class variable <i>TStream-&gt;stream_error</i> (if its not <code>undef</code>).</p>
+
+<p>Once an error condition has been raised, you must call <i>reset</i> before performing additional stream reads or writes.</p>
+
+</dd>
+<dt id="public-flush">public <code>flush()</code></dt>
+<dd>
+
+<p><i>TStream-&gt;flush</i> has no operation, but is overridden in by descendant objects, such as <i>TBufStream</i>, in order to write the buffer to disk.</p>
+
+</dd>
+<dt id="public-Object-get">public <code>Object get()</code></dt>
+<dd>
+
+<p>Reads an object from the stream, interpreting the first bytes as the <i>obj_type</i> attribute of a registeration record.</p>
+
+<p>The <i>obj_type</i> is used to determined exactly what type of object this is, and then to call that object&#39;s <i>load</i> constructor to create a new instance.</p>
+
+<p>The method <i>get</i> returns a refernce to the newly created <i>Object</i>, or <code>undef</code> on error.</p>
+
+</dd>
+<dt id="public-Int-get_pos">public <code>Int get_pos()</code></dt>
+<dd>
+
+<p>The method <i>get_pos</i> compute the current byte location within the stream.</p>
+
+<p>It returns the stream&#39;s current position, or <code>-1</code> on error.</p>
+
+</dd>
+<dt id="public-Int-get_size">public <code>Int get_size()</code></dt>
+<dd>
+
+<p>The method <i>get_size</i> computer the total number of bytes in the stream.</p>
+
+<p>It returns the total size, or <code>-1</code> on error.</p>
+
+</dd>
+<dt id="public-put-Object-p">public <code>put(Object $p)</code></dt>
+<dd>
+
+<p>Writes the <i>obj_type</i> attribute of the registration record to the stream, and calls the object&#39;s <i>store</i> method to write the appropriate data attributes.</p>
+
+<p>If the object type of <i>$p</i> has not been registered, <i>put</i> calls <i>error</i> and doesn&#39;t write anything to the stream.</p>
+
+</dd>
+<dt id="public-read-Item-buf-Int-count">public <code>read(Item $buf, Int $count)</code></dt>
+<dd>
+
+<p>All descendants of <i>TStream</i> override this procedure to copy <i>$count</i> bytes from the stream into <i>$buf</i>, and to move the current stream position to the next object position.</p>
+
+</dd>
+<dt id="public-SimpleStr-Undef-read_str">public <code>SimpleStr|Undef read_str()</code></dt>
+<dd>
+
+<p>Reads a string from the stream and returns a simple string (a string with less than 256 characters without any control character) from the current position of the stream, or <code>undef</code> on error.</p>
+
+<p>This function is used by <i>TStringCollection-&gt;get_item</i> to read a string from the stream.</p>
+
+</dd>
+<dt id="public-reset">public <code>reset()</code></dt>
+<dd>
+
+<p>Clears any existing error conditions.</p>
+
+</dd>
+<dt id="public-seek-Int-pos">public <code>seek(Int $pos)</code></dt>
+<dd>
+
+<p>The method <i>seek</i> sets the stream&#39;s current position to the byte offset specified by <i>$pos</i>.</p>
+
+</dd>
+<dt id="protected-Str-Undef-str_read">protected <code>Str|Undef str_read()</code></dt>
+<dd>
+
+<p>Reads a string from the current position of the calling stream, returning a <code>Str</code>.</p>
+
+<p><i>returns</i> <code>Str</code>, or <code>undef</code> on error.</p>
+
+</dd>
+<dt id="protected-str_write-Str-p">protected <code>str_write(Str $p)</code></dt>
+<dd>
+
+<p>Writes a string <i>$p</i> to the calling stream, starting at the current position.</p>
+
+</dd>
+<dt id="public-truncate">public <code>truncate()</code></dt>
+<dd>
+
+<p>All descendants must override <i>truncate</i> to delete all data in the stream after the current position.</p>
+
+</dd>
+<dt id="public-write-Str-buf-Int-count">public <code>write(Str $buf, Int $count)</code></dt>
+<dd>
+
+<p>All descendants must override this method to copy <i>$count</i> bytes from <i>$buf</i> and write them to the stream.</p>
+
+</dd>
+<dt id="public-write_str-SimpleStr-p">public <code>write_str(SimpleStr $p)</code></dt>
+<dd>
+
+<p>Outputs a simple string (a string with less than 256 characters without any control character) <i>$p</i> to the current stream.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <code>TObject</code></p>
+
+<pre><code>  init</code></pre>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+<li><p>1999-2000 by Frank ZAGO &lt;zago@ecoledoc.ipc.fr&gt;</p>
+
+</li>
+<li><p>1999-2000 by MH Spiegel</p>
+
+</li>
+<li><p>1996, 1999-2000 by Leon de Boer &lt;ldeboer@ibm.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>TDosStream</i>, <i>TBufStream</i>, <i>TMemoryStream</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

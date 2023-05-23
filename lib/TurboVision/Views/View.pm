@@ -2,14 +2,13 @@
 
 =head1 NAME
 
-TView - buffer used by draw methods
+TView - Parent of all visible objects in Turbo Vision.
 
 =head1 SYNOPSIS
 
   use TurboVision::Views;
-  
-  my $buf = TView->new();
   ...
+  my $obj = TView->init($bounds);
 
 =cut
 
@@ -147,7 +146,7 @@ L</show_cursor>, L</valid>, L</write_line> and L</write_str>.
 
 =head2 Class
 
-public class C<< TView >>
+public class I<< TView >>
 
 Turbo Vision Hierarchy.
 
@@ -166,11 +165,11 @@ package TurboVision::Views::View {
 
 =head2 Constants
 
-=for html <span id="RView">
-
 =over
 
-=item public constant C<< Object RView >>
+=item I<RView>
+
+  constant RView = < TStreamRec >;
 
 Defining a registration record constant for I<TView>.
 
@@ -199,7 +198,9 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
 
 =over
 
-=item private C<< HashRef $static_var2 >>
+=item I<$static_var2>
+
+  my $static_var2 = < HashRef[TView|Undef|Int] >;
 
 Helper variable for I<TView> methods L</exposed> and L</write_str>.
 
@@ -227,11 +228,11 @@ Helper variable for I<TView> methods L</exposed> and L</write_str>.
 
 =head2 Attributes
 
-=for html <span id="cursor">
-
 =over
 
-=item public readonly C<< TPoint cursor >>
+=item I<cursor>
+
+  has cursor ( is => rwp, type => TPoint ) = TPoint->new;
 
 Records the position of the display cursor.
 
@@ -243,9 +244,9 @@ Records the position of the display cursor.
     writer    => '_cursor',
   );
 
-=for html <span id="drag_mode">
+=item I<drag_mode>
 
-=item public C<< Int drag_mode >>
+  param drag_mode ( is => rw, type => Int );
 
 The bits in I<drag_mode> indicate the view's dragging characterisitcs when
 dragged with the mouse.
@@ -262,9 +263,9 @@ See: I<dmXXXX> constants for more information on these settings.
     required  => 1,
   );
 
-=for html <span id="event_mask">
+=item I<event_mask>
 
-=item public C<< Int event_mask >>
+  param event_mask ( is => rw, type => Int );
 
 Set I<event_mask> to mask off or on the classes of messages that are accepted
 for processing by this view.
@@ -283,9 +284,9 @@ See: I<evXXXX> constants
     required  => 1,
   );
 
-=for html <span id="grow_mode">
+=item I<grow_mode>
 
-=item public C<< Int grow_mode >>
+  has grow_mode ( is = rw, type => Int ) = 0;
 
 The bit settings in I<grow_mode> indicate how the view will change shape when
 it is resized.
@@ -302,9 +303,9 @@ See: I<gfXXXX> constants for more information on these bit settings.
     default   => 0,
   );
 
-=for html <span id="help_ctx">
+=item I<help_ctx>
 
-=item public C<< Int help_ctx >>
+  has help_ctx ( is = rw, type => Int ) = HC_NO_CONTEXT;
 
 Holds the view's help context setting.
 
@@ -319,9 +320,9 @@ I<help_ctx> will have a default of I<HC_NO_CONTEXT>.
     default => HC_NO_CONTEXT,
   );
 
-=for html <span id="next">
+=item I<next>
 
-=item public readonly C<< TView|Undef next >>
+  field next ( is => rwp, type => TView|Undef );
 
 I<next> maintains a circular list pointing to the next view, in Z-order.
 
@@ -333,9 +334,9 @@ I<next> maintains a circular list pointing to the next view, in Z-order.
     writer    => '_next',
   );
 
-=for html <span id="options">
+=item I<options>
 
-=item public C<< Int options >>
+  has options ( is => rw, type => Int ) = 0;
 
 Set I<options> to determine event processing order (I<OF_PRE_PROCESS>,
 I<OF_POST_PROCESS>) and to set other attributes defined by the I<ofXXXX>
@@ -349,9 +350,9 @@ constants.
     default   => 0,
   );
 
-=for html <span id="origin">
+=item I<origin>
 
-=item public readonly C<< TPoint origin >>
+  param origin ( is => rwp, type => TPoint );
 
 Describes the upper left corner of the view.
 
@@ -363,9 +364,9 @@ Describes the upper left corner of the view.
     writer    => '_origin',
   );
 
-=for html <span id="owner">
+=item I<owner>
 
-=item public readonly C<< TGroup|Undef owner >>
+  field owner ( is => rwp, type => TGroup|Undef );
 
 Points to the I<TGroup> that owns this view.
 
@@ -377,9 +378,9 @@ Points to the I<TGroup> that owns this view.
     writer    => '_owner',
   );
 
-=for html <span id="size">
+=item I<size>
 
-=item public readonly C<< TPoint size >>
+  param size ( is => rwp, type => TPoint );
 
 Contains the size of the view.
 
@@ -391,9 +392,9 @@ Contains the size of the view.
     writer    => '_size',
   );
 
-=for html <span id="state">
+=item I<state>
 
-=item public readonly C<< Int state >>
+  param state ( is => rwp, type => Int );
 
 The I<state> bits retain information about many view options, including the
 cursor shape, if the cursor is visible or if the view is selected.
@@ -420,11 +421,11 @@ See: I<sfXXXX> constants, L</set_state>, L</get_state>
 
 =head2 Constructors
 
-=for html <span id="init">
-
 =over
 
-=item public C<< TView->init(TRect $bounds) >>
+=item I<init>
+
+  factory $class->init(TRect $bounds)
 
 Creates an initializes a I<TView> object and places it according to the Bounds
 parameter.
@@ -447,9 +448,9 @@ L</options>, L</event_mask>, L</grow_mode> and L</drag_mode>.
     );
   };
 
-=for html <span id="load">
+=item I<load>
 
-=item public C<< TView->load(TStream $s) >>
+  factory $class->load(TStream $s)
 
 Creates and reads a view from stream I<$s>.
 
@@ -528,11 +529,11 @@ Creates and reads a view from stream I<$s>.
 
 =head2 Destructors
 
-=for html <span id="DEMOLISH">
-
 =over
 
-=item public C<< DEMOLISH() >>
+=item I<DEMOLISH>
+
+  sub $self->DEMOLISH
 
 Deletes the view after erasing it from the screen.
 
@@ -555,11 +556,11 @@ Deletes the view after erasing it from the screen.
 
 =head2 Methods
 
-=for html <section id="block_cursor"/>
-
 =over
 
-=item public C<< block_cursor() >>
+=item I<block_cursor>
+
+  method $obj->block_cursor()
 
 Changes the cursor to the solid block cursor by setting the I<SF_CURSOR_INS>
 bit in the I<state> attribute.
@@ -573,9 +574,9 @@ See: L</normal_cursor>
     return;
   }
 
-=for html <span id="calc_bounds">
+=item I<calc_bounds>
 
-=item public C<< calc_bounds(TRect $bounds, TPoint $delta) >>
+  method $obj->calc_bounds(TRect $bounds, TPoint $delta)
 
 I<calc_bounds> is used internally to resize and shape this view in the case
 that the L</owner>'s view was changed in size.
@@ -644,9 +645,9 @@ that the L</owner>'s view was changed in size.
     return;
   }
 
-=for html <span id="change_bounds">
+=item I<change_bounds>
 
-=item public C<< change_bounds(TRect $bounds) >>
+  method $obj->change_bounds(TRect $bounds)
 
 This internal procedure repositions the view.
 
@@ -658,9 +659,9 @@ This internal procedure repositions the view.
     return;
   }
 
-=for html <span id="clear_event">
+=item I<clear_event>
 
-=item public C<< clear_event(TEvent $event) >>
+  method $obj->clear_event(TEvent $event)
 
 In your L</handle_event> methods or overridden L</handle_event> methods,
 whenever you have finished processing an event, you must signal that the event
@@ -676,9 +677,9 @@ other views can determine who it was that process the event.
     return;
   }
 
-=for html <span id="command_enabled">
+=item I<command_enabled>
 
-=item public C<< Bool command_enabled(Int $command) >>
+  method $obj->command_enabled(Int $command) : Bool
 
 Use I<command_enabled> to check if a specific command is currently enabled or
 allowed.
@@ -694,9 +695,9 @@ been disabled.
         || vec( $cur_command_set, $command, 1 );          # Check command
   }
 
-=for html <span id="data_size">
+=item I<data_size>
 
-=item public C<< Int data_size() >>
+  method $obj->Int data_size()
 
 Used in conjunction with L</get_data> and L</set_data> to copy the views data to
 and from a data record.
@@ -709,9 +710,9 @@ See: L</get_data>, L</set_data>
     return 0;                                             # Transfer size
   }
 
-=for html <span id="disable_commands">
+=item I<disable_commands>
 
-=item public C<< disable_commands(TCommandSet $commands) >>
+  method $obj->disable_commands(TCommandSet $commands)
 
 I<$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be disabled.
@@ -736,9 +737,9 @@ See: L</enable_commands>
     return;
   }
 
-=for html <span id="drag_view">
+=item I<drag_view>
 
-=item public C<< drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size) >>
+  method $obj->drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)
 
 I<drag_view> handles redrawing the view while it is being dragged across the
 string.
@@ -893,9 +894,9 @@ view can be resized.
     return;
   }
 
-=for html <span id="draw">
+=item I<draw>
 
-=item public C<< draw() >>
+  method $obj->draw()
 
 The I<draw> method is the only method that should write data to the view's
 screen area.
@@ -932,9 +933,9 @@ See: L</draw_view>, L</get_clip_rect>
     return;
   }
 
-=for html <span id="draw_view">
+=item I<draw_view>
 
-=item public C<< draw_view() >>
+  method $obj->draw_view()
 
 I<draw_view> is the preferred method to call when you need to update the view.
 
@@ -959,9 +960,9 @@ See: L</draw>
     return;
   }
 
-=for html <span id="enable_commands">
+=item I<enable_commands>
 
-=item public C<< enable_commands(TCommandSet $commands) >>
+  method $obj->enable_commands(TCommandSet $commands)
 
 <$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be enabled.
@@ -986,9 +987,9 @@ See: L</disable_commands>
     return;
   }
 
-=for html <span id="end_modal">
+=item I<end_modal>
 
-=item public C<< end_modal(Int $command) >>
+  method $obj->end_modal(Int $command)
 
 Used internally in conjunction with I<exec_view> for displaying modal views,
 such as dialogs, to terminate the modal view.
@@ -1004,9 +1005,9 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
     return;
   }
 
-=for html <span id="event_avail">
+=item I<event_avail>
 
-=item public C<< Bool event_avail() >>
+  method $obj->event_avail() : Bool
 
 Returns True if an event is available.
 
@@ -1020,9 +1021,9 @@ Returns True if an event is available.
     return $event->what != EV_NOTHING;                    # Return result
   }
 
-=for html <span id="execute">
+=item I<execute>
 
-=item public C<< Int execute() >>
+  method $obj->execute() : Int
 
 I<execute> is overridden in I<TGroup> descendants to provide the event loop that
 makes the view a modal view.
@@ -1035,9 +1036,9 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
     return CM_CANCEL;                                     # Return cancel
   }
 
-=for html <span id="exposed">
+=item I<exposed>
 
-=item public C<< Bool exposed() >>
+  method $obj->exposed() : Bool
 
 If at least some part of the view can be seen on the screen, then I<exposed>
 returns True.
@@ -1063,9 +1064,9 @@ If the view is completely hidden, then I<exposed> returns False.
     return _FALSE;
   }
 
-=for html <span id="hide">
+=item I<hide>
 
-=item public C<< hide() >>
+  method $obj->hide()
 
 Hides the view.
 
@@ -1079,9 +1080,9 @@ See: L</show>
     return;
   }
 
-=for html <span id="set_state">
+=item I<set_state>
 
-=item public C<< set_state(Int $a_state, Bool $enable) >>
+  method $obj->set_state(Int $a_state, Bool $enable)
 
 Use I<set_state> to either set or clear bits in the L</state> variable.
 

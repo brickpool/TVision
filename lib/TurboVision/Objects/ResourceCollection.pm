@@ -87,7 +87,7 @@ is not generally used by application programs.
 
 =head2 Class
 
-public class C<< TResourceCollection >>
+public class I<< TResourceCollection >>
 
 Turbo Vision Hierarchy
 

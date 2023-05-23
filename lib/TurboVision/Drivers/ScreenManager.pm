@@ -118,7 +118,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public readonly C<< Bool $check_snow >>
+=item I<$check_snow>
+
+  our $check_snow = < Bool >;
 
 If a CGA adaptor is detected, Turbo Vision sets I<check_snow> to C<TRUE>.
 
@@ -126,7 +128,7 @@ Older CGA video adaptor cards require special programming to avoid "snow" or
 static-like lines on the display.
 
 If the CGA video adaptor does not require snow checking, the program may set
-I<check_snow> to C<FALSE>, resulting in faster output to the screen.
+L</$check_snow> to C<FALSE>, resulting in faster output to the screen.
 
 B<Note>: This variable is for compatiblity only.
 
@@ -134,7 +136,9 @@ B<Note>: This variable is for compatiblity only.
 
   our $check_snow = _FALSE;
 
-=item public readonly C<< Int $cursor_lines >>
+=item I<$cursor_lines>
+
+  our $cursor_lines = < Int >;
 
 Contains the height of the video cursor encoded such that the high 4 bits
 contains the top scan line and the low 4 bits contain the bottom scan
@@ -144,13 +148,15 @@ See: I<< TView->show_cursor >>, I<< TView->hide_cursor >>,
 I<< TView->normal_cursor >> (to set cursor shape to an underline),
 I<< TView->block_cursor >> (to set cursor to a solid block).
 
-See: I<set_video_mode>
+See: L</set_video_mode>
 
 =cut
 
   our $cursor_lines = 0;
 
-=item public readonly C<< Bool $hi_res_screen >>
+=item I<$hi_res_screen>
+
+  our $hi_res_screen = < Bool >;
 
 Returns true if the screen supports 43 or 50 line modes, false if these
 modes are not supported.
@@ -159,40 +165,48 @@ modes are not supported.
 
   our $hi_res_screen = _FALSE;
 
-=item public readonly C<< Ref $screen_buffer >>
+=item I<$screen_buffer>
 
-This internal reference is initialized by I<init_video> and keeps track of the
+  our $screen_buffer = < Ref >;
+
+This internal reference is initialized by L</init_video> and keeps track of the
 location of the video screen buffer.
 
-See: I<screen_mode>
+See: L</$screen_mode>
 
 =cut
 
   our $screen_buffer = {};
 
-=item public readonly C<< Int $screen_height >>
+=item I<$screen_height>
+
+  our $screen_height = < Int >;
 
 Holds the current height of the screen, in lines. For example, C<25>, C<43> or
 C<50> would be typical values.
 
-See: I<set_video_mode>
+See: L</set_video_mode>
 
 =cut
 
   our $screen_height = 0;
 
-=item public readonly C<< Int $screen_mode >>
+=item I<$screen_mode>
+
+  our $screen_mode = < Int >;
 
 Contains the current video mode as determined by the I<smXXXX> constants
 passed to the I<set_video_mode> routine.
 
-See: I<set_video_mode>, I<smXXXX> constants
+See: L</set_video_mode>, I<smXXXX> constants
 
 =cut
 
   our $screen_mode = 0;
 
-=item public readonly C<< Int $screen_width >>
+=item I<$screen_width>
+
+  our $screen_width = < Int >;
 
 Holds the current width of the screen in number of characters per line (for
 example, 80).
@@ -201,12 +215,14 @@ example, 80).
 
   our $screen_width = 0;
 
-=item public readonly C<< Int $startup_mode >>
+=item I<$startup_mode>
+
+  our $startup_mode = < Int >;
 
 This internal variable stores the existing screen mode before Turbo Vision
 switches to a new screen mode.
 
-See: I<screen_mode>
+See: L</$screen_mode>
 
 =cut
 
@@ -224,7 +240,9 @@ See: I<screen_mode>
 
 =over
 
-=item public static C<< clear_screen() >>
+=item I<clear_screen>
+
+  func clear_screen()
 
 After I<init_video> has been called by I<< TApplication->init >>, this
 routine will clear the screen. However, most Turbo Vision applications will have
@@ -238,13 +256,15 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
-    goto &TurboVision::Drivers::Win32::Screen::_clear_screen;
+    goto &TurboVision::Drivers::Win32::Screen::clear_screen;
 
 }#endif _TV_UNIX
     return;
   }
 
-=item public static C<< done_video() >>
+=item I<done_video>
+
+  func done_video()
 
 This internal routine is called automatically by I<< TApplication->DEMOLISH >>
 and terminates Turbo Vision's video support.
@@ -257,21 +277,23 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
-    goto &TurboVision::Drivers::Win32::Screen::_done_video;
+    goto &TurboVision::Drivers::Win32::Screen::done_video;
 
 }#endif _TV_UNIX
     return;
   };
 
-=item public static C<< init_video() >>
+=item I<init_video>
+
+  func init_video()
 
 This internal routine, called by I<< TApplication->init >>, initialize's Turbo
 Vision's video display manager and switches the display to the mode specified in
-the I<screen_mode> variable.
+the L</$screen_mode> variable.
 
-The routine I<init_video> initializes the variables I<screen_width>,
-I<screen_height>, I<hi_res_screen>, I<check_snow>, I<screen_buffer> and
-I<cursor_lines>.
+The routine I<init_video> initializes the variables L</$screen_width>,
+L</$screen_height>, L</$hi_res_screen>, L</$check_snow>, L</$screen_buffer> and
+L</$cursor_lines>.
 
 =cut
 
@@ -281,13 +303,15 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
-    goto &TurboVision::Drivers::Win32::Screen::_init_video;
+    goto &TurboVision::Drivers::Win32::Screen::init_video;
 
 }#endif _TV_UNIX
     return;
   };
 
-=item public static C<< set_video_mode(Int $mode) >>
+=item I<set_video_mode>
+
+  func set_video_mode(Int $mode)
 
 Use this (or more commonly I<< TProgram->set_screen_mode >> to select 25 or
 43/50 line screen height, in conjunction with selecting the color, black & white
@@ -295,19 +319,19 @@ or monochrome palettes.
 
 To change to the color palette, write,
 
-  $screen->set_video_mode( SM_CO80 );
+  set_video_mode( SM_CO80 );
 
 where I<SM_CO80> is one of the I<smXXXX> screen mode constants.
 
 Optionally, to select 43/50 line mode, add the I<SM_FONT8X8> constant to the
 color selection constant. For example,
 
-  $screen->set_video_mode( SM_CO80 + SM_FONT8X8 );
+  set_video_mode( SM_CO80 + SM_FONT8X8 );
 
 Normally, you should use I<< TProgram->set_screen_mode >>, which has the same
 parameter value, to change the screen color or screen size.
 
-The routine I<setscreen_mode> properly handles resetting of the application
+The method I<set_screen_mode> properly handles resetting of the application
 palettes, repositioning the mouse pointer and so on.
 
 See: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
@@ -320,7 +344,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
-    goto &TurboVision::Drivers::Win32::Screen::_set_video_mode;
+    goto &TurboVision::Drivers::Win32::Screen::set_video_mode;
 
 }#endif _TV_UNIX
     return;

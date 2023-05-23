@@ -67,11 +67,11 @@ for device-specific input/output operations and other operations which cannot be
 expressed by regular system calls. 
 
 I<StdioCtl> is singleton a class that has only one instance in an application.
-The module is similar to the functionalities of I<MooseX::Singleton>.
+The module is similar to the functionalities of L<MooseX::Singleton>.
 
 =head2 Class
 
-public class C<< StdioCtl >>
+public class I<< StdioCtl >>
 
 Turbo Vision Hierarchy
 
@@ -90,7 +90,9 @@ package TurboVision::Drivers::Win32::StdioCtl {
 
 =over
 
-=item public C<< Object in >>
+=item I<in>
+
+  field in ( is => rwp, type => Object, predicate => '_has_input' );
 
 Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
 
@@ -103,7 +105,9 @@ Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
     init_arg  => undef,
   );
 
-=item public C<< Object out >>
+=item I<out>
+
+  field out ( is => rwp, type => Object, predicate => '_has_output' );
 
 Console active output object.
 
@@ -118,7 +122,9 @@ Console active output object.
   
 =begin comment
 
-=item private C<< Object _startup >>
+=item I<_startup>
+
+  field _startup ( is => rw, type => Object, predicate => '_has_startup' );
 
 Console startup output object.
 
@@ -134,7 +140,9 @@ Console startup output object.
 
 =begin comment
 
-=item private C<< Bool _owns_console >>
+=item I<_owns_console>
+
+  has _owns_console ( is => rw, type => Bool ) = !! 0;
 
 Console startup output object.
 
@@ -162,7 +170,9 @@ Console startup output object.
 
 =over
 
-=item public C<< StdioCtl->instance() >>
+=item I<instance>
+
+  factory $class->instance()
 
 This constructor instantiates an object instance if none exists, otherwise it
 returns an existing instance.
@@ -181,7 +191,9 @@ It is used to initialize the default I/O console.
 
 =begin comment
 
-=item private C<< BUILD(@) >>
+=item I<BUILD>
+
+  sub $self->BUILD
 
 This internal method is automatically called when the object is created via
 I<new> or I<init>. It initializes the console.
@@ -332,7 +344,9 @@ I<new> or I<init>. It initializes the console.
 
 =over
 
-=item public C<< DEMOLISH(@) >>
+=item I<DEMOLISH>
+
+  sub $self->DEMOLISH
 
 I<DEMOLISH> restore the startup output console.
 
@@ -378,7 +392,9 @@ console.
 
 =over
 
-=item public C<< Dict[x => Int, y => Int] get_size() >>
+=item I<get_size>
+
+  method get_size() : Dict[x => Int, y => Int] 
 
 Gets the console buffer size.
 
@@ -400,7 +416,9 @@ Gets the console buffer size.
     };
   }
 
-=item public C<< Dict[x => Int, y => Int] get_font_size() >>
+=item I<get_font_size>
+
+  method get_font_size() : Dict[x => Int, y => Int] 
 
 Gets the font size.
 
@@ -482,6 +500,6 @@ __END__
 
 =head1 SEE ALSO
 
-I<Moose::Object>, 
+L<Moose::Object>, 
 L<stdioctl.h|https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/include/tvision/internal/stdioctl.h>, 
 L<stdioctl.cpp|https://github.com/magiblot/tvision/blob/279648f8a67af14ec38725266037c39fb9add9b3/source/platform/stdioctl.cpp>

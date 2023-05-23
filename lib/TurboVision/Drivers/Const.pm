@@ -310,7 +310,34 @@ our %EXPORT_TAGS = (
 
 =head1 DESCRIPTION
 
-tbd
+This module is used to define Turbo Vision related constants that are used for
+the I<Drivers> modules.
+
+For the use of the I<EventManager> module constants for events (I<evXXXX>),
+keyboard (I<kbXXXX>) and mouse (I<mbXXXX>) are defined here. Furthermore,
+additional constants for the video display of the I<ScreenManager> are defined
+here (I<smXXXX>).
+
+Turbo Vision (and also Perl) uses standardized naming conventions as an aid to
+making source code readable.
+
+The most important conventions for constants are:
+
+  1.  With the exception of the constants for the color palette and the
+      registration data sets, all constants are specified completely in capital
+      letters.
+  2.  All (other) constants defined for the Turbo Vision implementation of Perl
+      start with two capital letters and an underscore.
+  3.  For better readability, the constants defined here for Turbo Vision use
+      underscores to separate parts of words.
+
+The following table shows the constants used here for Turbo Vision with prefix:
+
+  Prefix  Definition               Example
+  EV_     Event constant           EV_COMMAND
+  KB_     Keyboard code constant   KB_ALT_A
+  MB_     Mouse button constant    MB_RIGHT_BUTTON
+  SM_     Screen mode constant     SM_FONT8X8
 
 =cut
 
@@ -322,7 +349,9 @@ tbd
 
 =head2 Drivers used public constants
 
-=item public const C<< Int EVENT_Q_SIZE >>
+=item I<EVENT_Q_SIZE>
+
+  constant EVENT_Q_SIZE = < Int >;
 
 Event manager constant for the queue size.
 
@@ -336,7 +365,9 @@ Event manager constant for the queue size.
 
 =over
 
-=item public const C<< Int EV_MOUSE_DOWN >>
+=item I<EV_MOUSE_DOWN>
+
+  constant EV_MOUSE_DOWN = < Int >;
 
 Mouse down event
 
@@ -344,7 +375,9 @@ Mouse down event
 
   use constant EV_MOUSE_DOWN  => 0x0001;
 
-=item public const C<< Int EV_MOUSE_UP >>
+=item I<EV_MOUSE_UP>
+
+  constant EV_MOUSE_UP = < Int >;
 
 Mouse up event.
 
@@ -352,7 +385,9 @@ Mouse up event.
 
   use constant EV_MOUSE_UP    => 0x0002;
 
-=item public const C<< Int EV_MOUSE_MOVE >>
+=item I<EV_MOUSE_MOVE>
+
+  constant EV_MOUSE_MOVE = < Int >;
 
 Mouse move event.
 
@@ -360,7 +395,9 @@ Mouse move event.
 
   use constant EV_MOUSE_MOVE  => 0x0004;
 
-=item public const C<< Int EV_MOUSE_AUTO >>
+=item I<EV_MOUSE_AUTO>
+
+  constant EV_MOUSE_AUTO = < Int >;
 
 Mouse movement with pressed key event.
 
@@ -368,7 +405,9 @@ Mouse movement with pressed key event.
 
   use constant EV_MOUSE_AUTO  => 0x0008;
 
-=item public const C<< Int EV_KEY_DOWN >>
+=item I<EV_KEY_DOWN>
+
+  constant EV_KEY_DOWN = < Int >;
 
 Key down event.
 
@@ -376,7 +415,9 @@ Key down event.
 
   use constant EV_KEY_DOWN    => 0x0010;
 
-=item public const C<< Int EV_COMMAND >>
+=item I<EV_COMMAND>
+
+  constant EV_COMMAND = < Int >;
 
 Command event.
 
@@ -384,7 +425,9 @@ Command event.
 
   use constant EV_COMMAND     => 0x0100;
 
-=item public const C<< Int EV_BROADCAST >>
+=item I<EV_BROADCAST>
+
+  constant EV_BROADCAST = < Int >;
 
 Broadcast event.
 
@@ -400,7 +443,9 @@ Broadcast event.
 
 =over
 
-=item public const C<< Int EV_NOTHING >>
+=item I<EV_NOTHING>
+
+  constant EV_NOTHING = < Int >;
 
 Empty event
 
@@ -408,7 +453,9 @@ Empty event
 
   use constant EV_NOTHING   => 0x0000;
 
-=item public const C<< Int EV_MOUSE >>
+=item I<EV_MOUSE>
+
+  constant EV_MOUSE = < Int >;
 
 Mouse event.
 
@@ -416,7 +463,9 @@ Mouse event.
 
   use constant EV_MOUSE     => 0x000f;
 
-=item public const C<< Int EV_KEYBOARD >>
+=item I<EV_KEYBOARD>
+
+  constant EV_KEYBOARD = < Int >;
 
 Keyboard event.
 
@@ -424,7 +473,9 @@ Keyboard event.
 
   use constant EV_KEYBOARD  => 0x0010;
 
-=item public const C<< Int EV_MESSAGE >>
+=item I<EV_MESSAGE>
+
+  constant EV_MESSAGE = < Int >;
 
 Message event.
 
@@ -453,7 +504,9 @@ subroutine and test the bits like this:
 
 =over
 
-=item public const C<< Int KB_RIGHT_SHIFT >>
+=item I<KB_RIGHT_SHIFT>
+
+  constant KB_RIGHT_SHIFT = < Int >;
 
 Bit set if the right shift key down.
 
@@ -461,7 +514,9 @@ Bit set if the right shift key down.
 
   use constant KB_RIGHT_SHIFT   => 0x0001;
 
-=item public const C<< Int KB_LEFT_SHIFT >>
+=item I<KB_LEFT_SHIFT>
+
+  constant KB_LEFT_SHIFT = < Int >;
 
 Bit set if the left shift key down.
 
@@ -469,7 +524,9 @@ Bit set if the left shift key down.
 
   use constant KB_LEFT_SHIFT    => 0x0002;
 
-=item public const C<< Int KB_CTRL_SHIFT >>
+=item I<KB_CTRL_SHIFT>
+
+  constant KB_CTRL_SHIFT = < Int >;
 
 Bit set if the Ctrl key is down.
 
@@ -477,7 +534,9 @@ Bit set if the Ctrl key is down.
 
   use constant KB_CTRL_SHIFT    => 0x0004;
 
-=item public const C<< Int KB_ALT_SHIFT >>
+=item I<KB_ALT_SHIFT>
+
+  constant KB_ALT_SHIFT = < Int >;
 
 Bit set if the Alt key is down.
 
@@ -485,7 +544,9 @@ Bit set if the Alt key is down.
 
   use constant KB_ALT_SHIFT     => 0x0008;
 
-=item public const C<< Int KB_SCROLL_STATE >>
+=item I<KB_SCROLL_STATE>
+
+  constant KB_SCROLL_STATE = < Int >;
 
 Bit set if the Scroll Lock is down.
 
@@ -493,7 +554,9 @@ Bit set if the Scroll Lock is down.
 
   use constant KB_SCROLL_STATE  => 0x0010;
 
-=item public const C<< Int KB_NUM_STATE >>
+=item I<KB_NUM_STATE>
+
+  constant KB_NUM_STATE = < Int >;
 
 Bit set if the Num Lock is down.
 
@@ -501,7 +564,9 @@ Bit set if the Num Lock is down.
 
   use constant KB_NUM_STATE     => 0x0020;
 
-=item public const C<< Int KB_CAPS_STATE >>
+=item I<KB_CAPS_STATE>
+
+  constant KB_CAPS_STATE = < Int >;
 
 Bit set if the Caps Lock down.
 
@@ -509,7 +574,9 @@ Bit set if the Caps Lock down.
 
   use constant KB_CAPS_STATE    => 0x0040;
 
-=item public const C<< Int KB_INS_STATE >>
+=item I<KB_INS_STATE>
+
+  constant KB_INS_STATE = < Int >;
 
 Bit set if keyboard is in Ins Lock state.
 
@@ -769,7 +836,9 @@ right button was pressed.
 
 =over
 
-=item public const C<< Int MB_LEFT_BUTTON >>
+=item I<MB_LEFT_BUTTON>
+
+  constant MB_LEFT_BUTTON = < Int >;
 
 Value if leftmost mouse button was pressed.
 
@@ -777,7 +846,9 @@ Value if leftmost mouse button was pressed.
 
   use constant MB_LEFT_BUTTON       => 0x01;
 
-=item public const C<< Int MB_RIGHT_BUTTON >>
+=item I<MB_RIGHT_BUTTON>
+
+  constant MB_RIGHT_BUTTON = < Int >;
 
 Value if the rightmost mouse button was presseed.
 
@@ -785,7 +856,9 @@ Value if the rightmost mouse button was presseed.
 
   use constant MB_RIGHT_BUTTON      => 0x02;
 
-=item public const C<< Int MB_RIGHT_BUTTON >>
+=item I<MB_RIGHT_BUTTON>
+
+  constant MB_RIGHT_BUTTON = < Int >;
 
 Value if second button from the left was presseed.
 
@@ -793,7 +866,9 @@ Value if second button from the left was presseed.
 
   use constant MB_MIDDLE_BUTTON     => 0x04;
 
-=item public const C<< Int MB_SCROLL_WHEEL_DOWN >>
+=item I<MB_SCROLL_WHEEL_DOWN>
+
+  constant MB_SCROLL_WHEEL_DOWN = < Int >;
 
 Scroll wheel down.
 
@@ -801,7 +876,9 @@ Scroll wheel down.
 
   use constant MB_SCROLL_WHEEL_DOWN => 0x08;
 
-=item public const C<< Int MB_SCROLL_WHEEL_UP >>
+=item I<MB_SCROLL_WHEEL_UP>
+
+  constant MB_SCROLL_WHEEL_UP = < Int >;
 
 Scroll wheel up.
 
@@ -821,7 +898,9 @@ modes.
 
 =over
 
-=item public const C<< Int SM_BW40 >>
+=item I<SM_BW40>
+
+  constant SM_BW40 = < Int >;
 
 Black and white/gray scale, 40x25 chars.
 
@@ -829,7 +908,9 @@ Black and white/gray scale, 40x25 chars.
 
   use constant SM_BW40    => 0x0000;
 
-=item public const C<< Int SM_CO40 >>
+=item I<SM_CO40>
+
+  constant SM_CO40 = < Int >;
 
 Color mode, 40x25 chars.
 
@@ -837,7 +918,9 @@ Color mode, 40x25 chars.
  
   use constant SM_CO40    => 0x0001;
 
-=item public const C<< Int SM_BW80 >>
+=item I<SM_BW80>
+
+  constant SM_BW80 = < Int >;
 
 Black and white/gray scale, 80x25 chars.
 
@@ -845,7 +928,9 @@ Black and white/gray scale, 80x25 chars.
 
   use constant SM_BW80    => 0x0002;
 
-=item public const C<< Int SM_CO80 >>
+=item I<SM_CO80>
+
+  constant SM_CO80 = < Int >;
 
 Color mode, 80x25 chars.
 
@@ -853,7 +938,9 @@ Color mode, 80x25 chars.
  
   use constant SM_CO80    => 0x0003;
 
-=item public const C<< Int SM_MONO >>
+=item I<SM_MONO>
+
+  constant SM_MONO = < Int >;
 
 Monochrome mode, 80x25 chars.
 
@@ -861,7 +948,9 @@ Monochrome mode, 80x25 chars.
  
   use constant SM_MONO    => 0x0004;
 
-=item public const C<< Int SM_FONT8X8 >>
+=item I<SM_FONT8X8>
+
+  constant SM_FONT8X8 = < Int >;
 
 43 or 50 line modes.
 
@@ -873,11 +962,13 @@ Monochrome mode, 80x25 chars.
 
 =cut
 
-=head2 Drivers used private constants
+=head2 Internal constants used by I<Drivers>
 
 =over
 
-=item private const C<< Ref _ALT_CODES >>
+=item I<_ALT_CODES>
+
+  constant _ALT_CODES = < Ref >;
 
 Mapping table for I<get_alt_code> and I<get_alt_char>.
 
@@ -902,7 +993,9 @@ Mapping table for I<get_alt_code> and I<get_alt_char>.
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,       # 0x78 - 0x7f
   ]->[ +shift ]};
   
-=item private const C<< Ref _CP437_TO_UTF8 >>
+=item I<_CP437_TO_UTF8>
+
+  constant _CP437_TO_UTF8 = < Ref >;
 
 Codepage 437 to Unicode translation map.
 
@@ -977,7 +1070,9 @@ Codepage 437 to Unicode translation map.
     ord "\x{207f}", ord "\x{00b2}", ord "\x{25a0}", ord "\x{00a0}",
   ]->[ +shift ]};
 
-=item private const C<< Ref _SCREEN_RESOLUTION >>
+=item I<_SCREEN_RESOLUTION>
+
+  constant _SCREEN_RESOLUTION = < Ref >;
 
 Hash constants for converting standard video text modes (C<0x0000..0x00ff>,
 C<0x0100..0x07ff> or C<0x0900..0x09ff>) to resolution modes (C<0x1000..0x7fff>).
@@ -1034,7 +1129,9 @@ number of columns.
     #+0x37   => 132 | 44 << 8,                           # ATI EGA Wonder
   }->{ +shift }};
 
-=item private const C<< Ref _STANDARD_CRT_MODE >>
+=item I<_STANDARD_CRT_MODE>
+
+  constant _STANDARD_CRT_MODE = < Ref >;
 
 Hash constants for converting resolution modes (C<0x1000..0x7fff>) to standard
 text modes (C<0x0000..0x00ff>, C<0x0100..0x07ff> or C<0x0900..0x09ff>).
@@ -1059,7 +1156,9 @@ text modes (C<0x0000..0x00ff>, C<0x0100..0x07ff> or C<0x0900..0x09ff>).
     #(132 | 44 << 8) => 0x0942,                          # Video7 special mode
   }->{ +shift }};
 
-=item private const C<< Ref _WORD_STAR_CODES >>
+=item I<_WORD_STAR_CODES>
+
+  constant _WORD_STAR_CODES = < Ref >;
 
 Hash constants for converting WordStar keystrokes (C<Ctrl-A>, C<Ctrl-X>, ...)
 into the corresponding I<kbXXXX> values.
@@ -1080,7 +1179,9 @@ into the corresponding I<kbXXXX> values.
     "\cX" => KB_DOWN,   ( KB_CTRL_X ) => KB_DOWN,       # Ctrl-X
   }->{ +shift }};
 
-=item private const C<< Ref _UTF8_TO_CP437 >>
+=item I<_UTF8_TO_CP437>
+
+  constant _UTF8_TO_CP437 = < Ref >;
 
 Unicode to Codepage 437 translation map.
 

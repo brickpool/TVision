@@ -50,10 +50,12 @@ use TurboVision::Const qw(
 
 =over
 
-=item public type C<< TSysErrorFunc >>
+=item I<TSysErrorFunc>
+
+  subtype TSysErrorFunc : CodeRef;
 
 I<TSysErrorFunc> defines what the system error handler function looks like. 
-See I<$sys_error_func> and I<system_error()> for details of intercepting system
+See I<$sys_error_func> and I<system_error> for details of intercepting system
 level errors.
 
 =cut

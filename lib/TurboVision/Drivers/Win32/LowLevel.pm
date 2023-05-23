@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-TurboVision::Drivers::Win32::LowLevel - Windows low level implementation
+TurboVision::Drivers::Win32::LowLevel - Windows low level API routines
 
 =cut
 
@@ -77,15 +77,21 @@ our @EXPORT_OK = qw(
 
 =over
 
-=item public const C<< Int GWL_STYLE >>
+=item I<GWL_STYLE>
 
-Parameter for I<SetWindowLong>. Sets a new window style.
+  constant GWL_STYLE = < Int >;
+
+Parameter for
+L<SetWindowLong|https://learn.microsoft.com/en-us/windows/win32/api/winuser/>.
+Sets a new window style.
 
 =cut
 
   use constant GWL_STYLE  => -16;
 
-=item public const C<< Int WS_SIZEBOX >>
+=item I<WS_SIZEBOX>
+
+  constant WS_SIZEBOX = < Int >;
 
 Defines if the window should have a sizing border.
 
@@ -95,11 +101,16 @@ Defines if the window should have a sizing border.
 
 =begin comment
 
-=item private const C<< Int _kernelDll >>
+=item I<_kernelDll>
 
-=item private const C<< Int _userDll >>
+=item I<_userDll>
 
-Name of the library files used for the I<Windows and Messages> subs.
+  constant _kernelDll = < Str >
+  constant _userDll = < Str >
+
+Name of the library files used for the
+L<Windows and Messages|https://learn.microsoft.com/en-us/windows/win32/api/_winmsg/>
+subs.
 
 =end comment
 
@@ -122,10 +133,12 @@ Name of the library files used for the I<Windows and Messages> subs.
 
 =over
 
-=item public static C<< Int GetConsoleWindow() >>
+=item I<GetConsoleWindow>
+
+  func GetConsoleWindow() : Int
 
 Retrieves the window handle from the calling process that is used by the
-console; for more info consult the original API documentation.
+console; for more information consult the original API documentation.
 
 =cut
 
@@ -135,10 +148,12 @@ BEGIN {
   ) or die "Import GetConsoleWindow: $EXTENDED_OS_ERROR";
 }
 
-=item public static C<< Int GetDoubleClickTime() >>
+=item I<GetDoubleClickTime>
 
-Retrieves the current double-click time for the mouse; for more info consult the
-original API documentation.
+  func GetDoubleClickTime() : Int
+
+Retrieves the current double-click time for the mouse; for more information
+consult the original API documentation.
 
 =cut
 
@@ -148,9 +163,11 @@ BEGIN {
   ) or die "Import GetDoubleClickTime: $EXTENDED_OS_ERROR";
 }
 
-=item public static C<< Int GetWindowLong(Int $hWnd, Int $nIndex) >>
+=item I<GetWindowLong>
 
-Retrieves a windows property; for more info consult the original API
+  func GetWindowLong(Int $hWnd, Int $nIndex) : Int
+
+Retrieves a windows property; for more information consult the original API
 documentation.
 
 =cut
@@ -161,9 +178,12 @@ BEGIN {
   ) or die "Import GetWindowLong: $EXTENDED_OS_ERROR";
 }
 
-=item public static C<< Int SetWindowLong(Int $hWnd, Int $nIndex, Int dwNewLong) >>
+=item I<SetWindowLong>
 
-Sets a windows property; for more info consult the original API documentation.
+  func SetWindowLong(Int $hWnd, Int $nIndex, Int dwNewLong) : Int
+
+Sets a windows property; for more information consult the original API
+documentation.
 
 =cut
 

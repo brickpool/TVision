@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Views::Types &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Views::Types
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#THE-TYPES">THE TYPES</a>
+    <ul>
+      <li><a href="#Basic-Types">Basic Types</a></li>
+      <li><a href="#Object-Types">Object Types</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>Types - Types for <i>Views</i></p>
+
+<h1 id="THE-TYPES">THE TYPES</h1>
+
+<h2 id="Basic-Types">Basic Types</h2>
+
+<dl>
+
+<dt id="public-type-TCommandSet">public type <code>TCommandSet</code></dt>
+<dd>
+
+<p>In Turbo Vision, command codes are assigned values from 0 to 65535, with values in the range of 0 to 255 reserved for items that can be selectively disabled.</p>
+
+<p><i>TCommandSet</i> is used to hold a set of up to 256 commands, specifically those that can be disabled, and is used as a parameter for the <i>TView</i> methods, <i>enable_commands</i>, <i>disable_commands</i>, <i>get_commands</i> and <i>set_commands</i>.</p>
+
+<p>The foloowing listing illustrates the use of a <i>TCommandSet</i> type.</p>
+
+<pre><code>   1  # tcmdset.pl
+   2  # Example using TCommandSet, from &#39;TVSHELL8.PAS&#39;
+   3  use Array::Utils qw( array_minus );
+   4  ...
+   5    my $commands_on;
+   6    my $commands_off;
+   7    ...
+   8    $commands_on = [CM_USE_DOS, CM_DELETE];
+   9    $commands_off = [ @$commands_on ];
+  10  
+  11    if ( $set_up_data-&gt;prog_options &amp; 2 == 2 ) {
+  12      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
+  13    }
+  14  
+  15    if ( $set_up_data-&gt;prog_options &amp; 4 == 4 ) {
+  16      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
+  17    }
+  18  
+  19    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
+  20  
+  21    $self-&gt;disable_commands( $commands_off );
+  22    $self-&gt;enable_commands( $commands_on );</code></pre>
+
+</dd>
+<dt id="public-type-TPalette">public type <code>TPalette</code></dt>
+<dd>
+
+<p>Defines the data type used for storing color palettes.</p>
+
+<p>Since all color palettes are equivalent to strings, you can use, if you wish, all of the various string manipulation functions, including indexing (with <code>substr</code>), copy (with <code>=</code>), delete (<code>undef</code>), insert (also <code>substr</code>) and so on.</p>
+
+</dd>
+<dt id="public-type-TDrawBuffer">public type <code>TDrawBuffer</code></dt>
+<dd>
+
+<p><i>TDrawBuffer</i> is used to create temporary storage areas for a line of text to be written to the screen where the low byte of each word contains the character value, and the high byte contains the video attribute byte.</p>
+
+<p>You can use the Turbo Vision sub routines, <i>move_buf</i>, <i>move_char</i>, <i>move_c_str</i>, and <i>move_str</i> to set up the buffer and then use one of the <i>TView</i> method&#39;s <i>write_buf</i> and <i>write_line</i> within a <i>draw</i> method to write the output to the screen.</p>
+
+<p>Here&#39;s an example using <i>TDrawBuffer</i>:</p>
+
+<pre><code>  my $buffer = [];
+  ...
+  move_str($buffer, &#39;Financial Results for FY1991&#39;, get_color(1) );
+  $self-&gt;write_line( 1, 3, 28, 1, $buffer );</code></pre>
+
+<p>See: <i>TView</i> methods <i>write_buf</i> and <i>write_line</i>.</p>
+
+</dd>
+<dt id="public-type-TTitleStr">public type <code>TTitleStr</code></dt>
+<dd>
+
+<p>Defines a type used by <i>TWindow</i> for window title strings.</p>
+
+</dd>
+<dt id="public-type-TScrollChars">public type <code>TScrollChars</code></dt>
+<dd>
+
+<p>This is an internal type used inside <i>TScrollBar</i> to store the characters used to draw a <i>TScrollBar</i> object on the display.</p>
+
+</dd>
+<dt id="public-type-TVideoBuf">public type <code>TVideoBuf</code></dt>
+<dd>
+
+<p>This defines the internal type used in video buffer declarations in <i>TGroup</i>.</p>
+
+<p>Video buffers are used to store screen images in cache memory (see <i>get_buf_mem</i>) for rapid screen update.</p>
+
+</dd>
+</dl>
+
+<h2 id="Object-Types">Object Types</h2>
+
+<p>The Views type hierarchy looks like this</p>
+
+<pre><code>  TObject
+    TView
+      TFrame
+      TScrollBar
+      TScroller
+      TListViewer
+      TGroup
+        TWindow</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Vision library.
+ Copyright (c) 1996-2000 by Leon de Boer.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The library files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1996-2000 by Leon de Boer &lt;ldeboer@attglobal.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>MooseX::Types</i>, <i>Views</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/views.pas">views.pas</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

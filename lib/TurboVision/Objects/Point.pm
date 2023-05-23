@@ -63,7 +63,7 @@ I<TPoint> is a simple object representing a point on the screen.
 
 =head2 Class
 
-public class C<< TPoint >>
+public class I<< TPoint >>
 
 I<TPoint> is a standalone object.
 

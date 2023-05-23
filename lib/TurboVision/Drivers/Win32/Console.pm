@@ -12,7 +12,7 @@ Simply integrate this module into your package or script.
   use TurboVision::Drivers::Win32::Console;
 
 B<Note>: Loading this module must be done after C<use Win32::Console>, otherwise
-the patches and extensions for I<Win32::Console> will not be installed
+the patches and extensions for L<Win32::Console> will not be installed
 correctly.
 
 =cut
@@ -469,6 +469,5 @@ __END__
 
 =head1 SEE ALSO
 
-L<Console Functions|https://learn.microsoft.com/en-us/windows/console/console-functions>, 
-L<stdioctl.h|https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/include/tvision/internal/stdioctl.h>, 
-L<stdioctl.cpp|https://github.com/magiblot/tvision/blob/279648f8a67af14ec38725266037c39fb9add9b3/source/platform/stdioctl.cpp>
+L<Win32::Console>, 
+L<Console Functions|https://learn.microsoft.com/en-us/windows/console/console-functions>

@@ -73,7 +73,7 @@ I<TMemoryStream> is a stream that stores its data in dynamic memory.
 
 =head2 Class
 
-public class C<< TMemoryStream >>
+public class I<< TMemoryStream >>
 
 Turbo Vision Hierarchy
 

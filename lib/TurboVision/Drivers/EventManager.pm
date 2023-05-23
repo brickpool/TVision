@@ -252,7 +252,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::EventQ;
-    goto &TurboVision::Drivers::Win32::EventQ::_init_events;
+    goto &TurboVision::Drivers::Win32::EventQ::init_events;
 
 }#endif _TV_UNIX
     return;
@@ -273,7 +273,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::EventQ;
-    goto &TurboVision::Drivers::Win32::EventQ::_done_events;
+    goto &TurboVision::Drivers::Win32::EventQ::done_events;
 
 }#endif _TV_UNIX
     return;
@@ -301,7 +301,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Keyboard;
-    goto &TurboVision::Drivers::Win32::Keyboard::_get_key_event;
+    goto &TurboVision::Drivers::Win32::Keyboard::get_key_event;
 
 }#endif _TV_UNIX
     return;
@@ -346,7 +346,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Mouse;
-    goto &TurboVision::Drivers::Win32::Mouse::_get_mouse_event;
+    goto &TurboVision::Drivers::Win32::Mouse::get_mouse_event;
 
 }#endif _TV_UNIX
     return;
@@ -372,7 +372,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Mouse;
-    goto &TurboVision::Drivers::Win32::Mouse::_hide_mouse;
+    goto &TurboVision::Drivers::Win32::Mouse::hide_mouse;
 
 }#endif _TV_UNIX
     return;
@@ -398,7 +398,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Mouse;
-    goto &TurboVision::Drivers::Win32::Mouse::_show_mouse;
+    goto &TurboVision::Drivers::Win32::Mouse::show_mouse;
 
 }#endif _TV_UNIX
     return;

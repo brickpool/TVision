@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Drivers::Event &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Drivers::Event
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#CONTRIBUTOR">CONTRIBUTOR</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TEvent - A record definition for all types of events.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use 5.014;
+  use TurboVision::Drivers::Event;
+  use TurboVision::Drivers::Types qw( TEvent );
+  use TurboVision::Drivers::Const qw( EV_MOUSE );
+
+  my $ev = TEvent-&gt;new(what =&gt; EV_MOUSE, buttons =&gt; 2);
+  ...
+  if ( $ev-&gt;what &amp; EV_MOUSE ) {
+    say $ev-&gt;buttons;
+    say $ev-&gt;where;
+  }
+  ...</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p><i>TEvent</i> is a class defining each type of event used in Turbo Vision.</p>
+
+<p>When a routine receives an event, it can look in the <i>TEvent</i> fields to determine what type of event occurred and use other information provided to appropriately process that event.</p>
+
+<p>For example, when the <i>TEvent-&gt;what</i> field contains <i>EV_MOUSE</i>, you can check <i>TEvent-&gt;buttons</i> to see which mouse button was pressed (<code>0</code>=none, <code>1</code>=left, <code>2</code>=right).</p>
+
+<p>The <i>TEvent-&gt;double</i> flag is set if two mouse clicks occurred within the <i>$double_delay</i> time interval.</p>
+
+<p>Lastly, for each mouse event, <i>TEvent-&gt;where</i> contains the coordinates of the mouse.</p>
+
+<p>When the event record contains broadcast <i>EV_MESSAGE</i> events, several variant fields are provided for passing additional information with the message.</p>
+
+<p><i>TEvent-&gt;info_ptr</i> can be used, for instance, to pass a reference to a record or another object.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TEvent</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  Moose::Object
+    TEvent</code></pre>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="public-Int-what">public <code>Int what</code></dt>
+<dd>
+
+<p>Event type.</p>
+
+<dl>
+
+<dt id="public-Int-buttons">public <code>Int buttons</code></dt>
+<dd>
+
+<p>Mouse buttons.</p>
+
+</dd>
+<dt id="public-Bool-double">public <code>Bool double</code></dt>
+<dd>
+
+<p>Double click stat.</p>
+
+</dd>
+<dt id="public-TPoint-where">public <code>TPoint where</code></dt>
+<dd>
+
+<p>Mouse position.</p>
+
+</dd>
+<dt id="public-Int-key_code">public <code>Int key_code</code></dt>
+<dd>
+
+<p>Full key code.</p>
+
+</dd>
+<dt id="public-Str-text">public <code>Str text</code></dt>
+<dd>
+
+<p>May contain whatever was read from the terminal: usually a UTF-8 sequence, but possibly any kind of raw data.</p>
+
+</dd>
+<dt id="public-Int-command">public <code>Int command</code></dt>
+<dd>
+
+<p>Message command.</p>
+
+</dd>
+<dt id="public-Ref-Int-Undef-info">public <code>Ref|Int|Undef info</code></dt>
+<dd>
+
+<p>Message info.</p>
+
+</dd>
+</dl>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<p>Stream interface routines</p>
+
+<dl>
+
+<dt id="public-Ref-Undef-info_ptr-Ref-value">public <code>Ref|Undef info_ptr(Ref $value=)</code></dt>
+<dd>
+
+<p>Message Reference.</p>
+
+</dd>
+<dt id="public-Int-info_long-Int-value">public <code>Int info_long(Int $value=)</code></dt>
+<dd>
+
+<p>Message <i>longint</i> (signed integer 32-bit).</p>
+
+</dd>
+<dt id="public-Int-info_word-Int-value">public <code>Int info_word(Int $value=)</code></dt>
+<dd>
+
+<p>Message <i>word</i> (unsigned integer 16-bit).</p>
+
+</dd>
+<dt id="public-Int-info_int-Int-value">public <code>Int info_int(Int $value=)</code></dt>
+<dd>
+
+<p>Message <i>integer</i> (signed integer 16-bit).</p>
+
+</dd>
+<dt id="public-Int-info_byte-Int-value">public <code>Int info_byte(Int $value=)</code></dt>
+<dd>
+
+<p>Message <i>byte</i> (unsigned integer 8-bit).</p>
+
+</dd>
+<dt id="public-Str-info_char-Str-value">public <code>Str info_char(Str $value=)</code></dt>
+<dd>
+
+<p>Message Perl string, which represents 1 character.</p>
+
+</dd>
+<dt id="public-Int-char_code-Int-value">public <code>Int char_code(Int $value=)</code></dt>
+<dd>
+
+<p>Char code.</p>
+
+</dd>
+<dt id="public-Int-scan_code-Int-value">public <code>Int scan_code(Int $value=)</code></dt>
+<dd>
+
+<p>Scan code.</p>
+
+</dd>
+<dt id="private-Str-_stringify">private <code>Str _stringify()</code></dt>
+<dd>
+
+<p>Overload stringify so we can write code like <code>print $ev</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Turbo Vision library.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The library files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="CONTRIBUTOR">CONTRIBUTOR</h1>
+
+<p>Output via <i>_stringify</i>, and parts of <i>char_code</i> and <i>scan_code</i>.</p>
+
+<ul>
+
+<li><p>2021 by Oleg Denisenko <a href="https://github.com/10der/">https://github.com/10der/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas">drivers.pas</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

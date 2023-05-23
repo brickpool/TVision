@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Drivers::EventManager &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Drivers::EventManager
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#EXPORTS">EXPORTS</a>
+    <ul>
+      <li><a href="#Variables">Variables</a></li>
+      <li><a href="#Subroutines">Subroutines</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Drivers::EventManager - Event Manager implementation</p>
+
+<h1 id="EXPORTS">EXPORTS</h1>
+
+<p>Nothing per default, but can export the following per request:</p>
+
+<pre><code>  :all
+  
+    :vars
+      $button_count
+      $double_delay
+      $mouse_buttons
+      $mouse_int_flag
+      $mouse_events
+      $mouse_reverse
+      $mouse_where
+      $repeat_delay
+
+    :events
+      init_events
+      done_events
+
+    :kbd
+      get_key_event
+      get_shift_state
+
+    :mouse
+      get_mouse_event
+      hide_mouse
+      show_mouse</code></pre>
+
+<h2 id="Variables">Variables</h2>
+
+<dl>
+
+<dt id="public-readonly-Int-button_count">public readonly <code>Int $button_count</code></dt>
+<dd>
+
+<p>If a mouse is installed, <i>$button_count</i> holds the number of buttons on the mouse.</p>
+
+<p>If zero, then no mouse is installed.</p>
+
+<p>Check the value of <i>$button_count</i> when your program needs to know if a mouse is installed.</p>
+
+</dd>
+<dt id="public-Int-double_delay">public <code>Int $double_delay</code></dt>
+<dd>
+
+<p>The variable <i>$double_delay</i> holds the time interval (in 1/18.2 of a second intervals) defining how quickly two mouse clicks must occur in order to be treated as a double click (rather than two separate single clicks).</p>
+
+<p>By default, the two mouse clicks must occur with 8/18&#39;ths of a second to be considered a double click event (with <i>TEvent-&gt;double</i> set to <i>TRUE</i>).</p>
+
+<p><b>Note</b>: For Windows, the value is the current double-click time of the system (by default 9 ticks, equivalent to 500ms).</p>
+
+</dd>
+<dt id="public-readonly-Int-mouse_buttons">public readonly <code>Int $mouse_buttons</code></dt>
+<dd>
+
+<p>Contains the current state of the mouse buttons.</p>
+
+<p>See the <i>mbXXXX</i> constants for the bit settings in this variable.</p>
+
+</dd>
+<dt id="public-readonly-Bool-mouse_events">public readonly <code>Bool $mouse_events</code></dt>
+<dd>
+
+<p>The <i>init_events</i> procedure detects the prescence of a mouse, and if a mouse is found, sets <i>$mouse_events</i> to <i>TRUE</i>.</p>
+
+<p>If no mouse is found, then $mouse_events is set to <i>FALSE</i> and no mouse event processing occurs.</p>
+
+</dd>
+<dt id="public-readonly-Int-mouse_int_flag">public readonly <code>Int $mouse_int_flag</code></dt>
+<dd>
+
+<p>This is an internal variable used by Turbo Vision.</p>
+
+</dd>
+<dt id="public-readonly-Bool-mouse_reverse">public readonly <code>Bool $mouse_reverse</code></dt>
+<dd>
+
+<p>When set to <i>TRUE</i>, this field causes the <i>TEvent-&gt;buttons</i> field to reverse the <i>MB_LEFT_BUTTON</i> and <i>MB_RIGHT_BUTTON</i> flags.</p>
+
+</dd>
+<dt id="public-readonly-TPoint-mouse_where">public readonly <code>TPoint $mouse_where</code></dt>
+<dd>
+
+<p>This <i>TPoint</i>-typed variable is set by the mouse handler and contains the coordinates of the mouse in global or screen coordinates.</p>
+
+<p>You can convert the coordinates to view or window relative coordinates using the <i>TView-&gt;make_local</i> method.</p>
+
+</dd>
+<dt id="public-readonly-Int-repeat_delay">public readonly <code>Int $repeat_delay</code></dt>
+<dd>
+
+<p>Determines the number of clock ticks that must occur before generating an <i>EV_MOUSE_AUTO</i> event.</p>
+
+<p><i>EV_MOUSE_AUTO</i> events are automatically generated while the mouse button is held down.</p>
+
+<p>A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at approximately 1/2 second.</p>
+
+<p>See: <i>evXXXX</i> constants, <i>$double_delay</i></p>
+
+</dd>
+</dl>
+
+<h2 id="Subroutines">Subroutines</h2>
+
+<dl>
+
+<dt id="public-static-init_events">public static <code>init_events()</code></dt>
+<dd>
+
+<p>This internal procedure initializes Turbo Vision&#39;s mouse event handler, and initializes and displays the mouse, if installed.</p>
+
+<p><i>init_events</i> is automatically called by <i>TApplication-&gt;Init</i>, and is terminated by calling its corresponding <i>done_events</i> procedure.</p>
+
+</dd>
+<dt id="public-static-done_events">public static <code>done_events()</code></dt>
+<dd>
+
+<p>This is a Turbo Vision internal routine that will not normally be used by your applications.</p>
+
+<p><i>done_events</i> disables the mouse event handler and hides the mouse.</p>
+
+</dd>
+<dt id="public-static-get_key_event-TEvent-event">public static <code>get_key_event(TEvent $event)</code></dt>
+<dd>
+
+<p>Emulates the BIOS function INT 16h, Function 01h &quot;Read LowLevel Status&quot; to determine if a key has been pressed on the keyboard.</p>
+
+<p>If so, <i>$event-&gt;what</i> is set to <i>EV_KEY_DOWN</i> and <i>$event-&gt;key_code</i> is set to the scan code of the key.</p>
+
+<p>If no keys have been pressed, <i>$event-&gt;what</i> is set to <i>EV_NOTHING</i>.</p>
+
+<p>This is an internal procedure called by <i>TProgram-&gt;get_event</i>.</p>
+
+<p>See: <i>evXXXX</i> constants</p>
+
+</dd>
+<dt id="public-static-Int-get_shift_state">public static <code>Int get_shift_state()</code></dt>
+<dd>
+
+<p>Returns a integer (octal) containing the current Shift key state. The return value contains a combination of the <i>kbXXXX</i> constants for shift states.</p>
+
+</dd>
+<dt id="public-static-get_mouse_event-TEvent-event">public static <code>get_mouse_event(TEvent $event)</code></dt>
+<dd>
+
+<p>Similar to <i>get_key_event</i>, but for mouse events.</p>
+
+<p>This internal routine checks Turbo Vision&#39;s internal mouse event queue, and if a mouse event has occurred, sets <i>$event-&gt;what</i> to the appropriate <i>EV_MOUSE_XXXX</i> constant; <i>$event-&gt;buttons</i> to <i>MB_LEFT_BUTTON</i> or <i>MB_RIGHT_BUTTON</i>; <i>$event-&gt;double</i> to True or False; and <i>event-&gt;where</i> to the mouse position in <i>TApplication</i> coordinates.</p>
+
+<p>If no mouse events have occurred, <i>$event-&gt;what</i> is set to <i>EV_NOTHING</i>.</p>
+
+</dd>
+<dt id="public-static-hide_mouse">public static <code>hide_mouse()</code></dt>
+<dd>
+
+<p>This routine is used to hide the mouse, making it invisible on the screen.</p>
+
+<p>Each time <i>hide_mouse</i> is called, it increments an internal &quot;hide&quot; counter.</p>
+
+<p>The routine <i>show_mouse</i> decrements the internal counter and when the counter returns to zero, the mouse cursor will reappear.</p>
+
+<p>Therefore, you can nest calls to <i>hide_mouse</i> and <i>show_mouse</i> but there must always be the same number of each.</p>
+
+</dd>
+<dt id="public-static-show_mouse">public static <code>show_mouse()</code></dt>
+<dd>
+
+<p>The routine <i>show_mouse</i> is the opposite of the <i>hide_mouse</i>.</p>
+
+<p>Call <i>hide_mouse</i> to hide the mouse cursor and simultaneously increment a &quot;mouse hidden counter&quot;.</p>
+
+<p>The routine <i>show_mouse</i> decrements the counter, and when it reaches zero, makes the mouse cursor visible again on the screen.</p>
+
+<p>See: <i>hide_mouse</i></p>
+
+</dd>
+</dl>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Turbo Vision library.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The library files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas">drivers.pas</a>, <a href="https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/source/platform/win32con.cpp">win32con.cpp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

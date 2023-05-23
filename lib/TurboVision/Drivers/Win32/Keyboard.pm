@@ -63,8 +63,8 @@ Nothing per default, but can export the following per request:
 
   :all
   
-    :private
-      _get_key_event
+    :kbd
+      get_key_event
 
 =cut
 
@@ -75,8 +75,8 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  private => [qw(
-    _get_key_event
+  kbd => [qw(
+    get_key_event
   )],
 
 );
@@ -102,14 +102,16 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item package-private static C<< _get_key_event(TEvent $event) >>
+=item I<get_key_event>
+
+  func get_key_event(TEvent $event)
 
 This internal routine implements I<get_key_event> for I<Windows>; more
-information about the routine is described in the module I<EventManager>.
+information about the routine is described in the I<EventManager> module.
 
 =cut
 
-  func _get_key_event($) {
+  func get_key_event($) {
     alias my $event = $_[-1];
 
     _update_event_queue();
@@ -189,4 +191,4 @@ __END__
 
 =head1 SEE ALSO
 
-L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>, 
+L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>

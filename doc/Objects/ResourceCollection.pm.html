@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::ResourceCollection &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::ResourceCollection
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TResourceCollection - Implementing a collections of resources.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<p>See the <i>TStringCollection</i> example.</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>Several specialized collections are derived from <i>TCollection</i>, including <i>TResourceCollection</i>.</p>
+
+<p>The &lt;TResourceCollection&gt; is used internally to the resource file mechanism and is not generally used by application programs.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TResourceCollection</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  TObject
+    TCollection
+      TSortedCollection
+        TStringCollection
+          TResourceCollection</code></pre>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="public-ScalarRef-SimpleStr-key_of-TResourceItem-item">public <code>ScalarRef[SimpleStr] key_of(TResourceItem $item)</code></dt>
+<dd>
+
+<p><i>key_of</i> returns a string reference to the key of the <i>$item</i>.</p>
+
+</dd>
+<dt id="public-TResourceItem-get_item-TStream-s">public <code>TResourceItem get_item(TStream $s)</code></dt>
+<dd>
+
+<p>Uses the <i>TStream-&gt;read</i> function to read a <i>TResourceItem</i> hash from stream <i>$s</i> and returns a hash reference of type <i>TResourceItem</i>.</p>
+
+</dd>
+<dt id="public-put_item-TStream-s-TResourceItem-item">public <code>put_item(TStream $s, TResourceItem $item)</code></dt>
+<dd>
+
+<p>By default, writes a hash referenced by <i>$item</i> to the stream <i>$s</i> by calling <i>TStream-&gt;write</i>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <code>TStringCollection</code></p>
+
+<pre><code>  compare</code></pre>
+
+<p>Methods inherited from class <code>TSortedCollection</code></p>
+
+<pre><code>  load, index_of, insert, search, store</code></pre>
+
+<p>Methods inherited from class <code>TCollection</code></p>
+
+<pre><code>  init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
+  first_that, for_each, free, free_all, free_item, last_that, pack,
+  selt_limit</code></pre>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+<li><p>1999-2000 by Frank ZAGO &lt;zago@ecoledoc.ipc.fr&gt;</p>
+
+</li>
+<li><p>1999-2000 by MH Spiegel</p>
+
+</li>
+<li><p>1996, 1999-2000 by Leon de Boer &lt;ldeboer@ibm.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>TStringCollection</i>, <i>TResourceFile</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

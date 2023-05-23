@@ -119,11 +119,15 @@ our %EXPORT_TAGS = (
 
 =head2 Subroutines
 
-B<Keyboard support routines> (exported with C<:kbd>)
+=head3 Keyboard support routines
+
+Exported with C<:kbd>.
 
 =over
 
-=item public static C<< Int ctrl_to_arrow(Int|Str $key_code) >>
+=item I<ctrl_to_arrow>
+
+  func ctrl_to_arrow(Int|Str $key_code) : Int
 
 This esoteric function converts certain control-key combinations to standard
 I<kbXXXX> constant values.
@@ -153,7 +157,9 @@ The following chart shows the mapping from control keys to I<kbXXXX> values.
     return _WORD_STAR_CODES->( $key_code ) // $key_code;
   }
 
-=item public static C<< Str get_alt_char(Int $key_code) >>
+=item I<get_alt_char>
+
+  func get_alt_char(Int $key_code) : Str
 
 When I<$key_code> specifies an I<Alt+Ch> character combination, where I<Ch> is a
 letter from 'A' to 'Z', I<get_alt_char> extracts and returns the I<Ch>
@@ -165,7 +171,7 @@ For example,
 
 prints the single letter I<A>.
 
-Method I<get_alt_code> maps characters back to I<Alt+Ch> combinations.
+The subroutine L</get_alt_code> maps characters back to I<Alt+Ch> combinations.
 
 =cut
 
@@ -188,7 +194,9 @@ Method I<get_alt_code> maps characters back to I<Alt+Ch> combinations.
     return "\0";
   }
 
-=item public static C<< Int get_alt_code(Str $ch) >>
+=item I<get_alt_code>
+
+  func get_alt_code(Str $ch) : Int
 
 Maps a single character 'A' to 'Z' to the Keycode equivalent value for pressing
 I<Alt+Ch>.
@@ -199,7 +207,7 @@ For example,
 
 returns C<0x1e00>, which is the value of KB_ALT_A.
 
-The subroutine I<get_alt_code> is the inverse function to I<get_alt_char>.
+The subroutine I<get_alt_code> is the inverse function to L</get_alt_char>.
 
 =cut
 
@@ -215,7 +223,9 @@ The subroutine I<get_alt_code> is the inverse function to I<get_alt_char>.
     return 0;
   }
 
-=item public static C<< Str get_ctrl_char(Int $key_code) >>
+=item I<get_ctrl_char>
+
+  func get_ctrl_char(Int $key_code) : Str
 
 Returns the ASCII character for the I<Ctrl+Key> scancode that was given.
 
@@ -230,7 +240,9 @@ Returns the ASCII character for the I<Ctrl+Key> scancode that was given.
     return "\0";
   }
 
-=item public static C<< Int get_ctrl_code(Str $ch) >>
+=item I<get_ctrl_code>
+
+  func get_ctrl_code(Str $ch) : Int
 
 Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 
@@ -242,11 +254,15 @@ Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 
 =back
 
-B<String routines> (exported with C<:str>)
+=head3 String routines
+
+Exported with C<:str>.
 
 =over
 
-=item public static C<< format_str(Str $result, Str $format, @params) >>
+=item I<format_str>
+
+  func format_str(Str $result, Str $format, @params)
 
 I<format_str> takes a string I<$format> and a list of parameters in I<@params>
 and produces a formatted string that is returned in Result.
@@ -357,7 +373,9 @@ built in function I<sprintf>.
     return;
   }
 
-=item public static C<< print_str(Str $s) >>
+=item I<print_str>
+
+  func print_str(Str $s)
 
 Writes the string I<$s> to STDOUT.
 
@@ -373,11 +391,15 @@ built in function I<print>.
 
 =back
 
-B<Buffer move routines> (exported with C<:move>)
+=head3 Buffer move routines
+
+Exported with C<:move>.
 
 =over
 
-=item public static C<< Int c_str_len(Str $s) >>
+=item I<c_str_len>
+
+  func c_str_len(Str $s) : Int
 
 Returns the length of control strings, which are any strings containing
 short-cut characters surrounded by tilde '~' characters, minus the number of
@@ -394,19 +416,21 @@ has a length of 4.
     return length $s
   }
 
-=item public static C<< move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) >>
+=item I<move_buf>
+
+  func move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count)
 
 I<move_buf> is typically used for copying text and video attribute to a
 I<TDrawBuffer>-type array.
 
-Such an array holds character bytes in the I<"low bytes"> of each element and
-attribute values in the I<"high bytes">. 
+Such an array holds character bytes in the I<"low byte(s)"> of each element and
+attribute values in the I<"high byte(s)">. 
 
-I<move_buf> copies I<$count> elements from I<$source> into the I<"low bytes"> of
-the I<$dest> destination parameter, setting each I<"high bytes"> to the I<$attr>
-value (or leaving the attribute as is if I<$attr> equals zero).
+I<move_buf> copies I<$count> elements from I<$source> into the I<"low byte(s)">
+of the I<$dest> destination parameter, setting each I<"high byte(s)"> to the
+I<$attr> value (or leaving the attribute as is if I<$attr> equals zero).
 
-See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
+See: L</move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
 I<< TView->write_line >>.
 
 =cut
@@ -420,14 +444,16 @@ I<< TView->write_line >>.
     return;
   }
 
-=item public static C<< move_c_str(ArrayRef $dest, Str $str, @attrs) >>
+=item I<move_c_str>
+
+  func move_c_str(ArrayRef $dest, Str $str, @attrs)
 
 I<move_c_str> copies a string to a I<TDrawBuffer> array such that the text is
 alternately one of two different colors.
 
 I<move_c_str> copies the I<$str> string parameter to the I<$dest> (a
 I<TDrawBuffer> array) and sets each character's attributes using either the
-I<first or second element> of the I<@attrs> array.
+first or second element of the I<@attrs> array.
 
 Initially, I<move_c_str> uses the second element of I<@attrs>, but upon
 encountering a "~" tilde character, I<move_c_str> switches to the first element
@@ -453,7 +479,7 @@ You use I<move_c_str> like this:
 This sets the word 'is' to the attribute C<0x07> and the rest of the text to
 C<0x70>.
 
-See: I<TDrawBuffer>, I<move_char>, I<move_buf>, I<move_str>,
+See: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_str>,
 I<< TView->write_buf >> and I<< TView->write_line >>.
 
 =cut
@@ -481,14 +507,16 @@ I<< TView->write_buf >> and I<< TView->write_line >>.
   }
 
 
-=item public static C<< move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) >>
+=item I<move_char>
 
-Similar to move_buf, except that this copies the single character I<$c>,
-I<$count> number of times, into each I<"low byte"> of the I<$dest> parameter
+  func move_char(ArrayRef $dest, Str $c, Int $attr, Int $count)
+
+Similar to L</move_buf>, except that this copies the single character I<$c>,
+I<$count> number of times, into each I<"low byte(s)"> of the I<$dest> parameter
 (which should be a I<TDrawBuffer> type), and if I<$attr> is non-zero, copies
-I<$attr> to each I<"high byte"> position in the array of elements.
+I<$attr> to each I<"high byte(s)"> position in the array of elements.
 
-See: I<move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
+See: L</move_buf>, I<TDrawBuffer>, I<< TView->write_buf >> and
 I<< TView->write_line >>.
 
 =cut
@@ -504,13 +532,15 @@ I<< TView->write_line >>.
     return;
   }
 
-=item public static C<< move_str(ArrayRef $dest, Str $str, Int $attr) >>
+=item I<move_str>
+
+  func move_str(ArrayRef $dest, Str $str, Int $attr)
 
 I<move_str> copies the I<$str> string parameter to the I<$dest> (a
 I<TDrawBuffer> array) and sets each character's attributes to the video
 attribute contained in I<$attr>.
 
-See: I<TDrawBuffer>, I<move_char>, I<move_buf>, I<move_c_str>,
+See: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_c_str>,
 I<< TView->write_buf >> and I<< TView->write_line >>.
 
 =cut

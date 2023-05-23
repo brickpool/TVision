@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Drivers::Win32::StdioCtl &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Drivers::Win32::StdioCtl
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Constructors">Constructors</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Drivers::Win32::StdioCtl - Implementation of a STD ioctl.</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p><i>StdioCtl</i> (an abbreviation of Standard input/output control) is a system call for device-specific input/output operations and other operations which cannot be expressed by regular system calls.</p>
+
+<p><i>StdioCtl</i> is singleton a class that has only one instance in an application. The module is similar to the functionalities of <a href="http://metacpan.org/module/MooseX::Singleton">MooseX::Singleton</a>.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>StdioCtl</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  Moose::Object
+    StdioCtl</code></pre>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="in"><i>in</i></dt>
+<dd>
+
+<pre><code>  field in ( is =&gt; rwp, type =&gt; Object, predicate =&gt; &#39;_has_input&#39; );</code></pre>
+
+<p>Console input object (e.g <i>Win32::Console-&gt;new(STD_INPUT_HANDLE)</i>).</p>
+
+</dd>
+<dt id="out"><i>out</i></dt>
+<dd>
+
+<pre><code>  field out ( is =&gt; rwp, type =&gt; Object, predicate =&gt; &#39;_has_output&#39; );</code></pre>
+
+<p>Console active output object.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constructors">Constructors</h2>
+
+<dl>
+
+<dt id="instance"><i>instance</i></dt>
+<dd>
+
+<pre><code>  factory $class-&gt;instance()</code></pre>
+
+<p>This constructor instantiates an object instance if none exists, otherwise it returns an existing instance.</p>
+
+<p>It is used to initialize the default I/O console.</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="get_size"><i>get_size</i></dt>
+<dd>
+
+<pre><code>  method get_size() : Dict[x =&gt; Int, y =&gt; Int] </code></pre>
+
+<p>Gets the console buffer size.</p>
+
+</dd>
+<dt id="get_font_size"><i>get_font_size</i></dt>
+<dd>
+
+<pre><code>  method get_font_size() : Dict[x =&gt; Int, y =&gt; Int] </code></pre>
+
+<p>Gets the font size.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Turbo Vision library.
+
+ Copyright (c) 2019-2021 by magiblot
+
+ This library content was taken from the framework
+ &quot;A modern port of Turbo Vision 2.0&quot;, which is licensed under MIT licence.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>2019-2021 by magiblot &lt;magiblot@hotmail.com&gt;</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="http://metacpan.org/module/Moose::Object">Moose::Object</a>, <a href="https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/include/tvision/internal/stdioctl.h">stdioctl.h</a>, <a href="https://github.com/magiblot/tvision/blob/279648f8a67af14ec38725266037c39fb9add9b3/source/platform/stdioctl.cpp">stdioctl.cpp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

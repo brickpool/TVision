@@ -91,7 +91,7 @@ must use the descendants, I<TDosStream>, I<TBufStream> or I<TMemoryStream>.
 
 =head2 Class
 
-public class C<< TStream >>
+public class I<< TStream >>
 
 Turbo Vision Hierarchy
 

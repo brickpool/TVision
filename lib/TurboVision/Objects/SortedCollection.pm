@@ -112,7 +112,7 @@ and finally, you must override I<key_of> and I<compare>.
 
 =head2 Class
 
-public class C<< TSortedCollection >>
+public class I<< TSortedCollection >>
 
 Turbo Vision Hierarchy
 

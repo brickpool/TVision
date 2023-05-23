@@ -93,7 +93,7 @@ prebuilt to produce sorted collections of strings.
 
 =head2 Class
 
-public class C<< TStringCollection >>
+public class I<< TStringCollection >>
 
 Turbo Vision Hierarchy
 

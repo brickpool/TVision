@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::Collection &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::Collection
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Constants">Constants</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Constructors">Constructors</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TCollection - Base type for implementing a collection of items.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  use TurboVision::Objects;
+  use Scalar::Util qw( blessed );
+
+  package TClient {
+    use Moose;
+    
+    # attributes
+    has [&#39;account&#39;, &#39;name&#39;, &#39;phone&#39;] =&gt; (
+      is        =&gt; &#39;ro&#39;,
+      isa       =&gt; &#39;Str&#39;,
+      required  =&gt; 1,
+    );
+    
+    # constructor
+    sub init {
+      my ($class, $new_account, $new_name, $new_phone) = @_;
+
+      return $class-&gt;new(
+        account =&gt; $new_account,
+        name    =&gt; $new_name,
+        phone   =&gt; $new_phone,
+      );
+    }
+  }
+  
+  # print info for all clients
+  sub print_all {
+    my ($c) = @_;
+    confess &#39;Invalid argument&#39;
+      if !blessed($c);
+    
+    my $print_client = sub {
+      my ($p) = @_;
+      return
+          if !blessed($p)
+      
+      # show client info
+      printf(&quot;%-20s%-20s%-20s\n&quot;
+      , $p-&gt;account
+      , $p-&gt;name
+      , $p-&gt;phone
+      );
+    }
+     
+    print(&quot;\n\n&quot;);
+    # Call print_client for each item
+    $c-&gt;for_each($print_client);
+    return;
+  }
+  
+  # search phone number as substring and print client data if found
+  sub search_phone {
+    my ($c, $phone_to_find) = @_;
+    confess &#39;Invalid argument&#39;
+      if !blessed($c)
+      || !defined($phone_to_find)
+      || ref($phone_to_find)
+    
+    my $phone_match = sub {
+      my ($client) = @_;
+      return
+          if !blessed($client)
+          || !defined($client-&gt;phone)
+
+      my $phone = $client-&gt;phone
+      return $phone =~ qr/\Q$phone_to_find\E/;
+    }
+    
+    my $found_client = $c-&gt;first_that($phone_match);
+    if ( !$found_client ) {
+      print(&quot;No client met the search requirement\n&quot;);
+    }
+    else {
+      for ($found_client) {
+        printf(&quot;Found client: %s %s %s\n&quot;
+        , $_-&gt;account
+        , $_-&gt;name
+        , $_-&gt;phone
+        );
+      }
+    }
+    return;
+  }
+  
+  sub main {
+    my $client_list = TCollection-&gt;init(50, 50);
+    for ($client_list) {
+      $_-&gt;insert(TClient-&gt;init(&#39;90-167&#39;, &#39;Smith, Zelda&#39;, &#39;(800) 555-1212&#39;));
+      $_-&gt;insert(TClient-&gt;init(&#39;90-160&#39;, &#39;Johnson, Agatha&#39;, &#39;(302) 139-8913&#39;));
+      $_-&gt;insert(TClient-&gt;init(&#39;90-177&#39;, &#39;Smitty, John&#39;, &#39;(406) 987-4321&#39;));
+      $_-&gt;insert(TClient-&gt;init(&#39;90-100&#39;, &#39;Anders, Smitty&#39;, &#39;(406) 111-2222&#39;));
+    }
+    print_all($client_list);
+    print(&quot;\n\n&quot;);
+    search_phone($client_list, &#39;(406)&#39;);
+    return 0;
+  }
+  
+  exit main( 1+@ARGV, $0, @ARGV );</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>Collections provide a mechanism for storing and accessing arbitrary collections of data. You can think of a collection as working like a dynamically sizeable array of data, that can be enlarged as your data requirements increase. Several specialized collections are derived from <i>TCollection</i>, including <i>TSortedCollection</i>, <i>TStringCollection</i> and <i>TResourceCollection</i>. The latter is used internally to the resource file mechanism and is not generally used by application programs.</p>
+
+<p>While collections are defined within Turbo Vision, you can also use collections in standard, non-Turbo Vision applications.</p>
+
+<p>In the description of the methods below, each method using an <i>$index</i> parameter checks to insure that the Index is in the valid range between 0 and <i>count</i> (the number of items in the collection). If the <i>$index</i> is out range, these methods call <i>TCollection-&gt;error</i> which, by default, halts the program with a run time error. You can trap any collection error by overriding error in your derived collection.</p>
+
+<p><b>Commonly Used Features</b></p>
+
+<p><i>TCollection-&gt;count</i> attribute, <i>TCollection-&gt;init</i> constructor, the access methods <i>at</i>, <i>at_put</i>, <i>at_delete</i>, <i>at_free</i>, the iterators <i>first_that</i>, <i>for_each</i> and <i>last_that</i>, the <i>index_of</i> function, and the <i>load</i> and <i>store</i> methods.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TCollection</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  TObject
+    TCollection
+      TSortedCollection
+        TStringCollection
+      TResourceCollection</code></pre>
+
+<h2 id="Constants">Constants</h2>
+
+<dl>
+
+<dt id="public-constant-Object-RCollection">public constant <code>Object RCollection</code></dt>
+<dd>
+
+<p>Defining a registration record constant for <i>TCollection</i>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="public-readonly-Int-count">public readonly <code>Int count</code></dt>
+<dd>
+
+<p>Holds the number of items currently stored in the collection, up to <i>MAX_COLLECTION_SIZE</i>.</p>
+
+</dd>
+<dt id="public-readonly-Int-delta">public readonly <code>Int delta</code></dt>
+<dd>
+
+<p>Because one of the features of collections is that they can grow, <i>delta</i> holds the number of elements by which the collection should be enlarged when the <i>count</i> reaches the current maximum size specified by <i>limit</i>.</p>
+
+<p>When this occurs, <i>limit</i> is increased by <i>delta</i> and additional space is reserved for the necessary items.</p>
+
+<p>Generally, <i>limit</i> should initially be set to a sufficient size for most operations on the collection, and <i>delta</i> should be set large enough so that expansion of the collection occurs infrequently to avoid the fairly intensive overhead of dynamically resizing the collection.</p>
+
+</dd>
+<dt id="public-readonly-ArrayRef-Ref-items">public readonly <code>ArrayRef[Ref] items</code></dt>
+<dd>
+
+<p><i>items</i> points to an array reference that contains reference to the individual items in the collection.</p>
+
+</dd>
+<dt id="public-readonly-Int-limit">public readonly <code>Int limit</code></dt>
+<dd>
+
+<p>Holds the current number of reserved elements for the collection.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constructors">Constructors</h2>
+
+<dl>
+
+<dt id="public-TCollection-init-Int-a_limit-Int-a_delta">public <code>TCollection-&gt;init(Int $a_limit, Int $a_delta)</code></dt>
+<dd>
+
+<p>The constructor <i>init</i> creates a new collection with initially allocated array for the number of elements specified by <i>$a_limit</i>, and the ability to dynamically increase the size of the collection in <i>delta</i> increments.</p>
+
+<p>See: <i>MAX_COLLECTION_SIZE</i></p>
+
+</dd>
+<dt id="public-TCollection-load-TStream-s">public <code>TCollection-&gt;load(TStream $s)</code></dt>
+<dd>
+
+<p>Loads the entire collection from stream <i>$s</i>, by calling <i>TCollection-&gt;get_item</i> for each individual item in the collection.</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="public-Ref-at-Int-index">public <code>Ref at(Int $index)</code></dt>
+<dd>
+
+<p>Use <i>at</i> to access the collection as if it were an array.</p>
+
+<p>Normally <i>at($index)</i> returns a reference to the <i>$index</i>&#39;th item in the array, where <i>$index</i> ranges from 0 up to <i>count</i>.</p>
+
+<p>If an error occurs, <i>at</i> calls the <i>error</i> method with an argument of <i>CO_INDEX_ERROR</i> and then returns <code>undef</code>.</p>
+
+</dd>
+<dt id="public-at_delete-Int-index">public <code>at_delete(Int $index)</code></dt>
+<dd>
+
+<p>The method <i>at_delete</i> deletes the item at the location specified by <i>$index</i>, and slides all of the following items in the collection over to fill in the now vacant hole and decrements Count by 1.</p>
+
+<p>The method <i>at_delete</i> does not weaken all references to the item in the collection that was in the location.</p>
+
+</dd>
+<dt id="public-at_free-Int-index">public <code>at_free(Int $index)</code></dt>
+<dd>
+
+<p>The method <i>at_free</i> works like <i>at_delete</i>, except that the specific item is deleted and all other references to this item in the collection are weakened.</p>
+
+</dd>
+<dt id="public-at_insert-Int-index-Ref-item">public <code>at_insert(Int $index, Ref $item)</code></dt>
+<dd>
+
+<p>The method <i>at_insert</i> puts a new <i>$item</i> into the collection at the <i>$index</i> location by sliding all of the following items over by one position.</p>
+
+<p>If adding the new element would exceed the size of the collection, <i>TCollection-&gt;set_limit</i> is called to automatically expand the size.</p>
+
+</dd>
+<dt id="public-at_put-Int-index-Ref-item">public <code>at_put(Int $index, Ref $item)</code></dt>
+<dd>
+
+<p>Use <i>at_put</i> when you need to replace an existing item with a new item.</p>
+
+<p>The method <i>a_put</i> copies the new <i>$item</i> refernce to the location specified by <i>$index</i>.</p>
+
+</dd>
+<dt id="public-delete-Ref-item">public <code>delete(Ref $item)</code></dt>
+<dd>
+
+<p>Deletes the item given by from the collection.</p>
+
+<p>The items in a collection can be accessed via their index location or by way of the reference to the item.</p>
+
+<p>When you have a reference to an item and wish to delete it, you can call <i>delete($item)</i> directly.</p>
+
+<p>Alternatively, you can use the <i>index_of</i> method to translate the reference into an <i>$index</i> value and then use <i>at_delete</i>, like this,</p>
+
+<pre><code>  $self-&gt;at_delete($self-&gt;index_of($item));</code></pre>
+
+<p>After an <i>$tem</i> is deleted, <i>count</i> is decremented by 1.</p>
+
+</dd>
+<dt id="public-delete_all">public <code>delete_all()</code></dt>
+<dd>
+
+<p>Deletes all items from the collection.</p>
+
+</dd>
+<dt id="public-error-Int-code-Int-info">public <code>error(Int $code, Int $info)</code></dt>
+<dd>
+
+<p>All collection errors result in a call to <i>error</i>, with error information passed in <i>$code</i> and <i>$info</i>.</p>
+
+<p>See: <i>coXXXX</i> constants.</p>
+
+</dd>
+<dt id="public-Ref-first_that-CodeRef-test">public <code>Ref first_that(CodeRef $test)</code></dt>
+<dd>
+
+<p>The method <i>first_that</i> is one of the iterator functions and is normally used to search through the collection for a specific item.</p>
+
+<p>The parameter <i>$test</i> should reference to a caller defined subroutine, returning true when it matches the search pattern and false (<code>undef</code>) otherwise.</p>
+
+<p>For each item in the collection until finding a match, <i>first_that</i> calls the <i>$test</i> function.</p>
+
+</dd>
+<dt id="public-for_each-CodeRef-action">public <code>for_each(CodeRef $action)</code></dt>
+<dd>
+
+<p><i>for_each</i> is an iterator function to scan through every item in the collection, and call the subroutine specified by the <i>$action</i> code reference, passing to it a reference to each individual item.</p>
+
+</dd>
+<dt id="public-free-Ref-item">public <code>free(Ref $item)</code></dt>
+<dd>
+
+<p>This procedure is similar to <i>delete</i>, except that <i>free</i> weaken all references of the given <i>$item</i> in the collection.</p>
+
+<p>Free is equivalent to calling,</p>
+
+<pre><code>  $self-&gt;delete($item);
+  $self-&gt;free_item($item);</code></pre>
+
+<p>Although, it is not recommended to call <i>free_item</i> directly.</p>
+
+</dd>
+<dt id="public-free_all">public <code>free_all()</code></dt>
+<dd>
+
+<p>Delete each item from the collection and weaken all items references in the collection.</p>
+
+</dd>
+<dt id="public-free_item-Ref-item">public <code>free_item(Ref $item)</code></dt>
+<dd>
+
+<p>When <i>$item</i> is a reference to an individual item in the collection, <i>free_item($item)</i> weaken all references of <i>$item</i> in the collection by calling the core routine <i>weaken</i> exported by <i>Scalar::Utils</i>.</p>
+
+</dd>
+<dt id="public-Ref-get_item-TStream-s">public <code>Ref get_item(TStream $s)</code></dt>
+<dd>
+
+<p>The method <i>get_item</i> is used to read a single collection item from stream <i>$s</i> and is automatically called by <i>TCollection-&gt;load</i>.</p>
+
+<p>You should not directly call this routine but should use <i>load</i> instead.</p>
+
+<p>By default, <i>get_item</i> calls <i>TStream-&gt;get</i> to load the item.</p>
+
+</dd>
+<dt id="public-Int-index_of-Ref-item">public <code>Int index_of(Ref $item)</code></dt>
+<dd>
+
+<p>Given a reference to an item, <i>index_of</i> returns the index position in the collection where the <i>$item</i> is located.</p>
+
+<p>Please note, <i>index_of</i> is the opposite of <i>at($index)</i> which returns a reference to the item.</p>
+
+<p>If <i>$item</i> is not in the collection, <i>index_of</i> returns -1.</p>
+
+</dd>
+<dt id="public-insert-Ref-item">public <code>insert(Ref $item)</code></dt>
+<dd>
+
+<p>Inserts <i>$item</i> into the collection, and adjusts other indexes if necessary.</p>
+
+</dd>
+<dt id="public-Ref-last_that-CodeRef-test">public <code>Ref last_that(CodeRef $test)</code></dt>
+<dd>
+
+<p>The method <i>last_that</i> searches backwards through the collection, beginning at the last item and moving forwards.</p>
+
+<p>For each item, <i>last_that</i> calls the subroutine referenced by <i>$test</i>, until <i>$test</i> returns a true result, or false (<code>undef</code>) if <i>$test</i> returned false for all items.</p>
+
+<p>By having <i>$test</i> code reference that makes a comparision between a search criteria and an item in the collection, you can use <i>last_that</i> to quickly scan backwards in a collection.</p>
+
+</dd>
+<dt id="public-pack">public <code>pack()</code></dt>
+<dd>
+
+<p>Use <i>pack</i> to eliminate all <code>undef</code> references that may have been stored into the collection.</p>
+
+</dd>
+<dt id="public-put_item-TStream-s-Ref-item">public <code>put_item(TStream $s, Ref $item)</code></dt>
+<dd>
+
+<p>Called by <i>TCollection-&gt;store</i> to write an individual item to stream <i>$s</i>. By default, <i>put_item</i> calls <i>TStream-&gt;put</i> to store the item.</p>
+
+</dd>
+<dt id="public-set_limit-Int-a_limit">public <code>set_limit(Int $a_limit)</code></dt>
+<dd>
+
+<p>Expands or shrinks the collection by changing the memory allocated for items to handle <i>$a_limit</i> items.</p>
+
+</dd>
+<dt id="public-store-TStream-s">public <code>store(TStream $s)</code></dt>
+<dd>
+
+<p>Writes the entire collection to stream <i>$s</i>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+<li><p>1999-2000 by Frank ZAGO &lt;zago@ecoledoc.ipc.fr&gt;</p>
+
+</li>
+<li><p>1999-2000 by MH Spiegel</p>
+
+</li>
+<li><p>1996, 1999-2000 by Leon de Boer &lt;ldeboer@ibm.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>TSortedCollection</i>, <i>TResourceCollection</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

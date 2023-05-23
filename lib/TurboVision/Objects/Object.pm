@@ -64,7 +64,7 @@ type, and all objects written to streams must be descended from I<TObject>.
 
 =head2 Class
 
-public class C<< TObject >>
+public class I<< TObject >>
 
 Root of the Turbo Vision Hierarchy.
 

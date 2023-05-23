@@ -79,7 +79,7 @@ dialog boxes and entry fields.
 
 =head2 Class
 
-public class C<< TRect >>
+public class I<< TRect >>
 
 I<TRect> is a standalone object.
 

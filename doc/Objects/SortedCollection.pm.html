@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Objects::SortedCollection &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Objects::SortedCollection
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Constructors">Constructors</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TSortedCollection - Derivation of <i>TCollection</i>, where items sorted by a key.</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  package TClientCollection {
+    use Moose;
+    use TurboVision::Objects;
+  
+    extends TSortedCollection-&gt;class;
+  
+    sub key_of {
+      my ($self, $item) = @_;
+      return $item-&gt;$name;
+    }
+  
+    # return 0 if they&#39;re equal
+    # return -1 if $key1 comes first
+    # otherwise return 1; $key2 comes first
+    sub compare {
+      my ($self, $key1, $key2) = @_;
+      return ${$key1} cmp ${$key2};
+    }
+  }</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>When you want to have your collection sorted into some order (that you specify), use the <i>TSortedCollection</i> type.</p>
+
+<p>Items added to a <i>TSortedCollection</i> are always ordered by the order you specify with a custom, overridden <i>TSortedCollection-&gt;compare</i> function.</p>
+
+<p><b>Commonly Used Features</b></p>
+
+<p>In addition to the inherited <i>TCollection-&gt;init</i>, you&#39;ll use <i>insert</i> to add new items to the collection, <i>delete</i> to remove items from the collection, and finally, you must override <i>key_of</i> and <i>compare</i>.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TSortedCollection</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  TObject
+    TCollection
+      TSortedCollection
+        TStringCollection</code></pre>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="public-Bool-duplicates">public <code>Bool duplicates</code></dt>
+<dd>
+
+<p>The default setting of <i>duplicates</i> is false and this prohibits the addition of duplicate entries to the collection.</p>
+
+<p>If you change <i>duplicates</i> to true, new duplicate entries will be inserted just before any other items having the same key.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constructors">Constructors</h2>
+
+<dl>
+
+<dt id="public-TSortedCollection-load-TStream-s">public <code>TSortedCollection-&gt;load(TStream $s)</code></dt>
+<dd>
+
+<p>Constructs and loads a sorted collection from the stream <i>$s</i> by first calling the <i>load</i> constructor inherited from <i>TCollection</i>, then reading the <i>duplicates</i> attribute.</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="public-Int-compare-Ref-key1-Ref-key2">public <code>Int compare(Ref $key1, Ref $key2)</code></dt>
+<dd>
+
+<p>You must override <i>compare</i> for your data object type.</p>
+
+<p>Write a new <i>compare</i> function to compare <i>$$key1</i> to <i>$$key2</i> and return a value according to this:</p>
+
+<pre><code>  -1 if $$keyl &lt;  $$key2
+   0 if $$keyl == $$key2
+   1 if $$keyl &gt;  $$key2</code></pre>
+
+</dd>
+<dt id="public-Int-index_of-Ref-item">public <code>Int index_of(Ref $item)</code></dt>
+<dd>
+
+<p>Where <i>$item</i> is a reference to an object type that is stored in the collection, <i>index_of</i> returns the Index position where it is located, or -1 if the <i>$item</i> is not found.</p>
+
+</dd>
+<dt id="public-insert-Ref-item">public <code>insert(Ref $item)</code></dt>
+<dd>
+
+<p>Adds the <i>$item</i> to the collection.</p>
+
+<p>If <i>$item</i> already exists in the collection, <i>insert</i> checks the value of the <i>duplicates</i> attribute.</p>
+
+<p>If <i>duplicates</i> is false then the <i>$item</i> is not added, but if <i>duplicates</i> is true, then the <i>$item</i> is inserted just prior to any duplicate entries.</p>
+
+</dd>
+<dt id="public-Ref-key_of-Ref-item">public <code>Ref key_of(Ref $item)</code></dt>
+<dd>
+
+<p>You must override this function.</p>
+
+<p><i>key_of</i> returns a reference to the specific attribute within the object that is to be used as the sort key. For example,</p>
+
+<pre><code>  package TPersonCollection {
+    ...
+    sub key_of {
+      my ($self, $item) = @_;
+      return $item-&gt;name;
+    }
+  }</code></pre>
+
+<p>Here, the <i>$item</i> reference is a object data type so that you can access its attributes.</p>
+
+<p>The content of the attribute to be used as the sort key is returned as the result.</p>
+
+</dd>
+<dt id="public-Bool-search-Ref-key-Int-index">public <code>Bool search(Ref $key, Int $index)</code></dt>
+<dd>
+
+<p>Use <i>search</i> to look for specific items in the collection.</p>
+
+<p>The method <i>search</i> returns true if the item was found, or false otherwise.</p>
+
+<p>If found, <i>$index</i> is set to the location in the collection where the item resides.</p>
+
+</dd>
+<dt id="public-store-TStream-s">public <code>store(TStream $s)</code></dt>
+<dd>
+
+<p>Writes the sorted collection and all its items to the stream <i>$s</i> by first calling the <i>store</i> method inherited from <i>TCollection</i>, then writing the <i>duplicates</i> attribute introduced by <i>TSortedCollection</i>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <code>TCollection</code></p>
+
+<pre><code>  init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
+  first_that, for_each, free, free_all, free_item, get_item, last_that, pack,
+  put_item, selt_limit</code></pre>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ Interface Copyright (c) 1992 Borland International
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.
+
+ POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+<li><p>1999-2000 by Frank ZAGO &lt;zago@ecoledoc.ipc.fr&gt;</p>
+
+</li>
+<li><p>1999-2000 by MH Spiegel</p>
+
+</li>
+<li><p>1996, 1999-2000 by Leon de Boer &lt;ldeboer@ibm.net&gt;</p>
+
+</li>
+<li><p>1992 by Ed Mitchell (Turbo Pascal Reference electronic freeware book)</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><i>TCollection</i>, <i>TStringCollection</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

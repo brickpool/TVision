@@ -109,7 +109,7 @@ I<TStringList>.
 
 =head2 Class
 
-public class C<< TStrListMaker >>
+public class I<< TStrListMaker >>
 
 Turbo Vision Hierarchy
 

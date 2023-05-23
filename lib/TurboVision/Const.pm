@@ -147,7 +147,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item private const C<< Int _EMPTY_STRING >>
+=item I<_EMPTY_STRING>
+
+  constant _EMPTY_STRING = < Str >;
 
 An empty string C<q{}>.
 
@@ -163,7 +165,10 @@ An empty string C<q{}>.
 
 =over
 
-=item private const C<< Bool _FALSE >>
+=item I<_FALSE>
+
+  constant _FALSE = < Bool >;
+
 
 False constant.
 
@@ -171,7 +176,9 @@ False constant.
 
   use constant _FALSE => !! '';
 
-=item private const C<< Bool _TRUE >>
+=item I<_TRUE>
+
+  constant _TRUE = < Bool >;
 
 True constant.
 
@@ -187,7 +194,19 @@ True constant.
 
 =over
 
-=item private const C<< Str _INT32_MAX >>
+=item I<_INT32_MIN>
+
+  constant _INT32_MIN = < Int >;
+
+Minimum value for a variable of the type signed long (32-bit).
+
+=cut
+
+  use constant _INT32_MIN       => -2147483647 - 1;
+
+=item I<_INT32_MAX>
+
+  constant _INT32_MAX = < Int >;
 
 Maximum value for a variable of the type signed long (32-bit).
 
@@ -195,16 +214,10 @@ Maximum value for a variable of the type signed long (32-bit).
 
   use constant _INT32_MAX       => 2147483647;
 
-=item private const C<< Str _SIMPLE_STR_T >>
 
-Template for pack/unpack of a string of the Moose type I<SimpleStr> value as
-"length/string".
+=item I<_SIMPLE_STR_MAX>
 
-=cut
-
-  use constant _INT32_MIN       => -2147483647 - 1;
-
-=item private const C<< Int _SIMPLE_STR_MAX >>
+  constant _SIMPLE_STR_MAX = < Int >;
 
 This variable is the size of a string of type Moose I<SimpleStr> in bytes.
 
@@ -212,7 +225,9 @@ This variable is the size of a string of type Moose I<SimpleStr> in bytes.
 
   use constant _SIMPLE_STR_MAX  => 255;
 
-=item private const C<< Int _UINT8_MAX >>
+=item I<_UINT8_MAX>
+
+  constant _UINT8_MAX = < Int >;
 
 Maximum value for a variable of the type unsigned char (octet).
 
@@ -220,7 +235,9 @@ Maximum value for a variable of the type unsigned char (octet).
 
   use constant _UINT8_MAX       => 255;   # 0xff
 
-=item private const C<< Int _UINT16_MAX >>
+=item I<_UINT16_MAX>
+
+  constant _UINT16_MAX = < Int >;
 
 Maximum value for a variable of the type unsigned short (16-bit).
 
@@ -236,7 +253,9 @@ Maximum value for a variable of the type unsigned short (16-bit).
 
 =over
 
-=item private const C<< Bool _WIN32 >>
+=item I<_WIN32>
+
+  constant _WIN32 = < Bool >;
 
 True if C<$^O eq 'MSWin32'>.
 
@@ -244,7 +263,9 @@ True if C<$^O eq 'MSWin32'>.
 
   use constant _WIN32   => $OSNAME eq 'MSWin32';
 
-=item private const C<< Bool _TV_UNIX >>
+=item I<_TV_UNIX>
+
+  constant _TV_UNIX = < Bool >;
 
 True if C<$^O ne 'MSWin32'>.
 
@@ -260,7 +281,9 @@ True if C<$^O ne 'MSWin32'>.
 
 =over
 
-=item private const C<< Int _SIZE_OF_INT16 >>
+=item I<_SIZE_OF_INT16>
+
+  constant _SIZE_OF_INT16 = < Int >;
 
 This variable is the size of an Perl's I16 in bytes.
 
@@ -268,7 +291,9 @@ This variable is the size of an Perl's I16 in bytes.
 
   use constant _SIZE_OF_INT16   => $Config{i16size};
 
-=item private const C<< Int _SIZE_OF_INT32 >>
+=item I<_SIZE_OF_INT32>
+
+  constant _SIZE_OF_INT32 = < Int >;
 
 This variable is the size of an Perl's I32 in bytes.
 
@@ -276,7 +301,9 @@ This variable is the size of an Perl's I32 in bytes.
 
   use constant _SIZE_OF_INT32   => $Config{i32size};
 
-=item private const C<< Int _SIZE_OF_UINT8 >>
+=item I<_SIZE_OF_UINT8>
+
+  constant _SIZE_OF_UINT8 = < Int >;
 
 This variable is the size of an Perl's U8 in bytes.
 
@@ -284,7 +311,9 @@ This variable is the size of an Perl's U8 in bytes.
 
   use constant _SIZE_OF_UINT8   => $Config{u8size};
 
-=item private const C<< Int _SIZE_OF_UINT16 >>
+=item I<_SIZE_OF_UINT16>
+
+  constant _SIZE_OF_UINT16 = < Int >;
 
 This variable is the size of an Perl's U16 in bytes.
 
@@ -300,7 +329,9 @@ This variable is the size of an Perl's U16 in bytes.
 
 =over
 
-=item private const C<< Str _INT16_T >>
+=item I<_INT16_T>
+
+  constant _INT16_T = < Str >;
 
 Template for pack/unpack of an signed short (16-bit) value in "VAX"
 (little-endian) order.
@@ -309,7 +340,9 @@ Template for pack/unpack of an signed short (16-bit) value in "VAX"
 
   use constant _INT16_T       => 'v!';
 
-=item private const C<< Str _INT32_T >>
+=item I<_INT32_T>
+
+  constant _INT32_T = < Str >;
 
 Template for pack/unpack of an signed long (32-bit) value in "VAX"
 (little-endian) order.
@@ -318,7 +351,9 @@ Template for pack/unpack of an signed long (32-bit) value in "VAX"
 
   use constant _INT32_T       => 'V!';
 
-=item private const C<< Str _SIMPLE_STR_T >>
+=item I<_SIMPLE_STR_T>
+
+  constant _SIMPLE_STR_T = < Str >;
 
 Template for pack/unpack of a string of the Moose type I<SimpleStr> value as
 "length/string".
@@ -327,7 +362,9 @@ Template for pack/unpack of a string of the Moose type I<SimpleStr> value as
 
   use constant _SIMPLE_STR_T  => 'C/A*';
 
-=item private const C<< Str _STR_T >>
+=item I<_STR_T>
+
+  constant _STR_T = < Str >;
 
 Template for pack/unpack of a string of the Moose type I<Str> value as
 "length/string".
@@ -336,7 +373,9 @@ Template for pack/unpack of a string of the Moose type I<Str> value as
 
   use constant _STR_T         => 'v/A*';
 
-=item private const C<< Str _UINT8_T >>
+=item I<_UINT8_T>
+
+  constant _UINT8_T = < Str >;
 
 Template for pack/unpack of an unsigned char (octet) value.
 
@@ -344,7 +383,9 @@ Template for pack/unpack of an unsigned char (octet) value.
 
   use constant _UINT8_T       => 'C';
 
-=item private const C<< Str _UINT16_T >>
+=item I<_UINT16_T>
+
+  constant _UINT16_T = < Str >;
 
 Template for pack/unpack of an unsigned short (16-bit) value in "VAX"
 (little-endian) order.
@@ -353,7 +394,9 @@ Template for pack/unpack of an unsigned short (16-bit) value in "VAX"
 
   use constant _UINT16_T      => 'v';
 
-=item private const C<< Str _UINT32_T >>
+=item I<_UINT32_T>
+
+  constant _UINT32_T = < Str >;
 
 Template for pack/unpack of an unsigned short (32-bit) value in "VAX"
 (little-endian) order.
@@ -391,7 +434,7 @@ __END__
 
 =item *
 
-2022 by J. Schneider L<https://github.com/brickpool/>
+2022,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
@@ -407,4 +450,4 @@ __END__
 
 =head1 SEE ALSO
 
-I<Exporter>
+L<Exporter>

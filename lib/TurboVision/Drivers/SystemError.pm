@@ -42,8 +42,8 @@ Nothing per default, but can export the following per request:
   :all
 
     :vars
-      $sys_error_func
       $sys_color_attr
+      $sys_error_func
       $sys_mono_attr
       $save_ctrl_break
       $ctrl_break_hit
@@ -65,8 +65,8 @@ our @EXPORT_OK = qw(
 our %EXPORT_TAGS = (
 
   vars => [qw(
-    $sys_error_func
     $sys_color_attr
+    $sys_error_func
     $sys_mono_attr
     $ctrl_break_hit
     $save_ctrl_break
@@ -103,7 +103,32 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public C<< CodeRef $sys_error_func >>
+=item I<$sys_color_attr>
+
+  our $sys_color_attr = < Int >;
+
+On color displays, I<$sys_color_attr> (default value: 0x4e4f) specifies the
+attribute bytes for system error messages. (L</$sys_mono_attr> specifies the
+attribute bytes for monochrome).
+
+System error messages are OS crtical errors (such as disk drive not accessible)
+and other device type errors.
+
+System errors are displayed on the status line in the color specified by the
+second part of I<$sys_color_attr>, C<0x4f>, white on red text.
+
+The first part, C<0x4e>, is used for highlighting command keys, such as Enter or
+Esc.
+
+See: L</system_error>, L</$sys_mono_attr>.
+
+=cut
+
+  our $sys_color_attr = 0x4e4f;
+
+=item I<$sys_error_func>
+
+  our $sys_error_func = < TSysErrorFunc >;
 
 I<$sys_error_func> points to the system error handling sub routine.
 
@@ -114,10 +139,10 @@ The default system error handler is defined as,
 
   sub system_error(Int $error_code, Int $drive)
 
-where I<$error_code> is a value from the table below, and <$drive> is the drive
+where I<$error_code> is a value from the table below, and I<$drive> is the drive
 number (A=1, B=1, C=3, and so on).
 
-I<system_error> should return 0 if the user requests to retry the operation or 1
+L</system_error> should return 0 if the user requests to retry the operation or 1
 if the user elected to abort the function.
 
 Table of System Error Codes
@@ -143,53 +168,36 @@ Table of System Error Codes
 B<Note>: I<$error_code> corresponds to the system error codes 19 to 34 of MS-DOS
 or Windows (I<$^E> or I<$EXTENDED_OS_ERROR>).
 
-See: I<sys_color_attr>, I<sys_err_active>, I<sys_error_func>, I<sys_mono_attr>,
-I<system_error>, I<TSysErrorFunc>, I<init_sys_error>.
+See: L</$sys_color_attr>, L</$sys_err_active>, L</$sys_error_func>,
+L</$sys_mono_attr>, L</system_error>, I<TSysErrorFunc>, L</init_sys_error>.
 
 =cut
 
   sub system_error;
   our $sys_error_func = \&system_error;
 
-=item public C<< Int $sys_color_attr >>
+=item I<$sys_mono_attr>
 
-On color displays, I<$sys_color_attr> (default value: 0x4e4f) specifies the
-attribute bytes for system error messages. (I<$sys_mono_attr> specifies the
-attribute bytes for monochrome).
+  our $sys_mono_attr = < Int >;
 
-System error messages are OS crtical errors (such as disk drive not accessible)
-and other device type errors.
-
-System errors are displayed on the status line in the color specified by the
-second part of I<$sys_color_attr>, 0x4f, white on red text.
-
-The first part, 0x4e, is used for highlighting command keys, such as Enter or
-Esc.
-
-See: I<system_error>, I<sys_mono_attr>.
-
-=cut
-
-  our $sys_color_attr = 0x4e4f;
-
-=item public C<< Int $sys_mono_attr >>
-
-On monochrome displays, I<$sys_mono_attr> (default value: 0x7070) specifies the
-attribute bytes for system error messages. (I<sys_color_attr> specifies the
-attribute bytes for color).
+On monochrome displays, I<$sys_mono_attr> (default value: C<0x7070>) specifies
+the attribute bytes for system error messages. (L</$sys_color_attr> specifies
+the attribute bytes for color).
 
 System error messages are OS crtical errors (such as disk drive not accessible)
 and other device type errors.
 
-See I<sys_color_attr> for more information about the attribute values.
+See L</$sys_color_attr> for more information about the attribute values.
 
-See: I<system_error>, I<sys_color_attr>.
+See: L</system_error>, L<$sys_color_attr>.
 
 =cut
 
   our $sys_mono_attr = 0x7070;
 
-=item public C<< Bool $ctrl_break_hit >>
+=item I<$ctrl_break_hit>
+
+  our $ctrl_break_hit = < Bool >;
 
 Whenever the user presses Ctrl-Break at the keyboard, this flag is set to
 I<TRUE>. 
@@ -200,19 +208,23 @@ You can clear it any time by resetting to <FALSE>.
 
   our $ctrl_break_hit = _FALSE;
 
-=item public readonly C<< Bool $save_ctrl_break >>
+=item I<$save_ctrl_break>
+
+  our $save_ctrl_break : Bool;
 
 This internal variable is set to the state of the OS Ctrl-break checking at
 program initialization; at program termination, OS's Ctrl-break trapping is
 restored to the value saved in I<$save_ctrl_break>.
 
-See: I<init_sys_error>, I<done_sys_error>
+See: L</init_sys_error>, L</done_sys_error>
 
 =cut
 
   our $save_ctrl_break = _FALSE;
 
-=item public readonly C<< Bool $sys_err_active >>
+=item I<$sys_err_active>
+
+  our $sys_err_active : Bool;
 
 If True, then the system error handler is available for use.
 
@@ -220,7 +232,9 @@ If True, then the system error handler is available for use.
 
   our $sys_err_active = _FALSE;
 
-=item public C<< Bool $fail_sys_errors >>
+=item I<$fail_sys_errors>
+
+  our $fail_sys_errors = < Bool >;
 
 If the variable is I<TRUE>, the routine for critical errors behaves as if the
 user had pressed the Esc key when the error was displayed.
@@ -244,14 +258,16 @@ line.
 
 =over
 
-=item public static C<< init_sys_error() >>
+=item I<init_sys_error>
+
+  func init_sys_error()
 
 This internal routine, called by I<< TApplication->init >>, initializes system
 error trapping by redirecting the handling of I<Ctrl-C>, I<Ctrl-Break> and
 I<Critical-Error>, and clearing Ctrl-Break state.
 
 System error trapping is terminated by calling the corresponding
-I<done_sys_error> routine.
+L</done_sys_error> routine.
 
 =cut
 
@@ -261,13 +277,15 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::SysError;
-    goto &TurboVision::Drivers::Win32::SysError::_init_sys_error;
+    goto &TurboVision::Drivers::Win32::SysError::init_sys_error;
 
 }#endif _TV_UNIX
     return;
   }
 
-=item public static C<< done_sys_error() >>
+=item I<done_sys_error>
+
+  func done_sys_error()
 
 This internal routine is called automatically by I<< TApplication->DEMOLISH >>,
 terminating Turbo Vision's system error trapping and restoring the handling of
@@ -281,21 +299,23 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::SysError;
-    goto &TurboVision::Drivers::Win32::SysError::_done_sys_error;
+    goto &TurboVision::Drivers::Win32::SysError::done_sys_error;
 
 }#endif _TV_UNIX
     return;
   }
 
-=item public static C<< Int system_error(Int $error_code, Int $drive) >>
+=item I<system_error>
+
+  func system_error(Int $error_code, Int $drive) : Int
 
 This function handles system errors (such as DOS critical errors). See
-I<$sys_error_func> for details on the parameters and their values.
+L</$sys_error_func> for details on the parameters and their values.
 
-I<system_error> returns 0 if the user requests that the operation be retried,
+L</system_error> returns 0 if the user requests that the operation be retried,
 and 1 if the user elects to cancel the operation.
 
-See: I<$sys_error_func>
+See: L</$sys_error_func>
 
 =cut
 
@@ -305,7 +325,7 @@ if( _TV_UNIX ){
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::SysError;
-    goto &TurboVision::Drivers::Win32::SysError::_system_error;
+    goto &TurboVision::Drivers::Win32::SysError::system_error;
 
 }#endif _TV_UNIX
     return;

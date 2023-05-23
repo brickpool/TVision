@@ -68,11 +68,12 @@ Nothing per default, but can export the following per request:
 
   :all
 
-    :private
-      _get_mouse_event
-      _hide_mouse
-      _show_mouse
+    :mouse
+      get_mouse_event
+      hide_mouse
+      show_mouse
 
+    :private
       _detect_mouse
 
 =cut
@@ -84,11 +85,13 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  private => [qw(
-    _get_mouse_event
-    _hide_mouse
-    _show_mouse
+  mouse => [qw(
+    get_mouse_event
+    hide_mouse
+    show_mouse
+  )],
 
+  private => [qw(
     _detect_mouse
   )],
 
@@ -117,7 +120,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item private C<< Int $_hide_count >>
+=item I<$_hide_count>
+
+  my $_hide_count = < Int >;
 
 Internal "hide" counter for the routines I<hide_mouse> and I<show_mouse>.
 
@@ -129,7 +134,9 @@ Internal "hide" counter for the routines I<hide_mouse> and I<show_mouse>.
 
 =begin comment
 
-=item private C<< Object $_io >>
+=item I<$_io>
+
+  my $_io = < StdioCtl >;
 
 STD ioctl object I<< StdioCtl->instance() >>
 
@@ -151,14 +158,16 @@ STD ioctl object I<< StdioCtl->instance() >>
 
 =over
 
-=item package-private static C<< _get_mouse_event(TEvent $event) >>
+=item I<get_mouse_event>
+
+  func get_mouse_event(TEvent $event)
 
 This internal routine implements I<get_mouse_event> for I<Windows>; more
 information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func _get_mouse_event($) {
+  func get_mouse_event($) {
     alias my $event = $_[-1];
 
     _update_event_queue();
@@ -177,14 +186,16 @@ information about the routine is described in the module I<EventManager>.
     return;
   }
 
-=item package-private static C<< _hide_mouse() >>
+=item I<hide_mouse>
+
+  func hide_mouse()
 
 This internal routine implements I<hide_mouse> for I<Windows>; more
 information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func _hide_mouse() {
+  func hide_mouse() {
     return
         if !$mouse_events;
 
@@ -201,14 +212,16 @@ information about the routine is described in the module I<EventManager>.
     return;
   }
 
-=item package-private static C<< _show_mouse() >>
+=item I<show_mouse>
+
+  func show_mouse()
 
 This internal routine implements I<show_mouse> for I<Windows>; more
 information about the routine is described in the module I<EventManager>.
 
 =cut
 
-  func _show_mouse() {
+  func show_mouse() {
     return
         if !$mouse_events;
 
@@ -225,7 +238,9 @@ information about the routine is described in the module I<EventManager>.
     return;
   }
 
-=item package-private static C<< Int _detect_mouse() >>
+=item I<_detect_mouse>
+
+  func _detect_mouse() : Int
 
 Detect mouse driver and set I<$button_count>.
 
@@ -288,9 +303,10 @@ __END__
 =head1 CONTRIBUTOR
 
 The Windows event mapping was taken from the framework
-"A modern port of Turbo Vision 2.0", which is licensed under MIT licence
+L<A modern port of Turbo Vision 2.0|https://github.com/magiblot/tvision>, which
+is licensed under MIT licence
 
-See: I<init_events>, I<done_events>, I<hide_mouse>, I<show_mouse>
+See: L</hide_mouse>, L</show_mouse>
 
 =over
 

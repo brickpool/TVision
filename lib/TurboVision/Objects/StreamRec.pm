@@ -95,7 +95,7 @@ For example, I<TCollection>'s registration record is I<RCollection>.
 
 =head2 Class
 
-public class C<< TStreamRec >>
+public class I<< TStreamRec >>
 
 =cut
 
