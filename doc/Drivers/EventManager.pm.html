@@ -75,8 +75,10 @@
 
 <dl>
 
-<dt id="public-readonly-Int-button_count">public readonly <code>Int $button_count</code></dt>
+<dt id="button_count"><i>$button_count</i></dt>
 <dd>
+
+<pre><code>  our $button_count : Int;</code></pre>
 
 <p>If a mouse is installed, <i>$button_count</i> holds the number of buttons on the mouse.</p>
 
@@ -85,8 +87,10 @@
 <p>Check the value of <i>$button_count</i> when your program needs to know if a mouse is installed.</p>
 
 </dd>
-<dt id="public-Int-double_delay">public <code>Int $double_delay</code></dt>
+<dt id="double_delay"><i>$double_delay</i></dt>
 <dd>
+
+<pre><code>  our $double_delay : Int;</code></pre>
 
 <p>The variable <i>$double_delay</i> holds the time interval (in 1/18.2 of a second intervals) defining how quickly two mouse clicks must occur in order to be treated as a double click (rather than two separate single clicks).</p>
 
@@ -95,44 +99,56 @@
 <p><b>Note</b>: For Windows, the value is the current double-click time of the system (by default 9 ticks, equivalent to 500ms).</p>
 
 </dd>
-<dt id="public-readonly-Int-mouse_buttons">public readonly <code>Int $mouse_buttons</code></dt>
+<dt id="mouse_buttons"><i>$mouse_buttons</i></dt>
 <dd>
+
+<pre><code>  our $mouse_buttons : Int;</code></pre>
 
 <p>Contains the current state of the mouse buttons.</p>
 
 <p>See the <i>mbXXXX</i> constants for the bit settings in this variable.</p>
 
 </dd>
-<dt id="public-readonly-Bool-mouse_events">public readonly <code>Bool $mouse_events</code></dt>
+<dt id="mouse_events"><i>$mouse_events</i></dt>
 <dd>
+
+<pre><code>  our $mouse_events : Bool;</code></pre>
 
 <p>The <i>init_events</i> procedure detects the prescence of a mouse, and if a mouse is found, sets <i>$mouse_events</i> to <i>TRUE</i>.</p>
 
-<p>If no mouse is found, then $mouse_events is set to <i>FALSE</i> and no mouse event processing occurs.</p>
+<p>If no mouse is found, then <i>$mouse_events</i> is set to <i>FALSE</i> and no mouse event processing occurs.</p>
 
 </dd>
-<dt id="public-readonly-Int-mouse_int_flag">public readonly <code>Int $mouse_int_flag</code></dt>
+<dt id="mouse_int_flag"><i>$mouse_int_flag</i></dt>
 <dd>
+
+<pre><code>  our $mouse_int_flag : Int;</code></pre>
 
 <p>This is an internal variable used by Turbo Vision.</p>
 
 </dd>
-<dt id="public-readonly-Bool-mouse_reverse">public readonly <code>Bool $mouse_reverse</code></dt>
+<dt id="mouse_reverse"><i>$mouse_reverse</i></dt>
 <dd>
+
+<pre><code>  our $mouse_reverse = &lt; Bool &gt;;</code></pre>
 
 <p>When set to <i>TRUE</i>, this field causes the <i>TEvent-&gt;buttons</i> field to reverse the <i>MB_LEFT_BUTTON</i> and <i>MB_RIGHT_BUTTON</i> flags.</p>
 
 </dd>
-<dt id="public-readonly-TPoint-mouse_where">public readonly <code>TPoint $mouse_where</code></dt>
+<dt id="mouse_where"><i>$mouse_where</i></dt>
 <dd>
+
+<pre><code>  our $mouse_where : TPoint;</code></pre>
 
 <p>This <i>TPoint</i>-typed variable is set by the mouse handler and contains the coordinates of the mouse in global or screen coordinates.</p>
 
 <p>You can convert the coordinates to view or window relative coordinates using the <i>TView-&gt;make_local</i> method.</p>
 
 </dd>
-<dt id="public-readonly-Int-repeat_delay">public readonly <code>Int $repeat_delay</code></dt>
+<dt id="repeat_delay"><i>$repeat_delay</i></dt>
 <dd>
+
+<pre><code>  our $repeat_delay : Int;</code></pre>
 
 <p>Determines the number of clock ticks that must occur before generating an <i>EV_MOUSE_AUTO</i> event.</p>
 
@@ -140,7 +156,9 @@
 
 <p>A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at approximately 1/2 second.</p>
 
-<p>See: <i>evXXXX</i> constants, <i>$double_delay</i></p>
+<p>See: <i>evXXXX</i> constants, <a href="#double_delay">&quot;$double_delay&quot;</a></p>
+
+<p><b>Note</b>: The value is not used in Windows.</p>
 
 </dd>
 </dl>
@@ -149,24 +167,30 @@
 
 <dl>
 
-<dt id="public-static-init_events">public static <code>init_events()</code></dt>
+<dt id="init_events"><i>init_events</i></dt>
 <dd>
+
+<pre><code>  func init_events()</code></pre>
 
 <p>This internal procedure initializes Turbo Vision&#39;s mouse event handler, and initializes and displays the mouse, if installed.</p>
 
-<p><i>init_events</i> is automatically called by <i>TApplication-&gt;Init</i>, and is terminated by calling its corresponding <i>done_events</i> procedure.</p>
+<p><i>init_events</i> is automatically called by <i>TApplication-&gt;Init</i>, and is terminated by calling its corresponding <a href="#done_events">&quot;done_events&quot;</a> procedure.</p>
 
 </dd>
-<dt id="public-static-done_events">public static <code>done_events()</code></dt>
+<dt id="done_events"><i>done_events</i></dt>
 <dd>
+
+<pre><code>  func done_events()</code></pre>
 
 <p>This is a Turbo Vision internal routine that will not normally be used by your applications.</p>
 
 <p><i>done_events</i> disables the mouse event handler and hides the mouse.</p>
 
 </dd>
-<dt id="public-static-get_key_event-TEvent-event">public static <code>get_key_event(TEvent $event)</code></dt>
+<dt id="get_key_event"><i>get_key_event</i></dt>
 <dd>
+
+<pre><code>  func get_key_event(TEvent $event)</code></pre>
 
 <p>Emulates the BIOS function INT 16h, Function 01h &quot;Read LowLevel Status&quot; to determine if a key has been pressed on the keyboard.</p>
 
@@ -179,14 +203,18 @@
 <p>See: <i>evXXXX</i> constants</p>
 
 </dd>
-<dt id="public-static-Int-get_shift_state">public static <code>Int get_shift_state()</code></dt>
+<dt id="get_shift_state"><i>get_shift_state</i></dt>
 <dd>
 
-<p>Returns a integer (octal) containing the current Shift key state. The return value contains a combination of the <i>kbXXXX</i> constants for shift states.</p>
+<pre><code>  func get_shift_state() : Int</code></pre>
+
+<p>Returns a integer (octal) containing the current shift key state. The return value contains a combination of the <i>kbXXXX</i> constants for shift states.</p>
 
 </dd>
-<dt id="public-static-get_mouse_event-TEvent-event">public static <code>get_mouse_event(TEvent $event)</code></dt>
+<dt id="get_mouse_event"><i>get_mouse_event</i></dt>
 <dd>
+
+<pre><code>  func get_mouse_event(TEvent $event)</code></pre>
 
 <p>Similar to <i>get_key_event</i>, but for mouse events.</p>
 
@@ -195,8 +223,10 @@
 <p>If no mouse events have occurred, <i>$event-&gt;what</i> is set to <i>EV_NOTHING</i>.</p>
 
 </dd>
-<dt id="public-static-hide_mouse">public static <code>hide_mouse()</code></dt>
+<dt id="hide_mouse"><i>hide_mouse</i></dt>
 <dd>
+
+<pre><code>  func hide_mouse()</code></pre>
 
 <p>This routine is used to hide the mouse, making it invisible on the screen.</p>
 
@@ -207,16 +237,18 @@
 <p>Therefore, you can nest calls to <i>hide_mouse</i> and <i>show_mouse</i> but there must always be the same number of each.</p>
 
 </dd>
-<dt id="public-static-show_mouse">public static <code>show_mouse()</code></dt>
+<dt id="show_mouse"><i>show_mouse</i></dt>
 <dd>
 
-<p>The routine <i>show_mouse</i> is the opposite of the <i>hide_mouse</i>.</p>
+<pre><code>  func show_mouse()</code></pre>
 
-<p>Call <i>hide_mouse</i> to hide the mouse cursor and simultaneously increment a &quot;mouse hidden counter&quot;.</p>
+<p>The routine <i>show_mouse</i> is the opposite of the <a href="#hide_mouse">&quot;hide_mouse&quot;</a>.</p>
+
+<p>Call <a href="#hide_mouse">&quot;hide_mouse&quot;</a> to hide the mouse cursor and simultaneously increment a &quot;mouse hidden counter&quot;.</p>
 
 <p>The routine <i>show_mouse</i> decrements the counter, and when it reaches zero, makes the mouse cursor visible again on the screen.</p>
 
-<p>See: <i>hide_mouse</i></p>
+<p>See: <a href="#hide_mouse">&quot;hide_mouse&quot;</a></p>
 
 </dd>
 </dl>

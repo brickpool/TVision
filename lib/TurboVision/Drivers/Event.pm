@@ -55,10 +55,10 @@ use PerlX::Assert;
 use Scalar::Util qw( refaddr );
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Objects::Point;
-use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
+use TurboVision::Objects::Point;
+use TurboVision::Objects::Types qw( TPoint );
 
 # ------------------------------------------------------------------------
 # Class Defnition --------------------------------------------------------
@@ -72,21 +72,20 @@ When a routine receives an event, it can look in the I<TEvent> fields to
 determine what type of event occurred and use other information provided to
 appropriately process that event.
 
-For example, when the I<< TEvent->what >> field contains I<EV_MOUSE>, you can
-check I<< TEvent->buttons >> to see which mouse button was pressed
-(C<0>=none, C<1>=left, C<2>=right).
+For example, when the L</what> field contains I<EV_MOUSE>, you can check
+L</buttons> to see which mouse button was pressed (C<0>=none, C<1>=left,
+C<2>=right).
 
-The I<< TEvent->double >> flag is set if two mouse clicks occurred within the
+The L</double> flag is set if two mouse clicks occurred within the
 I<$double_delay> time interval.
 
-Lastly, for each mouse event, I<< TEvent->where >> contains the coordinates of
-the mouse.
+Lastly, for each mouse event, L</where> contains the coordinates of the mouse.
 
 When the event record contains broadcast I<EV_MESSAGE> events, several variant
 fields are provided for passing additional information with the message. 
 
-I<< TEvent->info_ptr >> can be used, for instance, to pass a reference to a
-record or another object.
+L</info_ptr> can be used, for instance, to pass a reference to a array, hash or
+another object.
 
 =cut
 
@@ -98,6 +97,90 @@ Turbo Vision Hierarchy
 
   Moose::Object
     TEvent
+
+=head2 Declaration
+
+The I<TEvent> type, as described in I<JSON>
+
+  {
+    "TEvent": {
+      "what": {
+        "type": {
+          "case": [{
+              "EV_NOTHING": null
+            }, {
+              "EV_MOUSE": {
+                "buttons": {
+                  "type": "Int"
+                },
+                "double": {
+                  "type": "Bool"
+                },
+                "where": {
+                  "type": "TPoint"
+                }
+              }
+            }, {
+              "EV_KEY_DOWN": [{
+                  "id": 0,
+                  "KeyCode": {
+                    "type": "Int"
+                  }
+                }, {
+                  "id": 1,
+                  "CharCode": {
+                    "type": "Int"
+                  },
+                  "ScanCode": {
+                    "type": "Int"
+                  }
+                },
+              ]
+            }, {
+              "EV_MESSAGE": {
+                "command": {
+                  "type": {
+                    "info": [{
+                        "id": 0,
+                        "info_ptr": {
+                          "type": ["Ref", null]
+                        }
+                      }, {
+                        "id": 1,
+                        "info_long": {
+                          "type": "Int"
+                        }
+                      }, {
+                        "id": 2,
+                        "info_word": {
+                          "type": "Int"
+                        }
+                      }, {
+                        "id": 3,
+                        "info_int": {
+                          "type": "Int"
+                        }
+                      }, {
+                        "id": 4,
+                        "info_byte": {
+                          "type": "Int"
+                        }
+                      }, {
+                        "id": 5,
+                        "info_char": {
+                          "type": "Int"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
 
 =cut
 
@@ -111,21 +194,9 @@ package TurboVision::Drivers::Event {
 
 =over
 
-=item public C<< Int what >>
+=item I<buttons>
 
-Event type.
-
-=cut
-
-  has 'what' => (
-    is        => 'rw',
-    isa       => Int,
-    default   => EV_NOTHING,
-  );
-
-=over
-
-=item public C<< Int buttons >>
+  has buttons ( is => rw, type => Int ) = 0;
 
 Mouse buttons.
 
@@ -137,7 +208,23 @@ Mouse buttons.
     default => 0,
   );
 
-=item public C<< Bool double >>
+=item I<command>
+
+  has command ( is => rw, type => Int ) = 0;
+
+Message command.
+
+=cut
+
+  has 'command' => (
+    is      => 'rw',
+    isa     => Int,
+    default => 0,
+  );
+
+=item I<double>
+
+  has double ( is => rw, type => Bool ) = !! 0;
 
 Double click stat.
 
@@ -149,19 +236,9 @@ Double click stat.
     default => _FALSE,
   );
 
-=item public C<< TPoint where >>
+=item I<key_code>
 
-Mouse position.
-
-=cut
-
-  has 'where' => (
-    is      => 'rw',
-    isa     => TPoint,
-    default => sub { TPoint->new(x => 0, y => 0) },
-  );
-
-=item public C<< Int key_code >>
+  has key_code ( is => rw, type => Int ) = 0x0000;
 
 Full key code.
 
@@ -173,7 +250,24 @@ Full key code.
     default => 0x0000,
   );
 
-=item public C<< Str text >>
+=item I<info>
+
+  field info ( is => rw, type => Ref|Int|Undef );
+
+Message info.
+
+=cut
+
+  has 'info' => (
+    is        => 'rw',
+    isa       => Ref|Int|Undef,
+    init_arg  => undef,
+    default   => undef,
+  );
+
+=item I<text>
+
+  field text ( is => rw, type => Str ) = '';
 
 May contain whatever was read from the terminal: usually a UTF-8 sequence, but
 possibly any kind of raw data.
@@ -186,31 +280,33 @@ possibly any kind of raw data.
     init_arg  => undef,
     default   => '',
   );
-  sub get_text { goto &text }
 
-=item public C<< Int command >>
+=item I<what>
 
-Message command.
+  has what ( is => rw, type => Int ) = EV_NOTHING;
+
+Event type.
 
 =cut
 
-  has 'command' => (
-    is      => 'rw',
-    isa     => Int,
-    default => 0,
+  has 'what' => (
+    is        => 'rw',
+    isa       => Int,
+    default   => EV_NOTHING,
   );
 
-=item public C<< Ref|Int|Undef info >>
+=item I<where>
 
-Message info.
+  has where ( is => rw, type => TPoint ) = sub { TPoint->new() };
+
+Mouse position.
 
 =cut
 
-  has 'info' => (
-    is        => 'rw',
-    isa       => Ref|Int|Undef,
-    init_arg  => undef,
-    default   => undef,
+  has 'where' => (
+    is      => 'rw',
+    isa     => TPoint,
+    default => sub { TPoint->new() },
   );
 
 =back
@@ -229,7 +325,9 @@ Message info.
 
 =over
 
-=item private C<< BUILD($args) >>
+=item I<BUILD>
+
+  sub $self->BUILD(Ref $args)
 
 If any of the following environment variables are true at compile time, the
 I<what> attribute is checked and, if it fails, an exception is thrown.
@@ -348,149 +446,10 @@ Stream interface routines
 
 =over
 
-=item public C<< Ref|Undef info_ptr(Ref $value=) >>
+=item I<char_code>
 
-Message Reference.
-
-=cut
-
-  method info_ptr(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      return $self->info() || undef;
-    }
-    SET: {
-			assert { @_ == 1 && ( !defined($value) || is_Ref($value) ) };
-      $self->info( $value );
-      return $value;
-    }
-  };
-
-=item public C<< Int info_long(Int $value=) >>
-
-Message I<longint> (signed integer 32-bit).
-
-=cut
-
-  method info_long(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      my $v = $self->info();
-      $v = 0 if not is_Int $v;
-      $v = unpack('V!', pack('V!', $v));
-      return $v;
-    }
-    SET: {
-			assert { @_ == 1 && is_Int $value };
-      my $v = unpack('V!', pack('V!', $value));
-      $self->info( $v );
-      return $v;
-    }
-  }
-
-=item public C<< Int info_word(Int $value=) >>
-
-Message I<word> (unsigned integer 16-bit).
-
-=cut
-
-  method info_word(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      my $v = $self->info();
-      $v = 0 if not is_Int $v;
-      $v = unpack('v', pack('v', $v));
-      return $v;
-    }
-    SET: {
-			assert { @_ == 1 && is_Int $value };
-      my $v = unpack('v', pack('v', $value));
-      $self->info( $v );
-      return $v;
-    }
-  }
-
-=item public C<< Int info_int(Int $value=) >>
-
-Message I<integer> (signed integer 16-bit).
-
-=cut
-
-  method info_int(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      my $v = $self->info();
-      $v = 0 if not is_Int $v;
-      $v = unpack('v!', pack('v!', $v));
-      return $v;
-    }
-    SET: {
-			assert { @_ == 1 && is_Int $value };
-      my $v = unpack('v!', pack('v!', $value));
-      $self->info( $v );
-      return $v;
-    }
-  }
-
-=item public C<< Int info_byte(Int $value=) >>
-
-Message I<byte> (unsigned integer 8-bit).
-
-=cut
-
-  method info_byte(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      my $v = $self->info();
-      $v = 0 if not is_Int $v;
-      $v &= 0xff;
-      return $v;
-    }
-    SET: {
-			assert { @_ == 1 && is_Int $value };
-      my $v = $value & 0xff;
-      $self->info( $v );
-      return $v;
-    }
-  }
-
-=item public C<< Str info_char(Str $value=) >>
-
-Message Perl string, which represents 1 character.
-
-=cut
-
-  method info_char(@) {
-		my ($value) = @_;
-
-    goto SET if @_;
-    GET: {
-      my $v = $self->info();
-      $v = 0 if not is_Int $v;
-      $v &= 0x10ffff;                                   # max valid code point
-      $v = pack('W', $v);
-      return $v;
-    }
-    SET: {
-			assert { @_ == 1 && is_Str $value };
-      my $v = unpack('W', $value);
-      $self->info( $v );
-      $v = pack('W', $v);
-      return $v;
-    }
-  }
-
-=item public C<< Int char_code(Int $value=) >>
+  method char_code() : Int
+  method char_code(Int $value) : Int
 
 Char code.
 
@@ -516,7 +475,170 @@ Char code.
     }
   }
 
-=item public C<< Int scan_code(Int $value=) >>
+=item I<info_byte>
+
+  method info_byte() : Int
+  method info_byte(Int $value) : Int
+
+Message I<byte> (unsigned integer 8-bit).
+
+=cut
+
+  method info_byte(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      my $v = $self->info();
+      $v = 0 if not is_Int $v;
+      $v &= 0xff;
+      return $v;
+    }
+    SET: {
+			assert { @_ == 1 && is_Int $value };
+      my $v = $value & 0xff;
+      $self->info( $v );
+      return $v;
+    }
+  }
+
+=item I<info_char>
+
+  method info_char() : Str
+  method info_char(Int $value) : Str
+
+Message Perl string, which represents 1 character.
+
+=cut
+
+  method info_char(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      my $v = $self->info();
+      $v = 0 if not is_Int $v;
+      $v &= 0x10ffff;                                   # max valid code point
+      $v = pack('W', $v);
+      return $v;
+    }
+    SET: {
+			assert { @_ == 1 && is_Str $value };
+      my $v = unpack('W', $value);
+      $self->info( $v );
+      $v = pack('W', $v);
+      return $v;
+    }
+  }
+
+=item I<info_int>
+
+  method info_int() : Int
+  method info_int(Int $value) : Int
+
+Message I<integer> (signed integer 16-bit).
+
+=cut
+
+  method info_int(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      my $v = $self->info();
+      $v = 0 if not is_Int $v;
+      $v = unpack('v!', pack('v!', $v));
+      return $v;
+    }
+    SET: {
+			assert { @_ == 1 && is_Int $value };
+      my $v = unpack('v!', pack('v!', $value));
+      $self->info( $v );
+      return $v;
+    }
+  }
+
+=item I<info_long>
+
+  method info_long() : Int
+  method info_long(Int $value) : Int
+
+Message I<longint> (signed integer 32-bit).
+
+=cut
+
+  method info_long(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      my $v = $self->info();
+      $v = 0 if not is_Int $v;
+      $v = unpack('V!', pack('V!', $v));
+      return $v;
+    }
+    SET: {
+			assert { @_ == 1 && is_Int $value };
+      my $v = unpack('V!', pack('V!', $value));
+      $self->info( $v );
+      return $v;
+    }
+  }
+
+=item I<info_ptr>
+
+  method info_ptr() : Ref|Undef
+  method info_ptr(Ref $value) : Ref
+
+Message Reference.
+
+=cut
+
+  method info_ptr(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      return $self->info() || undef;
+    }
+    SET: {
+			assert { @_ == 1 && ( !defined($value) || is_Ref($value) ) };
+      $self->info( $value );
+      return $value;
+    }
+  };
+
+=item I<info_word>
+
+  method info_word() : Int
+  method info_word(Int $value) : Int
+
+Message I<word> (unsigned integer 16-bit).
+
+=cut
+
+  method info_word(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      my $v = $self->info();
+      $v = 0 if not is_Int $v;
+      $v = unpack('v', pack('v', $v));
+      return $v;
+    }
+    SET: {
+			assert { @_ == 1 && is_Int $value };
+      my $v = unpack('v', pack('v', $value));
+      $self->info( $v );
+      return $v;
+    }
+  }
+
+=item I<scan_code>
+
+  method scan_code() : Int
+  method scan_code(Int $value) : Int
 
 Scan code.
 
@@ -543,7 +665,9 @@ Scan code.
     }
   }
 
-=item private C<< Str _stringify() >>
+=item I<_stringify>
+
+  method _stringify() : Str
 
 Overload stringify so we can write code like C<< print $ev >>.
 
@@ -622,12 +746,12 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =item *
 
@@ -636,7 +760,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -647,7 +771,7 @@ __END__
 
 =head1 CONTRIBUTOR
 
-Output via I<_stringify>, and parts of I<char_code> and I<scan_code>.
+Output via L</_stringify>, and parts of L</char_code> and L</scan_code>.
 
 =over
 

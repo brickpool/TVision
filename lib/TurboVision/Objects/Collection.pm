@@ -162,21 +162,21 @@ use Config;
 use Data::Alias qw( alias );
 use Scalar::Util qw( refaddr weaken isweak );
 
-use TurboVision::Objects::Const qw(
-  MAX_COLLECTION_SIZE
-  :coXXXX
-);
 use TurboVision::Objects::Common qw(
   fail
   word
 );
-use TurboVision::Objects::StreamRec;
+use TurboVision::Objects::Const qw(
+  :coXXXX
+  MAX_COLLECTION_SIZE
+);
 use TurboVision::Objects::Stream;
+use TurboVision::Objects::StreamRec;
 use TurboVision::Objects::Types qw(
-  TStreamRec
+  TCollection
   TObject
   TStream
-  TCollection
+  TStreamRec
 );
 
 # ------------------------------------------------------------------------
@@ -245,7 +245,9 @@ package TurboVision::Objects::Collection {
 
 =over
 
-=item public constant C<< Object RCollection >>
+=item I<RCollection>
+
+  constant RCollection = < TStreamRec >;
 
 Defining a registration record constant for I<TCollection>.
 
@@ -270,7 +272,9 @@ Defining a registration record constant for I<TCollection>.
 
 =over
 
-=item public readonly C<< Int count >>
+=item I<count>
+
+  field count ( is => ro, type => Int );
 
 Holds the number of items currently stored in the collection, up to
 I<MAX_COLLECTION_SIZE>.
@@ -281,7 +285,9 @@ I<MAX_COLLECTION_SIZE>.
   #  return $self->$next();
   #}
 
-=item public readonly C<< Int delta >>
+=item I<delta>
+
+  has delta ( is => rwp, type => Int ) = 0;
 
 Because one of the features of collections is that they can grow, I<delta>
 holds the number of elements by which the collection should be enlarged
@@ -303,7 +309,9 @@ overhead of dynamically resizing the collection.
     writer  => '_delta',
   );
 
-=item public readonly C<< ArrayRef[Ref] items >>
+=item I<items>
+
+  has items ( is => rwp, type => ArrayRef[Ref] ) = [];
 
 I<items> points to an array reference  that contains reference to the individual
 items in the collection.
@@ -328,7 +336,9 @@ items in the collection.
     writer  => '_items',
   );
 
-=item public readonly C<< Int limit >>
+=item I<limit>
+
+  has limit ( is => rwp, type => Int ) = MAX_COLLECTION_SIZE;
 
 Holds the current number of reserved elements for the collection.
 
@@ -354,7 +364,9 @@ Holds the current number of reserved elements for the collection.
 
 =over
 
-=item public C<< TCollection->init(Int $a_limit, Int $a_delta) >>
+=item I<init>
+
+  factory $class->init(Int $a_limit, Int $a_delta) : TCollection
 
 The constructor I<init> creates a new collection with initially allocated array
 for the number of elements specified by I<$a_limit>, and the ability to
@@ -845,7 +857,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -871,7 +883,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

@@ -29,7 +29,6 @@
   <li><a href="#EXPORTS">EXPORTS</a>
     <ul>
       <li><a href="#Variables">Variables</a></li>
-      <li><a href="#Subroutines">Subroutines</a></li>
     </ul>
   </li>
   <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
@@ -58,30 +57,22 @@
 
 <dl>
 
-<dt id="public-Bool-command_set_changed">public <code>Bool $command_set_changed</code></dt>
+<dt id="command_set_changed"><i>$command_set_changed</i></dt>
 <dd>
+
+<pre><code>  our $command_set_changed = &lt; Bool &gt;;</code></pre>
 
 <p>True if the command set has changed since being set to false.</p>
 
 </dd>
-<dt id="public-Str-cur_command_set">public <code>Str $cur_command_set</code></dt>
+<dt id="cur_command_set"><i>$cur_command_set</i></dt>
 <dd>
+
+<pre><code>  our $cur_command_set = &lt; Str &gt;;</code></pre>
 
 <p><i>$cur_command_set</i> is a string created with Perl&#39;s command <i>vec</i>.</p>
 
 <p>It stores the current command set. By default, all commands except those of the window are active.</p>
-
-</dd>
-</dl>
-
-<h2 id="Subroutines">Subroutines</h2>
-
-<dl>
-
-<dt id="public-static-get_mouse_event-TEvent-event">public static <code>get_mouse_event(TEvent $event)</code></dt>
-<dd>
-
-<p>...</p>
 
 </dd>
 </dl>

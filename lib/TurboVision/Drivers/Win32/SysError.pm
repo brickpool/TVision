@@ -41,15 +41,14 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use English qw( -no_match_vars );
 use Data::Alias qw( alias );
+use English qw( -no_match_vars );
+use Win32::Console;
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::SystemError qw( :vars );
+use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::StdioCtl;
-
-use Win32::Console;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -331,7 +330,7 @@ See: I<init_sys_error>, I<done_sys_error>
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

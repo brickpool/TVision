@@ -30,9 +30,9 @@ use TurboVision::Const qw(
   :bool
   :platform
 );
+use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Types qw( TPoint );
-use TurboVision::Drivers::Const qw( :kbXXXX );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -126,7 +126,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public readonly C<< Int $button_count >>
+=item I<$button_count>
+
+  our $button_count : Int;
 
 If a mouse is installed, I<$button_count> holds the number of buttons on the
 mouse.
@@ -140,7 +142,9 @@ is installed.
 
   our $button_count = 0;
 
-=item public C<< Int $double_delay >>
+=item I<$double_delay>
+
+  our $double_delay : Int;
 
 The variable I<$double_delay> holds the time interval (in 1/18.2 of a second
 intervals) defining how quickly two mouse clicks must occur in order to be
@@ -156,7 +160,9 @@ default 9 ticks, equivalent to 500ms).
 
   our $double_delay = 8;
 
-=item public readonly C<< Int $mouse_buttons >>
+=item I<$mouse_buttons>
+
+  our $mouse_buttons : Int;
 
 Contains the current state of the mouse buttons.
 
@@ -166,19 +172,23 @@ See the I<mbXXXX> constants for the bit settings in this variable.
 
   our $mouse_buttons = 0;
 
-=item public readonly C<< Bool $mouse_events >>
+=item I<$mouse_events>
+
+  our $mouse_events : Bool;
 
 The I<init_events> procedure detects the prescence of a mouse, and if a mouse
 is found, sets I<$mouse_events> to I<TRUE>.
 
-If no mouse is found, then $mouse_events is set to I<FALSE> and no mouse event
-processing occurs.
+If no mouse is found, then I<$mouse_events> is set to I<FALSE> and no mouse
+event processing occurs.
 
 =cut
 
   our $mouse_events = _FALSE;
 
-=item public readonly C<< Int $mouse_int_flag >>
+=item I<$mouse_int_flag>
+
+  our $mouse_int_flag : Int;
 
 This is an internal variable used by Turbo Vision.
 
@@ -186,7 +196,9 @@ This is an internal variable used by Turbo Vision.
 
   our $mouse_int_flag = 0;
 
-=item public readonly C<< Bool $mouse_reverse >>
+=item I<$mouse_reverse>
+
+  our $mouse_reverse = < Bool >;
 
 When set to I<TRUE>, this field causes the I<< TEvent->buttons >> field to
 reverse the I<MB_LEFT_BUTTON> and I<MB_RIGHT_BUTTON> flags.
@@ -195,7 +207,9 @@ reverse the I<MB_LEFT_BUTTON> and I<MB_RIGHT_BUTTON> flags.
 
   our $mouse_reverse = _FALSE;
 
-=item public readonly C<< TPoint $mouse_where >>
+=item I<$mouse_where>
+
+  our $mouse_where : TPoint;
 
 This I<TPoint>-typed variable is set by the mouse handler and contains the
 coordinates of the mouse in global or screen coordinates.
@@ -207,7 +221,9 @@ using the I<< TView->make_local >> method.
 
   our $mouse_where = TPoint->new();
 
-=item public readonly C<< Int $repeat_delay >>
+=item I<$repeat_delay>
+
+  our $repeat_delay : Int;
 
 Determines the number of clock ticks that must occur before generating an
 I<EV_MOUSE_AUTO> event.
@@ -218,7 +234,9 @@ held down.
 A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
 approximately 1/2 second.
 
-See: I<evXXXX> constants, I<$double_delay>
+See: I<evXXXX> constants, L</$double_delay>
+
+B<Note>: The value is not used in Windows.
 
 =cut
 
@@ -236,13 +254,15 @@ See: I<evXXXX> constants, I<$double_delay>
 
 =over
 
-=item public static C<< init_events() >>
+=item I<init_events>
+
+  func init_events()
 
 This internal procedure initializes Turbo Vision's mouse event handler, and
 initializes and displays the mouse, if installed.
 
 I<init_events> is automatically called by I<< TApplication->Init >>, and is
-terminated by calling its corresponding I<done_events> procedure.
+terminated by calling its corresponding L</done_events> procedure.
 
 =cut
 
@@ -258,7 +278,9 @@ if( _TV_UNIX ){
     return;
   }
 
-=item public static C<< done_events() >>
+=item I<done_events>
+
+  func done_events()
 
 This is a Turbo Vision internal routine that will not normally be used by your
 applications.
@@ -279,7 +301,9 @@ if( _TV_UNIX ){
     return;
   }
 
-=item public static C<< get_key_event(TEvent $event) >>
+=item I<get_key_event>
+
+  func get_key_event(TEvent $event)
 
 Emulates the BIOS function INT 16h, Function 01h "Read LowLevel Status" to
 determine if a key has been pressed on the keyboard.
@@ -307,9 +331,11 @@ if( _TV_UNIX ){
     return;
   }
 
-=item public static C<< Int get_shift_state() >>
+=item I<get_shift_state>
 
-Returns a integer (octal) containing the current Shift key state. The return
+  func get_shift_state() : Int
+
+Returns a integer (octal) containing the current shift key state. The return
 value contains a combination of the I<kbXXXX> constants for shift states.
 
 =cut
@@ -326,7 +352,9 @@ if( _TV_UNIX ){
     return undef;
   }
 
-=item public static C<< get_mouse_event(TEvent $event) >>
+=item I<get_mouse_event>
+
+  func get_mouse_event(TEvent $event)
 
 Similar to I<get_key_event>, but for mouse events.
 
@@ -352,7 +380,9 @@ if( _TV_UNIX ){
     return;
   }
 
-=item public static C<< hide_mouse() >>
+=item I<hide_mouse>
+
+  func hide_mouse()
 
 This routine is used to hide the mouse, making it invisible on the screen.
 
@@ -378,17 +408,19 @@ if( _TV_UNIX ){
     return;
   }
 
-=item public static C<< show_mouse() >>
+=item I<show_mouse>
 
-The routine I<show_mouse> is the opposite of the I<hide_mouse>.
+  func show_mouse()
 
-Call I<hide_mouse> to hide the mouse cursor and simultaneously increment a
+The routine I<show_mouse> is the opposite of the L</hide_mouse>.
+
+Call L</hide_mouse> to hide the mouse cursor and simultaneously increment a
 "mouse hidden counter".
 
 The routine I<show_mouse> decrements the counter, and when it reaches zero,
 makes the mouse cursor visible again on the screen.
 
-See: I<hide_mouse>
+See: L</hide_mouse>
 
 =cut
 
@@ -444,7 +476,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -458,7 +490,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

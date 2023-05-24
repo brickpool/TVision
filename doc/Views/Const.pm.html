@@ -31,19 +31,19 @@
   <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
   <li><a href="#CONSTANTS">CONSTANTS</a>
     <ul>
-      <li><a href="#TView-State-Flag-constants">TView State Flag constants</a></li>
-      <li><a href="#TView-Options-Field-bit-positions">TView Options Field bit positions</a></li>
-      <li><a href="#TView-Grow-mode-Field-constants">TView Grow mode Field constants</a></li>
-      <li><a href="#TView-Drag-Mode-constants">TView Drag Mode constants</a></li>
-      <li><a href="#TView-Help-Contexts-constants">TView Help Contexts constants</a></li>
-      <li><a href="#TScrollBar-part-codes">TScrollBar part codes</a></li>
-      <li><a href="#TScrollBar-options">TScrollBar options</a></li>
-      <li><a href="#TWindow-flags">TWindow flags</a></li>
-      <li><a href="#TWindow-number-constants">TWindow number constants</a></li>
-      <li><a href="#TWindow-Palette-selection-contstants">TWindow Palette selection contstants</a></li>
-      <li><a href="#Command-codes">Command codes</a></li>
-      <li><a href="#Color-Palette-constants">Color Palette constants</a></li>
-      <li><a href="#View-width">View width</a></li>
+      <li><a href="#Constants-provided-by-Views">Constants provided by Views</a></li>
+      <li><a href="#TView-State-Flag-constants-:sfXXXX">TView State Flag constants (:sfXXXX)</a></li>
+      <li><a href="#TView-Options-Field-bit-positions-:ofXXXX">TView Options Field bit positions (:ofXXXX)</a></li>
+      <li><a href="#TView-Grow-mode-Field-constants-:gfXXXX">TView Grow mode Field constants (:gfXXXX)</a></li>
+      <li><a href="#TView-Drag-Mode-constants-:dmXXXX">TView Drag Mode constants (:dmXXXX)</a></li>
+      <li><a href="#TView-Help-Contexts-constants-:hcXXXX">TView Help Contexts constants (:hcXXXX)</a></li>
+      <li><a href="#TScrollBar-part-codes-:sbXXXX">TScrollBar part codes (:sbXXXX)</a></li>
+      <li><a href="#TScrollBar-options-:sbXXXX">TScrollBar options (:sbXXXX)</a></li>
+      <li><a href="#TWindow-flags-:wfXXXX">TWindow flags (:wfXXXX)</a></li>
+      <li><a href="#TWindow-number-constants-:wnXXXX">TWindow number constants (:wnXXXX)</a></li>
+      <li><a href="#TWindow-Palette-selection-contstants-:wpXXXX">TWindow Palette selection contstants (:wpXXXX)</a></li>
+      <li><a href="#Command-codes-:cmXXXX">Command codes (:cmXXXX)</a></li>
+      <li><a href="#Color-Palette-constants-:color">Color Palette constants (:color)</a></li>
     </ul>
   </li>
   <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
@@ -204,7 +204,19 @@
 
 <h1 id="CONSTANTS">CONSTANTS</h1>
 
-<h2 id="TView-State-Flag-constants">TView State Flag constants</h2>
+<h2 id="Constants-provided-by-Views">Constants provided by <i>Views</i></h2>
+
+<dl>
+
+<dt id="public-const-Int-MAX_VIEW_WIDTH">public const <code>Int MAX_VIEW_WIDTH</code></dt>
+<dd>
+
+<p>Determines the maximum width of a view.</p>
+
+</dd>
+</dl>
+
+<h2 id="TView-State-Flag-constants-:sfXXXX">TView State Flag constants (<i>:sfXXXX</i>)</h2>
 
 <p>Use <i>TView-&gt;set_state</i> to set the state bits, from the table below, into a TView&#39;s State field.</p>
 
@@ -310,7 +322,7 @@
 </dd>
 </dl>
 
-<h2 id="TView-Options-Field-bit-positions">TView Options Field bit positions</h2>
+<h2 id="TView-Options-Field-bit-positions-:ofXXXX">TView Options Field bit positions (<i>:ofXXXX</i>)</h2>
 
 <p>The <i>ofXXXX</i> constants select options available in all <i>TView</i>-derived objects.</p>
 
@@ -438,7 +450,7 @@
 </dd>
 </dl>
 
-<h2 id="TView-Grow-mode-Field-constants">TView Grow mode Field constants</h2>
+<h2 id="TView-Grow-mode-Field-constants-:gfXXXX">TView Grow mode Field constants (<i>:gfXXXX</i>)</h2>
 
 <p>The <i>gfXXXX</i> constants set the <i>TView-&gt;grow_mode</i> field, which controls how a view grows in relation to the view that own&#39;s it.</p>
 
@@ -484,7 +496,7 @@
 </dd>
 </dl>
 
-<h2 id="TView-Drag-Mode-constants">TView Drag Mode constants</h2>
+<h2 id="TView-Drag-Mode-constants-:dmXXXX">TView Drag Mode constants (<i>:dmXXXX</i>)</h2>
 
 <p>The <i>TView-&gt;drag_mode</i> attribute controls whether or not a view can be dragged or have it size changed.</p>
 
@@ -536,7 +548,7 @@
 </dd>
 </dl>
 
-<h2 id="TView-Help-Contexts-constants">TView Help Contexts constants</h2>
+<h2 id="TView-Help-Contexts-constants-:hcXXXX">TView Help Contexts constants (<i>:hcXXXX</i>)</h2>
 
 <dl>
 
@@ -554,7 +566,7 @@
 </dd>
 </dl>
 
-<h2 id="TScrollBar-part-codes">TScrollBar part codes</h2>
+<h2 id="TScrollBar-part-codes-:sbXXXX">TScrollBar part codes (<i>:sbXXXX</i>)</h2>
 
 <p>Use one of these nine <i>sbXXXX</i> constants as a parameter to <i>TScrollBar-&gt;scroll_step</i>.</p>
 
@@ -616,7 +628,7 @@
 </dd>
 </dl>
 
-<h2 id="TScrollBar-options">TScrollBar options</h2>
+<h2 id="TScrollBar-options-:sbXXXX">TScrollBar options (<i>:sbXXXX</i>)</h2>
 
 <p>The foloowing three <i>sbXXXX</i> constants, <i>SB_HORIZONTAL</i>, <i>SB_VERTICAL</i>, <i>SB_HANDLE_KEYBOARD</i> are used to specify a horizontal, vertical, or keyboard accessable scrollbar when a scroll bar is created using the <i>TWindow-&gt;standard_scroll_bar</i> method.</p>
 
@@ -642,7 +654,7 @@
 </dd>
 </dl>
 
-<h2 id="TWindow-flags">TWindow flags</h2>
+<h2 id="TWindow-flags-:wfXXXX">TWindow flags (<i>:wfXXXX</i>)</h2>
 
 <p>See: <i>TWindow</i>, <i>TWindog-&gt;flags</i></p>
 
@@ -678,7 +690,7 @@
 </dd>
 </dl>
 
-<h2 id="TWindow-number-constants">TWindow number constants</h2>
+<h2 id="TWindow-number-constants-:wnXXXX">TWindow number constants (<i>:wnXXXX</i>)</h2>
 
 <dl>
 
@@ -692,7 +704,7 @@
 </dd>
 </dl>
 
-<h2 id="TWindow-Palette-selection-contstants">TWindow Palette selection contstants</h2>
+<h2 id="TWindow-Palette-selection-contstants-:wpXXXX">TWindow Palette selection contstants (<i>:wpXXXX</i>)</h2>
 
 <p><i>TWindows</i> has three different color palettes, as shown below.</p>
 
@@ -731,7 +743,7 @@
 </dd>
 </dl>
 
-<h2 id="Command-codes">Command codes</h2>
+<h2 id="Command-codes-:cmXXXX">Command codes (<i>:cmXXXX</i>)</h2>
 
 <dl>
 
@@ -808,7 +820,7 @@
 </dd>
 </dl>
 
-<h2 id="Color-Palette-constants">Color Palette constants</h2>
+<h2 id="Color-Palette-constants-:color">Color Palette constants (<i>:color</i>)</h2>
 
 <p>Except for <i>C_COLOR</i>, <i>C_BLACK_WHITE</i> and <i>C_MONO_CHROME</i>, all of the color palette constants contains indices into their owner&#39;s palette.</p>
 
@@ -921,18 +933,6 @@
   [ 6] Scroller Normal Text     29
   [ 7] Scroller Selected Text   30
   [ 8] Reserved                 31</code></pre>
-
-</dd>
-</dl>
-
-<h2 id="View-width">View width</h2>
-
-<dl>
-
-<dt id="public-const-Int-MAX_VIEW_WIDTH">public const <code>Int MAX_VIEW_WIDTH</code></dt>
-<dd>
-
-<p>Determines the maximum width of a view.</p>
 
 </dd>
 </dl>

@@ -72,20 +72,20 @@ our $AUTHORITY = 'github:fpc';
 use Data::Alias qw( alias );
 use MooseX::Types::Common::String qw( is_SimpleStr );
 
-use TurboVision::Objects::Const qw( ST_OK );
 use TurboVision::Objects::Common qw(
   byte
-  word
   longint
+  word
 );
-use TurboVision::Objects::StreamRec;
+use TurboVision::Objects::Const qw( ST_OK );
 use TurboVision::Objects::Object;
 use TurboVision::Objects::Stream;
+use TurboVision::Objects::StreamRec;
 use TurboVision::Objects::Types qw(
-  TStrIndex
-  TStreamRec
   TObject
   TStream
+  TStreamRec
+  TStrIndex
   TStrListMaker
 );
 
@@ -466,7 +466,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -492,7 +492,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

@@ -121,8 +121,6 @@ our %EXPORT_TAGS = (
 
 =head3 Keyboard support routines
 
-Exported with C<:kbd>.
-
 =over
 
 =item I<ctrl_to_arrow>
@@ -255,8 +253,6 @@ Returns the scancode corresponding to I<Ctrl+Ch> key that is given.
 =back
 
 =head3 String routines
-
-Exported with C<:str>.
 
 =over
 
@@ -392,8 +388,6 @@ built in function I<print>.
 =back
 
 =head3 Buffer move routines
-
-Exported with C<:move>.
 
 =over
 
@@ -580,7 +574,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -594,7 +588,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

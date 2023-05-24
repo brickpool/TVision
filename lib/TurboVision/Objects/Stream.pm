@@ -53,11 +53,10 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use MooseX::ClassAttribute;
-use MooseX::Types::Common::String qw( SimpleStr );
-
 use Config;
 use Data::Alias qw( alias );
+use MooseX::ClassAttribute;
+use MooseX::Types::Common::String qw( SimpleStr );
 
 use TurboVision::Const qw(
   _EMPTY_STRING
@@ -65,19 +64,17 @@ use TurboVision::Const qw(
   _SIMPLE_STR_T
   _UINT16_MAX
 );
-use TurboVision::Objects::Const qw(
-  :stXXXX
-);
 use TurboVision::Objects::Common qw(
   abstract
   byte
   word
 );
+use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::StreamRec;
 use TurboVision::Objects::Types qw(
-  TStreamRec
   TObject
   TStream
+  TStreamRec
 );
 
 # ------------------------------------------------------------------------
@@ -648,7 +645,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -674,7 +671,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

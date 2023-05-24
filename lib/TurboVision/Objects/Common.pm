@@ -69,8 +69,8 @@ use TurboVision::Const qw(
   :typedef
 );
 use TurboVision::Objects::Types qw(
-  TStreamRec
   TCollection
+  TStreamRec
   TStringCollection
 );
 
@@ -576,7 +576,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -598,7 +598,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

@@ -119,11 +119,32 @@ tbd
 
 =head1 CONSTANTS
 
-=head2 Collection error codes
+=head2 Constants provided by I<Objects>
 
 =over
 
-=item public const C<< Int CO_INDEX_ERROR >>
+=item I<MAX_COLLECTION_SIZE>
+
+  constant MAX_COLLECTION_SIZE = < Int >;
+
+I<MAX_COLLECTION_SIZE> determines the maximum number of elements a
+collection can contain.
+
+=cut
+
+  use constant MAX_COLLECTION_SIZE => (1 << $Config{u16size} * 8) - 1;
+
+=back
+
+=cut
+
+=head2 Collection error codes (I<:coXXXX>)
+
+=over
+
+=item I<CO_INDEX_ERROR>
+
+  constant CO_INDEX_ERROR = < Int >;
 
 Index out of range
 
@@ -131,7 +152,9 @@ Index out of range
 
   use constant CO_INDEX_ERROR => -1;
 
-=item public const C<< Int CO_OVERFLOW >>
+=item I<CO_OVERFLOW>
+
+  constant CO_OVERFLOW = < Int >;
 
 Overflow
 
@@ -143,28 +166,13 @@ Overflow
 
 =cut
 
-=head2 Collection size
+=head2 Stream error state masks (I<:stXXXX>)
 
 =over
 
-=item public const C<< Int MAX_COLLECTION_SIZE >>
+=item I<ST_OK>
 
-I<MAX_COLLECTION_SIZE> determines the maximum number of elements a
-collection can contain.
-
-=cut
-
-  use constant MAX_COLLECTION_SIZE => (1 << $Config{u16size} * 8) - 1;
-
-=back
-
-=cut;
-
-=head2 Stream error state masks
-
-=over
-
-=item public const C<< Int ST_OK >>
+  constant ST_OK = < Int >;
 
 No stream error
 
@@ -172,7 +180,9 @@ No stream error
 
   use constant ST_OK         =>  0;                                 
 
-=item public const C<< Int ST_ERROR >>
+=item I<ST_ERROR>
+
+  constant ST_ERROR = < Int >;
 
 Access error
 
@@ -180,7 +190,9 @@ Access error
 
   use constant ST_ERROR       => -1;
 
-=item public const C<< Int ST_INIT_ERROR >>
+=item I<ST_INIT_ERROR>
+
+  constant ST_INIT_ERROR = < Int >;
 
 Initialize error
 
@@ -188,7 +200,9 @@ Initialize error
 
   use constant ST_INIT_ERROR  => -2;
 
-=item public const C<< Int ST_READ_ERROR >>
+=item I<ST_READ_ERROR>
+
+  constant ST_READ_ERROR = < Int >;
 
 Stream read error
 
@@ -196,7 +210,9 @@ Stream read error
 
   use constant ST_READ_ERROR  => -3;
 
-=item public const C<< Int ST_WRITE_ERROR >>
+=item I<ST_WRITE_ERROR>
+
+  constant ST_WRITE_ERROR = < Int >;
 
 Stream write error
 
@@ -204,7 +220,9 @@ Stream write error
 
   use constant ST_WRITE_ERROR => -4;
 
-=item public const C<< Int ST_GET_ERROR >>
+=item I<ST_GET_ERROR>
+
+  constant ST_GET_ERROR = < Int >;
 
 Get object error
 
@@ -212,7 +230,9 @@ Get object error
 
   use constant ST_GET_ERROR   => -5;
 
-=item public const C<< Int ST_PUT_ERROR >>
+=item I<ST_PUT_ERROR>
+
+  constant ST_PUT_ERROR = < Int >;
 
 Put object error
 
@@ -224,11 +244,13 @@ Put object error
 
 =cut
 
-=head2 Stream access mode constants
+=head2 Stream access mode constants (I<:stXXXX>)
 
 =over
 
-=item public const C<< Int ST_CREATE >>
+=item I<ST_CREATE>
+
+  constant ST_CREATE = < Int >;
 
 Create new file
 
@@ -236,7 +258,9 @@ Create new file
 
   use constant ST_CREATE      => 0x3C00;
 
-=item public const C<< Int ST_OPEN_READ >>
+=item I<ST_OPEN_READ>
+
+  constant ST_OPEN_READ = < Int >;
 
 Read access only
 
@@ -244,7 +268,9 @@ Read access only
 
   use constant ST_OPEN_READ   => 0x3D00;
 
-=item public const C<< Int ST_OPEN_WRITE >>
+=item I<ST_OPEN_WRITE>
+
+  constant ST_OPEN_WRITE = < Int >;
 
 Write access only
 
@@ -252,7 +278,9 @@ Write access only
 
   use constant ST_OPEN_WRITE  => 0x3D01;
 
-=item public const C<< Int ST_OPEN >>
+=item I<ST_OPEN>
+
+  constant ST_OPEN = < Int >;
 
 Read/write access
 
@@ -284,7 +312,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -294,7 +322,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

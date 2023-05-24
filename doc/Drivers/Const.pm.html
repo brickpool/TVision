@@ -31,14 +31,14 @@
   <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
   <li><a href="#CONSTANTS">CONSTANTS</a>
     <ul>
-      <li><a href="#Drivers-used-public-constants">Drivers used public constants</a></li>
-      <li><a href="#Event-type-masks">Event type masks</a></li>
-      <li><a href="#Event-code-masks">Event code masks</a></li>
-      <li><a href="#Keyboard-Shift-State-Constants">Keyboard Shift State Constants</a></li>
-      <li><a href="#Keyboard-Scancode-Constants">Keyboard Scancode Constants</a></li>
-      <li><a href="#Mouse-Button-constants">Mouse Button constants</a></li>
-      <li><a href="#Screen-Mode-Constants">Screen Mode Constants</a></li>
-      <li><a href="#Internal-constants-used-by-Drivers">Internal constants used by Drivers</a></li>
+      <li><a href="#Constants-provided-by-Drivers">Constants provided by Drivers</a></li>
+      <li><a href="#Event-type-masks-:evXXXX">Event type masks (:evXXXX)</a></li>
+      <li><a href="#Event-code-masks-:evXXXX">Event code masks (:evXXXX)</a></li>
+      <li><a href="#Keyboard-Shift-State-Constants-:kbXXXX">Keyboard Shift State Constants (:kbXXXX)</a></li>
+      <li><a href="#Keyboard-Scancode-Constants-:kbXXXX">Keyboard Scancode Constants (:kbXXXX)</a></li>
+      <li><a href="#Mouse-Button-constants-:mbXXXX">Mouse Button constants (:mbXXXX)</a></li>
+      <li><a href="#Screen-Mode-Constants-:smXXXX">Screen Mode Constants (:smXXXX)</a></li>
+      <li><a href="#Constants-used-by-Drivers-:private">Constants used by Drivers (:private)</a></li>
     </ul>
   </li>
   <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
@@ -211,7 +211,7 @@
 
 <h1 id="CONSTANTS">CONSTANTS</h1>
 
-<h2 id="Drivers-used-public-constants">Drivers used public constants</h2>
+<h2 id="Constants-provided-by-Drivers">Constants provided by <i>Drivers</i></h2>
 
 <dl>
 
@@ -225,7 +225,7 @@
 </dd>
 </dl>
 
-<h2 id="Event-type-masks">Event type masks</h2>
+<h2 id="Event-type-masks-:evXXXX">Event type masks (<i>:evXXXX</i>)</h2>
 
 <dl>
 
@@ -287,7 +287,7 @@
 </dd>
 </dl>
 
-<h2 id="Event-code-masks">Event code masks</h2>
+<h2 id="Event-code-masks-:evXXXX">Event code masks (<i>:evXXXX</i>)</h2>
 
 <dl>
 
@@ -325,7 +325,7 @@
 </dd>
 </dl>
 
-<h2 id="Keyboard-Shift-State-Constants">Keyboard Shift State Constants</h2>
+<h2 id="Keyboard-Shift-State-Constants-:kbXXXX">Keyboard Shift State Constants (<i>:kbXXXX</i>)</h2>
 
 <p>The <i>kbXXXX</i> constants for detecting keyboard shift states.</p>
 
@@ -406,7 +406,7 @@
 </dd>
 </dl>
 
-<h2 id="Keyboard-Scancode-Constants">Keyboard Scancode Constants</h2>
+<h2 id="Keyboard-Scancode-Constants-:kbXXXX">Keyboard Scancode Constants (<i>:kbXXXX</i>)</h2>
 
 <p>The <i>kbXXXX</i> constants for the non-standard keystrokes such as function and Alt keys.</p>
 
@@ -545,7 +545,7 @@
 </dd>
 </dl>
 
-<h2 id="Mouse-Button-constants">Mouse Button constants</h2>
+<h2 id="Mouse-Button-constants-:mbXXXX">Mouse Button constants (<i>:mbXXXX</i>)</h2>
 
 <p>The <i>mbXXXX</i> constants are used to test the <i>$event-&gt;buttons</i> field of a <i> TEvent </i> record or the <i>$mouse_buttons</i> variable to determine if the left or right button was pressed.</p>
 
@@ -593,9 +593,9 @@
 </dd>
 </dl>
 
-<h2 id="Screen-Mode-Constants">Screen Mode Constants</h2>
+<h2 id="Screen-Mode-Constants-:smXXXX">Screen Mode Constants (<i>:smXXXX</i>)</h2>
 
-<p>Use the constants from the table below when selecting Black &amp; White, Color or Monochrome color palettes, or switching between 25 and 43- or 50 line display modes.</p>
+<p>Use the constants from the list below when selecting Black &amp; White, Color or Monochrome color palettes, or switching between 25 and 43 or 50 line display modes.</p>
 
 <dl>
 
@@ -649,14 +649,14 @@
 </dd>
 </dl>
 
-<h2 id="Internal-constants-used-by-Drivers">Internal constants used by <i>Drivers</i></h2>
+<h2 id="Constants-used-by-Drivers-:private">Constants used by <i>Drivers</i> (<i>:private</i>)</h2>
 
 <dl>
 
 <dt id="ALT_CODES"><i>_ALT_CODES</i></dt>
 <dd>
 
-<pre><code>  constant _ALT_CODES = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _ALT_CODES = &lt; CodeRef &gt;;</code></pre>
 
 <p>Mapping table for <i>get_alt_code</i> and <i>get_alt_char</i>.</p>
 
@@ -664,7 +664,7 @@
 <dt id="CP437_TO_UTF8"><i>_CP437_TO_UTF8</i></dt>
 <dd>
 
-<pre><code>  constant _CP437_TO_UTF8 = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _CP437_TO_UTF8 = &lt; CodeRef &gt;;</code></pre>
 
 <p>Codepage 437 to Unicode translation map.</p>
 
@@ -672,7 +672,7 @@
 <dt id="SCREEN_RESOLUTION"><i>_SCREEN_RESOLUTION</i></dt>
 <dd>
 
-<pre><code>  constant _SCREEN_RESOLUTION = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _SCREEN_RESOLUTION = &lt; CodeRef &gt;;</code></pre>
 
 <p>Hash constants for converting standard video text modes (<code>0x0000..0x00ff</code>, <code>0x0100..0x07ff</code> or <code>0x0900..0x09ff</code>) to resolution modes (<code>0x1000..0x7fff</code>).</p>
 
@@ -682,7 +682,7 @@
 <dt id="STANDARD_CRT_MODE"><i>_STANDARD_CRT_MODE</i></dt>
 <dd>
 
-<pre><code>  constant _STANDARD_CRT_MODE = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _STANDARD_CRT_MODE = &lt; CodeRef &gt;;</code></pre>
 
 <p>Hash constants for converting resolution modes (<code>0x1000..0x7fff</code>) to standard text modes (<code>0x0000..0x00ff</code>, <code>0x0100..0x07ff</code> or <code>0x0900..0x09ff</code>).</p>
 
@@ -690,7 +690,7 @@
 <dt id="WORD_STAR_CODES"><i>_WORD_STAR_CODES</i></dt>
 <dd>
 
-<pre><code>  constant _WORD_STAR_CODES = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _WORD_STAR_CODES = &lt; CodeRef &gt;;</code></pre>
 
 <p>Hash constants for converting WordStar keystrokes (<code>Ctrl-A</code>, <code>Ctrl-X</code>, ...) into the corresponding <i>kbXXXX</i> values.</p>
 
@@ -698,7 +698,7 @@
 <dt id="UTF8_TO_CP437"><i>_UTF8_TO_CP437</i></dt>
 <dd>
 
-<pre><code>  constant _UTF8_TO_CP437 = &lt; Ref &gt;;</code></pre>
+<pre><code>  constant _UTF8_TO_CP437 = &lt; CodeRef &gt;;</code></pre>
 
 <p>Unicode to Codepage 437 translation map.</p>
 

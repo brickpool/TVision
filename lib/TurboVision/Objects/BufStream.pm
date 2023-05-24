@@ -123,12 +123,12 @@ use Data::Alias qw( alias );
 use POSIX qw( :errno_h :fcntl_h );
 
 use TurboVision::Const qw( _EMPTY_STRING );
-use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::Common qw( fail );
+use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::DosStream;
 use TurboVision::Objects::Types qw(
-  TDosStream
   TBufStream
+  TDosStream
 );
 
 # ------------------------------------------------------------------------
@@ -175,7 +175,9 @@ package TurboVision::Objects::BufStream {
 
 =over
 
-=item public readonly C<< Int buf_end >>
+=item I<buf_end>
+
+  has buf_end ( is => rwp, type => Int ) = 0;
 
 If the buffer is not full, I<buf_end> gives an offset to the last used byte in
 the buffer.
@@ -188,7 +190,9 @@ the buffer.
     writer  => '_buf_end',
   );
 
-=item public readonly C<< Str buffer >>
+=item I<buffer>
+
+  has buffer ( is => rwp, type => Str ) = '';
 
 Stream buffer as byte packed string.
 
@@ -200,7 +204,9 @@ Stream buffer as byte packed string.
     writer  => '_buffer',
   );
 
-=item public readonly C<< Int buf_ptr >>
+=item I<buf_ptr>
+
+  has buf_ptr ( is => rwp, type => Int ) = 0;
 
 An offset from the I<buffer> string indicating the current position.
 
@@ -212,7 +218,9 @@ An offset from the I<buffer> string indicating the current position.
     writer  => '_buf_ptr',
   );
 
-=item public readonly C<< Int buf_size >>
+=item I<buf_size>
+
+  has buf_size ( is => rwp, type => Int ) = 0;
 
 The size of the buffer in bytes.
 
@@ -226,7 +234,9 @@ The size of the buffer in bytes.
 
 =begin comment
 
-=item private C<< Int _last_mode >>
+=item I<_last_mode>
+
+  has _last_mode ( is => ro, type => Int, writer => '_last_mode' ) = -1;
 
 I<_last_mode> holds the read or write condition of the last buffer access,
 which helps speed up the flush function.
@@ -255,7 +265,9 @@ which helps speed up the flush function.
 
 =over
 
-=item public C<< TBufStream->init(Str $file_name, Int $mode) >>
+=item I<init>
+
+ factory $class->init(Str $file_name, Int $mode) : TBufStream
 
 Constructs the object and opens the file named in I<$file_name> with access
 mode I<$mode> by calling the I<init> constructor inherited from I<TDosStream>.
@@ -290,9 +302,11 @@ mode I<$mode> by calling the I<init> constructor inherited from I<TDosStream>.
 
 =over
 
-=item public C<< DEMOLISH() >>
+=item I<DEMOLISH>
 
-Calls I<flush> to flush buffer contents to disk.
+  sub $self->DEMOLISH()
+
+Calls L</flush> to flush buffer contents to disk.
 
 =cut
 
@@ -313,7 +327,9 @@ Calls I<flush> to flush buffer contents to disk.
 
 =over
 
-=item public C<< flush() >>
+=item I<flush>
+
+  method flush()
 
 Flushes the stream's buffer provided the stream's status is I<stOK>.
 
@@ -346,9 +362,11 @@ Flushes the stream's buffer provided the stream's status is I<stOK>.
     return;
   }
  
-=item public C<< read(Item $buf, Int $count) >>
+=item I<read>
 
-If the stream's status is I<stOK>, reads I<$count> bytes into the I<$buf>.
+  method read($buf, Int $count)
+
+If the stream's status is I<ST_OK>, reads I<$count> bytes into the I<$buf>.
 
 =cut
 
@@ -425,7 +443,9 @@ If the stream's status is I<stOK>, reads I<$count> bytes into the I<$buf>.
     return;
   }
 
-=item public C<< seek(Int $pos) >>
+=item I<seek>
+
+  method seek(Int $pos)
 
 Sets the current position to I<$pos> bytes from the beginning of the stream.
 
@@ -444,7 +464,9 @@ Sets the current position to I<$pos> bytes from the beginning of the stream.
     return;
   }
 
-=item public C<< truncate() >>
+=item I<truncate>
+
+  method truncate()
 
 I<truncate> deletes all data on the calling stream from the current position.
 
@@ -456,7 +478,9 @@ I<truncate> deletes all data on the calling stream from the current position.
     return;
   }
 
-=item public C<< write(Str $buf, Int $count) >>
+=item I<write>
+
+  method write(Str $buf, Int $count)
 
 Writes I<$count> bytes from the I<$buf> buffer to the stream, starting at the
 current position.
@@ -532,7 +556,7 @@ current position.
 
 =head2 Inheritance
 
-Methods inherited from class C<TStream>
+Methods inherited from class I<TStream>
 
   copy_from, error, get, get_pos, get_size, put, read_str, reset,
   write_str
@@ -569,7 +593,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -595,7 +619,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

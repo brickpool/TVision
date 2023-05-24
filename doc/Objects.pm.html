@@ -57,22 +57,22 @@
 
 <p>The following is the equivalent notation that is imported here:</p>
 
-<pre><code>  use TurboVision::Objects::Const qw( :all !:private );
-  use TurboVision::Objects::Common qw( :all );
+<pre><code>  use TurboVision::Objects::Common qw( :all );
+  use TurboVision::Objects::Const qw( :all !:private );
   use TurboVision::Objects::Types qw( :all );
   
+  use TurboVision::Objects::BufStream;
+  use TurboVision::Objects::Collection qw( :all );
+  use TurboVision::Objects::DosStream;
+  use TurboVision::Objects::MemoryStream;
   use TurboVision::Objects::Point;
   use TurboVision::Objects::Rect;
-  use TurboVision::Objects::StreamRec;
-  use TurboVision::Objects::Stream;
-  use TurboVision::Objects::DosStream;
-  use TurboVision::Objects::BufStream;
-  use TurboVision::Objects::MemoryStream;
-  use TurboVision::Objects::Collection qw( :all );
-  use TurboVision::Objects::SortedCollection qw( :all );
-  use TurboVision::Objects::StringCollection;
   use TurboVision::Objects::ResourceCollection;
   use TurboVision::Objects::ResourceFile;
+  use TurboVision::Objects::SortedCollection qw( :all );
+  use TurboVision::Objects::Stream;
+  use TurboVision::Objects::StreamRec;
+  use TurboVision::Objects::StringCollection;
   use TurboVision::Objects::StringList qw( :all );
   use TurboVision::Objects::StrListMaker qw( :all );</code></pre>
 

@@ -67,11 +67,11 @@ use Data::Alias qw( alias );
 use MooseX::Types::Common::String qw( SimpleStr );
 
 use TurboVision::Const qw(
-  _EMPTY_STRING
   :bool
+  _EMPTY_STRING
+  _INT32_T
   _SIZE_OF_UINT16
   _SIZE_OF_INT32
-  _INT32_T
   _UINT16_T
 );
 use TurboVision::Objects::Common qw(
@@ -80,13 +80,13 @@ use TurboVision::Objects::Common qw(
   word
 );
 use TurboVision::Objects::Object;
-use TurboVision::Objects::Stream;
 use TurboVision::Objects::ResourceCollection;
+use TurboVision::Objects::Stream;
 use TurboVision::Objects::Types qw(
   TObject
-  TStream
   TResourceCollection
   TResourceFile
+  TStream
 );
 
 # ------------------------------------------------------------------------
@@ -626,7 +626,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -652,7 +652,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

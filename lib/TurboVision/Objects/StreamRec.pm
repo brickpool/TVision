@@ -67,9 +67,7 @@ use MooseX::ClassAttribute;
 use MooseX::StrictConstructor;
 use MooseX::Types::Perl qw( Identifier );
 
-use TurboVision::Objects::Types qw(
-  TStreamRec
-);
+use TurboVision::Objects::Types qw( TStreamRec );
 
 # ------------------------------------------------------------------------
 # Class Defnition --------------------------------------------------------
@@ -311,7 +309,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

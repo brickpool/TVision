@@ -80,16 +80,16 @@ use TurboVision::Const qw(
   :bool
   _UINT8_T
 );
+use TurboVision::Objects::Collection;
 use TurboVision::Objects::Common qw(
   abstract
   byte
 );
 use TurboVision::Objects::Stream;
-use TurboVision::Objects::Collection;
 use TurboVision::Objects::Types qw(
-  TStream
   TCollection
   TSortedCollection
+  TStream
 );
 
 # ------------------------------------------------------------------------
@@ -393,7 +393,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -419,7 +419,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

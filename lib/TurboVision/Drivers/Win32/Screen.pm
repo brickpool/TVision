@@ -43,6 +43,7 @@ our $AUTHORITY = 'github:fpc';
 
 use English qw( -no_match_vars );
 use PerlX::Assert;
+use Win32::Console;
 
 use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw(
@@ -51,8 +52,6 @@ use TurboVision::Drivers::Const qw(
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::ScreenManager qw( :vars );
-
-use TurboVision::Drivers::Win32::StdioCtl;
 #use TurboVision::Drivers::Win32::LowLevel qw(
 #  GWL_STYLE
 #  WS_SIZEBOX
@@ -60,8 +59,7 @@ use TurboVision::Drivers::Win32::StdioCtl;
 #  GetWindowLong
 #  SetWindowLong
 #);
-
-use Win32::Console;
+use TurboVision::Drivers::Win32::StdioCtl;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -620,7 +618,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -644,7 +642,7 @@ See: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

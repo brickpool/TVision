@@ -35,27 +35,26 @@ our $AUTHORITY = 'github:brickpool';
 # ------------------------------------------------------------------------
 
 use Carp qw( confess );
+use Import::Into;
 
-use TurboVision::Objects::Const;
 use TurboVision::Objects::Common;
+use TurboVision::Objects::Const;
 use TurboVision::Objects::Types;
 
+use TurboVision::Objects::BufStream;
+use TurboVision::Objects::Collection;
+use TurboVision::Objects::DosStream;
+use TurboVision::Objects::MemoryStream;
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Rect;
-use TurboVision::Objects::StreamRec;
-use TurboVision::Objects::Stream;
-use TurboVision::Objects::DosStream;
-use TurboVision::Objects::BufStream;
-use TurboVision::Objects::MemoryStream;
-use TurboVision::Objects::Collection;
-use TurboVision::Objects::SortedCollection;
-use TurboVision::Objects::StringCollection;
 use TurboVision::Objects::ResourceCollection;
 use TurboVision::Objects::ResourceFile;
+use TurboVision::Objects::SortedCollection;
+use TurboVision::Objects::Stream;
+use TurboVision::Objects::StreamRec;
+use TurboVision::Objects::StringCollection;
 use TurboVision::Objects::StringList;
 use TurboVision::Objects::StrListMaker;
-
-use Import::Into;
 
 =head1 DESCRIPTION
 
@@ -66,22 +65,22 @@ and classes of the I<TurboVision::Objects::X> module hierarchy.
 
 The following is the equivalent notation that is imported here:
 
-  use TurboVision::Objects::Const qw( :all !:private );
   use TurboVision::Objects::Common qw( :all );
+  use TurboVision::Objects::Const qw( :all !:private );
   use TurboVision::Objects::Types qw( :all );
   
+  use TurboVision::Objects::BufStream;
+  use TurboVision::Objects::Collection qw( :all );
+  use TurboVision::Objects::DosStream;
+  use TurboVision::Objects::MemoryStream;
   use TurboVision::Objects::Point;
   use TurboVision::Objects::Rect;
-  use TurboVision::Objects::StreamRec;
-  use TurboVision::Objects::Stream;
-  use TurboVision::Objects::DosStream;
-  use TurboVision::Objects::BufStream;
-  use TurboVision::Objects::MemoryStream;
-  use TurboVision::Objects::Collection qw( :all );
-  use TurboVision::Objects::SortedCollection qw( :all );
-  use TurboVision::Objects::StringCollection;
   use TurboVision::Objects::ResourceCollection;
   use TurboVision::Objects::ResourceFile;
+  use TurboVision::Objects::SortedCollection qw( :all );
+  use TurboVision::Objects::Stream;
+  use TurboVision::Objects::StreamRec;
+  use TurboVision::Objects::StringCollection;
   use TurboVision::Objects::StringList qw( :all );
   use TurboVision::Objects::StrListMaker qw( :all );
 
@@ -94,9 +93,10 @@ sub import {
   }
 
   my $target = caller;
-  TurboVision::Objects::Const->import::into($target, qw( :all ));
   TurboVision::Objects::Common->import::into($target, qw( :all ));
+  TurboVision::Objects::Const->import::into($target, qw( :all ));
   TurboVision::Objects::Types->import::into($target, qw( :all ));
+
   TurboVision::Objects::Collection->import::into($target, qw( :all ));
   TurboVision::Objects::SortedCollection->import::into($target, qw( :all ));
   TurboVision::Objects::StringList->import::into($target, qw( :all ));
@@ -105,9 +105,10 @@ sub import {
 
 sub unimport {
   my $caller = caller;
-  TurboVision::Objects::Const->unimport::out_of($caller);
   TurboVision::Objects::Common->unimport::out_of($caller);
+  TurboVision::Objects::Const->unimport::out_of($caller);
   TurboVision::Objects::Types->unimport::out_of($caller);
+
   TurboVision::Objects::Collection->unimport::out_of($caller);
   TurboVision::Objects::SortedCollection->unimport::out_of($caller);
   TurboVision::Objects::StringList->unimport::out_of($caller);
@@ -133,7 +134,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -143,7 +144,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

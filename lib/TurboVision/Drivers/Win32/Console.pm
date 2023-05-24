@@ -46,10 +46,8 @@ our $AUTHORITY = 'github:brickpool';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use English qw( -no_match_vars );
-
 use Class::MOP::Package;
-
+use English qw( -no_match_vars );
 use Win32::API;
 use Win32::Console;
 use Win32API::File;
@@ -448,7 +446,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -458,7 +456,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

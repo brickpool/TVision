@@ -178,8 +178,10 @@
 
 <dl>
 
-<dt id="public-constant-Object-RCollection">public constant <code>Object RCollection</code></dt>
+<dt id="RCollection"><i>RCollection</i></dt>
 <dd>
+
+<pre><code>  constant RCollection = &lt; TStreamRec &gt;;</code></pre>
 
 <p>Defining a registration record constant for <i>TCollection</i>.</p>
 
@@ -190,14 +192,18 @@
 
 <dl>
 
-<dt id="public-readonly-Int-count">public readonly <code>Int count</code></dt>
+<dt id="count"><i>count</i></dt>
 <dd>
+
+<pre><code>  field count ( is =&gt; ro, type =&gt; Int );</code></pre>
 
 <p>Holds the number of items currently stored in the collection, up to <i>MAX_COLLECTION_SIZE</i>.</p>
 
 </dd>
-<dt id="public-readonly-Int-delta">public readonly <code>Int delta</code></dt>
+<dt id="delta"><i>delta</i></dt>
 <dd>
+
+<pre><code>  has delta ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
 <p>Because one of the features of collections is that they can grow, <i>delta</i> holds the number of elements by which the collection should be enlarged when the <i>count</i> reaches the current maximum size specified by <i>limit</i>.</p>
 
@@ -206,14 +212,18 @@
 <p>Generally, <i>limit</i> should initially be set to a sufficient size for most operations on the collection, and <i>delta</i> should be set large enough so that expansion of the collection occurs infrequently to avoid the fairly intensive overhead of dynamically resizing the collection.</p>
 
 </dd>
-<dt id="public-readonly-ArrayRef-Ref-items">public readonly <code>ArrayRef[Ref] items</code></dt>
+<dt id="items"><i>items</i></dt>
 <dd>
+
+<pre><code>  has items ( is =&gt; rwp, type =&gt; ArrayRef[Ref] ) = [];</code></pre>
 
 <p><i>items</i> points to an array reference that contains reference to the individual items in the collection.</p>
 
 </dd>
-<dt id="public-readonly-Int-limit">public readonly <code>Int limit</code></dt>
+<dt id="limit"><i>limit</i></dt>
 <dd>
+
+<pre><code>  has limit ( is =&gt; rwp, type =&gt; Int ) = MAX_COLLECTION_SIZE;</code></pre>
 
 <p>Holds the current number of reserved elements for the collection.</p>
 
@@ -224,8 +234,10 @@
 
 <dl>
 
-<dt id="public-TCollection-init-Int-a_limit-Int-a_delta">public <code>TCollection-&gt;init(Int $a_limit, Int $a_delta)</code></dt>
+<dt id="init"><i>init</i></dt>
 <dd>
+
+<pre><code>  factory $class-&gt;init(Int $a_limit, Int $a_delta) : TCollection</code></pre>
 
 <p>The constructor <i>init</i> creates a new collection with initially allocated array for the number of elements specified by <i>$a_limit</i>, and the ability to dynamically increase the size of the collection in <i>delta</i> increments.</p>
 

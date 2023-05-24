@@ -49,9 +49,9 @@ use POSIX qw(
   setlocale
   LC_ALL
 );
+use Win32::Console;
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Drivers::Const qw(
   EVENT_Q_SIZE
   :evXXXX
@@ -59,17 +59,15 @@ use TurboVision::Drivers::Const qw(
   :mbXXXX
   :private
 );
-use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw(
   TEvent
   StdioCtl
 );
+use TurboVision::Drivers::Event;
 use TurboVision::Drivers::EventManager qw( :vars );
-
 use TurboVision::Drivers::Win32::LowLevel qw( GetDoubleClickTime );
 use TurboVision::Drivers::Win32::StdioCtl;
-
-use Win32::Console;
+use TurboVision::Objects::Types qw( TPoint );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -165,10 +163,10 @@ our %EXPORT_TAGS = (
 
 =item I<_SHIFT_CVT>
 
-  constant _ALT_CVT = < Ref >;
-  constant _CTRL_CVT = < Ref >;
-  constant _NORMAL_CVT = < Ref >;
-  constant _SHIFT_CVT = < Ref >;
+  constant _ALT_CVT = < CodeRef >;
+  constant _CTRL_CVT = < CodeRef >;
+  constant _NORMAL_CVT = < CodeRef >;
+  constant _SHIFT_CVT = < CodeRef >;
 
 Scancode mapping tables.
 
@@ -521,20 +519,17 @@ Key shift state.
   our $_ticks : Int;
 
 This (magic) variable returns the number of timer ticks (1 second = 18.2 ticks),
-similar to the direct memory access to the BIOS low memory address 0x40:0x6C.
+similar to the direct memory access to the BIOS low memory address C<0x40:0x6C>.
 
 =cut
 
   package System::GetDosTicks {
     use Time::HiRes qw( time );
+    use Win32;
 
     sub TIESCALAR {
       my $class = shift;
-      my $base_time;
-      {
-        no strict;
-        $base_time = time() - Win32::GetTickCount()/1000;
-      }
+      my $base_time = time() - Win32::GetTickCount()/1000;
       my $self = \$base_time;
       return bless $self, $class;
     }
@@ -627,7 +622,7 @@ information about the routine is described in the I<EventManager> module.
 
 =cut
 
-  func _init_events() {
+  func init_events() {
     my $CONSOLE = do {
       $_io //= StdioCtl->instance();
       $_io->in();
@@ -659,7 +654,7 @@ information about the routine is described in the I<EventManager> module.
 
     # init mouse
     require TurboVision::Drivers::Win32::Mouse;
-    TurboVision::Drivers::Win32::Mouse::_show_mouse();
+    TurboVision::Drivers::Win32::Mouse::show_mouse();
     $double_delay = int( ( GetDoubleClickTime() || 500 ) * 18.2/1000 );
 
     return;
@@ -674,10 +669,10 @@ information about the routine is described in the I<EventManager> module.
 
 =cut
 
-  func _done_events() {
+  func done_events() {
     # done mouse
     require TurboVision::Drivers::Win32::Mouse;
-    TurboVision::Drivers::Win32::Mouse::_hide_mouse();
+    TurboVision::Drivers::Win32::Mouse::hide_mouse();
 
     # Restore Quick Edit mode
     if ( $_save_quick_mode ) {
@@ -1195,7 +1190,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -1209,7 +1204,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

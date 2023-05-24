@@ -1,0 +1,79 @@
+{
+  "TEvent": {
+    "what": {
+      "type": {
+        "case": [{
+            "EV_NOTHING": null
+          }, {
+            "EV_MOUSE": {
+              "buttons": {
+                "type": "Int"
+              },
+              "double": {
+                "type": "Bool"
+              },
+              "where": {
+                "type": "TPoint"
+              }
+            }
+          }, {
+            "EV_KEY_DOWN": [{
+                "id": 0,
+                "KeyCode": {
+                  "type": "Int"
+                }
+              }, {
+                "id": 1,
+                "CharCode": {
+                  "type": "Int"
+                },
+                "ScanCode": {
+                  "type": "Int"
+                }
+              },
+            ]
+          }, {
+            "EV_MESSAGE": {
+              "command": {
+                "type": {
+                  "info": [{
+                      "id": 0,
+                      "info_ptr": {
+                        "type": ["Ref", null]
+                      }
+                    }, {
+                      "id": 1,
+                      "info_long": {
+                        "type": "Int"
+                      }
+                    }, {
+                      "id": 2,
+                      "info_word": {
+                        "type": "Int"
+                      }
+                    }, {
+                      "id": 3,
+                      "info_int": {
+                        "type": "Int"
+                      }
+                    }, {
+                      "id": 4,
+                      "info_byte": {
+                        "type": "Int"
+                      }
+                    }, {
+                      "id": 5,
+                      "info_char": {
+                        "type": "Int"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

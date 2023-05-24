@@ -45,7 +45,7 @@ Nothing per default, but can export the following per request:
 
   :all
     EVENT_Q_SIZE
-
+  
     :evXXXX
       EV_MOUSE_DOWN
       EV_MOUSE_UP
@@ -54,12 +54,12 @@ Nothing per default, but can export the following per request:
       EV_KEY_DOWN
       EV_COMMAND
       EV_BROADCAST
-
+  
       EV_NOTHING
       EV_MOUSE
       EV_KEYBOARD
       EV_MESSAGE
-
+  
     :kbXXXX
       KB_RIGHT_SHIFT
       KB_LEFT_SHIFT
@@ -69,7 +69,7 @@ Nothing per default, but can export the following per request:
       KB_NUM_STATE
       KB_CAPS_STATE
       KB_INS_STATE
-
+  
       KB_ALT_A    KB_ALT_N
       KB_ALT_B    KB_ALT_O
       KB_ALT_C    KB_ALT_P
@@ -97,7 +97,7 @@ Nothing per default, but can export the following per request:
       KB_CTRL_K   KB_CTRL_X
       KB_CTRL_L   KB_CTRL_Y
       KB_CTRL_M   KB_CTRL_Z
-
+  
       KB_ALT_EQUAL    KB_END
       KB_ALT_MINUS    KB_ENTER
       KB_ALT_SPACE    KB_ESC
@@ -127,34 +127,34 @@ Nothing per default, but can export the following per request:
       KB_F3   KB_F8
       KB_F4   KB_F9
       KB_F5   KB_F10
-
+  
       KB_SHIFT_F1   KB_SHIFT_F6
       KB_SHIFT_F2   KB_SHIFT_F7
       KB_SHIFT_F3   KB_SHIFT_F8
       KB_SHIFT_F4   KB_SHIFT_F9
       KB_SHIFT_F5   KB_SHIFT_F10
-
+    
       KB_CTRL_F1    KB_CTRL_F6
       KB_CTRL_F2    KB_CTRL_F7
       KB_CTRL_F3    KB_CTRL_F8
       KB_CTRL_F4    KB_CTRL_F9
       KB_CTRL_F5    KB_CTRL_F10
-      
+  
       KB_SHIFT
-
+  
     :mbXXXX
       MB_LEFT_BUTTON
       MB_RIGHT_BUTTON
       MB_MIDDLE_BUTTON
       MB_SCROLL_WHEEL_DOWN
       MB_SCROLL_WHEEL_UP
-
+  
     :smXXXX
       SM_BW80
       SM_CO80
       SM_MONO
       SM_FONT8X8
-
+  
     :private
       _ALT_CODES
       _CP437_TO_UTF8
@@ -347,7 +347,7 @@ The following table shows the constants used here for Turbo Vision with prefix:
 
 =head1 CONSTANTS
 
-=head2 Drivers used public constants
+=head2 Constants provided by I<Drivers>
 
 =item I<EVENT_Q_SIZE>
 
@@ -361,7 +361,7 @@ Event manager constant for the queue size.
 
 =back
 
-=head2 Event type masks
+=head2 Event type masks (I<:evXXXX>)
 
 =over
 
@@ -439,7 +439,7 @@ Broadcast event.
 
 =cut
 
-=head2 Event code masks
+=head2 Event code masks (I<:evXXXX>)
 
 =over
 
@@ -487,7 +487,7 @@ Message event.
 
 =cut
 
-=head2 Keyboard Shift State Constants
+=head2 Keyboard Shift State Constants (I<:kbXXXX>)
 
 The I<kbXXXX> constants for detecting keyboard shift states.
 
@@ -588,7 +588,7 @@ Bit set if keyboard is in Ins Lock state.
 
 =cut
 
-=head2 Keyboard Scancode Constants
+=head2 Keyboard Scancode Constants (I<:kbXXXX>)
 
 The I<kbXXXX> constants for the non-standard keystrokes such as function and Alt
 keys.
@@ -828,7 +828,7 @@ numeric keypad. I<KB_LEFT> and I<KB_RIGHT> are the arrow keys.
 
 =cut
 
-=head2 Mouse Button constants
+=head2 Mouse Button constants (I<:mbXXXX>)
 
 The I<mbXXXX> constants are used to test the I<< $event->buttons >> field of a
 I< TEvent > record or the I<$mouse_buttons> variable to determine if the left or
@@ -890,10 +890,10 @@ Scroll wheel up.
 
 =cut
 
-=head2 Screen Mode Constants
+=head2 Screen Mode Constants (I<:smXXXX>)
 
-Use the constants from the table below when selecting Black & White, Color or
-Monochrome color palettes, or switching between 25 and 43- or 50 line display
+Use the constants from the list below when selecting Black & White, Color or
+Monochrome color palettes, or switching between 25 and 43 or 50 line display
 modes.
 
 =over
@@ -962,13 +962,13 @@ Monochrome mode, 80x25 chars.
 
 =cut
 
-=head2 Internal constants used by I<Drivers>
+=head2 Constants used by I<Drivers> (I<:private>)
 
 =over
 
 =item I<_ALT_CODES>
 
-  constant _ALT_CODES = < Ref >;
+  constant _ALT_CODES = < CodeRef >;
 
 Mapping table for I<get_alt_code> and I<get_alt_char>.
 
@@ -995,7 +995,7 @@ Mapping table for I<get_alt_code> and I<get_alt_char>.
   
 =item I<_CP437_TO_UTF8>
 
-  constant _CP437_TO_UTF8 = < Ref >;
+  constant _CP437_TO_UTF8 = < CodeRef >;
 
 Codepage 437 to Unicode translation map.
 
@@ -1072,7 +1072,7 @@ Codepage 437 to Unicode translation map.
 
 =item I<_SCREEN_RESOLUTION>
 
-  constant _SCREEN_RESOLUTION = < Ref >;
+  constant _SCREEN_RESOLUTION = < CodeRef >;
 
 Hash constants for converting standard video text modes (C<0x0000..0x00ff>,
 C<0x0100..0x07ff> or C<0x0900..0x09ff>) to resolution modes (C<0x1000..0x7fff>).
@@ -1094,7 +1094,7 @@ number of columns.
     (SM_BW80 + SM_FONT8X8)  => 80 | 25 << 8,            # CGA, 16 gray, 8x8
     (SM_CO80 + SM_FONT8X8)  => 80 | 50 << 8,            # VGA, 16 colors, 8x8
 
-    #-- Other video BIOS modes, are not used
+    #-- Other video BIOS modes; are not used
     # https://en.wikipedia.org/wiki/VGA_text_mode#PC_common_text_modes
     #+0x108  =>  80 | 60 << 8,                           # VESA Text mode
     #+0x109  => 132 | 25 << 8,                           # VESA Text mode
@@ -1131,7 +1131,7 @@ number of columns.
 
 =item I<_STANDARD_CRT_MODE>
 
-  constant _STANDARD_CRT_MODE = < Ref >;
+  constant _STANDARD_CRT_MODE = < CodeRef >;
 
 Hash constants for converting resolution modes (C<0x1000..0x7fff>) to standard
 text modes (C<0x0000..0x00ff>, C<0x0100..0x07ff> or C<0x0900..0x09ff>).
@@ -1158,7 +1158,7 @@ text modes (C<0x0000..0x00ff>, C<0x0100..0x07ff> or C<0x0900..0x09ff>).
 
 =item I<_WORD_STAR_CODES>
 
-  constant _WORD_STAR_CODES = < Ref >;
+  constant _WORD_STAR_CODES = < CodeRef >;
 
 Hash constants for converting WordStar keystrokes (C<Ctrl-A>, C<Ctrl-X>, ...)
 into the corresponding I<kbXXXX> values.
@@ -1181,7 +1181,7 @@ into the corresponding I<kbXXXX> values.
 
 =item I<_UTF8_TO_CP437>
 
-  constant _UTF8_TO_CP437 = < Ref >;
+  constant _UTF8_TO_CP437 = < CodeRef >;
 
 Unicode to Codepage 437 translation map.
 
@@ -1224,7 +1224,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -1238,7 +1238,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

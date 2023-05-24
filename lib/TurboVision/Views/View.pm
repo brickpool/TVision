@@ -52,7 +52,18 @@ use Data::Alias qw( alias );
 use List::Util qw( min max );
 
 use TurboVision::Const qw( :bool );
-# Objects
+use TurboVision::Drivers::Const qw(
+  :evXXXX
+  :kbXXXX
+);
+use TurboVision::Drivers::Event;
+use TurboVision::Drivers::EventManager qw( :kbd );
+use TurboVision::Drivers::Types qw( TEvent );
+use TurboVision::Drivers::Utility qw( :move );
+use TurboVision::Objects::Point;
+use TurboVision::Objects::Rect;
+use TurboVision::Objects::Stream;
+use TurboVision::Objects::StreamRec;
 use TurboVision::Objects::Types qw(
   TObject
   TPoint
@@ -60,41 +71,19 @@ use TurboVision::Objects::Types qw(
   TStream
   TStreamRec
 );
-use TurboVision::Objects::Point;
-use TurboVision::Objects::Rect;
-use TurboVision::Objects::Stream;
-use TurboVision::Objects::StreamRec;
-# Drivers
-use TurboVision::Drivers::Const qw(
-  :evXXXX
-  :kbXXXX
-);
-use TurboVision::Drivers::Types qw(
-  TEvent
-);
-use TurboVision::Drivers::Event;
-use TurboVision::Drivers::Utility qw(
-  :move
-);
-use TurboVision::Drivers::EventManager qw(
-  :kbd
-);
-# Views
-use TurboVision::Views::Common qw(
-  :vars
-);
+use TurboVision::Views::Common qw( :vars );
 use TurboVision::Views::Const qw(
-  MAX_VIEW_WIDTH
   :cmXXXX
   :dmXXXX
   :gfXXXX
   :hcXXXX
   :sfXXXX
+  MAX_VIEW_WIDTH
 );
 use TurboVision::Views::Types qw(
   TCommandSet
-  TView
   TGroup
+  TView
 );
 
 # ------------------------------------------------------------------------
@@ -425,7 +414,7 @@ See: I<sfXXXX> constants, L</set_state>, L</get_state>
 
 =item I<init>
 
-  factory $class->init(TRect $bounds)
+  factory $class->init(TRect $bounds) : TView
 
 Creates an initializes a I<TView> object and places it according to the Bounds
 parameter.
@@ -533,7 +522,7 @@ Creates and reads a view from stream I<$s>.
 
 =item I<DEMOLISH>
 
-  sub $self->DEMOLISH
+  sub $self->DEMOLISH()
 
 Deletes the view after erasing it from the screen.
 
@@ -1132,7 +1121,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -1146,7 +1135,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

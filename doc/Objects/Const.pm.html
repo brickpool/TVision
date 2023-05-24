@@ -31,10 +31,10 @@
   <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
   <li><a href="#CONSTANTS">CONSTANTS</a>
     <ul>
-      <li><a href="#Collection-error-codes">Collection error codes</a></li>
-      <li><a href="#Collection-size">Collection size</a></li>
-      <li><a href="#Stream-error-state-masks">Stream error state masks</a></li>
-      <li><a href="#Stream-access-mode-constants">Stream access mode constants</a></li>
+      <li><a href="#Constants-provided-by-Objects">Constants provided by Objects</a></li>
+      <li><a href="#Collection-error-codes-:coXXXX">Collection error codes (:coXXXX)</a></li>
+      <li><a href="#Stream-error-state-masks-:stXXXX">Stream error state masks (:stXXXX)</a></li>
+      <li><a href="#Stream-access-mode-constants-:stXXXX">Stream access mode constants (:stXXXX)</a></li>
     </ul>
   </li>
   <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
@@ -85,108 +85,136 @@
 
 <h1 id="CONSTANTS">CONSTANTS</h1>
 
-<h2 id="Collection-error-codes">Collection error codes</h2>
+<h2 id="Constants-provided-by-Objects">Constants provided by <i>Objects</i></h2>
 
 <dl>
 
-<dt id="public-const-Int-CO_INDEX_ERROR">public const <code>Int CO_INDEX_ERROR</code></dt>
+<dt id="MAX_COLLECTION_SIZE"><i>MAX_COLLECTION_SIZE</i></dt>
 <dd>
 
-<p>Index out of range</p>
-
-</dd>
-<dt id="public-const-Int-CO_OVERFLOW">public const <code>Int CO_OVERFLOW</code></dt>
-<dd>
-
-<p>Overflow</p>
-
-</dd>
-</dl>
-
-<h2 id="Collection-size">Collection size</h2>
-
-<dl>
-
-<dt id="public-const-Int-MAX_COLLECTION_SIZE">public const <code>Int MAX_COLLECTION_SIZE</code></dt>
-<dd>
+<pre><code>  constant MAX_COLLECTION_SIZE = &lt; Int &gt;;</code></pre>
 
 <p><i>MAX_COLLECTION_SIZE</i> determines the maximum number of elements a collection can contain.</p>
 
 </dd>
 </dl>
 
-<h2 id="Stream-error-state-masks">Stream error state masks</h2>
+<h2 id="Collection-error-codes-:coXXXX">Collection error codes (<i>:coXXXX</i>)</h2>
 
 <dl>
 
-<dt id="public-const-Int-ST_OK">public const <code>Int ST_OK</code></dt>
+<dt id="CO_INDEX_ERROR"><i>CO_INDEX_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant CO_INDEX_ERROR = &lt; Int &gt;;</code></pre>
+
+<p>Index out of range</p>
+
+</dd>
+<dt id="CO_OVERFLOW"><i>CO_OVERFLOW</i></dt>
+<dd>
+
+<pre><code>  constant CO_OVERFLOW = &lt; Int &gt;;</code></pre>
+
+<p>Overflow</p>
+
+</dd>
+</dl>
+
+<h2 id="Stream-error-state-masks-:stXXXX">Stream error state masks (<i>:stXXXX</i>)</h2>
+
+<dl>
+
+<dt id="ST_OK"><i>ST_OK</i></dt>
+<dd>
+
+<pre><code>  constant ST_OK = &lt; Int &gt;;</code></pre>
 
 <p>No stream error</p>
 
 </dd>
-<dt id="public-const-Int-ST_ERROR">public const <code>Int ST_ERROR</code></dt>
+<dt id="ST_ERROR"><i>ST_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Access error</p>
 
 </dd>
-<dt id="public-const-Int-ST_INIT_ERROR">public const <code>Int ST_INIT_ERROR</code></dt>
+<dt id="ST_INIT_ERROR"><i>ST_INIT_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_INIT_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Initialize error</p>
 
 </dd>
-<dt id="public-const-Int-ST_READ_ERROR">public const <code>Int ST_READ_ERROR</code></dt>
+<dt id="ST_READ_ERROR"><i>ST_READ_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_READ_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Stream read error</p>
 
 </dd>
-<dt id="public-const-Int-ST_WRITE_ERROR">public const <code>Int ST_WRITE_ERROR</code></dt>
+<dt id="ST_WRITE_ERROR"><i>ST_WRITE_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_WRITE_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Stream write error</p>
 
 </dd>
-<dt id="public-const-Int-ST_GET_ERROR">public const <code>Int ST_GET_ERROR</code></dt>
+<dt id="ST_GET_ERROR"><i>ST_GET_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_GET_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Get object error</p>
 
 </dd>
-<dt id="public-const-Int-ST_PUT_ERROR">public const <code>Int ST_PUT_ERROR</code></dt>
+<dt id="ST_PUT_ERROR"><i>ST_PUT_ERROR</i></dt>
 <dd>
+
+<pre><code>  constant ST_PUT_ERROR = &lt; Int &gt;;</code></pre>
 
 <p>Put object error</p>
 
 </dd>
 </dl>
 
-<h2 id="Stream-access-mode-constants">Stream access mode constants</h2>
+<h2 id="Stream-access-mode-constants-:stXXXX">Stream access mode constants (<i>:stXXXX</i>)</h2>
 
 <dl>
 
-<dt id="public-const-Int-ST_CREATE">public const <code>Int ST_CREATE</code></dt>
+<dt id="ST_CREATE"><i>ST_CREATE</i></dt>
 <dd>
+
+<pre><code>  constant ST_CREATE = &lt; Int &gt;;</code></pre>
 
 <p>Create new file</p>
 
 </dd>
-<dt id="public-const-Int-ST_OPEN_READ">public const <code>Int ST_OPEN_READ</code></dt>
+<dt id="ST_OPEN_READ"><i>ST_OPEN_READ</i></dt>
 <dd>
+
+<pre><code>  constant ST_OPEN_READ = &lt; Int &gt;;</code></pre>
 
 <p>Read access only</p>
 
 </dd>
-<dt id="public-const-Int-ST_OPEN_WRITE">public const <code>Int ST_OPEN_WRITE</code></dt>
+<dt id="ST_OPEN_WRITE"><i>ST_OPEN_WRITE</i></dt>
 <dd>
+
+<pre><code>  constant ST_OPEN_WRITE = &lt; Int &gt;;</code></pre>
 
 <p>Write access only</p>
 
 </dd>
-<dt id="public-const-Int-ST_OPEN">public const <code>Int ST_OPEN</code></dt>
+<dt id="ST_OPEN"><i>ST_OPEN</i></dt>
 <dd>
+
+<pre><code>  constant ST_OPEN = &lt; Int &gt;;</code></pre>
 
 <p>Read/write access</p>
 

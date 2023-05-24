@@ -43,20 +43,19 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use PerlX::Assert;
+use Win32::Console;
 
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
+use TurboVision::Drivers::EventManager qw( :vars );
 use TurboVision::Drivers::Types qw(
   StdioCtl
   TEvent
   is_TEvent
 );
-use TurboVision::Drivers::EventManager qw( :vars );
-
 use TurboVision::Drivers::Win32::StdioCtl;
 use TurboVision::Drivers::Win32::EventQ qw( :private );
 
-use Win32::Console;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -287,7 +286,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -317,7 +316,7 @@ See: L</hide_mouse>, L</show_mouse>
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

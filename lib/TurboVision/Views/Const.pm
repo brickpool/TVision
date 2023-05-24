@@ -346,7 +346,19 @@ tbd
 
 =head1 CONSTANTS
 
-=head2 TView State Flag constants
+=head2 Constants provided by I<Views>
+
+=over
+
+=item public const C<< Int MAX_VIEW_WIDTH >>
+
+Determines the maximum width of a view.
+
+=cut
+
+  use constant MAX_VIEW_WIDTH => 255;
+
+=head2 TView State Flag constants (I<:sfXXXX>)
 
 Use I<< TView->set_state >> to set the state bits, from the table below, into a
 TView's State field.
@@ -493,7 +505,7 @@ visible.
 
 =back
 
-=head2 TView Options Field bit positions
+=head2 TView Options Field bit positions (I<:ofXXXX>)
 
 The I<ofXXXX> constants select options available in all I<TView>-derived
 objects.
@@ -673,7 +685,7 @@ TV version 2 view.
 
 =back
 
-=head2 TView Grow mode Field constants
+=head2 TView Grow mode Field constants (I<:gfXXXX>)
 
 The I<gfXXXX> constants set the I<< TView->grow_mode >> field, which controls
 how a view grows in relation to the view that own's it.
@@ -738,7 +750,7 @@ mode and 43/50 line screen modes.
 
 =back
 
-=head2 TView Drag Mode constants
+=head2 TView Drag Mode constants (I<:dmXXXX>)
 
 The I<< TView->drag_mode >> attribute controls whether or not a view can be
 dragged or have it size changed.
@@ -807,7 +819,7 @@ None of the view can move outside I<$limits> of I<< TView->drag_view >>.
 
 =back
 
-=head2 TView Help Contexts constants
+=head2 TView Help Contexts constants (I<:hcXXXX>)
 
 =over
 
@@ -829,7 +841,7 @@ No drag context.
 
 =back
 
-=head2 TScrollBar part codes
+=head2 TScrollBar part codes (I<:sbXXXX>)
 
 Use one of these nine I<sbXXXX> constants as a parameter to
 I<< TScrollBar->scroll_step >>.
@@ -910,7 +922,7 @@ Position indicator on the scroll bar.
 
 =back
 
-=head2 TScrollBar options
+=head2 TScrollBar options (I<:sbXXXX>)
 
 The foloowing three I<sbXXXX> constants, I<SB_HORIZONTAL>, I<SB_VERTICAL>,
 I<SB_HANDLE_KEYBOARD> are used to specify a horizontal, vertical, or keyboard
@@ -945,7 +957,7 @@ Scroll bar accepts keyboard commands.
 
 =back
 
-=head2 TWindow flags
+=head2 TWindow flags (I<:wfXXXX>)
 
 See: I<TWindow>, I<< TWindog->flags >>
 
@@ -991,7 +1003,7 @@ full size.
 
 =back
 
-=head2 TWindow number constants
+=head2 TWindow number constants (I<:wnXXXX>)
 
 =over
 
@@ -1010,7 +1022,7 @@ between windows numbered 1 through 9.
 
 =back
 
-=head2 TWindow Palette selection contstants
+=head2 TWindow Palette selection contstants (I<:wpXXXX>)
 
 I<TWindows> has three different color palettes, as shown below. 
 
@@ -1057,7 +1069,7 @@ Black on gray color scheme.
 
 =back
 
-=head2 Command codes
+=head2 Command codes (I<:cmXXXX>)
 
 =over
 
@@ -1185,7 +1197,7 @@ Black on gray color scheme.
 
 =back
 
-=head2 Color Palette constants
+=head2 Color Palette constants (I<:color>)
 
 Except for I<C_COLOR>, I<C_BLACK_WHITE> and I<C_MONO_CHROME>, all of the color
 palette constants contains indices into their owner's palette.
@@ -1321,18 +1333,6 @@ Cyan window palette
 
   use constant C_GRAY_WINDOW  => pack('C*',24,25,26,27,28,29,30,31);
 
-=head2 View width
-
-=over
-
-=item public const C<< Int MAX_VIEW_WIDTH >>
-
-Determines the maximum width of a view.
-
-=cut
-
-  use constant MAX_VIEW_WIDTH => 255;
-
 =back
 
 =cut
@@ -1359,7 +1359,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -1373,7 +1373,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

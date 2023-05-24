@@ -60,12 +60,12 @@ use POSIX qw(:errno_h :fcntl_h);
 use Scalar::Util qw( openhandle );
 
 use TurboVision::Const qw( :bool );
-use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::Common qw( fail );
+use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::Stream;
 use TurboVision::Objects::Types qw(
-  TStream
   TDosStream
+  TStream
 );
 
 # ------------------------------------------------------------------------
@@ -441,7 +441,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -467,7 +467,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

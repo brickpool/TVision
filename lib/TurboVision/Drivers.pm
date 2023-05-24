@@ -35,6 +35,8 @@ our $AUTHORITY = 'github:brickpool';
 # ------------------------------------------------------------------------
 
 use Carp qw( confess );
+use Import::Into;
+
 
 use TurboVision::Drivers::Const;
 use TurboVision::Drivers::Types;
@@ -44,8 +46,6 @@ use TurboVision::Drivers::EventManager;
 use TurboVision::Drivers::ScreenManager;
 use TurboVision::Drivers::SystemError;
 use TurboVision::Drivers::Utility;
-
-use Import::Into;
 
 =head1 DESCRIPTION
 
@@ -114,7 +114,7 @@ __END__
  imposes on licensees.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -124,7 +124,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

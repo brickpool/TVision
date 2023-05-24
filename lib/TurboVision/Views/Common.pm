@@ -89,7 +89,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item public C<< Bool $command_set_changed >>
+=item I<$command_set_changed>
+
+  our $command_set_changed = < Bool >;
 
 True if the command set has changed since being set to false.
 
@@ -97,7 +99,9 @@ True if the command set has changed since being set to false.
 
   our $command_set_changed = _FALSE;
 
-=item public C<< Str $cur_command_set >>
+=item I<$cur_command_set>
+
+  our $cur_command_set = < Str >;
 
 I<$cur_command_set> is a string created with Perl's command I<vec>.
 
@@ -123,6 +127,8 @@ window are active.
 # Subroutines ------------------------------------------------------------
 # ------------------------------------------------------------------------
 
+=begin comment
+
 =head2 Subroutines
 
 =over
@@ -131,12 +137,18 @@ window are active.
 
 ...
 
+=end comment
+
 =cut
 
-  func get_mouse_event($) {
-  }
+  #func get_mouse_event($) {
+  #}
+
+=begin comment
 
 =back
+
+=end comment
 
 =cut
 
@@ -162,7 +174,7 @@ __END__
  POD sections by Ed Mitchell are licensed under modified CC BY-NC-ND.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -176,7 +188,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL

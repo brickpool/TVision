@@ -43,18 +43,17 @@ our $AUTHORITY = 'github:magiblot';
 # ------------------------------------------------------------------------
 
 use English qw( -no_match_vars );
-use List::Util qw( min max );
+use List::Util qw( max );
 use Try::Tiny;
+use Win32::Console;
+use Win32API::File;
 
 use TurboVision::Const qw(
   :bool
   :platform
 );
 use TurboVision::Drivers::Types qw( StdioCtl );
-
-use Win32::Console;
 use TurboVision::Drivers::Win32::Console;
-use Win32API::File;
 
 # ------------------------------------------------------------------------
 # Class Defnition --------------------------------------------------------
@@ -172,7 +171,7 @@ Console startup output object.
 
 =item I<instance>
 
-  factory $class->instance()
+  factory $class->instance() : StdioCtl
 
 This constructor instantiates an object instance if none exists, otherwise it
 returns an existing instance.
@@ -193,7 +192,7 @@ It is used to initialize the default I/O console.
 
 =item I<BUILD>
 
-  sub $self->BUILD
+  sub $self->BUILD()
 
 This internal method is automatically called when the object is created via
 I<new> or I<init>. It initializes the console.
@@ -469,7 +468,7 @@ __END__
  "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
 
 =head1 AUTHORS
- 
+
 =over
 
 =item *
@@ -479,7 +478,7 @@ __END__
 =back
 
 =head1 DISCLAIMER OF WARRANTIES
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
