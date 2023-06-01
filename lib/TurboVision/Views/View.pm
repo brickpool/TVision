@@ -742,10 +742,10 @@ view can be resized.
   method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size,
                    TPoint $max_size)
   {
-    my ( $p, $s );
+    my ( $p, $s ) = ( TPoint->new(), TPoint->new() );
     my $save_bounds;
 
-    my $move_grow = sub ($$) {
+    my $move_grow = sub($$) {
       my ( $p, $s ) = @_;
       my $r;
 
@@ -786,7 +786,7 @@ view can be resized.
       }
     };
 
-    my $update = sub ($$) {
+    my $update = sub($$) {
       my ($x, $y) = @_;
       if ( $mode & DM_DRAG_MOVE != 0 ) {
         $p->x( $x );
@@ -798,8 +798,8 @@ view can be resized.
     if ( $event->what == EV_MOUSE_DOWN ) {
       if ( $mode & DM_DRAG_MOVE != 0 ) {
         $p = TPoint->new(
-          x => $self->origin->x - event->where->x,
-          y => $self->origin->y - event->where->y,
+          x => $self->origin->x - $event->where->x,
+          y => $self->origin->y - $event->where->y,
         );
         do {
           $event->where( $event->where + $p );
@@ -828,8 +828,8 @@ view can be resized.
     else {
       $self->get_bounds($save_bounds);
       do {
-        $p = $self->origin->clone;
-        $s = $self->size->clone;
+        $p->copy( $self->origin );
+        $s->copy( $self->size );
         $self->key_event($event);
         SWITCH: for ( $event->key_code & 0xff00 ) {
           $_ == KB_LEFT && do {

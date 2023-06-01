@@ -117,19 +117,16 @@ I<y> is the screen row of the point.
   
 =head2 Methods
 
-=item public C<< TPoint clone() >>
+=item public C<< copy(TPoint $pt) >>
 
-Creates and returns a copy of this object.
-
-I<return> clone of this object
+I<copy> sets all attributes equal to those in point I<$pt>.
 
 =cut
 
-  method clone() {
-    return TPoint->new(
-      x => $self->x,
-      y => $self->y,
-    );
+  method copy(TPoint $pt) {
+    $self->x( $pt->x );
+    $self->y( $pt->y );
+    return;
   }
 
 =back
