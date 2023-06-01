@@ -15,10 +15,11 @@ use_ok 'TurboVision::Objects::Point';
 my $pt = TPoint->new(x => 1, y => 2);
 isa_ok( $pt, TPoint->class );
 
-my $c = $pt->clone;
+my $c = TPoint->new();
+$c->copy($pt);
 is(
   $pt->x + $pt->y, $c->x + $c->y,
-  'TPoint->clone'
+  'TPoint->copy'
 );
 
 my $a = $pt + $pt;
@@ -70,7 +71,8 @@ ok( $z->empty(), 'TRect->empty' );
 $z->copy($r);
 ok    ( $z->equals($r), 'TRect->equals'     );
 cmp_ok( $z, '==', $r,   'TRect->_equal'     );
-ok    ( !( $z != $r ),  'TRect->_not_equal' );
+$z->assign(2, 1, 4, 3);
+cmp_ok( $z, '!=', $r,   'TRect->_not_equal' );
 
 $r->move(1, 2);
 $r->grow(0, 1);

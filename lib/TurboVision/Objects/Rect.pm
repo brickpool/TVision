@@ -36,6 +36,13 @@ use Function::Parameters {
   func => {
     defaults    => 'function_strict',
   },
+  around => {
+    defaults    => 'method_strict',
+    install_sub => 'around',
+    shift       => ['$next', '$self'],
+    runtime     => 1,
+    name        => 'required',
+  },
 },
 qw(
   classmethod
@@ -58,8 +65,11 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use PerlX::Assert qw( assert );
+
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Types qw(
+  is_TPoint
   TPoint
   TRect
 );
@@ -106,7 +116,24 @@ I<a> is the point defining the top left corner of a rectangle on the screen.
     isa     => TPoint,
     default => sub { TPoint->new() },
   );
+  around a(@) {
+		my ($value) = @_;
 
+    goto SET if @_;
+    GET: {
+      return $self->$next();
+    }
+    SET: {
+			assert { @_ == 1 && is_TPoint $value };
+      return $self->$next(
+        TPoint->new(
+          x => $value->x,
+          y => $value->y,
+        )
+      )
+    }
+  }
+  
 =item public C<< TPoint b >>
 
 I<b> is the point defining the bottom right corner of a rectangle on the screen.
@@ -118,6 +145,23 @@ I<b> is the point defining the bottom right corner of a rectangle on the screen.
     isa     => TPoint,
     default => sub { TPoint->new() },
   );
+  around b(@) {
+		my ($value) = @_;
+
+    goto SET if @_;
+    GET: {
+      return $self->$next();
+    }
+    SET: {
+			assert { @_ == 1 && is_TPoint $value };
+      return $self->$next(
+        TPoint->new(
+          x => $value->x,
+          y => $value->y,
+        )
+      )
+    }
+  }
 
 =back
 
@@ -307,7 +351,6 @@ Changes the rectangle to be the union of itself and the rectangle I<$r>.
   method union(TRect $r) {
     $self->a->x( $r->a->x ) if $r->a->x < $self->a->x;
     $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
-    $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
     $self->b->x( $r->a->x ) if $r->a->x > $self->b->x;
     $self->b->y( $r->b->y ) if $r->b->y > $self->b->y;
     return;
@@ -338,7 +381,7 @@ C<< $one != $two >>.
 =cut
 
   func _not_equal(TRect $one, TRect $two, $=) {
-    return !($one == $two);
+    return $one->a != $two->a || $one->b != $two->b;
   };
   use overload '!=' => \&_not_equal, fallback => 1;
 
