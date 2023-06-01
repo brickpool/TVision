@@ -297,7 +297,7 @@ Event type.
 
 =item I<where>
 
-  has where ( is => rw, type => TPoint ) = sub { TPoint->new() };
+  has where ( is => rw, type => TPoint ) = TPoint->new();
 
 Mouse position.
 
@@ -327,7 +327,7 @@ Mouse position.
 
 =item I<BUILD>
 
-  sub $self->BUILD(Ref $args)
+  sub BUILD(Ref $args)
 
 If any of the following environment variables are true at compile time, the
 I<what> attribute is checked and, if it fails, an exception is thrown.
@@ -448,8 +448,8 @@ Stream interface routines
 
 =item I<char_code>
 
-  method char_code() : Int
-  method char_code(Int $value) : Int
+  multi method char_code() : Int
+  multi method char_code(Int $value) : Int
 
 Char code.
 
@@ -477,8 +477,8 @@ Char code.
 
 =item I<info_byte>
 
-  method info_byte() : Int
-  method info_byte(Int $value) : Int
+  multi method info_byte() : Int
+  multi method info_byte(Int $value) : Int
 
 Message I<byte> (unsigned integer 8-bit).
 
@@ -504,8 +504,8 @@ Message I<byte> (unsigned integer 8-bit).
 
 =item I<info_char>
 
-  method info_char() : Str
-  method info_char(Int $value) : Str
+  multi method info_char() : Str
+  multi method info_char(Int $value) : Str
 
 Message Perl string, which represents 1 character.
 
@@ -533,8 +533,8 @@ Message Perl string, which represents 1 character.
 
 =item I<info_int>
 
-  method info_int() : Int
-  method info_int(Int $value) : Int
+  multi method info_int() : Int
+  multi method info_int(Int $value) : Int
 
 Message I<integer> (signed integer 16-bit).
 
@@ -560,8 +560,8 @@ Message I<integer> (signed integer 16-bit).
 
 =item I<info_long>
 
-  method info_long() : Int
-  method info_long(Int $value) : Int
+  multi method info_long() : Int
+  multi method info_long(Int $value) : Int
 
 Message I<longint> (signed integer 32-bit).
 
@@ -587,8 +587,8 @@ Message I<longint> (signed integer 32-bit).
 
 =item I<info_ptr>
 
-  method info_ptr() : Ref|Undef
-  method info_ptr(Ref $value) : Ref
+  multi method info_ptr() : Ref|Undef
+  multi method info_ptr(Ref $value) : Ref
 
 Message Reference.
 
@@ -610,8 +610,8 @@ Message Reference.
 
 =item I<info_word>
 
-  method info_word() : Int
-  method info_word(Int $value) : Int
+  multi method info_word() : Int
+  multi method info_word(Int $value) : Int
 
 Message I<word> (unsigned integer 16-bit).
 
@@ -637,8 +637,8 @@ Message I<word> (unsigned integer 16-bit).
 
 =item I<scan_code>
 
-  method scan_code() : Int
-  method scan_code(Int $value) : Int
+  multi method scan_code() : Int
+  multi method scan_code(Int $value) : Int
 
 Scan code.
 

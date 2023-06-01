@@ -103,7 +103,9 @@ package TurboVision::Objects::MemoryStream {
 
 =over
 
-=item public readonly C<< Int block_size >>
+=item I<block_size>
+
+  has block_size ( is => rwp, type => Int ) = 0x2000;
 
 Memory block size.
 
@@ -115,7 +117,9 @@ Memory block size.
     writer  => '_block_size',
   );
 
-=item public readonly C<< Int cur_seg >>
+=item I<cur_seg>
+
+  has cur_seg ( is => rwp, type => Int ) = 0;
 
 Current segment.
 
@@ -127,7 +131,9 @@ Current segment.
     writer  => '_cur_seg',
   );
 
-=item public readonly C<< Int seg_count >>
+=item I<seg_count>
+
+  has seg_count ( is => rwp, type => Int ) = 0;
 
 The number of allocated segments for the stream, with 8K per segment.
 
@@ -139,7 +145,9 @@ The number of allocated segments for the stream, with 8K per segment.
     writer  => '_seg_count',
   );
 
-=item public readonly C<< ArrayRef[Str] seg_list >>
+=item I<seg_list>
+
+  has seg_list ( is => rwp, type => ArrayRef[Str] ) = [];
 
 Memory block list.
 
@@ -157,7 +165,9 @@ Memory block list.
     },
   );
 
-=item public C<< Int position >>
+=item I<position>
+
+  has position ( is => rw, type => Int ) = 0;
 
 The current position within the stream.
 
@@ -169,7 +179,9 @@ The current position within the stream.
   # alias   => 'position',
   sub position { goto &_position }
 
-=item public C<< Int size >>
+=item I<size>
+
+  has size ( is => rw, type => Int ) = 0;
 
 The size of the stream in bytes.
 
@@ -183,7 +195,9 @@ The size of the stream in bytes.
 
 =begin comment
 
-=item private C<< Int _mem_size >>
+=item I<_mem_size>
+
+  field _mem_size ( is => rw, type => Int ) = 0;
 
 Memory alloc size in bytes.
 
@@ -212,11 +226,13 @@ Memory alloc size in bytes.
 
 =over
 
-=item public C<< TMemoryStream->init(Int $a_limit, Int $a_block_size) >>
+=item I<init>
+
+  factory init(Int $a_limit, Int $a_block_size) : TMemoryStream
 
 This Constructor creates an memory stream with the given minimum size in bytes.
-Calls the I<init> constructor inherited from I<TStream>, then sets I<block_size>
-and alocate the memory.
+Calls the I<init> constructor inherited from I<TStream>, then sets
+L</block_size> and alocate the memory.
 
 =cut
 
@@ -258,7 +274,9 @@ and alocate the memory.
 
 =over
 
-=item public C<< read(Item $buf, Int $count) >>
+=item I<read>
+
+  around read(Item $buf, Int $count)
 
 Reads I<$count> bytes from the stream, starting at the current position, into
 the I<$buf> buffer.
@@ -311,7 +329,9 @@ the I<$buf> buffer.
     return;
   }
 
-=item public C<< truncate() >>
+=item I<truncate>
+
+  around truncate()
 
 I<truncate> deletes all data on the calling stream from the current position.
 
@@ -341,7 +361,9 @@ I<truncate> deletes all data on the calling stream from the current position.
     return;
   }
 
-=item public C<< write(Str $buf, Int $count) >>
+=item I<write>
+
+  around write(Str $buf, Int $count)
 
 Writes I<$count> bytes from the I<$buf> buffer to the stream, starting at the
 current position.
@@ -406,7 +428,9 @@ current position.
 
 =begin comment
 
-=item private C<< Int _change_list_size(Int $a_limit) >>
+=item I<_change_list_size>
+
+  method _change_list_size(Int $a_limit) : Int
 
 Allocate or deallocate blocks in I<seg_list>.
 
@@ -520,7 +544,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

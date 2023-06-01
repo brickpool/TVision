@@ -56,7 +56,7 @@
 
 <p>Use <i>TDosStream</i> for unbuffered stream file access (see also <i>TBufStream</i>). For most applications you will probably prefer to use <i>TBufStream</i> for its faster, buffered file access.</p>
 
-<p>Generally, you will use the <i>TDosStream-&gt;init</i> method to open a stream file for access, the <i>TDosStream-&gt;read</i> and <i>TDosStream-&gt;write</i> methods for performing input and output. <i>TDosStream-</i>DEMOLISH&gt; will to close the open stream of the object. For random access streams, you will use <i>TBufStream-&gt;seek</i> to position the file pointer to the proper object record.</p>
+<p>Generally, you will use the <a href="#init">&quot;init&quot;</a> constructor to open a stream file for access, the <a href="#read">&quot;read&quot;</a> and <a href="#write">&quot;write&quot;</a> methods for performing input and output. <a href="#DEMOLISH">&quot;DEMOLISH&quot;</a> will to close the open stream of the object. For random access streams, you will use <a href="#seek">&quot;seek&quot;</a> to position the file pointer to the proper object record.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -73,8 +73,10 @@
 
 <dl>
 
-<dt id="public-readonly-FileHandle-handle">public readonly <code>FileHandle handle</code></dt>
+<dt id="handle"><i>handle</i></dt>
 <dd>
+
+<pre><code>  param handle ( is =&gt; rwp, type =&gt; FileHandle, predicate =&gt; &#39;_is_openhandle&#39; );</code></pre>
 
 <p><i>handle</i> contains the OS file handle used to access the file containing the stream.</p>
 
@@ -85,8 +87,10 @@
 
 <dl>
 
-<dt id="public-TDosStream-init-Str-file_name-Int-mode">public <code>TDosStream-&gt;init(Str $file_name, Int $mode)</code></dt>
+<dt id="init"><i>init</i></dt>
 <dd>
+
+<pre><code>  factory init(Str $file_name, Int $mode) : TDosStream</code></pre>
 
 <p>This constructor creates a OS file stream with the given <i>$file_name</i>. The <i>$mode</i> argument must be one of the values <i>ST_CREATE</i>, <i>ST_OPEN_READ</i>, <i>ST_OPEN_WRITE</i>, or <i>ST_OPEN</i>. These constant values are part of the <i>TStream</i> class.</p>
 
@@ -97,8 +101,10 @@
 
 <dl>
 
-<dt id="public-DEMOLISH">public <code>DEMOLISH()</code></dt>
+<dt id="DEMOLISH"><i>DEMOLISH</i></dt>
 <dd>
+
+<pre><code>  sub DEMOLISH()</code></pre>
 
 <p>Closes the file of the stream object.</p>
 
@@ -109,26 +115,34 @@
 
 <dl>
 
-<dt id="public-read-Item-buf-Int-count">public <code>read(Item $buf, Int $count)</code></dt>
+<dt id="read"><i>read</i></dt>
 <dd>
+
+<pre><code>  around read(Item $buf, Int $count)</code></pre>
 
 <p>Use <i>read</i> to read <i>$count</i> bytes from the stream and into the <i>$buf</i> parameter. <i>read</i> begins at the stream&#39;s current position (as determined by <i>seek</i> or beginning at the end of the previous <i>read</i> operation).</p>
 
 </dd>
-<dt id="public-seek-Int-pos">public <code>seek(Int $pos)</code></dt>
+<dt id="seek"><i>seek</i></dt>
 <dd>
+
+<pre><code>  around seek(Int $pos)</code></pre>
 
 <p>Positions the current stream position to <i>$pos</i>. You can use <i>seek</i> to implement random access to stream files.</p>
 
 </dd>
-<dt id="public-truncate">public <code>truncate()</code></dt>
+<dt id="truncate"><i>truncate</i></dt>
 <dd>
+
+<pre><code>  around truncate()</code></pre>
 
 <p>Use <i>truncate</i> to delete all data following the current position in the stream.</p>
 
 </dd>
-<dt id="public-write-Str-buf-Int-count">public <code>write(Str $buf, Int $count)</code></dt>
+<dt id="write"><i>write</i></dt>
 <dd>
+
+<pre><code>  around write(Str $buf, Int $count)</code></pre>
 
 <p>Use <i>write</i> to copy <i>$count</i> bytes from the <i>$buf</i> parameter to the stream.</p>
 

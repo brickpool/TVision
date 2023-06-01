@@ -80,7 +80,9 @@ package TurboVision::Objects::Object {
 
 =over
 
-=item public C<< TObject->init() >>
+=item I<init>
+
+  factory init() : TObject
 
 I<init> is called from all descended object's I<init> constructors. Descendant's
 should always call their parent's I<init> factory method prior to performing
@@ -176,11 +178,11 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
 =head1 SEE ALSO
 
-L</Moose::Object>, 
+L<Moose::Object>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

@@ -192,7 +192,7 @@ It is used to initialize the default I/O console.
 
 =item I<BUILD>
 
-  sub $self->BUILD()
+  sub BUILD()
 
 This internal method is automatically called when the object is created via
 I<new> or I<init>. It initializes the console.
@@ -345,7 +345,7 @@ I<new> or I<init>. It initializes the console.
 
 =item I<DEMOLISH>
 
-  sub $self->DEMOLISH
+  sub DEMOLISH()
 
 I<DEMOLISH> restore the startup output console.
 

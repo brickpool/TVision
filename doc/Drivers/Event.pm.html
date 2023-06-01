@@ -91,6 +91,86 @@
 
 <p>The <i>TEvent</i> type, as described in <i>JSON</i></p>
 
+<pre><code>  {
+    &quot;TEvent&quot;: {
+      &quot;what&quot;: {
+        &quot;type&quot;: {
+          &quot;case&quot;: [{
+              &quot;EV_NOTHING&quot;: null
+            }, {
+              &quot;EV_MOUSE&quot;: {
+                &quot;buttons&quot;: {
+                  &quot;type&quot;: &quot;Int&quot;
+                },
+                &quot;double&quot;: {
+                  &quot;type&quot;: &quot;Bool&quot;
+                },
+                &quot;where&quot;: {
+                  &quot;type&quot;: &quot;TPoint&quot;
+                }
+              }
+            }, {
+              &quot;EV_KEY_DOWN&quot;: [{
+                  &quot;id&quot;: 0,
+                  &quot;KeyCode&quot;: {
+                    &quot;type&quot;: &quot;Int&quot;
+                  }
+                }, {
+                  &quot;id&quot;: 1,
+                  &quot;CharCode&quot;: {
+                    &quot;type&quot;: &quot;Int&quot;
+                  },
+                  &quot;ScanCode&quot;: {
+                    &quot;type&quot;: &quot;Int&quot;
+                  }
+                },
+              ]
+            }, {
+              &quot;EV_MESSAGE&quot;: {
+                &quot;command&quot;: {
+                  &quot;type&quot;: {
+                    &quot;info&quot;: [{
+                        &quot;id&quot;: 0,
+                        &quot;info_ptr&quot;: {
+                          &quot;type&quot;: [&quot;Ref&quot;, null]
+                        }
+                      }, {
+                        &quot;id&quot;: 1,
+                        &quot;info_long&quot;: {
+                          &quot;type&quot;: &quot;Int&quot;
+                        }
+                      }, {
+                        &quot;id&quot;: 2,
+                        &quot;info_word&quot;: {
+                          &quot;type&quot;: &quot;Int&quot;
+                        }
+                      }, {
+                        &quot;id&quot;: 3,
+                        &quot;info_int&quot;: {
+                          &quot;type&quot;: &quot;Int&quot;
+                        }
+                      }, {
+                        &quot;id&quot;: 4,
+                        &quot;info_byte&quot;: {
+                          &quot;type&quot;: &quot;Int&quot;
+                        }
+                      }, {
+                        &quot;id&quot;: 5,
+                        &quot;info_char&quot;: {
+                          &quot;type&quot;: &quot;Int&quot;
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }</code></pre>
+
 <h2 id="Attributes">Attributes</h2>
 
 <dl>
@@ -154,7 +234,7 @@
 <dt id="where"><i>where</i></dt>
 <dd>
 
-<pre><code>  has where ( is =&gt; rw, type =&gt; TPoint ) = sub { TPoint-&gt;new() };</code></pre>
+<pre><code>  has where ( is =&gt; rw, type =&gt; TPoint ) = TPoint-&gt;new();</code></pre>
 
 <p>Mouse position.</p>
 
@@ -170,8 +250,8 @@
 <dt id="char_code"><i>char_code</i></dt>
 <dd>
 
-<pre><code>  method char_code() : Int
-  method char_code(Int $value) : Int</code></pre>
+<pre><code>  multi method char_code() : Int
+  multi method char_code(Int $value) : Int</code></pre>
 
 <p>Char code.</p>
 
@@ -179,8 +259,8 @@
 <dt id="info_byte"><i>info_byte</i></dt>
 <dd>
 
-<pre><code>  method info_byte() : Int
-  method info_byte(Int $value) : Int</code></pre>
+<pre><code>  multi method info_byte() : Int
+  multi method info_byte(Int $value) : Int</code></pre>
 
 <p>Message <i>byte</i> (unsigned integer 8-bit).</p>
 
@@ -188,8 +268,8 @@
 <dt id="info_char"><i>info_char</i></dt>
 <dd>
 
-<pre><code>  method info_char() : Str
-  method info_char(Int $value) : Str</code></pre>
+<pre><code>  multi method info_char() : Str
+  multi method info_char(Int $value) : Str</code></pre>
 
 <p>Message Perl string, which represents 1 character.</p>
 
@@ -197,8 +277,8 @@
 <dt id="info_int"><i>info_int</i></dt>
 <dd>
 
-<pre><code>  method info_int() : Int
-  method info_int(Int $value) : Int</code></pre>
+<pre><code>  multi method info_int() : Int
+  multi method info_int(Int $value) : Int</code></pre>
 
 <p>Message <i>integer</i> (signed integer 16-bit).</p>
 
@@ -206,8 +286,8 @@
 <dt id="info_long"><i>info_long</i></dt>
 <dd>
 
-<pre><code>  method info_long() : Int
-  method info_long(Int $value) : Int</code></pre>
+<pre><code>  multi method info_long() : Int
+  multi method info_long(Int $value) : Int</code></pre>
 
 <p>Message <i>longint</i> (signed integer 32-bit).</p>
 
@@ -215,8 +295,8 @@
 <dt id="info_ptr"><i>info_ptr</i></dt>
 <dd>
 
-<pre><code>  method info_ptr() : Ref|Undef
-  method info_ptr(Ref $value) : Ref</code></pre>
+<pre><code>  multi method info_ptr() : Ref|Undef
+  multi method info_ptr(Ref $value) : Ref</code></pre>
 
 <p>Message Reference.</p>
 
@@ -224,8 +304,8 @@
 <dt id="info_word"><i>info_word</i></dt>
 <dd>
 
-<pre><code>  method info_word() : Int
-  method info_word(Int $value) : Int</code></pre>
+<pre><code>  multi method info_word() : Int
+  multi method info_word(Int $value) : Int</code></pre>
 
 <p>Message <i>word</i> (unsigned integer 16-bit).</p>
 
@@ -233,8 +313,8 @@
 <dt id="scan_code"><i>scan_code</i></dt>
 <dd>
 
-<pre><code>  method scan_code() : Int
-  method scan_code(Int $value) : Int</code></pre>
+<pre><code>  multi method scan_code() : Int
+  multi method scan_code(Int $value) : Int</code></pre>
 
 <p>Scan code.</p>
 

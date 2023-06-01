@@ -156,11 +156,11 @@
 
 <p>While collections are defined within Turbo Vision, you can also use collections in standard, non-Turbo Vision applications.</p>
 
-<p>In the description of the methods below, each method using an <i>$index</i> parameter checks to insure that the Index is in the valid range between 0 and <i>count</i> (the number of items in the collection). If the <i>$index</i> is out range, these methods call <i>TCollection-&gt;error</i> which, by default, halts the program with a run time error. You can trap any collection error by overriding error in your derived collection.</p>
+<p>In the description of the methods below, each method using an <i>$index</i> parameter checks to insure that the Index is in the valid range between 0 and <a href="#count">&quot;count&quot;</a> (the number of items in the collection). If the <i>$index</i> is out range, these methods call <a href="#error">&quot;error&quot;</a> which, by default, halts the program with a run time error. You can trap any collection error by overriding error in your derived collection.</p>
 
 <p><b>Commonly Used Features</b></p>
 
-<p><i>TCollection-&gt;count</i> attribute, <i>TCollection-&gt;init</i> constructor, the access methods <i>at</i>, <i>at_put</i>, <i>at_delete</i>, <i>at_free</i>, the iterators <i>first_that</i>, <i>for_each</i> and <i>last_that</i>, the <i>index_of</i> function, and the <i>load</i> and <i>store</i> methods.</p>
+<p><a href="#count">&quot;count&quot;</a> attribute, <a href="#init">&quot;init&quot;</a> constructor, the access methods <a href="#at">&quot;at&quot;</a>, <a href="#at_put">&quot;at_put&quot;</a>, <a href="#at_delete">&quot;at_delete&quot;</a>, <a href="#at_free">&quot;at_free&quot;</a>, the iterators <a href="#first_that">&quot;first_that&quot;</a>, <a href="#for_each">&quot;for_each&quot;</a> and <a href="#last_that">&quot;last_that&quot;</a>, the <a href="#index_of">&quot;index_of&quot;</a> method, and the <a href="#load">&quot;load&quot;</a> constructor and <a href="#store">&quot;store&quot;</a> method.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -197,7 +197,7 @@
 
 <pre><code>  field count ( is =&gt; ro, type =&gt; Int );</code></pre>
 
-<p>Holds the number of items currently stored in the collection, up to <i>MAX_COLLECTION_SIZE</i>.</p>
+<p>Holds the number of <a href="#items">&quot;items&quot;</a> currently stored in the collection, up to <i>MAX_COLLECTION_SIZE</i>.</p>
 
 </dd>
 <dt id="delta"><i>delta</i></dt>
@@ -205,11 +205,11 @@
 
 <pre><code>  has delta ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
-<p>Because one of the features of collections is that they can grow, <i>delta</i> holds the number of elements by which the collection should be enlarged when the <i>count</i> reaches the current maximum size specified by <i>limit</i>.</p>
+<p>Because one of the features of collections is that they can grow, <i>delta</i> holds the number of elements by which the collection should be enlarged when the <a href="#count">&quot;count&quot;</a> reaches the current maximum size specified by <a href="#limit">&quot;limit&quot;</a>.</p>
 
-<p>When this occurs, <i>limit</i> is increased by <i>delta</i> and additional space is reserved for the necessary items.</p>
+<p>When this occurs, <a href="#limit">&quot;limit&quot;</a> is increased by <i>delta</i> and additional space is reserved for the necessary <a href="#items">&quot;items&quot;</a>.</p>
 
-<p>Generally, <i>limit</i> should initially be set to a sufficient size for most operations on the collection, and <i>delta</i> should be set large enough so that expansion of the collection occurs infrequently to avoid the fairly intensive overhead of dynamically resizing the collection.</p>
+<p>Generally, <a href="#limit">&quot;limit&quot;</a> should initially be set to a sufficient size for most operations on the collection, and <i>delta</i> should be set large enough so that expansion of the collection occurs infrequently to avoid the fairly intensive overhead of dynamically resizing the collection.</p>
 
 </dd>
 <dt id="items"><i>items</i></dt>
@@ -237,17 +237,19 @@
 <dt id="init"><i>init</i></dt>
 <dd>
 
-<pre><code>  factory $class-&gt;init(Int $a_limit, Int $a_delta) : TCollection</code></pre>
+<pre><code>  factory init(Int $a_limit, Int $a_delta) : TCollection</code></pre>
 
-<p>The constructor <i>init</i> creates a new collection with initially allocated array for the number of elements specified by <i>$a_limit</i>, and the ability to dynamically increase the size of the collection in <i>delta</i> increments.</p>
+<p>The constructor <i>init</i> creates a new collection with initially allocated array for the number of elements specified by <i>$a_limit</i>, and the ability to dynamically increase the size of the collection in <a href="#delta">&quot;delta&quot;</a> increments.</p>
 
 <p>See: <i>MAX_COLLECTION_SIZE</i></p>
 
 </dd>
-<dt id="public-TCollection-load-TStream-s">public <code>TCollection-&gt;load(TStream $s)</code></dt>
+<dt id="load"><i>load</i></dt>
 <dd>
 
-<p>Loads the entire collection from stream <i>$s</i>, by calling <i>TCollection-&gt;get_item</i> for each individual item in the collection.</p>
+<pre><code>  factory load(TStream $s) : TCollection</code></pre>
+
+<p>Loads the entire collection from stream <i>$s</i>, by calling <a href="#get_item">&quot;get_item&quot;</a> for each individual item in the collection.</p>
 
 </dd>
 </dl>
@@ -256,78 +258,96 @@
 
 <dl>
 
-<dt id="public-Ref-at-Int-index">public <code>Ref at(Int $index)</code></dt>
+<dt id="at"><i>at</i></dt>
 <dd>
+
+<pre><code>  method at(Int $index) : Ref</code></pre>
 
 <p>Use <i>at</i> to access the collection as if it were an array.</p>
 
-<p>Normally <i>at($index)</i> returns a reference to the <i>$index</i>&#39;th item in the array, where <i>$index</i> ranges from 0 up to <i>count</i>.</p>
+<p>Normally <i>at($index)</i> returns a reference to the <i>$index</i>&#39;th item in the array, where <i>$index</i> ranges from 0 up to <a href="#count">&quot;count&quot;</a>.</p>
 
-<p>If an error occurs, <i>at</i> calls the <i>error</i> method with an argument of <i>CO_INDEX_ERROR</i> and then returns <code>undef</code>.</p>
+<p>If an error occurs, <i>at</i> calls the <a href="#error">&quot;error&quot;</a> method with an argument of <i>CO_INDEX_ERROR</i> and then returns <code>undef</code>.</p>
 
 </dd>
-<dt id="public-at_delete-Int-index">public <code>at_delete(Int $index)</code></dt>
+<dt id="at_delete"><i>at_delete</i></dt>
 <dd>
 
-<p>The method <i>at_delete</i> deletes the item at the location specified by <i>$index</i>, and slides all of the following items in the collection over to fill in the now vacant hole and decrements Count by 1.</p>
+<pre><code>  method at_delete(Int $index)</code></pre>
+
+<p>The method <i>at_delete</i> deletes the item at the location specified by <i>$index</i>, and slides all of the following <a href="#items">&quot;items&quot;</a> in the collection over to fill in the now vacant hole and decrements <a href="#count">&quot;count&quot;</a> by 1.</p>
 
 <p>The method <i>at_delete</i> does not weaken all references to the item in the collection that was in the location.</p>
 
 </dd>
-<dt id="public-at_free-Int-index">public <code>at_free(Int $index)</code></dt>
+<dt id="at_free"><i>at_free</i></dt>
 <dd>
 
-<p>The method <i>at_free</i> works like <i>at_delete</i>, except that the specific item is deleted and all other references to this item in the collection are weakened.</p>
+<pre><code>  method at_free(Int $index)</code></pre>
+
+<p>The method <i>at_free</i> works like <a href="#at_delete">&quot;at_delete&quot;</a>, except that the specific item is deleted and all other references to this item in the collection are weakened.</p>
 
 </dd>
-<dt id="public-at_insert-Int-index-Ref-item">public <code>at_insert(Int $index, Ref $item)</code></dt>
+<dt id="at_insert"><i>at_insert</i></dt>
 <dd>
 
-<p>The method <i>at_insert</i> puts a new <i>$item</i> into the collection at the <i>$index</i> location by sliding all of the following items over by one position.</p>
+<pre><code>  method at_insert(Int $index, Ref $item)</code></pre>
 
-<p>If adding the new element would exceed the size of the collection, <i>TCollection-&gt;set_limit</i> is called to automatically expand the size.</p>
+<p>The method <i>at_insert</i> puts a new <i>$item</i> into the collection at the <i>$index</i> location by sliding all of the following <a href="#items">&quot;items&quot;</a> over by one position.</p>
+
+<p>If adding the new element would exceed the size of the collection, <a href="#set_limit">&quot;set_limit&quot;</a> is called to automatically expand the size.</p>
 
 </dd>
-<dt id="public-at_put-Int-index-Ref-item">public <code>at_put(Int $index, Ref $item)</code></dt>
+<dt id="at_put"><i>at_put</i></dt>
 <dd>
+
+<pre><code>  method at_put(Int $index, Ref $item)</code></pre>
 
 <p>Use <i>at_put</i> when you need to replace an existing item with a new item.</p>
 
 <p>The method <i>a_put</i> copies the new <i>$item</i> refernce to the location specified by <i>$index</i>.</p>
 
 </dd>
-<dt id="public-delete-Ref-item">public <code>delete(Ref $item)</code></dt>
+<dt id="delete"><i>delete</i></dt>
 <dd>
+
+<pre><code>  method delete(Ref $item)</code></pre>
 
 <p>Deletes the item given by from the collection.</p>
 
-<p>The items in a collection can be accessed via their index location or by way of the reference to the item.</p>
+<p>The <a href="#items">&quot;items&quot;</a> in a collection can be accessed via their index location or by way of the reference to the <i>$item</i>.</p>
 
-<p>When you have a reference to an item and wish to delete it, you can call <i>delete($item)</i> directly.</p>
+<p>When you have a reference to an <i>$item</i> and wish to delete it, you can call <i>delete($item)</i> directly.</p>
 
-<p>Alternatively, you can use the <i>index_of</i> method to translate the reference into an <i>$index</i> value and then use <i>at_delete</i>, like this,</p>
+<p>Alternatively, you can use the <a href="#index_of">&quot;index_of&quot;</a> method to translate the reference into an <i>$index</i> value and then use <a href="#at_delete">&quot;at_delete&quot;</a>, like this,</p>
 
 <pre><code>  $self-&gt;at_delete($self-&gt;index_of($item));</code></pre>
 
-<p>After an <i>$tem</i> is deleted, <i>count</i> is decremented by 1.</p>
+<p>After an <i>$item</i> is deleted, <a href="#count">&quot;count&quot;</a> is decremented by 1.</p>
 
 </dd>
-<dt id="public-delete_all">public <code>delete_all()</code></dt>
+<dt id="delete_all"><i>delete_all</i></dt>
 <dd>
+
+<pre><code>  method delete_all()</code></pre>
 
 <p>Deletes all items from the collection.</p>
 
 </dd>
-<dt id="public-error-Int-code-Int-info">public <code>error(Int $code, Int $info)</code></dt>
+<dt id="error"><i>error</i></dt>
 <dd>
+
+<pre><code>  method error(Int $code, Int $info)</code></pre>
 
 <p>All collection errors result in a call to <i>error</i>, with error information passed in <i>$code</i> and <i>$info</i>.</p>
 
 <p>See: <i>coXXXX</i> constants.</p>
 
 </dd>
-<dt id="public-Ref-first_that-CodeRef-test">public <code>Ref first_that(CodeRef $test)</code></dt>
+<dt id="first_that"><i>first_that</i></dt>
 <dd>
+
+<pre><code>  method first_that(CodeRef $test) : Ref </code></pre>
 
 <p>The method <i>first_that</i> is one of the iterator functions and is normally used to search through the collection for a specific item.</p>
 
@@ -336,93 +356,117 @@
 <p>For each item in the collection until finding a match, <i>first_that</i> calls the <i>$test</i> function.</p>
 
 </dd>
-<dt id="public-for_each-CodeRef-action">public <code>for_each(CodeRef $action)</code></dt>
+<dt id="for_each"><i>for_each</i></dt>
 <dd>
+
+<pre><code>  method for_each(CodeRef $action)</code></pre>
 
 <p><i>for_each</i> is an iterator function to scan through every item in the collection, and call the subroutine specified by the <i>$action</i> code reference, passing to it a reference to each individual item.</p>
 
 </dd>
-<dt id="public-free-Ref-item">public <code>free(Ref $item)</code></dt>
+<dt id="public-free">public <i>free</i></dt>
 <dd>
 
-<p>This procedure is similar to <i>delete</i>, except that <i>free</i> weaken all references of the given <i>$item</i> in the collection.</p>
+<pre><code>  method free(Ref $item)</code></pre>
+
+<p>This method is similar to <a href="#delete">&quot;delete&quot;</a>, except that <i>free</i> weaken all references of the given <i>$item</i> in the collection.</p>
 
 <p>Free is equivalent to calling,</p>
 
 <pre><code>  $self-&gt;delete($item);
   $self-&gt;free_item($item);</code></pre>
 
-<p>Although, it is not recommended to call <i>free_item</i> directly.</p>
+<p>Although, it is not recommended to call <a href="#free_item">&quot;free_item&quot;</a> directly.</p>
 
 </dd>
-<dt id="public-free_all">public <code>free_all()</code></dt>
+<dt id="free_all"><i>free_all</i></dt>
 <dd>
 
-<p>Delete each item from the collection and weaken all items references in the collection.</p>
+<pre><code>  method free_all()</code></pre>
+
+<p>Delete each item from the collection and weaken all <a href="#items">&quot;items&quot;</a> references in the collection.</p>
 
 </dd>
-<dt id="public-free_item-Ref-item">public <code>free_item(Ref $item)</code></dt>
+<dt id="free_item"><i>free_item</i></dt>
 <dd>
 
-<p>When <i>$item</i> is a reference to an individual item in the collection, <i>free_item($item)</i> weaken all references of <i>$item</i> in the collection by calling the core routine <i>weaken</i> exported by <i>Scalar::Utils</i>.</p>
+<pre><code>  method free_item(Ref $item)</code></pre>
+
+<p>When <i>$item</i> is a reference to an individual item in the collection, <i>free_item($item)</i> weaken all references of <i>$item</i> in the collection by calling the core routine <i>weaken</i> exported by <a href="http://metacpan.org/module/Scalar::Utils">Scalar::Utils</a>.</p>
 
 </dd>
-<dt id="public-Ref-get_item-TStream-s">public <code>Ref get_item(TStream $s)</code></dt>
+<dt id="get_item"><i>get_item</i></dt>
 <dd>
 
-<p>The method <i>get_item</i> is used to read a single collection item from stream <i>$s</i> and is automatically called by <i>TCollection-&gt;load</i>.</p>
+<pre><code>  method get_item(TStream $s) : Ref</code></pre>
 
-<p>You should not directly call this routine but should use <i>load</i> instead.</p>
+<p>The method <i>get_item</i> is used to read a single collection item from stream <i>$s</i> and is automatically called by <a href="#load">&quot;load&quot;</a>.</p>
+
+<p>You should not directly call this routine but should use <a href="#load">&quot;load&quot;</a> instead.</p>
 
 <p>By default, <i>get_item</i> calls <i>TStream-&gt;get</i> to load the item.</p>
 
 </dd>
-<dt id="public-Int-index_of-Ref-item">public <code>Int index_of(Ref $item)</code></dt>
+<dt id="index_of"><i>index_of</i></dt>
 <dd>
+
+<pre><code>  method index_of(Ref $item) : Int</code></pre>
 
 <p>Given a reference to an item, <i>index_of</i> returns the index position in the collection where the <i>$item</i> is located.</p>
 
-<p>Please note, <i>index_of</i> is the opposite of <i>at($index)</i> which returns a reference to the item.</p>
+<p>Please note, <i>index_of</i> is the opposite of <a href="#at">at($index)</a> which returns a reference to the item.</p>
 
 <p>If <i>$item</i> is not in the collection, <i>index_of</i> returns -1.</p>
 
 </dd>
-<dt id="public-insert-Ref-item">public <code>insert(Ref $item)</code></dt>
+<dt id="insert"><i>insert</i></dt>
 <dd>
+
+<pre><code>  method insert(Ref $item)</code></pre>
 
 <p>Inserts <i>$item</i> into the collection, and adjusts other indexes if necessary.</p>
 
 </dd>
-<dt id="public-Ref-last_that-CodeRef-test">public <code>Ref last_that(CodeRef $test)</code></dt>
+<dt id="last_that"><i>last_that</i></dt>
 <dd>
+
+<pre><code>  method last_that(CodeRef $test) : Ref</code></pre>
 
 <p>The method <i>last_that</i> searches backwards through the collection, beginning at the last item and moving forwards.</p>
 
-<p>For each item, <i>last_that</i> calls the subroutine referenced by <i>$test</i>, until <i>$test</i> returns a true result, or false (<code>undef</code>) if <i>$test</i> returned false for all items.</p>
+<p>For each item, <i>last_that</i> calls the subroutine referenced by <i>$test</i>, until <i>$test</i> returns a true result, or false (<code>undef</code>) if <i>$test</i> returned false for all <a href="#items">&quot;items&quot;</a>.</p>
 
 <p>By having <i>$test</i> code reference that makes a comparision between a search criteria and an item in the collection, you can use <i>last_that</i> to quickly scan backwards in a collection.</p>
 
 </dd>
-<dt id="public-pack">public <code>pack()</code></dt>
+<dt id="pack"><i>pack</i></dt>
 <dd>
+
+<pre><code>  method pack()</code></pre>
 
 <p>Use <i>pack</i> to eliminate all <code>undef</code> references that may have been stored into the collection.</p>
 
 </dd>
-<dt id="public-put_item-TStream-s-Ref-item">public <code>put_item(TStream $s, Ref $item)</code></dt>
+<dt id="put_item"><i>put_item</i></dt>
 <dd>
 
-<p>Called by <i>TCollection-&gt;store</i> to write an individual item to stream <i>$s</i>. By default, <i>put_item</i> calls <i>TStream-&gt;put</i> to store the item.</p>
+<pre><code>  method put_item(TStream $s, Ref $item)</code></pre>
+
+<p>Called by <a href="#store">&quot;store&quot;</a> to write an individual item to stream <i>$s</i>. By default, <i>put_item</i> calls <i>TStream-&gt;put</i> to store the item.</p>
 
 </dd>
-<dt id="public-set_limit-Int-a_limit">public <code>set_limit(Int $a_limit)</code></dt>
+<dt id="set_limit"><i>set_limit</i></dt>
 <dd>
 
-<p>Expands or shrinks the collection by changing the memory allocated for items to handle <i>$a_limit</i> items.</p>
+<pre><code> mtehod set_limit(Int $a_limit)</code></pre>
+
+<p>Expands or shrinks the collection by changing the memory allocated for <a href="#items">&quot;items&quot;</a> to handle <i>$a_limit</i> items.</p>
 
 </dd>
-<dt id="public-store-TStream-s">public <code>store(TStream $s)</code></dt>
+<dt id="store"><i>store</i></dt>
 <dd>
+
+<pre><code>  method store(TStream $s)</code></pre>
 
 <p>Writes the entire collection to stream <i>$s</i>.</p>
 
@@ -487,7 +531,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

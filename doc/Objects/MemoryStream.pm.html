@@ -64,38 +64,50 @@
 
 <dl>
 
-<dt id="public-readonly-Int-block_size">public readonly <code>Int block_size</code></dt>
+<dt id="block_size"><i>block_size</i></dt>
 <dd>
+
+<pre><code>  has block_size ( is =&gt; rwp, type =&gt; Int ) = 0x2000;</code></pre>
 
 <p>Memory block size.</p>
 
 </dd>
-<dt id="public-readonly-Int-cur_seg">public readonly <code>Int cur_seg</code></dt>
+<dt id="cur_seg"><i>cur_seg</i></dt>
 <dd>
+
+<pre><code>  has cur_seg ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
 <p>Current segment.</p>
 
 </dd>
-<dt id="public-readonly-Int-seg_count">public readonly <code>Int seg_count</code></dt>
+<dt id="seg_count"><i>seg_count</i></dt>
 <dd>
+
+<pre><code>  has seg_count ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
 <p>The number of allocated segments for the stream, with 8K per segment.</p>
 
 </dd>
-<dt id="public-readonly-ArrayRef-Str-seg_list">public readonly <code>ArrayRef[Str] seg_list</code></dt>
+<dt id="seg_list"><i>seg_list</i></dt>
 <dd>
+
+<pre><code>  has seg_list ( is =&gt; rwp, type =&gt; ArrayRef[Str] ) = [];</code></pre>
 
 <p>Memory block list.</p>
 
 </dd>
-<dt id="public-Int-position">public <code>Int position</code></dt>
+<dt id="position"><i>position</i></dt>
 <dd>
+
+<pre><code>  has position ( is =&gt; rw, type =&gt; Int ) = 0;</code></pre>
 
 <p>The current position within the stream.</p>
 
 </dd>
-<dt id="public-Int-size">public <code>Int size</code></dt>
+<dt id="size"><i>size</i></dt>
 <dd>
+
+<pre><code>  has size ( is =&gt; rw, type =&gt; Int ) = 0;</code></pre>
 
 <p>The size of the stream in bytes.</p>
 
@@ -106,10 +118,12 @@
 
 <dl>
 
-<dt id="public-TMemoryStream-init-Int-a_limit-Int-a_block_size">public <code>TMemoryStream-&gt;init(Int $a_limit, Int $a_block_size)</code></dt>
+<dt id="init"><i>init</i></dt>
 <dd>
 
-<p>This Constructor creates an memory stream with the given minimum size in bytes. Calls the <i>init</i> constructor inherited from <i>TStream</i>, then sets <i>block_size</i> and alocate the memory.</p>
+<pre><code>  factory init(Int $a_limit, Int $a_block_size) : TMemoryStream</code></pre>
+
+<p>This Constructor creates an memory stream with the given minimum size in bytes. Calls the <i>init</i> constructor inherited from <i>TStream</i>, then sets <a href="#block_size">&quot;block_size&quot;</a> and alocate the memory.</p>
 
 </dd>
 </dl>
@@ -118,20 +132,26 @@
 
 <dl>
 
-<dt id="public-read-Item-buf-Int-count">public <code>read(Item $buf, Int $count)</code></dt>
+<dt id="read"><i>read</i></dt>
 <dd>
+
+<pre><code>  around read(Item $buf, Int $count)</code></pre>
 
 <p>Reads <i>$count</i> bytes from the stream, starting at the current position, into the <i>$buf</i> buffer.</p>
 
 </dd>
-<dt id="public-truncate">public <code>truncate()</code></dt>
+<dt id="truncate"><i>truncate</i></dt>
 <dd>
+
+<pre><code>  around truncate()</code></pre>
 
 <p><i>truncate</i> deletes all data on the calling stream from the current position.</p>
 
 </dd>
-<dt id="public-write-Str-buf-Int-count">public <code>write(Str $buf, Int $count)</code></dt>
+<dt id="write"><i>write</i></dt>
 <dd>
+
+<pre><code>  around write(Str $buf, Int $count)</code></pre>
 
 <p>Writes <i>$count</i> bytes from the <i>$buf</i> buffer to the stream, starting at the current position.</p>
 
@@ -196,7 +216,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

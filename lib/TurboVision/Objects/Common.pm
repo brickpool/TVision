@@ -59,7 +59,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use Carp qw( carp confess );
+use Carp qw( confess );
 use Data::Alias qw( alias );
 use Scalar::Util qw( refaddr weaken isweak );
 
@@ -161,14 +161,16 @@ program and have been assigned to the I<Objects> module.
 
 =over
 
-=item public static C<< Object byte() >>
+=item I<byte>
 
-=item public static C<< Object byte(Str|Int $value) >>
+  func byte() : Object
+  func byte(Str|Int $value) : Object
 
 The utility I<byte> helps to convert an unsigned char (octet) value into a
 number to the base 256 (packed string).
 
-A I<byte> data type support only positive I<Int> values in a range of: C<0..255>
+A I<byte> data type support only positive I<Int> values in a range of:
+C<0..255>.
 
 Usage:
 
@@ -211,15 +213,16 @@ Usage:
     return FAIL;
   }
 
-=item public static C<< Object integer() >>
+=item I<integer>
 
-=item public static C<< Object integer(Str|Int $value) >>
+  func integer() : Object
+  func integer(Str|Int $value) : Object
 
 The utility I<integer> helps to convert an signed long (16-bit) value into a
 number to the base 256 (packed string).
 
 A I<integer> data type support only positive I<Int> values in a range of:
-C<-32768..32767>
+C<-32768..32767>.
 
 Usage:
 
@@ -262,15 +265,16 @@ Usage:
     return FAIL;
   }
 
-=item public static C<< Object longint() >>
+=item I<longint>
 
-=item public static C<< Object longint(Str|Int $value) >>
+  func longint() : Object
+  func longint(Str|Int $value) : Object
 
 The utility I<longint> helps to convert an signed long (32-bit) value into a
 number to the base 256 (packed string).
 
 A I<longint> data type support only positive I<Int> values in a range of:
-C<-2147483648..2147483647>
+C<-2147483648..2147483647>.
 
 Usage:
 
@@ -313,7 +317,9 @@ Usage:
     return FAIL;
   }
 
-=item public static C<< Int long_div(Int $x, Int $y) >>
+=item I<long_div>
+
+  func long_div(Int $x, Int $y) : Int
 
 A division routine, returning the integer value C<int( $x/$y )>.
 
@@ -325,7 +331,9 @@ B<Note>: This utility routine is for compatiblity only.
     return int( $x / $y );
   }
 
-=item public static C<< Int long_mul(Int $x, Int $y) >>
+=item I<long_mul>
+
+  func long_mul(Int $x, Int $y) : Int
 
 A multiplication routine, returning the integer value C<$x*$y>.
 
@@ -337,7 +345,9 @@ B<Note>: This utility routine is for compatiblity only.
     return $x * $y;
   }
 
-=item public static C<< Object|Value long_rec(Int $l) >>
+=item I<long_rec>
+
+  func long_rec(Int $l) : Object|Value
 
 A utility routine allowing access to the I<< long_rec($l)->lo >> and
 I<< long_rec($l)->hi >> words of I<$l>. In a scalar context the utility routine
@@ -359,7 +369,9 @@ get lo-word of an integer value.
     );
   }
 
-=item public static C<< Object|Value ptr_rec(Ref $p) >>
+=item I<ptr_rec>
+
+  func ptr_rec(Ref $p) : Object|Value
 
 A utility routine that returns the memory address of a referenced value as
 I<< ptr_rec($p)->seg >> and I<< ptr_rec($p)->ofs >>. In a scalar context the
@@ -369,7 +381,7 @@ B<Note>: Modern systems are not segmented and the addresses are always linear.
 This utility routine is only for compatiblity. Please use Perl's routine
 I<refaddr> instead to get the internal memory address of a referenced value.
 
-See: I<refaddr> from I<Scalar::Util>
+See: I<refaddr> from L<Scalar::Util>
 
 =cut
 
@@ -385,15 +397,16 @@ See: I<refaddr> from I<Scalar::Util>
     );
   }
 
-=item public static C<< Object word() >>
+=item I<word>
 
-=item public static C<< Object word(Str|Int $value) >>
+  func word() : Object
+  func word(Str|Int $value) : Object
 
 The utility I<word> helps to convert an unsigned short (16-bit) value into a
 number to the base 256 (packed string).
 
 A I<word> data type support only positive I<Int> values in a range of:
-C<0..65535>
+C<0..65535>.
 
 Usage:
 
@@ -436,15 +449,17 @@ Usage:
     return FAIL;
   }
 
-=item public static C<< Object|Value word_rec(Int $w) >>
+=item L<word_rec>
+
+  func word_rec(Int $w) : Object|Value
 
 A utility routine allowing access to the I<< word_rec($w)->lo >> and
 I<< word_rec($w)->hi >> bytes of I<$w>. In a scalar context the utility routine
 returns C<$w & 0xffff>.
 
 B<Note>: This utility routine is for compatiblity only. Please use
-C<$hi = $int & 0xff00> to get the hi-byte or C<$lo = $int & 0x00ff> to
-get lo-byte of an (unsigned) integer value.
+C<$hi = $int & 0xff00> to get the hi-byte or C<$lo = $int & 0x00ff> to get
+lo-byte of an (unsigned) integer value.
 
 =cut
 
@@ -466,12 +481,16 @@ get lo-byte of an (unsigned) integer value.
 
 =over
 
-=item public static C<< abstract() >>
+=item I<abstract>
+
+  func abstract()
 
 Terminates program with a run-time error 211. When implementing an abstract
 object type, call I<abstract> in those methods that must be overridden in
 descendant types. This ensures that any attempt to use instances of the abstract
 object type will fail.
+
+See: I<confess> from L<Carp>
 
 =cut
 
@@ -480,13 +499,15 @@ object type will fail.
     return;
   }
 
-=item public static C<< dispose_str(ScalarRef[Str] $s) >>
+=item I<dispose_str>
+
+  func dispose_str(ScalarRef[Str] $s)
 
 Weaken the string reference I<$s>.
 
 B<Note>: This utility routine is for compatiblity only.
 
-See: I<weaken> from I<Scalar::Util>
+See: I<weaken> from L<Scalar::Util>
 
 =cut
 
@@ -503,16 +524,18 @@ See: I<weaken> from I<Scalar::Util>
     return;
   }
 
-=item public static C<< Undef fail() >>
+=item I<fail>
 
-I<fail> (which calls I<FAIL> from module I<Contextual::Return>) can be used in a
+  func fail() : Undef
+
+I<fail> (which calls I<FAIL> from module L<Contextual::Return>) can be used in a
 constructor for an object or class. It will exit the constructor immediately.
 
 This means that calling I<fail> inside I<new> (also applies to I<init> and
 I<load> in this library) raise an exception or returns false (C<undef>) when
 used in a boolean context.
 
-See: I<FAIL> from I<Contextual::Return>
+See: I<FAIL> from L<Contextual::Return>
 
 =cut
 
@@ -520,10 +543,12 @@ See: I<FAIL> from I<Contextual::Return>
     goto &FAIL;
   }
 
-=item public static C<< Ref|Undef new_str(Str $s) >>
+=item I<new_str>
+
+  func new_str(Str $s) : Ref|Undef
 
 If I<$s> is empty, I<new_str> returns C<undef>. Otherwise, I<new_str> returns a
-reference to a copy of string I<$s>;
+reference to a copy of string I<$s>.
 
 B<Note>: This utility routine is for compatiblity only.
 
@@ -535,7 +560,9 @@ B<Note>: This utility routine is for compatiblity only.
     return \$s;                                         # Return result
   }
 
-=item public static C<< register_objects() >>
+=item I<register_objects>
+
+  func register_objects()
 
 Calls I<register_type> for each of the class types defined in the I<Objects>
 module: I<TCollection>, <TStringCollection>
@@ -619,5 +646,5 @@ __END__
 
 =head1 SEE ALSO
 
-I<Carp>, I<Scalar::Util>, I<Objects>, I<Contextual::Return>, 
+L<Carp>, L<Scalar::Util>, I<Objects>, L<Contextual::Return>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

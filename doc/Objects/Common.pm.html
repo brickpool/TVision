@@ -101,16 +101,15 @@
 
 <dl>
 
-<dt id="public-static-Object-byte">public static <code>Object byte()</code></dt>
+<dt id="byte"><i>byte</i></dt>
 <dd>
 
-</dd>
-<dt id="public-static-Object-byte-Str-Int-value">public static <code>Object byte(Str|Int $value)</code></dt>
-<dd>
+<pre><code>  func byte() : Object
+  func byte(Str|Int $value) : Object</code></pre>
 
 <p>The utility <i>byte</i> helps to convert an unsigned char (octet) value into a number to the base 256 (packed string).</p>
 
-<p>A <i>byte</i> data type support only positive <i>Int</i> values in a range of: <code>0..255</code></p>
+<p>A <i>byte</i> data type support only positive <i>Int</i> values in a range of: <code>0..255</code>.</p>
 
 <p>Usage:</p>
 
@@ -122,16 +121,15 @@
   $ = byte($str)-&gt;unpack; # Conversion of a number with base 256 into uint16</code></pre>
 
 </dd>
-<dt id="public-static-Object-integer">public static <code>Object integer()</code></dt>
+<dt id="integer"><i>integer</i></dt>
 <dd>
 
-</dd>
-<dt id="public-static-Object-integer-Str-Int-value">public static <code>Object integer(Str|Int $value)</code></dt>
-<dd>
+<pre><code>  func integer() : Object
+  func integer(Str|Int $value) : Object</code></pre>
 
 <p>The utility <i>integer</i> helps to convert an signed long (16-bit) value into a number to the base 256 (packed string).</p>
 
-<p>A <i>integer</i> data type support only positive <i>Int</i> values in a range of: <code>-32768..32767</code></p>
+<p>A <i>integer</i> data type support only positive <i>Int</i> values in a range of: <code>-32768..32767</code>.</p>
 
 <p>Usage:</p>
 
@@ -143,16 +141,15 @@
   $ = integer($str)-&gt;unpack; # Conversion of a number with base 256 into int32</code></pre>
 
 </dd>
-<dt id="public-static-Object-longint">public static <code>Object longint()</code></dt>
+<dt id="longint"><i>longint</i></dt>
 <dd>
 
-</dd>
-<dt id="public-static-Object-longint-Str-Int-value">public static <code>Object longint(Str|Int $value)</code></dt>
-<dd>
+<pre><code>  func longint() : Object
+  func longint(Str|Int $value) : Object</code></pre>
 
 <p>The utility <i>longint</i> helps to convert an signed long (32-bit) value into a number to the base 256 (packed string).</p>
 
-<p>A <i>longint</i> data type support only positive <i>Int</i> values in a range of: <code>-2147483648..2147483647</code></p>
+<p>A <i>longint</i> data type support only positive <i>Int</i> values in a range of: <code>-2147483648..2147483647</code>.</p>
 
 <p>Usage:</p>
 
@@ -164,50 +161,57 @@
   $ = longint($str)-&gt;unpack; # Conversion of a number with base 256 into int32</code></pre>
 
 </dd>
-<dt id="public-static-Int-long_div-Int-x-Int-y">public static <code>Int long_div(Int $x, Int $y)</code></dt>
+<dt id="long_div"><i>long_div</i></dt>
 <dd>
+
+<pre><code>  func long_div(Int $x, Int $y) : Int</code></pre>
 
 <p>A division routine, returning the integer value <code>int( $x/$y )</code>.</p>
 
 <p><b>Note</b>: This utility routine is for compatiblity only.</p>
 
 </dd>
-<dt id="public-static-Int-long_mul-Int-x-Int-y">public static <code>Int long_mul(Int $x, Int $y)</code></dt>
+<dt id="long_mul"><i>long_mul</i></dt>
 <dd>
+
+<pre><code>  func long_mul(Int $x, Int $y) : Int</code></pre>
 
 <p>A multiplication routine, returning the integer value <code>$x*$y</code>.</p>
 
 <p><b>Note</b>: This utility routine is for compatiblity only.</p>
 
 </dd>
-<dt id="public-static-Object-Value-long_rec-Int-l">public static <code>Object|Value long_rec(Int $l)</code></dt>
+<dt id="long_rec"><i>long_rec</i></dt>
 <dd>
+
+<pre><code>  func long_rec(Int $l) : Object|Value</code></pre>
 
 <p>A utility routine allowing access to the <i>long_rec($l)-&gt;lo</i> and <i>long_rec($l)-&gt;hi</i> words of <i>$l</i>. In a scalar context the utility routine returns <code>$l &amp; 0xffffffff</code>.</p>
 
 <p><b>Note</b>: This utility routine is for compatiblity only. Please use <code>$hi = $int &amp; 0xfffff0000</code> to get the hi-word or <code>$lo = $int &amp; 0x0000fffff</code> to get lo-word of an integer value.</p>
 
 </dd>
-<dt id="public-static-Object-Value-ptr_rec-Ref-p">public static <code>Object|Value ptr_rec(Ref $p)</code></dt>
+<dt id="ptr_rec"><i>ptr_rec</i></dt>
 <dd>
+
+<pre><code>  func ptr_rec(Ref $p) : Object|Value</code></pre>
 
 <p>A utility routine that returns the memory address of a referenced value as <i>ptr_rec($p)-&gt;seg</i> and <i>ptr_rec($p)-&gt;ofs</i>. In a scalar context the utility routine returns <code>refaddr($p)</code>.</p>
 
 <p><b>Note</b>: Modern systems are not segmented and the addresses are always linear. This utility routine is only for compatiblity. Please use Perl&#39;s routine <i>refaddr</i> instead to get the internal memory address of a referenced value.</p>
 
-<p>See: <i>refaddr</i> from <i>Scalar::Util</i></p>
+<p>See: <i>refaddr</i> from <a href="http://metacpan.org/module/Scalar::Util">Scalar::Util</a></p>
 
 </dd>
-<dt id="public-static-Object-word">public static <code>Object word()</code></dt>
+<dt id="word"><i>word</i></dt>
 <dd>
 
-</dd>
-<dt id="public-static-Object-word-Str-Int-value">public static <code>Object word(Str|Int $value)</code></dt>
-<dd>
+<pre><code>  func word() : Object
+  func word(Str|Int $value) : Object</code></pre>
 
 <p>The utility <i>word</i> helps to convert an unsigned short (16-bit) value into a number to the base 256 (packed string).</p>
 
-<p>A <i>word</i> data type support only positive <i>Int</i> values in a range of: <code>0..65535</code></p>
+<p>A <i>word</i> data type support only positive <i>Int</i> values in a range of: <code>0..65535</code>.</p>
 
 <p>Usage:</p>
 
@@ -219,8 +223,10 @@
   $ = word($str)-&gt;unpack; # Conversion of a number with base 256 into uint16</code></pre>
 
 </dd>
-<dt id="public-static-Object-Value-word_rec-Int-w">public static <code>Object|Value word_rec(Int $w)</code></dt>
+<dt id="word_rec"><a href="http://metacpan.org/module/word_rec">word_rec</a></dt>
 <dd>
+
+<pre><code>  func word_rec(Int $w) : Object|Value</code></pre>
 
 <p>A utility routine allowing access to the <i>word_rec($w)-&gt;lo</i> and <i>word_rec($w)-&gt;hi</i> bytes of <i>$w</i>. In a scalar context the utility routine returns <code>$w &amp; 0xffff</code>.</p>
 
@@ -233,42 +239,54 @@
 
 <dl>
 
-<dt id="public-static-abstract">public static <code>abstract()</code></dt>
+<dt id="abstract"><i>abstract</i></dt>
 <dd>
+
+<pre><code>  func abstract()</code></pre>
 
 <p>Terminates program with a run-time error 211. When implementing an abstract object type, call <i>abstract</i> in those methods that must be overridden in descendant types. This ensures that any attempt to use instances of the abstract object type will fail.</p>
 
+<p>See: <i>confess</i> from <a href="http://metacpan.org/module/Carp">Carp</a></p>
+
 </dd>
-<dt id="public-static-dispose_str-ScalarRef-Str-s">public static <code>dispose_str(ScalarRef[Str] $s)</code></dt>
+<dt id="dispose_str"><i>dispose_str</i></dt>
 <dd>
+
+<pre><code>  func dispose_str(ScalarRef[Str] $s)</code></pre>
 
 <p>Weaken the string reference <i>$s</i>.</p>
 
 <p><b>Note</b>: This utility routine is for compatiblity only.</p>
 
-<p>See: <i>weaken</i> from <i>Scalar::Util</i></p>
+<p>See: <i>weaken</i> from <a href="http://metacpan.org/module/Scalar::Util">Scalar::Util</a></p>
 
 </dd>
-<dt id="public-static-Undef-fail">public static <code>Undef fail()</code></dt>
+<dt id="fail"><i>fail</i></dt>
 <dd>
 
-<p><i>fail</i> (which calls <i>FAIL</i> from module <i>Contextual::Return</i>) can be used in a constructor for an object or class. It will exit the constructor immediately.</p>
+<pre><code>  func fail() : Undef</code></pre>
+
+<p><i>fail</i> (which calls <i>FAIL</i> from module <a href="http://metacpan.org/module/Contextual::Return">Contextual::Return</a>) can be used in a constructor for an object or class. It will exit the constructor immediately.</p>
 
 <p>This means that calling <i>fail</i> inside <i>new</i> (also applies to <i>init</i> and <i>load</i> in this library) raise an exception or returns false (<code>undef</code>) when used in a boolean context.</p>
 
-<p>See: <i>FAIL</i> from <i>Contextual::Return</i></p>
+<p>See: <i>FAIL</i> from <a href="http://metacpan.org/module/Contextual::Return">Contextual::Return</a></p>
 
 </dd>
-<dt id="public-static-Ref-Undef-new_str-Str-s">public static <code>Ref|Undef new_str(Str $s)</code></dt>
+<dt id="new_str"><i>new_str</i></dt>
 <dd>
 
-<p>If <i>$s</i> is empty, <i>new_str</i> returns <code>undef</code>. Otherwise, <i>new_str</i> returns a reference to a copy of string <i>$s</i>;</p>
+<pre><code>  func new_str(Str $s) : Ref|Undef</code></pre>
+
+<p>If <i>$s</i> is empty, <i>new_str</i> returns <code>undef</code>. Otherwise, <i>new_str</i> returns a reference to a copy of string <i>$s</i>.</p>
 
 <p><b>Note</b>: This utility routine is for compatiblity only.</p>
 
 </dd>
-<dt id="public-static-register_objects">public static <code>register_objects()</code></dt>
+<dt id="register_objects"><i>register_objects</i></dt>
 <dd>
+
+<pre><code>  func register_objects()</code></pre>
 
 <p>Calls <i>register_type</i> for each of the class types defined in the <i>Objects</i> module: <i>TCollection</i>, &lt;TStringCollection&gt;</p>
 
@@ -329,7 +347,7 @@
 
 <h1 id="SEE-ALSO">SEE ALSO</h1>
 
-<p><i>Carp</i>, <i>Scalar::Util</i>, <i>Objects</i>, <i>Contextual::Return</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+<p><a href="http://metacpan.org/module/Carp">Carp</a>, <a href="http://metacpan.org/module/Scalar::Util">Scalar::Util</a>, <i>Objects</i>, <a href="http://metacpan.org/module/Contextual::Return">Contextual::Return</a>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
 
 </div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
 

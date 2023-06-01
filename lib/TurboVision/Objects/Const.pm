@@ -317,7 +317,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
@@ -333,5 +333,5 @@ __END__
 
 =head1 SEE ALSO
 
-I<Exporter>, I<Objects>, 
+I<Objects>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

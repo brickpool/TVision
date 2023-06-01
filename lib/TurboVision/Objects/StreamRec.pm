@@ -330,5 +330,6 @@ __END__
 
 =head1 SEE ALSO
 
-L<Objects>, 
+L<MooseX::StrictConstructor>, 
+I<Objects>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

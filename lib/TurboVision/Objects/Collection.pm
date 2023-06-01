@@ -207,17 +207,17 @@ collections in standard, non-Turbo Vision applications.
 
 In the description of the methods below, each method using an I<$index>
 parameter checks to insure that the Index is in the valid range between 0
-and I<count> (the number of items in the collection). If the I<$index> is out
-range, these methods call I<< TCollection->error >> which, by default, halts the
-program with a run time error. You can trap any collection error by
+and L</count> (the number of items in the collection). If the I<$index> is out
+range, these methods call L</error> which, by default, halts the program with a
+run time error. You can trap any collection error by
 overriding error in your derived collection.
 
 B<Commonly Used Features>
 
-I<< TCollection->count >> attribute, I<< TCollection->init >> constructor, the
-access methods I<at>, I<at_put>, I<at_delete>, I<at_free>, the iterators
-I<first_that>, I<for_each> and I<last_that>, the I<index_of> function, and the
-I<load> and I<store> methods.
+L</count> attribute, L</init> constructor, the access methods L</at>,
+L</at_put>, L</at_delete>, L</at_free>, the iterators L</first_that>,
+L</for_each> and L</last_that>, the L</index_of> method, and the L</load>
+constructor and L</store> method.
 
 =head2 Class
 
@@ -276,7 +276,7 @@ Defining a registration record constant for I<TCollection>.
 
   field count ( is => ro, type => Int );
 
-Holds the number of items currently stored in the collection, up to
+Holds the number of L</items> currently stored in the collection, up to
 I<MAX_COLLECTION_SIZE>.
 
 =cut
@@ -291,12 +291,12 @@ I<MAX_COLLECTION_SIZE>.
 
 Because one of the features of collections is that they can grow, I<delta>
 holds the number of elements by which the collection should be enlarged
-when the I<count> reaches the current maximum size specified by I<limit>.
+when the L</count> reaches the current maximum size specified by L</limit>.
 
-When this occurs, I<limit> is increased by I<delta> and additional space is
-reserved for the necessary items.
+When this occurs, L</limit> is increased by I<delta> and additional space is
+reserved for the necessary L</items>.
 
-Generally, I<limit> should initially be set to a sufficient size for most
+Generally, L</limit> should initially be set to a sufficient size for most
 operations on the collection, and I<delta> should be set large enough so that
 expansion of the collection occurs infrequently to avoid the fairly intensive
 overhead of dynamically resizing the collection.
@@ -313,7 +313,7 @@ overhead of dynamically resizing the collection.
 
   has items ( is => rwp, type => ArrayRef[Ref] ) = [];
 
-I<items> points to an array reference  that contains reference to the individual
+I<items> points to an array reference that contains reference to the individual
 items in the collection.
 
 =cut
@@ -366,11 +366,11 @@ Holds the current number of reserved elements for the collection.
 
 =item I<init>
 
-  factory $class->init(Int $a_limit, Int $a_delta) : TCollection
+  factory init(Int $a_limit, Int $a_delta) : TCollection
 
 The constructor I<init> creates a new collection with initially allocated array
 for the number of elements specified by I<$a_limit>, and the ability to
-dynamically increase the size of the collection in I<delta> increments.
+dynamically increase the size of the collection in L</delta> increments.
 
 See: I<MAX_COLLECTION_SIZE>
 
@@ -386,10 +386,12 @@ See: I<MAX_COLLECTION_SIZE>
     return $self;
   }
 
-=item public C<< TCollection->load(TStream $s) >>
+=item I<load>
 
-Loads the entire collection from stream I<$s>, by calling
-I<< TCollection->get_item >> for each individual item in the collection.
+  factory load(TStream $s) : TCollection
+
+Loads the entire collection from stream I<$s>, by calling L</get_item> for each
+individual item in the collection.
 
 =cut
 
@@ -439,14 +441,16 @@ I<< TCollection->get_item >> for each individual item in the collection.
 
 =over
 
-=item public C<< Ref at(Int $index) >>
+=item I<at>
+
+  method at(Int $index) : Ref
 
 Use I<at> to access the collection as if it were an array.
 
 Normally I<at($index)> returns a reference to the I<$index>'th item in the
-array, where I<$index> ranges from 0 up to I<count>.
+array, where I<$index> ranges from 0 up to L</count>.
 
-If an error occurs, I<at> calls the I<error> method with an argument of
+If an error occurs, I<at> calls the L</error> method with an argument of
 I<CO_INDEX_ERROR> and then returns C<undef>.
 
 =cut
@@ -459,11 +463,13 @@ I<CO_INDEX_ERROR> and then returns C<undef>.
     return $self->$next($index);                          # Return item
   }
 
-=item public C<< at_delete(Int $index) >>
+=item I<at_delete>
+
+  method at_delete(Int $index)
 
 The method I<at_delete> deletes the item at the location specified by I<$index>,
-and slides all of the following items in the collection over to fill in the now
-vacant hole and decrements Count by 1.
+and slides all of the following L</items> in the collection over to fill in the
+now vacant hole and decrements L</count> by 1.
 
 The method I<at_delete> does not weaken all references to the item in the
 collection that was in the location.
@@ -479,9 +485,11 @@ collection that was in the location.
     return;
   }
 
-=item public C<< at_free(Int $index) >>
+=item I<at_free>
 
-The method I<at_free> works like I<at_delete>, except that the specific item is
+  method at_free(Int $index)
+
+The method I<at_free> works like L</at_delete>, except that the specific item is
 deleted and all other references to this item in the collection are weakened.
 
 =cut
@@ -493,13 +501,15 @@ deleted and all other references to this item in the collection are weakened.
     return;
   }
 
-=item public C<< at_insert(Int $index, Ref $item) >>
+=item I<at_insert>
+
+  method at_insert(Int $index, Ref $item)
 
 The method I<at_insert> puts a new I<$item> into the collection at the I<$index>
-location by sliding all of the following items over by one position.
+location by sliding all of the following L</items> over by one position.
 
-If adding the new element would exceed the size of the collection,
-I<< TCollection->set_limit >> is called to automatically expand the size.
+If adding the new element would exceed the size of the collection, L</set_limit>
+is called to automatically expand the size.
 
 =cut
 
@@ -519,7 +529,9 @@ I<< TCollection->set_limit >> is called to automatically expand the size.
     return;
   }
 
-=item public C<< at_put(Int $index, Ref $item) >>
+=item I<at_put>
+
+  method at_put(Int $index, Ref $item)
 
 Use I<at_put> when you need to replace an existing item with a new item.
 
@@ -537,22 +549,24 @@ by I<$index>.
     return;
   }
 
-=item public C<< delete(Ref $item) >>
+=item I<delete>
+
+  method delete(Ref $item)
 
 Deletes the item given by from the collection.
 
-The items in a collection can be accessed via their index location or by
-way of the reference to the item.
+The L</items> in a collection can be accessed via their index location or by
+way of the reference to the I<$item>.
 
-When you have a reference to an item and wish to delete it, you can call
+When you have a reference to an I<$item> and wish to delete it, you can call
 I<delete($item)> directly.
 
-Alternatively, you can use the I<index_of> method to translate the reference
-into an I<$index> value and then use I<at_delete>, like this,
+Alternatively, you can use the L</index_of> method to translate the reference
+into an I<$index> value and then use L</at_delete>, like this,
 
   $self->at_delete($self->index_of($item));
 
-After an I<$tem> is deleted, I<count> is decremented by 1.
+After an I<$item> is deleted, L</count> is decremented by 1.
 
 =cut
 
@@ -561,7 +575,9 @@ After an I<$tem> is deleted, I<count> is decremented by 1.
     return;
   }
 
-=item public C<< delete_all() >>
+=item I<delete_all>
+
+  method delete_all()
 
 Deletes all items from the collection.
 
@@ -571,7 +587,9 @@ Deletes all items from the collection.
   #  return $self->$next();
   #}
 
-=item public C<< error(Int $code, Int $info) >>
+=item I<error>
+
+  method error(Int $code, Int $info)
 
 All collection errors result in a call to I<error>, with error information
 passed in I<$code> and I<$info>.
@@ -589,7 +607,9 @@ See: I<coXXXX> constants.
     return;
   }
 
-=item public C<< Ref first_that(CodeRef $test) >>
+=item I<first_that>
+
+  method first_that(CodeRef $test) : Ref 
 
 The method I<first_that> is one of the iterator functions and is normally used
 to search through the collection for a specific item.
@@ -609,7 +629,9 @@ I<$test> function.
     );
   }
 
-=item public C<< for_each(CodeRef $action) >>
+=item I<for_each>
+
+  method for_each(CodeRef $action)
 
 I<for_each> is an iterator function to scan through every item in the
 collection, and call the subroutine specified by the I<$action> code reference,
@@ -625,17 +647,19 @@ passing to it a reference to each individual item.
     return;
   }
 
-=item public C<< free(Ref $item) >>
+=item public I<free>
 
-This procedure is similar to I<delete>, except that I<free> weaken all
-references of the given I<$item> in the collection.
+  method free(Ref $item)
+
+This method is similar to L</delete>, except that I<free> weaken all references
+of the given I<$item> in the collection.
 
 Free is equivalent to calling,
 
   $self->delete($item);
   $self->free_item($item);
 
-Although, it is not recommended to call I<free_item> directly.
+Although, it is not recommended to call L</free_item> directly.
 
 =cut
 
@@ -645,9 +669,11 @@ Although, it is not recommended to call I<free_item> directly.
     return;
   }
 
-=item public C<< free_all() >>
+=item I<free_all>
 
-Delete each item from the collection and weaken all items references in the
+  method free_all()
+
+Delete each item from the collection and weaken all L</items> references in the
 collection.
 
 =cut
@@ -659,11 +685,13 @@ collection.
     return;
   }
 
-=item public C<< free_item(Ref $item) >>
+=item I<free_item>
+
+  method free_item(Ref $item)
 
 When I<$item> is a reference to an individual item in the collection,
 I<free_item($item)> weaken all references of I<$item> in the collection by
-calling the core routine I<weaken> exported by I<Scalar::Utils>.
+calling the core routine I<weaken> exported by L<Scalar::Utils>.
 
 =cut
 
@@ -681,12 +709,14 @@ calling the core routine I<weaken> exported by I<Scalar::Utils>.
     return;
   }
 
-=item public C<< Ref get_item(TStream $s) >>
+=item I<get_item>
+
+  method get_item(TStream $s) : Ref
 
 The method I<get_item> is used to read a single collection item from stream
-I<$s> and is automatically called by I<< TCollection->load >>.
+I<$s> and is automatically called by L</load>.
 
-You should not directly call this routine but should use I<load> instead.
+You should not directly call this routine but should use L</load> instead.
 
 By default, I<get_item> calls I<< TStream->get >> to load the item.
 
@@ -696,12 +726,14 @@ By default, I<get_item> calls I<< TStream->get >> to load the item.
     return $s->get();
   }
 
-=item public C<< Int index_of(Ref $item) >>
+=item I<index_of>
+
+  method index_of(Ref $item) : Int
 
 Given a reference to an item, I<index_of> returns the index position in the
 collection where the I<$item> is located.
 
-Please note, I<index_of> is the opposite of I<at($index)> which returns a
+Please note, I<index_of> is the opposite of L<at($index)|/at> which returns a
 reference to the item.
 
 If I<$item> is not in the collection, I<index_of> returns -1.
@@ -718,7 +750,9 @@ If I<$item> is not in the collection, I<index_of> returns -1.
     );
   }
  
-=item public C<< insert(Ref $item) >>
+=item I<insert>
+
+  method insert(Ref $item)
 
 Inserts I<$item> into the collection, and adjusts other indexes if necessary.
 
@@ -729,14 +763,16 @@ Inserts I<$item> into the collection, and adjusts other indexes if necessary.
     return;
   }
  
-=item public C<< Ref last_that(CodeRef $test) >>
+=item I<last_that>
+
+  method last_that(CodeRef $test) : Ref
 
 The method I<last_that> searches backwards through the collection, beginning at
 the last item and moving forwards.
 
 For each item, I<last_that> calls the subroutine referenced by I<$test>, until
 I<$test> returns a true result, or false (C<undef>) if I<$test> returned false
-for all items.
+for all L</items>.
 
 By having I<$test> code reference that makes a comparision between a search
 criteria and an item in the collection, you can use I<last_that> to quickly scan
@@ -751,7 +787,9 @@ backwards in a collection.
     return pop @found;
   }
  
-=item public C<< pack() >>
+=item I<pack>
+
+  method pack()
 
 Use I<pack> to eliminate all C<undef> references that may have been stored into
 the collection.
@@ -767,9 +805,11 @@ the collection.
     return;
   }
 
-=item public C<< put_item(TStream $s, Ref $item) >>
+=item I<put_item>
 
-Called by I<< TCollection->store >> to write an individual item to stream I<$s>.
+  method put_item(TStream $s, Ref $item)
+
+Called by L</store> to write an individual item to stream I<$s>.
 By default, I<put_item> calls I<< TStream->put >> to store the item.
 
 =cut
@@ -779,10 +819,12 @@ By default, I<put_item> calls I<< TStream->put >> to store the item.
     return;
   }
 
-=item public C<< set_limit(Int $a_limit) >>
+=item I<set_limit>
 
-Expands or shrinks the collection by changing the memory allocated for
-items to handle I<$a_limit> items.
+ mtehod set_limit(Int $a_limit)
+
+Expands or shrinks the collection by changing the memory allocated for L</items>
+to handle I<$a_limit> items.
 
 =cut
 
@@ -797,7 +839,9 @@ items to handle I<$a_limit> items.
     return;
   }
 
-=item public C<< store(TStream $s) >>
+=item I<store>
+
+  method store(TStream $s)
 
 Writes the entire collection to stream I<$s>.
 
@@ -898,7 +942,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

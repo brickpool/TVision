@@ -143,12 +143,11 @@ to and from disk files. I<TBufStream> implements a buffered version of
 I<TDosStream>, which greatly improves the speed and efficiency of stream
 I/O, particularly when writing or reading a lot of small objects.
 
-Generally, you will use the I<< TBufStream-init >> method to open a stream file
-for access, the I<< TBufStream->read >> and I<< TBufStream->write >> methods for
-performing input and output. For random access streams, you will use
-I<< TBufStream->seek >> to position the file pointer to the proper object
-reocrd. You may also wish to use I<< TBufStream->flush >> or
-I<< TBufStream->truncate >>, as appropriate.
+Generally, you will use the L</init> constructor to open a stream file for
+access, the L</read> and L</write> methods for performing input and output. For
+random access streams, you will use L</seek> to position the file pointer to the
+proper object record. You may also wish to use L</flush> or L</truncate>, as
+appropriate.
 
 =head2 Class
 
@@ -179,8 +178,8 @@ package TurboVision::Objects::BufStream {
 
   has buf_end ( is => rwp, type => Int ) = 0;
 
-If the buffer is not full, I<buf_end> gives an offset to the last used byte in
-the buffer.
+If the L</buffer> is not full, I<buf_end> gives an offset to the last used byte
+in the L</buffer>.
 
 =cut
 
@@ -194,7 +193,7 @@ the buffer.
 
   has buffer ( is => rwp, type => Str ) = '';
 
-Stream buffer as byte packed string.
+Stream I<buffer> as byte packed string.
 
 =cut
 
@@ -208,7 +207,7 @@ Stream buffer as byte packed string.
 
   has buf_ptr ( is => rwp, type => Int ) = 0;
 
-An offset from the I<buffer> string indicating the current position.
+An offset from the L</buffer> string indicating the current position.
 
 =cut
 
@@ -222,7 +221,7 @@ An offset from the I<buffer> string indicating the current position.
 
   has buf_size ( is => rwp, type => Int ) = 0;
 
-The size of the buffer in bytes.
+The size of the L</buffer> in bytes.
 
 =cut
 
@@ -238,8 +237,8 @@ The size of the buffer in bytes.
 
   has _last_mode ( is => ro, type => Int, writer => '_last_mode' ) = -1;
 
-I<_last_mode> holds the read or write condition of the last buffer access,
-which helps speed up the flush function.
+I<_last_mode> holds the L</read> or L</write> condition of the last buffer
+access, which helps speed up the L</flush> method.
 
 =end comment
 
@@ -267,7 +266,7 @@ which helps speed up the flush function.
 
 =item I<init>
 
- factory $class->init(Str $file_name, Int $mode) : TBufStream
+ factory init(Str $file_name, Int $mode) : TBufStream
 
 Constructs the object and opens the file named in I<$file_name> with access
 mode I<$mode> by calling the I<init> constructor inherited from I<TDosStream>.
@@ -304,9 +303,9 @@ mode I<$mode> by calling the I<init> constructor inherited from I<TDosStream>.
 
 =item I<DEMOLISH>
 
-  sub $self->DEMOLISH()
+  sub DEMOLISH()
 
-Calls L</flush> to flush buffer contents to disk.
+Calls L</flush> to flush L</buffer> contents to disk.
 
 =cut
 
@@ -331,7 +330,7 @@ Calls L</flush> to flush buffer contents to disk.
 
   method flush()
 
-Flushes the stream's buffer provided the stream's status is I<stOK>.
+Flushes the stream's L</buffer> provided the stream's status is I<ST_OK>.
 
 =cut
 
@@ -364,7 +363,7 @@ Flushes the stream's buffer provided the stream's status is I<stOK>.
  
 =item I<read>
 
-  method read($buf, Int $count)
+  around read($buf, Int $count)
 
 If the stream's status is I<ST_OK>, reads I<$count> bytes into the I<$buf>.
 
@@ -445,7 +444,7 @@ If the stream's status is I<ST_OK>, reads I<$count> bytes into the I<$buf>.
 
 =item I<seek>
 
-  method seek(Int $pos)
+  around seek(Int $pos)
 
 Sets the current position to I<$pos> bytes from the beginning of the stream.
 
@@ -466,7 +465,7 @@ Sets the current position to I<$pos> bytes from the beginning of the stream.
 
 =item I<truncate>
 
-  method truncate()
+  around truncate()
 
 I<truncate> deletes all data on the calling stream from the current position.
 
@@ -480,7 +479,7 @@ I<truncate> deletes all data on the calling stream from the current position.
 
 =item I<write>
 
-  method write(Str $buf, Int $count)
+  around write(Str $buf, Int $count)
 
 Writes I<$count> bytes from the I<$buf> buffer to the stream, starting at the
 current position.

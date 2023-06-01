@@ -414,7 +414,7 @@ See: I<sfXXXX> constants, L</set_state>, L</get_state>
 
 =item I<init>
 
-  factory $class->init(TRect $bounds) : TView
+  factory init(TRect $bounds) : TView
 
 Creates an initializes a I<TView> object and places it according to the Bounds
 parameter.
@@ -522,7 +522,7 @@ Creates and reads a view from stream I<$s>.
 
 =item I<DEMOLISH>
 
-  sub $self->DEMOLISH()
+  sub DEMOLISH()
 
 Deletes the view after erasing it from the screen.
 
@@ -549,7 +549,7 @@ Deletes the view after erasing it from the screen.
 
 =item I<block_cursor>
 
-  method $obj->block_cursor()
+  method block_cursor()
 
 Changes the cursor to the solid block cursor by setting the I<SF_CURSOR_INS>
 bit in the I<state> attribute.
@@ -565,7 +565,7 @@ See: L</normal_cursor>
 
 =item I<calc_bounds>
 
-  method $obj->calc_bounds(TRect $bounds, TPoint $delta)
+  method calc_bounds(TRect $bounds, TPoint $delta)
 
 I<calc_bounds> is used internally to resize and shape this view in the case
 that the L</owner>'s view was changed in size.
@@ -636,7 +636,7 @@ that the L</owner>'s view was changed in size.
 
 =item I<change_bounds>
 
-  method $obj->change_bounds(TRect $bounds)
+  method change_bounds(TRect $bounds)
 
 This internal procedure repositions the view.
 
@@ -650,7 +650,7 @@ This internal procedure repositions the view.
 
 =item I<clear_event>
 
-  method $obj->clear_event(TEvent $event)
+  method clear_event(TEvent $event)
 
 In your L</handle_event> methods or overridden L</handle_event> methods,
 whenever you have finished processing an event, you must signal that the event
@@ -668,7 +668,7 @@ other views can determine who it was that process the event.
 
 =item I<command_enabled>
 
-  method $obj->command_enabled(Int $command) : Bool
+  method command_enabled(Int $command) : Bool
 
 Use I<command_enabled> to check if a specific command is currently enabled or
 allowed.
@@ -686,7 +686,7 @@ been disabled.
 
 =item I<data_size>
 
-  method $obj->Int data_size()
+  method Int data_size()
 
 Used in conjunction with L</get_data> and L</set_data> to copy the views data to
 and from a data record.
@@ -701,7 +701,7 @@ See: L</get_data>, L</set_data>
 
 =item I<disable_commands>
 
-  method $obj->disable_commands(TCommandSet $commands)
+  method disable_commands(TCommandSet $commands)
 
 I<$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be disabled.
@@ -728,7 +728,7 @@ See: L</enable_commands>
 
 =item I<drag_view>
 
-  method $obj->drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)
+  method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)
 
 I<drag_view> handles redrawing the view while it is being dragged across the
 string.
@@ -885,7 +885,7 @@ view can be resized.
 
 =item I<draw>
 
-  method $obj->draw()
+  method draw()
 
 The I<draw> method is the only method that should write data to the view's
 screen area.
@@ -924,7 +924,7 @@ See: L</draw_view>, L</get_clip_rect>
 
 =item I<draw_view>
 
-  method $obj->draw_view()
+  method draw_view()
 
 I<draw_view> is the preferred method to call when you need to update the view.
 
@@ -951,7 +951,7 @@ See: L</draw>
 
 =item I<enable_commands>
 
-  method $obj->enable_commands(TCommandSet $commands)
+  method enable_commands(TCommandSet $commands)
 
 <$commands> is a array reference containing a set of commands, specified by
 their I<cmXXXX> constant values, to be enabled.
@@ -978,7 +978,7 @@ See: L</disable_commands>
 
 =item I<end_modal>
 
-  method $obj->end_modal(Int $command)
+  method end_modal(Int $command)
 
 Used internally in conjunction with I<exec_view> for displaying modal views,
 such as dialogs, to terminate the modal view.
@@ -996,7 +996,7 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
 
 =item I<event_avail>
 
-  method $obj->event_avail() : Bool
+  method event_avail() : Bool
 
 Returns True if an event is available.
 
@@ -1012,7 +1012,7 @@ Returns True if an event is available.
 
 =item I<execute>
 
-  method $obj->execute() : Int
+  method execute() : Int
 
 I<execute> is overridden in I<TGroup> descendants to provide the event loop that
 makes the view a modal view.
@@ -1027,7 +1027,7 @@ See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
 
 =item I<exposed>
 
-  method $obj->exposed() : Bool
+  method exposed() : Bool
 
 If at least some part of the view can be seen on the screen, then I<exposed>
 returns True.
@@ -1055,7 +1055,7 @@ If the view is completely hidden, then I<exposed> returns False.
 
 =item I<hide>
 
-  method $obj->hide()
+  method hide()
 
 Hides the view.
 
@@ -1071,7 +1071,7 @@ See: L</show>
 
 =item I<set_state>
 
-  method $obj->set_state(Int $a_state, Bool $enable)
+  method set_state(Int $a_state, Bool $enable)
 
 Use I<set_state> to either set or clear bits in the L</state> variable.
 

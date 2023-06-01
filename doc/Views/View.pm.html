@@ -221,7 +221,7 @@
 <dt id="init"><i>init</i></dt>
 <dd>
 
-<pre><code>  factory $class-&gt;init(TRect $bounds)</code></pre>
+<pre><code>  factory init(TRect $bounds) : TView</code></pre>
 
 <p>Creates an initializes a <i>TView</i> object and places it according to the Bounds parameter.</p>
 
@@ -245,7 +245,7 @@
 <dt id="DEMOLISH"><i>DEMOLISH</i></dt>
 <dd>
 
-<pre><code>  sub $self-&gt;DEMOLISH</code></pre>
+<pre><code>  sub DEMOLISH()</code></pre>
 
 <p>Deletes the view after erasing it from the screen.</p>
 
@@ -259,7 +259,7 @@
 <dt id="block_cursor"><i>block_cursor</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;block_cursor()</code></pre>
+<pre><code>  method block_cursor()</code></pre>
 
 <p>Changes the cursor to the solid block cursor by setting the <i>SF_CURSOR_INS</i> bit in the <i>state</i> attribute.</p>
 
@@ -269,7 +269,7 @@
 <dt id="calc_bounds"><i>calc_bounds</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;calc_bounds(TRect $bounds, TPoint $delta)</code></pre>
+<pre><code>  method calc_bounds(TRect $bounds, TPoint $delta)</code></pre>
 
 <p><i>calc_bounds</i> is used internally to resize and shape this view in the case that the <a href="#owner">&quot;owner&quot;</a>&#39;s view was changed in size.</p>
 
@@ -277,7 +277,7 @@
 <dt id="change_bounds"><i>change_bounds</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;change_bounds(TRect $bounds)</code></pre>
+<pre><code>  method change_bounds(TRect $bounds)</code></pre>
 
 <p>This internal procedure repositions the view.</p>
 
@@ -285,7 +285,7 @@
 <dt id="clear_event"><i>clear_event</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;clear_event(TEvent $event)</code></pre>
+<pre><code>  method clear_event(TEvent $event)</code></pre>
 
 <p>In your <a href="#handle_event">&quot;handle_event&quot;</a> methods or overridden <a href="#handle_event">&quot;handle_event&quot;</a> methods, whenever you have finished processing an event, you must signal that the event is finished by calling <i>clear_event</i>, which sets <i>$event-&gt;what( EV_NOTHING )</i>; and <i>$event-&gt;info_ptr( $self )</i> so that other views can determine who it was that process the event.</p>
 
@@ -293,7 +293,7 @@
 <dt id="command_enabled"><i>command_enabled</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;command_enabled(Int $command) : Bool</code></pre>
+<pre><code>  method command_enabled(Int $command) : Bool</code></pre>
 
 <p>Use <i>command_enabled</i> to check if a specific command is currently enabled or allowed.</p>
 
@@ -303,7 +303,7 @@
 <dt id="data_size"><i>data_size</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;Int data_size()</code></pre>
+<pre><code>  method Int data_size()</code></pre>
 
 <p>Used in conjunction with <a href="#get_data">&quot;get_data&quot;</a> and <a href="#set_data">&quot;set_data&quot;</a> to copy the views data to and from a data record.</p>
 
@@ -313,7 +313,7 @@
 <dt id="disable_commands"><i>disable_commands</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;disable_commands(TCommandSet $commands)</code></pre>
+<pre><code>  method disable_commands(TCommandSet $commands)</code></pre>
 
 <p><i>$commands</i> is a array reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be disabled.</p>
 
@@ -325,7 +325,7 @@
 <dt id="drag_view"><i>drag_view</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)</code></pre>
+<pre><code>  method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)</code></pre>
 
 <p><i>drag_view</i> handles redrawing the view while it is being dragged across the string.</p>
 
@@ -335,7 +335,7 @@
 <dt id="draw"><i>draw</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;draw()</code></pre>
+<pre><code>  method draw()</code></pre>
 
 <p>The <i>draw</i> method is the only method that should write data to the view&#39;s screen area.</p>
 
@@ -359,7 +359,7 @@
 <dt id="draw_view"><i>draw_view</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;draw_view()</code></pre>
+<pre><code>  method draw_view()</code></pre>
 
 <p><i>draw_view</i> is the preferred method to call when you need to update the view.</p>
 
@@ -373,7 +373,7 @@
 <dt id="enable_commands"><i>enable_commands</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;enable_commands(TCommandSet $commands)</code></pre>
+<pre><code>  method enable_commands(TCommandSet $commands)</code></pre>
 
 <p>&lt;$commands&gt; is a array reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be enabled.</p>
 
@@ -385,7 +385,7 @@
 <dt id="end_modal"><i>end_modal</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;end_modal(Int $command)</code></pre>
+<pre><code>  method end_modal(Int $command)</code></pre>
 
 <p>Used internally in conjunction with <i>exec_view</i> for displaying modal views, such as dialogs, to terminate the modal view.</p>
 
@@ -395,7 +395,7 @@
 <dt id="event_avail"><i>event_avail</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;event_avail() : Bool</code></pre>
+<pre><code>  method event_avail() : Bool</code></pre>
 
 <p>Returns True if an event is available.</p>
 
@@ -403,7 +403,7 @@
 <dt id="execute"><i>execute</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;execute() : Int</code></pre>
+<pre><code>  method execute() : Int</code></pre>
 
 <p><i>execute</i> is overridden in <i>TGroup</i> descendants to provide the event loop that makes the view a modal view.</p>
 
@@ -413,7 +413,7 @@
 <dt id="exposed"><i>exposed</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;exposed() : Bool</code></pre>
+<pre><code>  method exposed() : Bool</code></pre>
 
 <p>If at least some part of the view can be seen on the screen, then <i>exposed</i> returns True.</p>
 
@@ -423,7 +423,7 @@
 <dt id="hide"><i>hide</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;hide()</code></pre>
+<pre><code>  method hide()</code></pre>
 
 <p>Hides the view.</p>
 
@@ -433,7 +433,7 @@
 <dt id="set_state"><i>set_state</i></dt>
 <dd>
 
-<pre><code>  method $obj-&gt;set_state(Int $a_state, Bool $enable)</code></pre>
+<pre><code>  method set_state(Int $a_state, Bool $enable)</code></pre>
 
 <p>Use <i>set_state</i> to either set or clear bits in the <a href="#state">&quot;state&quot;</a> variable.</p>
 

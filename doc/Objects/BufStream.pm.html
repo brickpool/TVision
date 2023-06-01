@@ -120,7 +120,7 @@
 
 <p>The <i>TBufStream</i> object type is a derivative of <i>TStream</i> and <i>TDosStream</i> and is probably the type you will most often use for writing and reading streams to and from disk files. <i>TBufStream</i> implements a buffered version of <i>TDosStream</i>, which greatly improves the speed and efficiency of stream I/O, particularly when writing or reading a lot of small objects.</p>
 
-<p>Generally, you will use the <i>TBufStream-init</i> method to open a stream file for access, the <i>TBufStream-&gt;read</i> and <i>TBufStream-&gt;write</i> methods for performing input and output. For random access streams, you will use <i>TBufStream-&gt;seek</i> to position the file pointer to the proper object reocrd. You may also wish to use <i>TBufStream-&gt;flush</i> or <i>TBufStream-&gt;truncate</i>, as appropriate.</p>
+<p>Generally, you will use the <a href="#init">&quot;init&quot;</a> constructor to open a stream file for access, the <a href="#read">&quot;read&quot;</a> and <a href="#write">&quot;write&quot;</a> methods for performing input and output. For random access streams, you will use <a href="#seek">&quot;seek&quot;</a> to position the file pointer to the proper object record. You may also wish to use <a href="#flush">&quot;flush&quot;</a> or <a href="#truncate">&quot;truncate&quot;</a>, as appropriate.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -142,7 +142,7 @@
 
 <pre><code>  has buf_end ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
-<p>If the buffer is not full, <i>buf_end</i> gives an offset to the last used byte in the buffer.</p>
+<p>If the <a href="#buffer">&quot;buffer&quot;</a> is not full, <i>buf_end</i> gives an offset to the last used byte in the <a href="#buffer">&quot;buffer&quot;</a>.</p>
 
 </dd>
 <dt id="buffer"><i>buffer</i></dt>
@@ -150,7 +150,7 @@
 
 <pre><code>  has buffer ( is =&gt; rwp, type =&gt; Str ) = &#39;&#39;;</code></pre>
 
-<p>Stream buffer as byte packed string.</p>
+<p>Stream <i>buffer</i> as byte packed string.</p>
 
 </dd>
 <dt id="buf_ptr"><i>buf_ptr</i></dt>
@@ -158,7 +158,7 @@
 
 <pre><code>  has buf_ptr ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
-<p>An offset from the <i>buffer</i> string indicating the current position.</p>
+<p>An offset from the <a href="#buffer">&quot;buffer&quot;</a> string indicating the current position.</p>
 
 </dd>
 <dt id="buf_size"><i>buf_size</i></dt>
@@ -166,7 +166,7 @@
 
 <pre><code>  has buf_size ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
 
-<p>The size of the buffer in bytes.</p>
+<p>The size of the <a href="#buffer">&quot;buffer&quot;</a> in bytes.</p>
 
 </dd>
 </dl>
@@ -178,7 +178,7 @@
 <dt id="init"><i>init</i></dt>
 <dd>
 
-<pre><code> factory $class-&gt;init(Str $file_name, Int $mode) : TBufStream</code></pre>
+<pre><code> factory init(Str $file_name, Int $mode) : TBufStream</code></pre>
 
 <p>Constructs the object and opens the file named in <i>$file_name</i> with access mode <i>$mode</i> by calling the <i>init</i> constructor inherited from <i>TDosStream</i>.</p>
 
@@ -192,9 +192,9 @@
 <dt id="DEMOLISH"><i>DEMOLISH</i></dt>
 <dd>
 
-<pre><code>  sub $self-&gt;DEMOLISH()</code></pre>
+<pre><code>  sub DEMOLISH()</code></pre>
 
-<p>Calls <a href="#flush">&quot;flush&quot;</a> to flush buffer contents to disk.</p>
+<p>Calls <a href="#flush">&quot;flush&quot;</a> to flush <a href="#buffer">&quot;buffer&quot;</a> contents to disk.</p>
 
 </dd>
 </dl>
@@ -208,13 +208,13 @@
 
 <pre><code>  method flush()</code></pre>
 
-<p>Flushes the stream&#39;s buffer provided the stream&#39;s status is <i>stOK</i>.</p>
+<p>Flushes the stream&#39;s <a href="#buffer">&quot;buffer&quot;</a> provided the stream&#39;s status is <i>ST_OK</i>.</p>
 
 </dd>
 <dt id="read"><i>read</i></dt>
 <dd>
 
-<pre><code>  method read($buf, Int $count)</code></pre>
+<pre><code>  around read($buf, Int $count)</code></pre>
 
 <p>If the stream&#39;s status is <i>ST_OK</i>, reads <i>$count</i> bytes into the <i>$buf</i>.</p>
 
@@ -222,7 +222,7 @@
 <dt id="seek"><i>seek</i></dt>
 <dd>
 
-<pre><code>  method seek(Int $pos)</code></pre>
+<pre><code>  around seek(Int $pos)</code></pre>
 
 <p>Sets the current position to <i>$pos</i> bytes from the beginning of the stream.</p>
 
@@ -230,7 +230,7 @@
 <dt id="truncate"><i>truncate</i></dt>
 <dd>
 
-<pre><code>  method truncate()</code></pre>
+<pre><code>  around truncate()</code></pre>
 
 <p><i>truncate</i> deletes all data on the calling stream from the current position.</p>
 
@@ -238,7 +238,7 @@
 <dt id="write"><i>write</i></dt>
 <dd>
 
-<pre><code>  method write(Str $buf, Int $count)</code></pre>
+<pre><code>  around write(Str $buf, Int $count)</code></pre>
 
 <p>Writes <i>$count</i> bytes from the <i>$buf</i> buffer to the stream, starting at the current position.</p>
 

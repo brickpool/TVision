@@ -78,11 +78,10 @@ Use I<TDosStream> for unbuffered stream file access (see also I<TBufStream>).
 For most applications you will probably prefer to use I<TBufStream> for its
 faster, buffered file access.
 
-Generally, you will use the I<< TDosStream->init >> method to open a stream file
-for access, the I<< TDosStream->read >> and I<< TDosStream->write >> methods for
-performing input and output. I<TDosStream->DEMOLISH> will to close the open
-stream of the object. For random access streams, you will use
-I<< TBufStream->seek >> to position the file pointer to the proper object
+Generally, you will use the L</init> constructor to open a stream file
+for access, the L</read> and L</write> methods for performing input and output.
+L</DEMOLISH> will to close the open stream of the object. For random access
+streams, you will use L</seek> to position the file pointer to the proper object
 record.
 
 =head2 Class
@@ -110,7 +109,9 @@ package TurboVision::Objects::DosStream {
 
 =over
 
-=item public readonly C<< FileHandle handle >>
+=item I<handle>
+
+  param handle ( is => rwp, type => FileHandle, predicate => '_is_openhandle' );
 
 I<handle> contains the OS file handle used to access the file containing the
 stream.
@@ -126,7 +127,9 @@ stream.
 
 =begin comment
 
-=item private C<< Int _stream_size >>
+=item I<_stream_size>
+
+  has _stream_size ( is => rwp, type => Int, init_arg => 'stream_size' );
 
 The size of the stream in bytes.
 
@@ -135,7 +138,7 @@ The size of the stream in bytes.
 =cut
 
   has '+_stream_size' => (
-    init_arg  => 'stream_size',
+    init_arg => 'stream_size',
   );
 
 =back
@@ -152,7 +155,9 @@ The size of the stream in bytes.
 
 =over
 
-=item public C<< TDosStream->init(Str $file_name, Int $mode) >>
+=item I<init>
+
+  factory init(Str $file_name, Int $mode) : TDosStream
 
 This constructor creates a OS file stream with the given I<$file_name>. The
 I<$mode> argument must be one of the values I<ST_CREATE>, I<ST_OPEN_READ>,
@@ -213,7 +218,9 @@ I<TStream> class.
 
 =over
 
-=item public C<< DEMOLISH() >>
+=item I<DEMOLISH>
+
+  sub DEMOLISH()
 
 Closes the file of the stream object.
 
@@ -242,7 +249,9 @@ Closes the file of the stream object.
 
 =over
 
-=item public C<< read(Item $buf, Int $count) >>
+=item I<read>
+
+  around read(Item $buf, Int $count)
 
 Use I<read> to read I<$count> bytes from the stream and into the I<$buf>
 parameter. I<read> begins at the stream's current position (as determined by
@@ -284,7 +293,9 @@ I<seek> or beginning at the end of the previous I<read> operation).
     return;
   }
 
-=item public C<< seek(Int $pos) >>
+=item I<seek>
+
+  around seek(Int $pos)
 
 Positions the current stream position to I<$pos>. You can use I<seek> to
 implement random access to stream files.
@@ -308,7 +319,9 @@ implement random access to stream files.
     return;
   }
 
-=item public C<< truncate() >>
+=item I<truncate>
+
+  around truncate()
 
 Use I<truncate> to delete all data following the current position in the
 stream.
@@ -340,7 +353,9 @@ stream.
     return;
   }
 
-=item public C<< write(Str $buf, Int $count) >>
+=item I<write>
+
+  around write(Str $buf, Int $count)
 
 Use I<write> to copy I<$count> bytes from the I<$buf> parameter to the stream.
 
@@ -377,7 +392,9 @@ Use I<write> to copy I<$count> bytes from the I<$buf> parameter to the stream.
 
 =begin comment
 
-=item private C<< Bool _is_openhandle() >>
+=item I<_is_openhandle>
+
+  method _is_openhandle() : Bool;
 
 Returns true, if the status is still I<ST_OK> and the I<handle> is open.
 Otherwise false is returned.
