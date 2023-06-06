@@ -82,7 +82,7 @@ use TurboVision::Objects::Types qw(
 
 I<TRect> is a simple object representing a rectangle on the screen.
 
-I<TRect> primarly defines two coordinates, I<a> and I<b>, which are the upper
+I<TRect> primarly defines two coordinates, L</a> and L</b>, which are the upper
 left and the lower right corners of a rectangle. I<TRect> parameters are used
 throughout Turbo Vision to specify the screen location and size of windows,
 dialog boxes and entry fields.
@@ -105,7 +105,9 @@ package TurboVision::Objects::Rect {
 
 =over
 
-=item public C<< TPoint a >>
+=item I<a>
+
+  has a ( is => rw, type => TPoint ) = TPoint->new;
 
 I<a> is the point defining the top left corner of a rectangle on the screen.
 
@@ -134,7 +136,9 @@ I<a> is the point defining the top left corner of a rectangle on the screen.
     }
   }
   
-=item public C<< TPoint b >>
+=item I<b>
+
+  has b ( is => rw, type => TPoint ) = TPoint->new;
 
 I<b> is the point defining the bottom right corner of a rectangle on the screen.
 
@@ -177,7 +181,9 @@ I<b> is the point defining the bottom right corner of a rectangle on the screen.
 
 =over
 
-=item public C<< TRect->init(Int $ax, Int $ay, Int $bx, Int $by) >>
+=item I<init>
+
+  factory init(Int $ax, Int $ay, Int $bx, Int $by) : TRect
 
 Public constructor
 
@@ -198,9 +204,167 @@ Public constructor
   # TRect ------------------------------------------------------------------
   # ------------------------------------------------------------------------
   
+=head2 Methods
+
+=head3 Object Methods
+
+=over
+
+=item I<assign>
+
+  method assign(Int $ax, Int $ay, Int $bx, Int $by)
+
+Assigns the parameter values to the rectangle's point attributes. I<$ax> becomes
+I<< a->x >>, I<$bx> becomes I<< b->x >>, and so on.
+
+=cut
+
+  method assign(Int $ax, Int $ay, Int $bx, Int $by) {
+    $self->a->x( $ax );
+    $self->a->y( $ay );
+    $self->b->x( $bx );
+    $self->b->y( $by );
+    return;
+  };
+
+=item I<contains>
+
+  method contains(TPoint $p) : Bool 
+
+Returns true if the rectangle contains the point I<$p>.
+
+=cut
+
+  method contains(TPoint $p) {
+    return (
+          $p->x >= $self->a->x
+      &&  $p->x <  $self->b->x
+      &&  $p->y >= $self->a->y
+      &&  $p->y <  $self->b->y
+    );
+  };
+
+=item I<copy>
+
+  method copy(TRect $r)
+
+I<copy> sets all attributes equal to those in rectangle I<$r>.
+
+=cut
+
+  method copy(TRect $r) {
+    $self->a( $r->a );
+    $self->b( $r->b );
+    return;
+  };
+
+=item I<empty>
+
+  method empty() : Bool
+
+Returns true if the rectangle is empty
+
+=cut
+
+  method empty() {
+    return (
+          $self->a->x >= $self->b->x
+      ||  $self->a->y >= $self->b->y
+    );
+  };
+
+=item I<equals>
+
+  method equals(TRect $r) : Bool
+
+Returns true if I<$r> is the same as the rectangle.
+
+=cut
+
+  method equals(TRect $r) {
+    return (
+          $self->a->x == $r->a->x
+      &&  $self->a->y == $r->a->y
+      &&  $self->b->x == $r->b->x
+      &&  $self->b->y == $r->b->y
+    );
+  };
+
+=item I<grow>
+
+  method grow(Int $a_dx, Int $a_dy)
+
+Changes the size of the rectangle by subtracting I<$a_dx> from I<< a->x >>,
+adding I<$a_dx> to I<< b->x >>, subtracting I<$a_dy> from I<< a->y >>, and
+adding I<$a_dy> to I<< b->y >>.
+
+=cut
+
+  method grow(Int $a_dx, Int $a_dy) {
+    $self->a->{x} -= $a_dx;
+    $self->a->{y} -= $a_dy;
+    $self->b->{x} += $a_dx;
+    $self->b->{y} += $a_dy;
+    TRect->_check_empty($self);
+    return;
+  };
+
+=item I<intersect>
+
+  method intersect(TRect $r)
+
+Changes the location and size of the rectangle to the region defined by the
+intersection of the current location and that of I<$r>.
+
+=cut
+
+  method intersect(TRect $r) {
+    $self->a->x( $r->a->x ) if $r->a->x > $self->a->x;
+    $self->a->y( $r->a->y ) if $r->a->y > $self->a->y;
+    $self->b->x( $r->b->x ) if $r->b->x > $self->b->x;
+    $self->b->y( $r->b->y ) if $r->b->y > $self->b->y;
+    TRect->_check_empty($self);
+    return;
+  };
+
+=item I<move>
+
+  method move(Int $a_dx, Int $a_dy)
+
+Moves the rectangle by adding I<$a_dx> to I<< a->x >> and I<< b->x >> and adding
+I<$a_dy> to I<< a->y >> and I<< b->y >>.
+
+=cut
+
+  method move(Int $a_dx, Int $a_dy) {
+    $self->a->{x} += $a_dx;
+    $self->a->{y} += $a_dy;
+    $self->b->{x} += $a_dx;
+    $self->b->{y} += $a_dy;
+    return;
+  }
+
+=item I<union>
+
+  method union(TRect $r)
+
+Changes the rectangle to be the union of itself and the rectangle I<$r>.
+
+=cut
+
+  method union(TRect $r) {
+    $self->a->x( $r->a->x ) if $r->a->x < $self->a->x;
+    $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
+    $self->b->x( $r->a->x ) if $r->a->x > $self->b->x;
+    $self->b->y( $r->b->y ) if $r->b->y > $self->b->y;
+    return;
+  };
+
 =begin comment
 
-=item private static C<< _check_empty(TRect $r) >>
+=item I<_check_empty>
+
+  classmethod _check_empty(TRect $r)
 
 Sets the values of the point I<a> and I<b> to zero if the rectangle is empty.
 
@@ -218,151 +382,15 @@ Sets the values of the point I<a> and I<b> to zero if the rectangle is empty.
     return;
   };
 
-=head2 Methods
-
-=head3 Object Methods
-
-=over
-
-=item public C<< assign(Int $ax, Int $ay, Int $bx, Int $by) >>
-
-Assigns the parameter values to the rectangle's point attributes. I<$ax> becomes
-I<< a->x >>, I<$bx> becomes I<< b->x >>, and so on.
-
-=cut
-
-  method assign(Int $ax, Int $ay, Int $bx, Int $by) {
-    $self->a->x( $ax );
-    $self->a->y( $ay );
-    $self->b->x( $bx );
-    $self->b->y( $by );
-    return;
-  };
-
-=item public C<< Bool contains(TPoint $p) >>
-
-Returns true if the rectangle contains the point I<$p>.
-
-=cut
-
-  method contains(TPoint $p) {
-    return (
-          $p->x >= $self->a->x
-      &&  $p->x <  $self->b->x
-      &&  $p->y >= $self->a->y
-      &&  $p->y <  $self->b->y
-    );
-  };
-
-=item public C<< copy(TRect $r) >>
-
-I<copy> sets all attributes equal to those in rectangle I<$r>.
-
-=cut
-
-  method copy(TRect $r) {
-    $self->a( $r->a );
-    $self->b( $r->b );
-    return;
-  };
-
-=item public C<< Bool empty() >>
-
-Returns true if the rectangle is empty
-
-=cut
-
-  method empty() {
-    return (
-          $self->a->x >= $self->b->x
-      ||  $self->a->y >= $self->b->y
-    );
-  };
-
-=item public C<< Bool equals(TRect $r) >>
-
-Returns true if I<$r> is the same as the rectangle.
-
-=cut
-
-  method equals(TRect $r) {
-    return (
-          $self->a->x == $r->a->x
-      &&  $self->a->y == $r->a->y
-      &&  $self->b->x == $r->b->x
-      &&  $self->b->y == $r->b->y
-    );
-  };
-
-=item public C<< grow(Int $aDX, Int $aDY) >>
-
-Changes the size of the rectangle by subtracting I<$aDX> from I<< a->x >>,
-adding I<$aDX> to I<< b->x >>, subtracting I<$aDY> from I<< a->y >>, and adding
-I<$aDY> to I<< b->y >>.
-
-=cut
-
-  method grow(Int $aDX, Int $aDY) {
-    $self->a->{x} -= $aDX;
-    $self->a->{y} -= $aDY;
-    $self->b->{x} += $aDX;
-    $self->b->{y} += $aDY;
-    TRect->_check_empty($self);
-    return;
-  };
-
-=item public C<< intersect(TRect $r) >>
-
-Changes the location and size of the rectangle to the region defined by the
-intersection of the current location and that of I<$r>.
-
-=cut
-
-  method intersect(TRect $r) {
-    $self->a->x( $r->a->x ) if $r->a->x > $self->a->x;
-    $self->a->y( $r->a->y ) if $r->a->y > $self->a->y;
-    $self->b->x( $r->b->x ) if $r->b->x > $self->b->x;
-    $self->b->y( $r->b->y ) if $r->b->y > $self->b->y;
-    TRect->_check_empty($self);
-    return;
-  };
-
-=item public C<< move(Int $aDX, Int $aDY) >>
-
-Moves the rectangle by adding I<$aDX> to I<< a->x >> and I<< b->x >> and adding
-I<$aDY> to I<< a->y >> and I<< b->y >>.
-
-=cut
-
-  method move(Int $aDX, Int $aDY) {
-    $self->a->{x} += $aDX;
-    $self->a->{y} += $aDY;
-    $self->b->{x} += $aDX;
-    $self->b->{y} += $aDY;
-    return;
-  }
-
-=item public C<< union(TRect $r) >>
-
-Changes the rectangle to be the union of itself and the rectangle I<$r>.
-
-=cut
-
-  method union(TRect $r) {
-    $self->a->x( $r->a->x ) if $r->a->x < $self->a->x;
-    $self->a->y( $r->a->y ) if $r->a->y < $self->a->y;
-    $self->b->x( $r->a->x ) if $r->a->x > $self->b->x;
-    $self->b->y( $r->b->y ) if $r->b->y > $self->b->y;
-    return;
-  };
-
 =back
 
 =head3 Overload Methods
 
 =over
 
-=item private static C<< Bool _equal(TRect $one, TRect $two) >>
+=item I<_equal>
+
+  func _equal(TRect $one, TRect $two) : Bool
 
 Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
 
@@ -373,7 +401,9 @@ Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
   };
   use overload '==' => \&_equal, fallback => 1;
 
-=item private static C<< Bool _not_equal(TRect $one, TRect $two) >>
+=item I<_not_equal>
+
+  func _not_equal(TRect $one, TRect $two) : Bool
 
 Overload not equal comparison C<!=> so we can write code like
 C<< $one != $two >>.
@@ -385,7 +415,9 @@ C<< $one != $two >>.
   };
   use overload '!=' => \&_not_equal, fallback => 1;
 
-=item private C<< Str _stringify() >>
+=item I<_stringify>
+
+  method _stringify() : Str
 
 Overload stringify so we can write code like C<< print $rect >>.
 

@@ -53,7 +53,7 @@
 
 <p>Several specialized collections are derived from <i>TCollection</i>, including <i>TResourceCollection</i>.</p>
 
-<p>The &lt;TResourceCollection&gt; is used internally to the resource file mechanism and is not generally used by application programs.</p>
+<p>The <i>TResourceCollection</i> is used internally to the resource file mechanism and is not generally used by application programs.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -71,20 +71,26 @@
 
 <dl>
 
-<dt id="public-ScalarRef-SimpleStr-key_of-TResourceItem-item">public <code>ScalarRef[SimpleStr] key_of(TResourceItem $item)</code></dt>
+<dt id="key_of"><i>key_of</i></dt>
 <dd>
+
+<pre><code>  around key_of(TResourceItem $item) : ScalarRef[SimpleStr]</code></pre>
 
 <p><i>key_of</i> returns a string reference to the key of the <i>$item</i>.</p>
 
 </dd>
-<dt id="public-TResourceItem-get_item-TStream-s">public <code>TResourceItem get_item(TStream $s)</code></dt>
+<dt id="get_item"><i>get_item</i></dt>
 <dd>
+
+<pre><code>  around get_item(TStream $s) : TResourceItem</code></pre>
 
 <p>Uses the <i>TStream-&gt;read</i> function to read a <i>TResourceItem</i> hash from stream <i>$s</i> and returns a hash reference of type <i>TResourceItem</i>.</p>
 
 </dd>
-<dt id="public-put_item-TStream-s-TResourceItem-item">public <code>put_item(TStream $s, TResourceItem $item)</code></dt>
+<dt id="put_item"><i>put_item</i></dt>
 <dd>
+
+<pre><code>  around put_item(TStream $s, TResourceItem $item)</code></pre>
 
 <p>By default, writes a hash referenced by <i>$item</i> to the stream <i>$s</i> by calling <i>TStream-&gt;write</i>.</p>
 
@@ -163,7 +169,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

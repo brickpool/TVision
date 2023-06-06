@@ -77,7 +77,9 @@ package TurboVision::Objects::Point {
 
 =over
 
-=item public C<< Int x >>
+=item I<x>
+
+  has x ( is => rw, type => Int ) = 0;
 
 I<x> is the screen column of the point.
 
@@ -89,7 +91,9 @@ I<x> is the screen column of the point.
     default => 0,
   );
 
-=item public C<< Int y >>
+=item I<y>
+
+  has y ( is => rw, type => Int ) = 0;
 
 I<y> is the screen row of the point.
 
@@ -117,7 +121,9 @@ I<y> is the screen row of the point.
   
 =head2 Methods
 
-=item public C<< copy(TPoint $pt) >>
+=item I<copy>
+
+  method copy(TPoint $pt)
 
 I<copy> sets all attributes equal to those in point I<$pt>.
 
@@ -135,7 +141,9 @@ I<copy> sets all attributes equal to those in point I<$pt>.
 
 =over
 
-=item private static C<< TPoint _sub(TPoint $one, TPoint $two) >>
+=item I<_sub>
+
+  func _sub(TPoint $one, TPoint $two) : TPoint
 
 Overload subtraction so we can write code like C<< $pt = $one - $two  >>.
 
@@ -155,7 +163,9 @@ Overload subtraction so we can write code like C<< $pt = $one - $two  >>.
   };
   use overload '-' => \&_sub, fallback => 1;
 
-=item private static C<< TPoint _add(TPoint $one, TPoint $two) >>
+=item I<_add>
+
+  func _add(TPoint $one, TPoint $two) : TPoint
 
 Overload addition so we can write code like C<< $pt = $one + $two >>.
 
@@ -169,7 +179,9 @@ Overload addition so we can write code like C<< $pt = $one + $two >>.
   };
   use overload '+' => \&_add, fallback => 1;
 
-=item private static C<< Bool _equal(TPoint $one, TPoint $two) >>
+=item I<_equal>
+
+  func _equal(TPoint $one, TPoint $two) : Bool
 
 Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
 
@@ -180,7 +192,9 @@ Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
   };
   use overload '==' => \&_equal, fallback => 1;
 
-=item private static C<< Bool _not_equal(TPoint $one, TPoint $two) >>
+=item I<_not_equal>
+
+  func _not_equal(TPoint $one, TPoint $two) : Bool
 
 Overload not equal comparison C<!=> so we can write code like
 C<< $one != $two >>.
@@ -192,7 +206,9 @@ C<< $one != $two >>.
   };
   use overload '!=' => \&_not_equal, fallback => 1;
 
-=item private C<< Str _stringify() >>
+=item I<_stringify>
+
+  method _stringify() : Str
 
 Overload stringify so we can write code like C<< print $pt >>.
 
@@ -288,6 +304,5 @@ __END__
 
 =head1 SEE ALSO
 
-L<MooseX::StrictConstructor>, 
 I<TRect>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

@@ -347,7 +347,7 @@ stream.
     }
     $position = $pos;                                     # Adjust position
 
-    if ( !truncate($self->handle, $position) ) {
+    if ( !CORE::truncate($self->handle, $position) ) {
       $self->error(ST_ERROR, EACCES);                     # Permission denied
       return;
     }
