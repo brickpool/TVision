@@ -75,6 +75,7 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use Scalar::Util qw( refaddr weaken isweak );
+use Try::Tiny;
 
 use TurboVision::Const qw(
   :bool
@@ -84,6 +85,7 @@ use TurboVision::Objects::Collection;
 use TurboVision::Objects::Common qw(
   abstract
   byte
+  fail
 );
 use TurboVision::Objects::Stream;
 use TurboVision::Objects::Types qw(
@@ -174,15 +176,25 @@ I<duplicates> attribute.
 =cut
 
   factory_inherit load(TStream $s) {
-    my $self = $class->$super($s);                        # Call ancestor
-
-    my $duplicates = do {                                 # Read duplicate flag
-      $s->read(my $buf, byte->size);                 
-      !!( byte( $buf )->unpack() );
+    my $read = sub {
+      SWITCH: foreach( $_[0] ) {
+        /byte/ && do {
+          $s->read(my $buf, byte->size);
+          return byte( $buf )->unpack;
+        };
+      };
+      return undef;
     };
-    $self->duplicates( $duplicates );
 
-    return $self;
+    try {
+      my $self = $class->$super($s);                      # Call ancestor
+      my $duplicates = !! $read->('byte');                # Read duplicate flag
+      $self->duplicates( $duplicates );
+      return $self;
+    }
+    catch {
+      return fail;
+    }
   }
 
 =back
