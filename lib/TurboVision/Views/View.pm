@@ -50,6 +50,7 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use List::Util qw( min max );
+use Try::Tiny;
 
 use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw(
@@ -60,6 +61,7 @@ use TurboVision::Drivers::Event;
 use TurboVision::Drivers::EventManager qw( :kbd );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::Utility qw( :move );
+use TurboVision::Objects::Common qw( fail );
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Rect;
 use TurboVision::Objects::Stream;
@@ -294,7 +296,7 @@ See: I<gfXXXX> constants for more information on these bit settings.
 
 =item I<help_ctx>
 
-  has help_ctx ( is = rw, type => Int ) = HC_NO_CONTEXT;
+  has help_ctx ( is = rw, type => Int ) = 0;
 
 Holds the view's help context setting.
 
@@ -446,66 +448,58 @@ Creates and reads a view from stream I<$s>.
 =cut
 
   factory load(TStream $s) {
-    my $origin_x = do {                                   # Read origin x value
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $origin_y = do {                                   # Read origin y value
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $size_x = do {                                     # Read view x size
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $size_y = do {                                     # Read view y size
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $cursor_x = do {                                   # Read cursor x size
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $cursor_y = do {                                   # Read cursor y size
-      $s->read(my $buf, integer->size);
-      integer( $buf )->unpack;
-    };
-    my $grow_mode = do {                                  # Read growmode flags
-      $s->read(my $buf, byte->size);
-      byte( $buf )->unpack;
-    };
-    my $drag_mode = do {                                  # Read dragmode flags
-      $s->read(my $buf, byte->size);
-      byte( $buf )->unpack;
-    };
-    my $help_ctx = do {                                   # Read help context
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
-    };
-    my $state = do {                                      # Read state masks
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
-    };
-    my $options = do {                                    # Read options masks
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
-    };
-    my $event_mask = do {                                 # Read event masks
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
+    my $read = sub {
+      SWITCH: foreach( $_[0] ) {
+        /byte/ && do {
+          $s->read(my $buf, byte->size);
+          return byte( $buf )->unpack;
+        };
+        /integer/ && do {
+          $s->read(my $buf, integer->size);
+          return integer( $buf )->unpack;
+        };
+        /word/ && do {
+          $s->read(my $buf, word->size);
+          return word( $buf )->unpack;
+        };
+      };
+      return undef;
     };
 
-    return $class->new(                                   # Call ancestor
-      origin      => TPoint->new( x => $origin_x, y => $origin_y ),
-      size        => TPoint->new( x => $size_x,   y => $size_y   ),
-      cursor      => TPoint->new( x => $cursor_x, y => $cursor_y ),
-      grow_mode   => $grow_mode,
-      drag_mode   => $drag_mode,
-      help_ctx    => $help_ctx,
-      state       => $state,
-      options     => $options,
-      event_mask  => $event_mask,
-    );
+    try {
+      my $origin = TPoint->new(
+        x => $read->('integer'),                          # Read origin x value
+        y => $read->('integer'),                          # Read origin y value
+      );
+      my $size = TPoint->new(
+        x => $read->('integer'),                          # Read view x size
+        y => $read->('integer'),                          # Read view y size
+      );
+      my $cursor = TPoint->new(
+        x => $read->('integer'),                          # Read cursor x size
+        y => $read->('integer'),                          # Read cursor y size
+      );
+      my $grow_mode   = $read->('byte');                  # Read growmode flags
+      my $drag_mode   = $read->('byte');                  # Read dragmode flags
+      my $help_ctx    = $read->('word');                  # Read help context
+      my $state       = $read->('word');                  # Read state masks
+      my $options     = $read->('word');                  # Read options masks
+      my $event_mask  = $read->('word');                  # Read event masks
+      return $class->new(                                 # Call ancestor
+        origin      => $origin,
+        size        => $size,
+        cursor      => $cursor,
+        grow_mode   => $grow_mode,
+        drag_mode   => $drag_mode,
+        help_ctx    => $help_ctx,
+        state       => $state,
+        options     => $options,
+        event_mask  => $event_mask,
+      );
+    }
+    catch {
+      return fail;
+    }
   };
 
 =back
