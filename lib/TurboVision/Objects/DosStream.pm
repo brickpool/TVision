@@ -56,7 +56,10 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use IO::File;
-use POSIX qw(:errno_h :fcntl_h);
+use POSIX qw(
+  :errno_h
+  :fcntl_h
+);
 use Scalar::Util qw( openhandle );
 
 use TurboVision::Const qw( :bool );
@@ -283,8 +286,8 @@ I<seek> or beginning at the end of the previous I<read> operation).
       $buf = "\0" x $count;
       my $errno = !defined $num_bytes
                 ? POSIX::errno()                          # Specific read error
-                : EFAULT                                  # Non specific error
-                ;
+                : EBADF                                   # Descriptor is not ..
+                ;                                         # .. valid
       $self->error(ST_READ_ERROR, $errno);
       return;
     }
@@ -378,8 +381,8 @@ Use I<write> to copy I<$count> bytes from the I<$buf> parameter to the stream.
       # Error was detected
       my $errno = !defined $num_bytes
                 ? POSIX::errno()                          # Specific read error
-                : EFAULT                                  # Non specific error
-                ;
+                : EBADF                                   # Descriptor is not ..
+                ;                                         # .. valid
       $self->error(ST_WRITE_ERROR, $errno);
       $num_bytes //= 0;                                   # Clear bytes moved
     }

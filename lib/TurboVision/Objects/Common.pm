@@ -61,6 +61,7 @@ our $AUTHORITY = 'github:fpc';
 
 use Carp qw( confess );
 use Data::Alias qw( alias );
+use English qw( -no_match_vars );
 use Scalar::Util qw( refaddr weaken isweak );
 
 use TurboVision::Const qw(
@@ -495,7 +496,8 @@ See: I<confess> from L<Carp>
 =cut
 
   func abstract() {
-    confess 'Call to abstract method';                    # Runtime error 211
+    $ERRNO = -211;                                        # Runtime error 211
+    confess 'Call to abstract method';
     return;
   }
 
@@ -540,6 +542,7 @@ See: I<FAIL> from L<Contextual::Return>
 =cut
 
   sub fail {
+    $ERRNO = -210;
     goto &FAIL;
   }
 
@@ -565,7 +568,7 @@ B<Note>: This utility routine is for compatiblity only.
   func register_objects()
 
 Calls I<register_type> for each of the class types defined in the I<Objects>
-module: I<TCollection>, <TStringCollection>
+module: I<TCollection>, I<TStringCollection>
 
 =cut
 

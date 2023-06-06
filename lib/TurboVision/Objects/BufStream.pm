@@ -120,7 +120,10 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use POSIX qw( :errno_h :fcntl_h );
+use POSIX qw(
+  :errno_h
+  :fcntl_h
+);
 
 use TurboVision::Const qw( _EMPTY_STRING );
 use TurboVision::Objects::Common qw( fail );
@@ -351,8 +354,8 @@ Flushes the stream's L</buffer> provided the stream's status is I<ST_OK>.
         # We have an error
         my $errno = !defined $num_bytes
                   ? POSIX::errno()                        # Specific write error
-                  : EFAULT                                # Non specific error
-                  ;
+                  : EBADF                                 # Descriptor is not ..
+                  ;                                       # .. valid
         $self->error(ST_ERROR, $errno);
       }
     }
@@ -417,8 +420,8 @@ If the stream's status is I<ST_OK>, reads I<$count> bytes into the I<$buf>.
           $buf = "\0" x $count;
           my $errno = !defined $num_bytes
                     ? POSIX::errno()                      # Specific read error
-                    : EFAULT                              # Non specific error
-                    ;
+                    : EBADF                               # Descriptor is not ..
+                    ;                                     # .. valid
           $self->error(ST_READ_ERROR, $errno);
           return;
         }
@@ -523,8 +526,8 @@ current position.
           # We have an error
           my $errno = !defined $num_bytes
                     ? POSIX::errno()                      # Specific read error
-                    : EFAULT                              # Unknown write error
-                    ;
+                    : EBADF                               # Descriptor is not ..
+                    ;                                     # .. valid
           $self->error(ST_WRITE_ERROR, $errno);
           return;
         }

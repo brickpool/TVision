@@ -63,6 +63,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use English qw( -no_match_vars );
 use MooseX::ClassAttribute;
 use MooseX::StrictConstructor;
 use MooseX::Types::Perl qw( Identifier );
@@ -211,6 +212,7 @@ B<Note>: Private internal routine.
 =cut
 
   classmethod _register_error() {
+    $ERRNO = -212;
     confess 'Stream registration error';
     return;
   }

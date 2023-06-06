@@ -160,7 +160,9 @@ our $AUTHORITY = 'github:fpc';
 
 use Config;
 use Data::Alias qw( alias );
+use English qw( -no_match_vars );
 use Scalar::Util qw( refaddr weaken isweak );
+use Try::Tiny;
 
 use TurboVision::Objects::Common qw(
   fail
@@ -396,37 +398,34 @@ individual item in the collection.
 =cut
 
   factory load(TStream $s) {
-    my $count = do {                                      # Read count
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
+    my $read = sub {
+      SWITCH: foreach( $_[0] ) {
+        /word/ && do {
+          $s->read(my $buf, word->size);
+          return word( $buf )->unpack;
+        };
+      };
+      return undef;
     };
-    my $limit = do {                                      # Read limit
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
-    };
-    my $delta = do {                                      # Read delta
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack;
-    };
-    return fail
-        if !defined $count
-        || !defined $limit
-        || !defined $delta;
-    
-    my $self = $class->new(
-      delta => $delta,
-      limit => $limit,                                    # Hold limit
-    );
 
-    # Get each item
-    GET:
-    for my $index (0..$count-1) {
-      my $item = $self->get_item($s);
-      next GET if !defined $item;
-      $self->at_insert($index, $item);
+    try {
+      my $count = $read->('word');                        # Read count
+      my $limit = $read->('word');                        # Read limit
+      my $delta = $read->('word');                        # Read delta
+      my $self = $class->new(
+        delta => $delta,
+        limit => $limit,                                  # Set requested limit
+      );
+      GET_EACH_ITEM:                                      # Get each item
+      for my $index (0..$count-1) {
+        my $item = $self->get_item($s);
+        $self->at_insert($index, $item);                  # Sets also count
+      }
+      return $self;
     }
-
-    return $self;
+    catch {
+      return fail;
+    }
   }
 
 =back
@@ -535,7 +534,7 @@ is called to automatically expand the size.
 
 Use I<at_put> when you need to replace an existing item with a new item.
 
-The method I<a_put> copies the new I<$item> refernce to the location specified
+The method I<at_put> copies the new I<$item> refernce to the location specified
 by I<$index>.
 
 =cut
@@ -599,6 +598,11 @@ See: I<coXXXX> constants.
 =cut
 
   method error(Int $code, Int $info) {
+    $ERRNO = 
+        $code == CO_INDEX_ERROR ? -213
+      : $code == CO_OVERFLOW    ? -214
+      :                           -218
+      ;
     confess(
         $code == CO_INDEX_ERROR ?  q{Collection index out of range}
       : $code == CO_OVERFLOW    ?  q{Collection overflow error}
