@@ -51,10 +51,12 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use MooseX::Types::Common::String qw( is_SimpleStr );
+use Try::Tiny;
 
 use TurboVision::Const qw( _EMPTY_STRING );
 use TurboVision::Objects::Common qw(
   byte
+  fail
   longint
   word
 );
@@ -233,49 +235,50 @@ when reading strings.
 =cut
 
   factory load(TStream $s) {
-    my $stream = $s;                                      # Hold stream ref
-
-    my $size = do {                                       # Read size
-      $s->read(my $buf, word->size);
-      word( $buf )->unpack() // 0;
+    my $read = sub {
+      SWITCH: foreach( $_[0] ) {
+        /longint/ && do {
+          $s->read(my $buf, longint->size);
+          return longint( $buf )->unpack;
+        };
+        /word/ && do {
+          $s->read(my $buf, word->size);
+          return word( $buf )->unpack;
+        };
+      };
+      return undef;
     };
-    my $base_pos = $s->get_pos();                         # Hold position
-    $s->seek($base_pos + $size);                          # Seek to position
-    my $index_size = do {                                 # Read index size
-      $s->read(my $buf, longint->size);
-      longint( $buf )->unpack() // 0;
-    };
 
-    my $index = [];                                       # Init index
-    READ:                                                 # Read indexes
-    for (0..$index_size-1) {
-      my $key = do {
-        $s->read(my $buf, word->size);
-        word( $buf )->unpack() // 0;
-      };
-      my $count = do {
-        $s->read(my $buf, word->size);
-        word( $buf )->unpack() // 0;
-      };
-      my $offset = do {
-        $s->read(my $buf, word->size);
-        word( $buf )->unpack() // 0;
-      };
-      last READ if $s->status != ST_OK;
-      my $record = {
-        key     => $key,
-        count   => $count,
-        offset  => $offset,
-      };
-      push @{$index}, $record;
+    try {
+      my $stream = $s;                                      # Hold stream ref
+      my $size = $read->('word');                           # Read size
+      my $base_pos = $s->get_pos();                         # Hold position
+      $s->seek($base_pos + $size);                          # Seek to position
+      my $index_size = $read->('longint');                  # Read index size
+      my $index = [];                                       # Allocate ArrayRef
+      READ_INDEX:                                           # Read indexes
+      for (0..$index_size-1) {
+        my $key     = $read->('word') // 0;
+        my $count   = $read->('word') // 0;
+        my $offset  = $read->('word') // 0;
+        last READ_INDEX if $s->status != ST_OK;
+        my $record = {
+          key     => $key,
+          count   => $count,
+          offset  => $offset,
+        };
+        push @{$index}, $record;
+      }
+      return $class->new(
+        _stream     => $stream,
+        _base_pos   => $base_pos,
+        _index_size => $index_size,
+        _index      => $index,
+      );
     }
-
-    return $class->new(
-      _stream     => $stream,
-      _base_pos   => $base_pos,
-      _index_size => $index_size,
-      _index      => $index,
-    );
+    catch {
+      return fail;
+    }
   };
 
 =back
