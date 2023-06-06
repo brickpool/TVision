@@ -20,12 +20,6 @@ use 5.014;
 use warnings;
 
 use Function::Parameters {
-  before => {
-    defaults    => 'method_strict',
-    install_sub => 'before',
-    runtime     => 1,
-    name        => 'required',
-  },
   around => {
     defaults    => 'method_strict',
     install_sub => 'around',
@@ -69,7 +63,6 @@ use TurboVision::Objects::Types qw(
   TResourceCollection
   TResourceItem
   TStream
-  TStreamRec
   TStringCollection
 );
 
@@ -82,7 +75,7 @@ use TurboVision::Objects::Types qw(
 Several specialized collections are derived from I<TCollection>, including
 I<TResourceCollection>.
 
-The <TResourceCollection> is used internally to the resource file mechanism and
+The I<TResourceCollection> is used internally to the resource file mechanism and
 is not generally used by application programs.
 
 =head2 Class
@@ -128,7 +121,9 @@ package TurboVision::Objects::ResourceCollection {
 
 =over
 
-=item public C<< ScalarRef[SimpleStr] key_of(TResourceItem $item) >>
+=item I<key_of>
+
+  around key_of(TResourceItem $item) : ScalarRef[SimpleStr]
 
 I<key_of> returns a string reference to the key of the I<$item>.
 
@@ -138,7 +133,9 @@ I<key_of> returns a string reference to the key of the I<$item>.
     return \$item->{key};
   }
 
-=item public C<< TResourceItem get_item(TStream $s) >>
+=item I<get_item>
+
+  around get_item(TStream $s) : TResourceItem
 
 Uses the I<< TStream->read >> function to read a I<TResourceItem> hash from
 stream I<$s> and returns a hash reference of type I<TResourceItem>.
@@ -146,18 +143,23 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
 =cut
 
   around get_item(TStream $s) {
-    my $pos = do {                                        # Read position
-      $s->read(my $buf, longint->size);
-      longint( $buf )->unpack() // 0;
+    my $read = sub {
+      SWITCH: foreach( $_[0] ) {
+        /byte/ && do {
+          $s->read(my $buf, byte->size);
+          return byte( $buf )->unpack;
+        };
+        /longint/ && do {
+          $s->read(my $buf, longint->size);
+          return longint( $buf )->unpack;
+        };
+      };
+      return undef;
     };
-    my $size = do {                                       # Read size
-      $s->read(my $buf, longint->size);
-      longint( $buf )->unpack() // 0;
-    };
-    my $len = do {                                        # Read key length
-      $s->read(my $buf, byte->size);
-      byte( $buf )->unpack() // 0;
-    };
+
+    my $pos = $read->('longint') // 0;                    # Read position
+    my $size = $read->('longint') // 0;                   # Read size
+    my $len = $read->('byte') // 0;                       # Read key length
     my $key = do {                                        # Read string data
       my $buf;
       if ( $len > 0 ) {
@@ -172,7 +174,9 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
     };
   }
 
-=item public C<< put_item(TStream $s, TResourceItem $item) >>
+=item I<put_item>
+
+  around put_item(TStream $s, TResourceItem $item)
 
 By default, writes a hash referenced by I<$item> to the stream I<$s> by
 calling I<< TStream->write >>.
@@ -280,7 +284,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
