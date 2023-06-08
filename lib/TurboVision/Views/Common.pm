@@ -58,7 +58,10 @@ Nothing per default, but can export the following per request:
     :vars
       $command_set_changed
       $cur_command_set
-  
+
+    private:
+      $_the_top_view
+
 =cut
 
 use Exporter qw(import);
@@ -71,6 +74,10 @@ our %EXPORT_TAGS = (
   vars => [qw(
     $command_set_changed
     $cur_command_set
+  )],
+
+  private => [qw(
+    $_the_top_view
   )],
 
 );
@@ -115,8 +122,6 @@ I<$cur_command_set> is a string created with Perl's command I<vec>.
 It stores the current command set. By default, all commands except those of the
 window are active.
 
-=end comment
-
 =cut
 
   our $cur_command_set = do {
@@ -125,6 +130,16 @@ window are active.
       foreach CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV;
     $set;
   };
+
+=item I<$_the_top_view>
+
+  our $_the_top_view = < TView >;
+
+Top focused view.
+
+=cut
+
+  our $_the_top_view;
 
 =back
 
