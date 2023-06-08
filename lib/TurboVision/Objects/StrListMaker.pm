@@ -401,7 +401,7 @@ Writes the string list to stream I<$s>.
     $self->_close_current();                              # Close all current
 
     # Write position
-    my $str_pos = word( $self->_str_pos )->cast() // 0;
+    my $str_pos = $self->_str_pos // 0;
     $s->write(
       word( $str_pos )->pack(),
       word->size
@@ -411,7 +411,7 @@ Writes the string list to stream I<$s>.
     $s->write($strings, $str_pos);
 
     # Write index position
-    my $index_pos = longint( $self->_index_pos )->cast() // 0;
+    my $index_pos = $self->_index_pos // 0;
     $s->write(
       longint( $index_pos )->pack(),
       longint->size
