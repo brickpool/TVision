@@ -245,7 +245,7 @@
 <dt id="DEMOLISH"><i>DEMOLISH</i></dt>
 <dd>
 
-<pre><code>  sub DEMOLISH()</code></pre>
+<pre><code>  method DEMOLISH()</code></pre>
 
 <p>Deletes the view after erasing it from the screen.</p>
 
@@ -438,6 +438,64 @@
 <p>Use <i>set_state</i> to either set or clear bits in the <a href="#state">&quot;state&quot;</a> variable.</p>
 
 <p>If <i>$enable</i> is True, then the bits specified by <i>$a_state</i> are set, and if <i>$enable</i> is False, then the bits specified by <i>$a_state</i> are cleared.</p>
+
+</dd>
+<dt id="show"><i>show</i></dt>
+<dd>
+
+<pre><code>  method show()</code></pre>
+
+<p>Causes the view to be displayed.</p>
+
+<p>See: <a href="#hide">&quot;hide&quot;</a></p>
+
+</dd>
+<dt id="show_cursor"><i>show_cursor</i></dt>
+<dd>
+
+<pre><code>  method show_cursor()</code></pre>
+
+<p>Makes the screen cursor visible (the default condition is a hidden cursor).</p>
+
+</dd>
+<dt id="show_cursor1"><i>show_cursor</i></dt>
+<dd>
+
+<pre><code>  method size_limits(TPoint $min, TPoint $max)</code></pre>
+
+<p>Sets <i>$min</i> to (0,0) and <i>$max</i> to <i>$self-&gt;owner-&gt;size</i>.</p>
+
+</dd>
+<dt id="store"><i>store</i></dt>
+<dd>
+
+<pre><code>  method store(TStream $s)</code></pre>
+
+<p>Writes <i>$self</i> view to stream &lt;$s&gt;.</p>
+
+</dd>
+<dt id="top_view"><i>top_view</i></dt>
+<dd>
+
+<pre><code>  method top_view() : TView</code></pre>
+
+<p>Returns a reference to the view modal view that is on top.</p>
+
+</dd>
+<dt id="valid"><i>valid</i></dt>
+<dd>
+
+<pre><code>  method valid(Int $command) : Bool</code></pre>
+
+<p>Each view contains a <i>valid</i> method which should be overridden to check for specific error conditions appropriate to your views.</p>
+
+<p>When <i>$command</i> equals <i>CM_VALID</i>, then the view should return False if some problem has occurred when instantiating the view.</p>
+
+<p>Use <i>valid</i> to check for any type of errors - its up to you to define what those error conditions might be.</p>
+
+<p>An example might be a view that after initialization is unable to find its data file. <i>valid</i> might call an error handling routine to display the error, and return False.</p>
+
+<p>If <i>$command</i> is not equal to <i>CM_VALID</i>, then <i>$command</i> equals the returns result from a modal dialog and the view can make specific checks based on this parameter.</p>
 
 </dd>
 </dl>

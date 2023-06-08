@@ -52,7 +52,10 @@ use Data::Alias qw( alias );
 use List::Util qw( min max );
 use Try::Tiny;
 
-use TurboVision::Const qw( :bool );
+use TurboVision::Const qw(
+  :bool
+  :limits
+);
 use TurboVision::Drivers::Const qw(
   :evXXXX
   :kbXXXX
@@ -73,7 +76,10 @@ use TurboVision::Objects::Types qw(
   TStream
   TStreamRec
 );
-use TurboVision::Views::Common qw( :vars );
+use TurboVision::Views::Common qw(
+  :vars
+  :private
+);
 use TurboVision::Views::Const qw(
   :cmXXXX
   :dmXXXX
@@ -516,7 +522,7 @@ Creates and reads a view from stream I<$s>.
 
 =item I<DEMOLISH>
 
-  sub DEMOLISH()
+  method DEMOLISH()
 
 Deletes the view after erasing it from the screen.
 
@@ -1057,7 +1063,7 @@ See: L</show>
 
 =cut
 
-  method hide () {
+  method hide() {
     $self->set_state(SF_VISIBLE, _FALSE)                  # Hide the view
       if $self->state & SF_VISIBLE != 0;                  # View is visible
     return;
@@ -1078,7 +1084,149 @@ I<$a_state> are cleared.
   method set_state(Int $a_state, Bool $enable) {
     return;
   }
-  
+
+=item I<show>
+
+  method show()
+
+Causes the view to be displayed.
+
+See: L</hide>
+
+=cut
+
+  method show() {
+    $self->set_state(SF_VISIBLE, _TRUE)                   # Show the view
+      if $self->state & SF_VISIBLE == 0;                  # View not visible
+    return;
+  }
+
+=item I<show_cursor>
+
+  method show_cursor()
+
+Makes the screen cursor visible (the default condition is a hidden cursor).
+
+=cut
+
+  method show_cursor() {
+    $self->set_state(SF_CURSOR_VIS, _TRUE);               # Show the cursor
+    return;
+  }
+
+=item I<show_cursor>
+
+  method size_limits(TPoint $min, TPoint $max)
+
+Sets I<$min> to (0,0) and I<$max> to I<< $self->owner->size >>.
+
+=cut
+
+  method size_limits(TPoint $min, TPoint $max) {
+    $min->x(0);                                           # Zero x minimum
+    $min->y(0);                                           # Zero y minimum
+    if ( defined $self->owner ) {
+      $max->x( $self->owner->size->x );
+      $max->y( $self->owner->size->y );
+    }
+    else {                                                # Max owner size
+      $max->x( _INT32_MAX );                              # Max possible x size
+      $max->y( _INT32_MAX );                              # Max possible y size
+    }
+    return;
+  }
+
+=item I<store>
+
+  method store(TStream $s)
+
+Writes I<$self> view to stream <$s>.
+
+=cut
+
+  method store(TStream $s) {
+    my $write = sub {
+      my $value = shift // 0;
+      my $type = shift;
+      SWITCH: foreach( $type ) {
+        /byte/    && $s->write(    byte($value)->pack,    byte->size );
+        /integer/ && $s->write( integer($value)->pack, integer->size );
+        /word/    && $s->write(    word($value)->pack,    word->size );
+      }
+    };
+
+    my $state = $self->state // 0;                        # Hold current state
+    $state &= ~(                                          # Clear flags
+        SF_ACTIVE
+      | SF_SELECTED
+      | SF_FOCUSED
+      | SF_EXPOSED
+    );
+    try {
+      $write->( $self->origin->x,   'integer' );          # Write view x origin
+      $write->( $self->origin->y,   'integer' );          # Write view x origin
+      $write->( $self->size->x,     'integer' );          # Write view x size
+      $write->( $self->size->y,     'integer' );          # Write view x size
+      $write->( $self->cursor->x,   'integer' );          # Write view x cursor
+      $write->( $self->cursor->y,   'integer' );          # Write view x cursor
+      $write->( $self->grow_mode,   'byte'    );          # Write growmode flags
+      $write->( $self->drag_mode,   'byte'    );          # Write dragmode flags
+      $write->( $self->help_ctx,    'word'    );          # Write help context
+      $write->( $state,             'word'    );          # Write state masks
+      $write->( $self->options,     'word'    );          # Write options masks
+      $write->( $self->event_mask,  'word'    );          # Write event masks
+    }
+    return;
+  }
+
+=item I<top_view>
+
+  method top_view() : TView
+
+Returns a reference to the view modal view that is on top.
+
+=cut
+
+  method top_view() {
+    my $view;
+    if ( not defined $_the_top_view ) {                   # Check topmost view
+      $view = $self;                                      # Start with us
+      $view = $view->owner                                # Search each owner
+        while defined($view)
+          && ( $view->state & SF_MODAL == 0 )             # Check if modal
+          ;                             
+      return $view;                                       # Return result
+    }
+    return $_the_top_view;                                # Return topview
+  }
+
+=item I<valid>
+
+  method valid(Int $command) : Bool
+
+Each view contains a I<valid> method which should be overridden to check for
+specific error conditions appropriate to your views.
+
+When I<$command> equals I<CM_VALID>, then the view should return False if some
+problem has occurred when instantiating the view.
+
+Use I<valid> to check for any type of errors - its up to you to define what
+those error conditions might be.
+
+An example might be a view that after initialization is unable to find its data
+file. I<valid> might call an error handling routine to display the error, and
+return False.
+
+If I<$command> is not equal to I<CM_VALID>, then I<$command> equals the returns
+result from a modal dialog and the view can make specific checks based on this
+parameter.
+
+=cut
+
+  method valid(Int $command) {
+    return _TRUE;                                         # Simply return true
+  }
+
 =back
 
 =head2 Inheritance
