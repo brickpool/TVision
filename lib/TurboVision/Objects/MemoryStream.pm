@@ -472,7 +472,7 @@ Allocate or deallocate blocks in I<seg_list>.
 
 =head2 Inheritance
 
-Methods inherited from class C<TStream>
+Methods inherited from class I<TStream>
 
   copy_from, error, flush, get, get_pos, get_size, put, read_str, reset, seek,
   write_str

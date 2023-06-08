@@ -103,8 +103,8 @@ as store Turbo Vision components.
 
 B<Commonly Used Features>
 
-In addition to I<init>, I<put> and I<get> are the most frequently used methods
-of the I<TResourceFile> object.
+In addition to L</init>, L</put> and L</get> are the most frequently used
+methods of the I<TResourceFile> object.
 
 =head2 Class
 
@@ -155,7 +155,9 @@ package TurboVision::Objects::ResourceFile {
 
 =over
 
-=item public readonly C<< TStream stream >>
+=item I<stream>
+
+  param stream ( is => rwp, type => TStream );
 
 Points to the stream used by this I<TResourceFile> object.
 
@@ -167,12 +169,14 @@ Points to the stream used by this I<TResourceFile> object.
     writer    => '_stream',
   );
 
-=item public readonly C<< Bool modified >>
+=item I<modified>
+
+  has modified ( is => rwp, type => Bool );
 
 If the file has been modified, then this flag is set to true.
 
-The I<< TResourceFile->flush >> subroutine checks this flag to determine if it
-should update the resource file.
+The L</flush> method checks this flag to determine if it should update the
+resource file.
 
 =cut
 
@@ -184,7 +188,9 @@ should update the resource file.
 
 =begin comment
 
-=item private C<< Int _base_pos >>
+=item I<_base_pos>
+
+  has _base_pos ( is => rw, type => Int ) = 0;
 
 Base position.
 
@@ -200,7 +206,28 @@ Base position.
 
 =begin comment
 
-=item private C<< Int _index_pos >>
+=item I<_index>
+
+  param _index ( is => rw, type => TResourceCollection );
+
+Index collection.
+
+=end comment
+
+=cut
+
+  has '_index' => (
+    is        => 'rw',
+    isa       => TResourceCollection,
+    handles   => [qw( count )],
+    required  => 1,
+  );
+
+=begin comment
+
+=item I<_index_pos>
+
+  param _index_pos ( is => rw, type => Int );
 
 Index position.
 
@@ -211,23 +238,6 @@ Index position.
   has '_index_pos' => (
     is        => 'rw',
     isa       => Int,
-    required  => 1,
-  );
-
-=begin comment
-
-=item private C<< Int _index_pos >>
-
-Index position.
-
-=end comment
-
-=cut
-
-  has '_index' => (
-    is        => 'rw',
-    isa       => TResourceCollection,
-    handles   => [qw( count )],
     required  => 1,
   );
 
@@ -245,7 +255,9 @@ Index position.
 
 =over
 
-=item public C<< TResourceFile->init(TStream $a_stream) >>
+=item I<init>
+
+  factory init(TStream $a_stream) : TResourceFile
 
 I<< TResourceFile->init >> is called after opening a stream.
 
@@ -346,10 +358,12 @@ that holds the resource file.
 
 =over
 
-=item public C<< DEMOLISH() >>
+=item I<DEMOLISH>
 
-Calls I<< TResourceFile->flush >> and destroys the I<index> collection and
-the resource stream file.
+  method DEMOLISH()
+
+Calls L</flush> and destroys the (private) I<index> collection and the resource
+L</stream> file.
 
 =cut
 
@@ -371,23 +385,33 @@ the resource stream file.
 
 =over
 
-=item public C<< Int count() >>
+=item I<count>
+
+  method count() : Int
 
 Computes and returns the number of items or resources stored in the file.
 
 =cut
 
-  #around count() {
-  #  return $self->$next();
-  #}
+=begin comment
 
-=item public C<< delete(Str $key) >>
+See L</_index>:
+
+  has '_index' => (
+    ...
+    handles => [qw( count )],
+  );
+
+=end comment
+
+=item I<delete>
+
+  method delete(Str $key)
 
 Removes the I<$key> from the index and marks the space it previously occuppied
 as being deleted.  
 
-See I<< TResourceFile->switch_to >> for a method to reclaim the now unused
-space.
+See L</switch_to> for a method to reclaim the now unused space.
 
 =cut
 
@@ -403,10 +427,12 @@ space.
     return;
   }
 
-=item public C<< flush() >>
+=item I<flush>
 
-Checks the I<modified> flag, and if true, updates the resource stream file,
-and then resets I<modified> to false.
+  method flush()
+
+Checks the L</modified> flag, and if true, updates the resource stream file,
+and then resets L</modified> to false.
 
 =cut
 
@@ -450,13 +476,15 @@ and then resets I<modified> to false.
     return;
   }
 
-=item public C<< Object|Undef get(SimpleStr $key) >>
+=item I<get>
+
+  method get(SimpleStr $key) : Object|Undef
 
 Uses I<$key> as an index into the resource and returns a pointer to the object
-that it references, or <undef> if the I<$key> is not in the file.
+that it references, or C<undef> if the I<$key> is not in the file.
 
-See I<< TResourceFile->put >>
-     
+See: L</put>
+
 =cut
 
   method get(SimpleStr $key) {
@@ -474,12 +502,14 @@ See I<< TResourceFile->put >>
     return $stream->get();                                # Get item
   }
 
-=item public C<< Str key_at(Int $i) >>
+=item I<key_at>
+
+  method key_at(Int $i) : Str
 
 Use I<key_at> to scan through the entire resource file.
 
 The parameter I<$i> is an index to each resource in the file, numbered 0 to
-I<< TResourceFile->count >> minus 1.
+L</count> minus 1.
 
 The method I<key_at> returns the string corresponding to the key value at the
 I<$i>'th index position.
@@ -490,12 +520,14 @@ I<$i>'th index position.
     return $self->item->at($i)->{key};
   }
  
-=item public C<< put(Object $item, Str $key) >>
+=item I<put>
+
+  method put(Object $item, Str $key)
 
 Stores the object pointed to by I<$item> into the resource file, using the
 specified I<$key>.
 
-See I<< TResourceFile->get >>
+See: L</get>
 
 =cut
 
@@ -534,7 +566,9 @@ See I<< TResourceFile->get >>
     return;
   }
 
-=item public C<< TStream|Undef switch_to(TStream $a_stream, Bool $pack) >>
+=item I<switch_to>
+
+  method switch_to(TStream $a_stream, Bool $pack) : TStream|Undef
 
 Use I<switch_to> to copy the current resource file to another stream specified
 by I<$a_stream>.
@@ -542,7 +576,7 @@ by I<$a_stream>.
 If I<$pack> is true, I<switch_to> will not copy objects marked as deleted,
 thereby compressing the resulting resource file.
 
-See: I<< TResourceFile->delete >>
+See: L</delete>
 
 =cut
 
@@ -590,7 +624,7 @@ See: I<< TResourceFile->delete >>
 
 =head2 Inheritance
 
-Methods inherited from class C<TObject>
+Methods inherited from class I<TObject>
 
   n/a
 
@@ -667,7 +701,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

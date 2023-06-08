@@ -75,7 +75,7 @@
 
 <p><b>Commonly Used Features</b></p>
 
-<p>In addition to <i>init</i>, <i>put</i> and <i>get</i> are the most frequently used methods of the <i>TResourceFile</i> object.</p>
+<p>In addition to <a href="#init">&quot;init&quot;</a>, <a href="#put">&quot;put&quot;</a> and <a href="#get">&quot;get&quot;</a> are the most frequently used methods of the <i>TResourceFile</i> object.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -90,18 +90,22 @@
 
 <dl>
 
-<dt id="public-readonly-TStream-stream">public readonly <code>TStream stream</code></dt>
+<dt id="stream"><i>stream</i></dt>
 <dd>
+
+<pre><code>  param stream ( is =&gt; rwp, type =&gt; TStream );</code></pre>
 
 <p>Points to the stream used by this <i>TResourceFile</i> object.</p>
 
 </dd>
-<dt id="public-readonly-Bool-modified">public readonly <code>Bool modified</code></dt>
+<dt id="modified"><i>modified</i></dt>
 <dd>
+
+<pre><code>  has modified ( is =&gt; rwp, type =&gt; Bool );</code></pre>
 
 <p>If the file has been modified, then this flag is set to true.</p>
 
-<p>The <i>TResourceFile-&gt;flush</i> subroutine checks this flag to determine if it should update the resource file.</p>
+<p>The <a href="#flush">&quot;flush&quot;</a> method checks this flag to determine if it should update the resource file.</p>
 
 </dd>
 </dl>
@@ -110,8 +114,10 @@
 
 <dl>
 
-<dt id="public-TResourceFile-init-TStream-a_stream">public <code>TResourceFile-&gt;init(TStream $a_stream)</code></dt>
+<dt id="init"><i>init</i></dt>
 <dd>
+
+<pre><code>  factory init(TStream $a_stream) : TResourceFile</code></pre>
 
 <p><i>TResourceFile-&gt;init</i> is called after opening a stream.</p>
 
@@ -124,10 +130,12 @@
 
 <dl>
 
-<dt id="public-DEMOLISH">public <code>DEMOLISH()</code></dt>
+<dt id="DEMOLISH"><i>DEMOLISH</i></dt>
 <dd>
 
-<p>Calls <i>TResourceFile-&gt;flush</i> and destroys the <i>index</i> collection and the resource stream file.</p>
+<pre><code>  method DEMOLISH()</code></pre>
+
+<p>Calls <a href="#flush">&quot;flush&quot;</a> and destroys the (private) <i>index</i> collection and the resource <a href="#stream">&quot;stream&quot;</a> file.</p>
 
 </dd>
 </dl>
@@ -136,67 +144,81 @@
 
 <dl>
 
-<dt id="public-Int-count">public <code>Int count()</code></dt>
+<dt id="count"><i>count</i></dt>
 <dd>
+
+<pre><code>  method count() : Int</code></pre>
 
 <p>Computes and returns the number of items or resources stored in the file.</p>
 
 </dd>
-<dt id="public-delete-Str-key">public <code>delete(Str $key)</code></dt>
+<dt id="delete"><i>delete</i></dt>
 <dd>
+
+<pre><code>  method delete(Str $key)</code></pre>
 
 <p>Removes the <i>$key</i> from the index and marks the space it previously occuppied as being deleted.</p>
 
-<p>See <i>TResourceFile-&gt;switch_to</i> for a method to reclaim the now unused space.</p>
+<p>See <a href="#switch_to">&quot;switch_to&quot;</a> for a method to reclaim the now unused space.</p>
 
 </dd>
-<dt id="public-flush">public <code>flush()</code></dt>
+<dt id="flush"><i>flush</i></dt>
 <dd>
 
-<p>Checks the <i>modified</i> flag, and if true, updates the resource stream file, and then resets <i>modified</i> to false.</p>
+<pre><code>  method flush()</code></pre>
+
+<p>Checks the <a href="#modified">&quot;modified&quot;</a> flag, and if true, updates the resource stream file, and then resets <a href="#modified">&quot;modified&quot;</a> to false.</p>
 
 </dd>
-<dt id="public-Object-Undef-get-SimpleStr-key">public <code>Object|Undef get(SimpleStr $key)</code></dt>
+<dt id="get"><i>get</i></dt>
 <dd>
 
-<p>Uses <i>$key</i> as an index into the resource and returns a pointer to the object that it references, or &lt;undef&gt; if the <i>$key</i> is not in the file.</p>
+<pre><code>  method get(SimpleStr $key) : Object|Undef</code></pre>
 
-<p>See <i>TResourceFile-&gt;put</i></p>
+<p>Uses <i>$key</i> as an index into the resource and returns a pointer to the object that it references, or <code>undef</code> if the <i>$key</i> is not in the file.</p>
+
+<p>See: <a href="#put">&quot;put&quot;</a></p>
 
 </dd>
-<dt id="public-Str-key_at-Int-i">public <code>Str key_at(Int $i)</code></dt>
+<dt id="key_at"><i>key_at</i></dt>
 <dd>
+
+<pre><code>  method key_at(Int $i) : Str</code></pre>
 
 <p>Use <i>key_at</i> to scan through the entire resource file.</p>
 
-<p>The parameter <i>$i</i> is an index to each resource in the file, numbered 0 to <i>TResourceFile-&gt;count</i> minus 1.</p>
+<p>The parameter <i>$i</i> is an index to each resource in the file, numbered 0 to <a href="#count">&quot;count&quot;</a> minus 1.</p>
 
 <p>The method <i>key_at</i> returns the string corresponding to the key value at the <i>$i</i>&#39;th index position.</p>
 
 </dd>
-<dt id="public-put-Object-item-Str-key">public <code>put(Object $item, Str $key)</code></dt>
+<dt id="put"><i>put</i></dt>
 <dd>
+
+<pre><code>  method put(Object $item, Str $key)</code></pre>
 
 <p>Stores the object pointed to by <i>$item</i> into the resource file, using the specified <i>$key</i>.</p>
 
-<p>See <i>TResourceFile-&gt;get</i></p>
+<p>See: <a href="#get">&quot;get&quot;</a></p>
 
 </dd>
-<dt id="public-TStream-Undef-switch_to-TStream-a_stream-Bool-pack">public <code>TStream|Undef switch_to(TStream $a_stream, Bool $pack)</code></dt>
+<dt id="switch_to"><i>switch_to</i></dt>
 <dd>
+
+<pre><code>  method switch_to(TStream $a_stream, Bool $pack) : TStream|Undef</code></pre>
 
 <p>Use <i>switch_to</i> to copy the current resource file to another stream specified by <i>$a_stream</i>.</p>
 
 <p>If <i>$pack</i> is true, <i>switch_to</i> will not copy objects marked as deleted, thereby compressing the resulting resource file.</p>
 
-<p>See: <i>TResourceFile-&gt;delete</i></p>
+<p>See: <a href="#delete">&quot;delete&quot;</a></p>
 
 </dd>
 </dl>
 
 <h2 id="Inheritance">Inheritance</h2>
 
-<p>Methods inherited from class <code>TObject</code></p>
+<p>Methods inherited from class <i>TObject</i></p>
 
 <pre><code>  n/a</code></pre>
 
@@ -256,7 +278,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

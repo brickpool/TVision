@@ -2,7 +2,12 @@
 
 =head1 NAME
 
-Types - Types for I<Objects>
+TurboVision::Objects::Types - Types for I<Objects>
+
+=head1 SYNOPSIS
+
+  use TurboVision::Objects::Types;
+  ...
 
 =cut
 
@@ -68,7 +73,9 @@ use namespace::autoclean;
 
 =over
 
-=item public type C<< FNameStr >>
+=item I<FNameStr>
+
+  subtype FNameStr : Str;
 
 OS file name string.
 
@@ -77,7 +84,9 @@ OS file name string.
 subtype FNameStr,
   as Str;
 
-=item public type C<< PString >>
+=item I<PString>
+
+  subtype PString : ScalarRef[Str];
 
 Defines a reference to a string.
 
@@ -86,7 +95,9 @@ Defines a reference to a string.
 subtype PString,
   as ScalarRef[Str];
 
-=item public type C<< TResourceItem >>
+=item I<TResourceItem>
+
+  subtype TResourceItem : Dict[ posn => Int, size => Int, key => SimpleStr ];
 
 This internal I<Dict> type is used by I<TResourceCollection>.
  
@@ -99,7 +110,9 @@ subtype TResourceItem,
     key   => SimpleStr,                                   # Resource key
   ];
 
-=item public type C<< TItemList >>
+=item I<TItemList>
+
+  subtype TItemList : ArrayRef[Ref];
 
 This is an internal object type used for maintaining an array of references
 in I<TCollection> objects.
@@ -109,9 +122,11 @@ in I<TCollection> objects.
 subtype TItemList,
   as ArrayRef[Ref];
 
-=item public type C<< TStrIndexRec >>
+=item I<TStrIndexRec>
 
-This internal I<Dict> record type is used by I<TStrIndex>.
+  subtype TStrIndexRec : Dict[ key => Int, count => Int, offset => Int ];
+
+This internal I<Dict> record type is used by L</TStrIndex>.
  
 =cut
 
@@ -122,7 +137,9 @@ subtype TStrIndexRec,
     offset  => Int,
   ];
 
-=item public type C<< TStrIndex >>
+=item I<TStrIndex>
+
+  subtype TStrIndex : ArrayRef[TStrIndexRec];
 
 This internal I<ArrayRef> type of I<TStrIndexRec> is used by I<TStringList> and
 I<TStrListMaker>.
@@ -262,11 +279,11 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
 =head1 SEE ALSO
 
-I<MooseX::Types>, I<Objects>, 
+L<MooseX::Types>, I<Objects>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

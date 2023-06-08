@@ -60,6 +60,7 @@
 <h1 id="SYNOPSIS">SYNOPSIS</h1>
 
 <pre><code>  use TurboVision::Views::Const qw(
+    MAX_VIEW_WIDTH
     :sfXXXX
   );
   ...</code></pre>
@@ -190,13 +191,13 @@
       CM_LIST_ITEM_SELECTED
 
     :color
-      C_FRAME
-      C_SCROLL_BAR
-      C_SCROLLER
-      C_LIST_VIEWER
-      C_BLUE_WINDOW
-      C_CYAN_WINDOW
-      C_GRAY_WINDOW</code></pre>
+      CFrame
+      CScrollBar
+      CScroller
+      CListViewer
+      CBlueWindow
+      CCyanWindow
+      CGrayWindow</code></pre>
 
 <h1 id="DESCRIPTION">DESCRIPTION</h1>
 
@@ -208,8 +209,10 @@
 
 <dl>
 
-<dt id="public-const-Int-MAX_VIEW_WIDTH">public const <code>Int MAX_VIEW_WIDTH</code></dt>
+<dt id="MAX_VIEW_WIDTH"><i>MAX_VIEW_WIDTH</i></dt>
 <dd>
+
+<pre><code>  constant MAX_VIEW_WIDTH = &lt; Int &gt;;</code></pre>
 
 <p>Determines the maximum width of a view.</p>
 
@@ -234,84 +237,108 @@
 
 <dl>
 
-<dt id="public-const-Int-SF_VISIBLE">public const <code>Int SF_VISIBLE</code></dt>
+<dt id="SF_VISIBLE"><i>SF_VISIBLE</i></dt>
 <dd>
+
+<pre><code>  constant SF_VISIBLE = &lt; Int &gt;;</code></pre>
 
 <p>Set when the view is visible in front of its owner (for example, a button on a dialog) but note that a visible view&#39;s owner may itself be hidden from view.</p>
 
 <p>Call <i>TView-&gt;exposed</i> to determine if a view is actually visible on the screen, and use <i>TView-&gt;hide</i> to clear this bit and hide the view, and <i>TView-&gt;show</i> to set this bit and make the view visible.</p>
 
 </dd>
-<dt id="public-const-Int-SF_CURSOR_VIS">public const <code>Int SF_CURSOR_VIS</code></dt>
+<dt id="SF_CURSOR_VIS"><i>SF_CURSOR_VIS</i></dt>
 <dd>
+
+<pre><code>  constant SF_CURSOR_VIS = &lt; Int &gt;;</code></pre>
 
 <p>Set when the view&#39;s cursor is visible.</p>
 
 <p>Use <i>TView-&gt;show_cursor</i> to make the cursor visible and set this bit, or <i>TView-&gt;hide_cursor</i> to hide the cursor and clear this bit.</p>
 
 </dd>
-<dt id="public-const-Int-SF_CURSOR_INS">public const <code>Int SF_CURSOR_INS</code></dt>
+<dt id="SF_CURSOR_INS"><i>SF_CURSOR_INS</i></dt>
 <dd>
+
+<pre><code>  constant SF_CURSOR_INS = &lt; Int &gt;;</code></pre>
 
 <p>Set when the cursor is a solid block (the &quot;insert&quot; cursor), clear when the cursor is an underscore (the &quot;overstrike&quot; cursor).</p>
 
 <p>Call <i>TView-&gt;block_cursor</i> to set this bit, and <i>TView-&gt;normal_cursor</i> to clear the bit.</p>
 
 </dd>
-<dt id="public-const-Int-SF_SHADOW">public const <code>Int SF_SHADOW</code></dt>
+<dt id="SF_SHADOW"><i>SF_SHADOW</i></dt>
 <dd>
+
+<pre><code>  constant SF_SHADOW = &lt; Int &gt;;</code></pre>
 
 <p>Set when the view has a shadow.</p>
 
 </dd>
-<dt id="public-const-Int-SF_ACTIVE">public const <code>Int SF_ACTIVE</code></dt>
+<dt id="SF_ACTIVE"><i>SF_ACTIVE</i></dt>
 <dd>
+
+<pre><code>  constant SF_ACTIVE = &lt; Int &gt;;</code></pre>
 
 <p>Set whenever the view is an active window or a subview within an active window.</p>
 
 <p>For example, when using the GUI to edit multiple files, only the editor that you are currently using is the active window.</p>
 
 </dd>
-<dt id="public-const-Int-SF_SELECTED">public const <code>Int SF_SELECTED</code></dt>
+<dt id="SF_SELECTED"><i>SF_SELECTED</i></dt>
 <dd>
+
+<pre><code>  constant SF_SELECTED = &lt; Int &gt;;</code></pre>
 
 <p>Set when this view is selected. (See <i>TView-&gt;selected</i>).</p>
 
 </dd>
-<dt id="public-const-Int-SF_FOCUSED">public const <code>Int SF_FOCUSED</code></dt>
+<dt id="SF_FOCUSED"><i>SF_FOCUSED</i></dt>
 <dd>
+
+<pre><code>  constant SF_FOCUSED = &lt; Int &gt;;</code></pre>
 
 <p>If the view is part of the focus chain, then this bit is set.</p>
 
 </dd>
-<dt id="public-const-Int-SF_DRAGGING">public const <code>Int SF_DRAGGING</code></dt>
+<dt id="SF_DRAGGING"><i>SF_DRAGGING</i></dt>
 <dd>
+
+<pre><code>  constant SF_DRAGGING = &lt; Int &gt;;</code></pre>
 
 <p>Set whenever the view is being dragged.</p>
 
 </dd>
-<dt id="public-const-Int-SF_DISABLED">public const <code>Int SF_DISABLED</code></dt>
+<dt id="SF_DISABLED"><i>SF_DISABLED</i></dt>
 <dd>
+
+<pre><code>  constant SF_DISABLED = &lt; Int &gt;;</code></pre>
 
 <p>Set if the view has been disabled and is no longer processing events.</p>
 
 </dd>
-<dt id="public-const-Int-SF_MODAL">public const <code>Int SF_MODAL</code></dt>
+<dt id="SF_MODAL"><i>SF_MODAL</i></dt>
 <dd>
+
+<pre><code>  constant SF_MODAL = &lt; Int &gt;;</code></pre>
 
 <p>Whenever a view is displayed using the &lt;exec_view&gt; call, that view becomes a modal view (as compared to a view that has been inserted into the desktop).</p>
 
 <p>This bit is set when the view is the modal view and controls how events are sent through the view hierarchy.</p>
 
 </dd>
-<dt id="public-const-Int-SF_DEFAULT">public const <code>Int SF_DEFAULT</code></dt>
+<dt id="SF_DEFAULT"><i>SF_DEFAULT</i></dt>
 <dd>
+
+<pre><code>  constant SF_DEFAULT = &lt; Int &gt;;</code></pre>
 
 <p>View is default.</p>
 
 </dd>
-<dt id="public-const-Int-SF_EXPOSED">public const <code>Int SF_EXPOSED</code></dt>
+<dt id="SF_EXPOSED"><i>SF_EXPOSED</i></dt>
 <dd>
+
+<pre><code>  constant SF_EXPOSED = &lt; Int &gt;;</code></pre>
 
 <p>Set when a view is possibly visible on the screen.</p>
 
@@ -330,8 +357,10 @@
 
 <dl>
 
-<dt id="public-const-Int-OF_SELECTABLE">public const <code>Int OF_SELECTABLE</code></dt>
+<dt id="OF_SELECTABLE"><i>OF_SELECTABLE</i></dt>
 <dd>
+
+<pre><code>  constant OF_SELECTABLE = &lt; Int &gt;;</code></pre>
 
 <p>If this bit is set, then the view can be selected with a mouse.</p>
 
@@ -340,44 +369,56 @@
 <p>An example of an unselectable view is <i>TStaticText</i> items.</p>
 
 </dd>
-<dt id="public-const-Int-OF_TOP_SELECT">public const <code>Int OF_TOP_SELECT</code></dt>
+<dt id="OF_TOP_SELECT"><i>OF_TOP_SELECT</i></dt>
 <dd>
+
+<pre><code>  constant OF_TOP_SELECT = &lt; Int &gt;;</code></pre>
 
 <p>When set, this view will move to the topmost view whenever it is selected.</p>
 
 <p>This option should normally be set only for window objects.</p>
 
 </dd>
-<dt id="public-const-Int-OF_FIRST_CLICK">public const <code>Int OF_FIRST_CLICK</code></dt>
+<dt id="OF_FIRST_CLICK"><i>OF_FIRST_CLICK</i></dt>
 <dd>
+
+<pre><code>  constant OF_FIRST_CLICK = &lt; Int &gt;;</code></pre>
 
 <p>When a mouse click is used to select a view, the click can be optionally passed to the view after it is selected.</p>
 
 <p>For example, within a dialog box, if you click on a button, you not only wish to set the focus to that button, but you probably also want to activate the button at the same time.</p>
 
 </dd>
-<dt id="public-const-Int-OF_FRAMED">public const <code>Int OF_FRAMED</code></dt>
+<dt id="OF_FRAMED"><i>OF_FRAMED</i></dt>
 <dd>
+
+<pre><code>  constant OF_FRAMED = &lt; Int &gt;;</code></pre>
 
 <p>When set, the view has visible frame drawn around it.</p>
 
 </dd>
-<dt id="public-const-Int-OF_PRE_PROCESS">public const <code>Int OF_PRE_PROCESS</code></dt>
+<dt id="OF_PRE_PROCESS"><i>OF_PRE_PROCESS</i></dt>
 <dd>
+
+<pre><code>  constant OF_PRE_PROCESS = &lt; Int &gt;;</code></pre>
 
 <p>This option enables views other than the focused view to have a chance at processing an event.</p>
 
 <p>Normally, events are passed down the focus-chain, however, events are also sent to any subviews (in Z-order) that have this bit set, giving them a chance to process the event.</p>
 
 </dd>
-<dt id="public-const-Int-OF_POST_PROCESS">public const <code>Int OF_POST_PROCESS</code></dt>
+<dt id="OF_POST_PROCESS"><i>OF_POST_PROCESS</i></dt>
 <dd>
+
+<pre><code>  constant OF_POST_PROCESS = &lt; Int &gt;;</code></pre>
 
 <p>When this bit is set, subviews are given a chance after the focused view, to process events that have not yet cleared.</p>
 
 </dd>
-<dt id="public-const-Int-OF_BUFFERED">public const <code>Int OF_BUFFERED</code></dt>
+<dt id="OF_BUFFERED"><i>OF_BUFFERED</i></dt>
 <dd>
+
+<pre><code>  constant OF_BUFFERED = &lt; Int &gt;;</code></pre>
 
 <p>Views can optionally store an image of themselves in a memory buffer.</p>
 
@@ -392,8 +433,10 @@
 <p>See also: <i>get_buf_mem</i>, <i>free_mem</i></p>
 
 </dd>
-<dt id="public-const-Int-OF_TILEABLE">public const <code>Int OF_TILEABLE</code></dt>
+<dt id="OF_TILEABLE"><i>OF_TILEABLE</i></dt>
 <dd>
+
+<pre><code>  constant OF_TILEABLE = &lt; Int &gt;;</code></pre>
 
 <p>Generally, you will want window objects to be either tileable or cascadeable so that the desktop can automatically rearrange the windows, if desired.</p>
 
@@ -404,46 +447,60 @@
 <p>See also: <i>TDeskTop-&gt;cascade</i>, <i>TDeskTop-&gt;tile</i>.</p>
 
 </dd>
-<dt id="public-const-Int-OF_CENTER_X">public const <code>Int OF_CENTER_X</code></dt>
+<dt id="OF_CENTER_X"><i>OF_CENTER_X</i></dt>
 <dd>
+
+<pre><code>  constant OF_CENTER_X = &lt; Int &gt;;</code></pre>
 
 <p>When this bit is set, the insertion of the view causes the view to be horizontally centered.</p>
 
 </dd>
-<dt id="public-const-Int-OF_CENTER_Y">public const <code>Int OF_CENTER_Y</code></dt>
+<dt id="OF_CENTER_Y"><i>OF_CENTER_Y</i></dt>
 <dd>
+
+<pre><code>  constant OF_CENTER_Y = &lt; Int &gt;;</code></pre>
 
 <p>When this bit is set, a view is centered in the vertical direction (especially useful when switching between 25 and 43/50 line modes).</p>
 
 </dd>
-<dt id="public-const-Int-OF_CENTERED">public const <code>Int OF_CENTERED</code></dt>
+<dt id="OF_CENTERED"><i>OF_CENTERED</i></dt>
 <dd>
+
+<pre><code>  constant OF_CENTERED = &lt; Int &gt;;</code></pre>
 
 <p>Same as setting both <i>OF_CENTER_X</i> and <i>OF_CENTER_Y</i>:</p>
 
 <p>centers the view in both vertical and horizontal directions.</p>
 
 </dd>
-<dt id="public-const-Int-OF_VALIDATE">public const <code>Int OF_VALIDATE</code></dt>
+<dt id="OF_VALIDATE"><i>OF_VALIDATE</i></dt>
 <dd>
+
+<pre><code>  constant OF_VALIDATE = &lt; Int &gt;;</code></pre>
 
 <p>View validates.</p>
 
 </dd>
-<dt id="public-const-Int-OF_VERSION">public const <code>Int OF_VERSION</code></dt>
+<dt id="OF_VERSION"><i>OF_VERSION</i></dt>
 <dd>
+
+<pre><code>  constant OF_VERSION = &lt; Int &gt;;</code></pre>
 
 <p>View TV version.</p>
 
 </dd>
-<dt id="public-const-Int-OF_VERSION_10">public const <code>Int OF_VERSION_10</code></dt>
+<dt id="OF_VERSION_10"><i>OF_VERSION_10</i></dt>
 <dd>
+
+<pre><code>  constant OF_VERSION_10 = &lt; Int &gt;;</code></pre>
 
 <p>TV version 1 view.</p>
 
 </dd>
-<dt id="public-const-Int-OF_VERSION_20">public const <code>Int OF_VERSION_20</code></dt>
+<dt id="OF_VERSION_20"><i>OF_VERSION_20</i></dt>
 <dd>
+
+<pre><code>  constant OF_VERSION_20 = &lt; Int &gt;;</code></pre>
 
 <p>TV version 2 view.</p>
 
@@ -456,38 +513,50 @@
 
 <dl>
 
-<dt id="public-const-Int-GF_GROW_LO_X">public const <code>Int GF_GROW_LO_X</code></dt>
+<dt id="GF_GROW_LO_X"><i>GF_GROW_LO_X</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_LO_X = &lt; Int &gt;;</code></pre>
 
 <p>The left side of the view will stay a constant distance from it&#39;s owner&#39;s left side.</p>
 
 </dd>
-<dt id="public-const-Int-GF_GROW_LO_Y">public const <code>Int GF_GROW_LO_Y</code></dt>
+<dt id="GF_GROW_LO_Y"><i>GF_GROW_LO_Y</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_LO_Y = &lt; Int &gt;;</code></pre>
 
 <p>The top of the view will stay a constant distance from it&#39;s owner&#39;s top.</p>
 
 </dd>
-<dt id="public-const-Int-GF_GROW_HI_X">public const <code>Int GF_GROW_HI_X</code></dt>
+<dt id="GF_GROW_HI_X"><i>GF_GROW_HI_X</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_HI_X = &lt; Int &gt;;</code></pre>
 
 <p>The right side of the view will stay a constant distance from it&#39;s owner&#39;s right side.</p>
 
 </dd>
-<dt id="public-const-Int-GF_GROW_HI_Y">public const <code>Int GF_GROW_HI_Y</code></dt>
+<dt id="GF_GROW_HI_Y"><i>GF_GROW_HI_Y</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_HI_Y = &lt; Int &gt;;</code></pre>
 
 <p>The bottom of the view will stay a constant distance from it&#39;s owner&#39;s bottom side.</p>
 
 </dd>
-<dt id="public-const-Int-GF_GROW_ALL">public const <code>Int GF_GROW_ALL</code></dt>
+<dt id="GF_GROW_ALL"><i>GF_GROW_ALL</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_ALL = &lt; Int &gt;;</code></pre>
 
 <p>The view should maintain the same size and move with respect to the lower right corner of the owner.</p>
 
 </dd>
-<dt id="public-const-Int-GF_GROW_REL">public const <code>Int GF_GROW_REL</code></dt>
+<dt id="GF_GROW_REL"><i>GF_GROW_REL</i></dt>
 <dd>
+
+<pre><code>  constant GF_GROW_REL = &lt; Int &gt;;</code></pre>
 
 <p>The view will maintain its size relative to the owner.</p>
 
@@ -504,44 +573,58 @@
 
 <dl>
 
-<dt id="public-const-Int-DM_DRAG_MOVE">public const <code>Int DM_DRAG_MOVE</code></dt>
+<dt id="DM_DRAG_MOVE"><i>DM_DRAG_MOVE</i></dt>
 <dd>
+
+<pre><code>  constant DM_DRAG_MOVE = &lt; Int &gt;;</code></pre>
 
 <p>Allow the view to move.</p>
 
 </dd>
-<dt id="public-const-Int-DM_DRAG_GROW">public const <code>Int DM_DRAG_GROW</code></dt>
+<dt id="DM_DRAG_GROW"><i>DM_DRAG_GROW</i></dt>
 <dd>
+
+<pre><code>  constant DM_DRAG_GROW = &lt; Int &gt;;</code></pre>
 
 <p>Allow the view to change size.</p>
 
 </dd>
-<dt id="public-const-Int-DM_LIMIT_LO_X">public const <code>Int DM_LIMIT_LO_X</code></dt>
+<dt id="DM_LIMIT_LO_X"><i>DM_LIMIT_LO_X</i></dt>
 <dd>
+
+<pre><code>  constant DM_LIMIT_LO_X = &lt; Int &gt;;</code></pre>
 
 <p>The left hand side cannot move outside <i>$limits</i> of <i>TView-&gt;drag_view</i>.</p>
 
 </dd>
-<dt id="public-const-Int-DM_LIMIT_LO_Y">public const <code>Int DM_LIMIT_LO_Y</code></dt>
+<dt id="DM_LIMIT_LO_Y"><i>DM_LIMIT_LO_Y</i></dt>
 <dd>
+
+<pre><code>  constant DM_LIMIT_LO_Y = &lt; Int &gt;;</code></pre>
 
 <p>The top side cannot move outside <i>$limits</i> of <i>TView-&gt;drag_view</i>.</p>
 
 </dd>
-<dt id="public-const-Int-DM_LIMIT_HI_X">public const <code>Int DM_LIMIT_HI_X</code></dt>
+<dt id="DM_LIMIT_HI_X"><i>DM_LIMIT_HI_X</i></dt>
 <dd>
+
+<pre><code>  constant DM_LIMIT_HI_X = &lt; Int &gt;;</code></pre>
 
 <p>The right hand side cannot move outside <i>$limits</i> of <i>TView-&gt;drag_view</i>.</p>
 
 </dd>
-<dt id="public-const-Int-DM_LIMIT_HI_Y">public const <code>Int DM_LIMIT_HI_Y</code></dt>
+<dt id="DM_LIMIT_HI_Y"><i>DM_LIMIT_HI_Y</i></dt>
 <dd>
+
+<pre><code>  constant DM_LIMIT_HI_Y = &lt; Int &gt;;</code></pre>
 
 <p>The bottom side cannot move outside <i>$limits</i> of <i>TView-&gt;drag_view</i>.</p>
 
 </dd>
-<dt id="public-const-Int-DM_LIMIT_ALL">public const <code>Int DM_LIMIT_ALL</code></dt>
+<dt id="DM_LIMIT_ALL"><i>DM_LIMIT_ALL</i></dt>
 <dd>
+
+<pre><code>  constant DM_LIMIT_ALL = &lt; Int &gt;;</code></pre>
 
 <p>None of the view can move outside <i>$limits</i> of <i>TView-&gt;drag_view</i>.</p>
 
@@ -552,14 +635,18 @@
 
 <dl>
 
-<dt id="public-const-Int-HC_NO_CONTEXT">public const <code>Int HC_NO_CONTEXT</code></dt>
+<dt id="HC_NO_CONTEXT"><i>HC_NO_CONTEXT</i></dt>
 <dd>
+
+<pre><code>  constant HC_NO_CONTEXT = &lt; Int &gt;;</code></pre>
 
 <p>No view contex.</p>
 
 </dd>
-<dt id="public-const-Int-HC_DRAGGING">public const <code>Int HC_DRAGGING</code></dt>
+<dt id="HC_DRAGGING"><i>HC_DRAGGING</i></dt>
 <dd>
+
+<pre><code>  constant HC_DRAGGING = &lt; Int &gt;;</code></pre>
 
 <p>No drag context.</p>
 
@@ -572,56 +659,74 @@
 
 <dl>
 
-<dt id="public-const-Int-SB_LEFT_ARROW">public const <code>Int SB_LEFT_ARROW</code></dt>
+<dt id="SB_LEFT_ARROW"><i>SB_LEFT_ARROW</i></dt>
 <dd>
+
+<pre><code>  constant SB_LEFT_ARROW = &lt; Int &gt;;</code></pre>
 
 <p>The horizontal scroll bar&#39;s left arrow.</p>
 
 </dd>
-<dt id="public-const-Int-SB_RIGHT_ARROW">public const <code>Int SB_RIGHT_ARROW</code></dt>
+<dt id="SB_RIGHT_ARROW"><i>SB_RIGHT_ARROW</i></dt>
 <dd>
+
+<pre><code>  constant SB_RIGHT_ARROW = &lt; Int &gt;;</code></pre>
 
 <p>Horizontal scroll bar&#39;s right arrow.</p>
 
 </dd>
-<dt id="public-const-Int-SB_PAGE_LEFT">public const <code>Int SB_PAGE_LEFT</code></dt>
+<dt id="SB_PAGE_LEFT"><i>SB_PAGE_LEFT</i></dt>
 <dd>
+
+<pre><code>  constant SB_PAGE_LEFT = &lt; Int &gt;;</code></pre>
 
 <p>The page area to the left of the position indicator.</p>
 
 </dd>
-<dt id="public-const-Int-SB_PAGE_RIGHT">public const <code>Int SB_PAGE_RIGHT</code></dt>
+<dt id="SB_PAGE_RIGHT"><i>SB_PAGE_RIGHT</i></dt>
 <dd>
+
+<pre><code>  constant SB_PAGE_RIGHT = &lt; Int &gt;;</code></pre>
 
 <p>The page indicator to the right of the indicator.</p>
 
 </dd>
-<dt id="public-const-Int-SB_UP_ARROW">public const <code>Int SB_UP_ARROW</code></dt>
+<dt id="SB_UP_ARROW"><i>SB_UP_ARROW</i></dt>
 <dd>
+
+<pre><code>  constant SB_UP_ARROW = &lt; Int &gt;;</code></pre>
 
 <p>Vertical scroll bar&#39;s up arrow.</p>
 
 </dd>
-<dt id="public-const-Int-SB_DOWN_ARROW">public const <code>Int SB_DOWN_ARROW</code></dt>
+<dt id="SB_DOWN_ARROW"><i>SB_DOWN_ARROW</i></dt>
 <dd>
+
+<pre><code>  constant SB_DOWN_ARROW = &lt; Int &gt;;</code></pre>
 
 <p>Vertical scroll bar&#39;s down arrow.</p>
 
 </dd>
-<dt id="public-const-Int-SB_PAGE_UP">public const <code>Int SB_PAGE_UP</code></dt>
+<dt id="SB_PAGE_UP"><i>SB_PAGE_UP</i></dt>
 <dd>
+
+<pre><code>  constant SB_PAGE_UP = &lt; Int &gt;;</code></pre>
 
 <p>Paging area above the position indicator.</p>
 
 </dd>
-<dt id="public-const-Int-SB_PAGE_DOWN">public const <code>Int SB_PAGE_DOWN</code></dt>
+<dt id="SB_PAGE_DOWN"><i>SB_PAGE_DOWN</i></dt>
 <dd>
+
+<pre><code>  constant SB_PAGE_DOWN = &lt; Int &gt;;</code></pre>
 
 <p>Paging area below the position indicator.</p>
 
 </dd>
-<dt id="public-const-Int-SB_INDICATOR">public const <code>Int SB_INDICATOR</code></dt>
+<dt id="SB_INDICATOR"><i>SB_INDICATOR</i></dt>
 <dd>
+
+<pre><code>  constant SB_INDICATOR = &lt; Int &gt;;</code></pre>
 
 <p>Position indicator on the scroll bar.</p>
 
@@ -634,20 +739,26 @@
 
 <dl>
 
-<dt id="public-const-Int-SB_HORIZONTAL">public const <code>Int SB_HORIZONTAL</code></dt>
+<dt id="SB_HORIZONTAL"><i>SB_HORIZONTAL</i></dt>
 <dd>
+
+<pre><code>  constant SB_HORIZONTAL = &lt; Int &gt;;</code></pre>
 
 <p>The scroll bar is horizontal.</p>
 
 </dd>
-<dt id="public-const-Int-SB_VERTICAL">public const <code>Int SB_VERTICAL</code></dt>
+<dt id="SB_VERTICAL"><i>SB_VERTICAL</i></dt>
 <dd>
+
+<pre><code>  constant SB_VERTICAL = &lt; Int &gt;;</code></pre>
 
 <p>The scroll bar is vertical.</p>
 
 </dd>
-<dt id="public-const-Int-SB_HANDLE_KEYBOARD">public const <code>Int SB_HANDLE_KEYBOARD</code></dt>
+<dt id="SB_HANDLE_KEYBOARD"><i>SB_HANDLE_KEYBOARD</i></dt>
 <dd>
+
+<pre><code>  constant SB_HANDLE_KEYBOARD = &lt; Int &gt;;</code></pre>
 
 <p>Scroll bar accepts keyboard commands.</p>
 
@@ -660,30 +771,38 @@
 
 <dl>
 
-<dt id="public-const-Int-WF_MOVE">public const <code>Int WF_MOVE</code></dt>
+<dt id="WF_MOVE"><i>WF_MOVE</i></dt>
 <dd>
+
+<pre><code>  constant WF_MOVE = &lt; Int &gt;;</code></pre>
 
 <p>When bit is set, the window can be moved.</p>
 
 </dd>
-<dt id="public-const-Int-WF_GROW">public const <code>Int WF_GROW</code></dt>
+<dt id="WF_GROW"><i>WF_GROW</i></dt>
 <dd>
+
+<pre><code>  constant WF_GROW = &lt; Int &gt;;</code></pre>
 
 <p>When the bit is set, the window can be resized and has a &quot;grow&quot; icon in the lower right corner.</p>
 
 <p>If you clear this bit you can prevent a window from being resized.</p>
 
 </dd>
-<dt id="public-const-Int-WF_CLOSE">public const <code>Int WF_CLOSE</code></dt>
+<dt id="WF_CLOSE"><i>WF_CLOSE</i></dt>
 <dd>
+
+<pre><code>  constant WF_CLOSE = &lt; Int &gt;;</code></pre>
 
 <p>Set this bit to add a close icon in the upper left corner of a window.</p>
 
 <p>Clear the bit to eliminate the icon.</p>
 
 </dd>
-<dt id="public-const-Int-WF_ZOOM">public const <code>Int WF_ZOOM</code></dt>
+<dt id="WF_ZOOM"><i>WF_ZOOM</i></dt>
 <dd>
+
+<pre><code>  constant WF_ZOOM = &lt; Int &gt;;</code></pre>
 
 <p>When this bit is set, the window contains a zoom icon for zooming a window to full size.</p>
 
@@ -694,8 +813,10 @@
 
 <dl>
 
-<dt id="public-const-Int-WN_NO_NUMBER">public const <code>Int WN_NO_NUMBER</code></dt>
+<dt id="WN_NO_NUMBER"><i>WN_NO_NUMBER</i></dt>
 <dd>
+
+<pre><code>  constant WN_NO_NUMBER = &lt; Int &gt;;</code></pre>
 
 <p>When ever a <i>TWindow-&gt;number</i> attribute contains this value, it means that the window has no number.</p>
 
@@ -723,20 +844,26 @@
 
 <dl>
 
-<dt id="public-const-Int-WP_BLUE_WINDOW">public const <code>Int WP_BLUE_WINDOW</code></dt>
+<dt id="WP_BLUE_WINDOW"><i>WP_BLUE_WINDOW</i></dt>
 <dd>
+
+<pre><code>  constant WP_BLUE_WINDOW = &lt; Int &gt;;</code></pre>
 
 <p>Yellow on blue color scheme.</p>
 
 </dd>
-<dt id="public-const-Int-WP_CYAN_WINDOW">public const <code>Int WP_CYAN_WINDOW</code></dt>
+<dt id="WP_CYAN_WINDOW"><i>WP_CYAN_WINDOW</i></dt>
 <dd>
+
+<pre><code>  constant WP_CYAN_WINDOW = &lt; Int &gt;;</code></pre>
 
 <p>Blue on cyan color scheme.</p>
 
 </dd>
-<dt id="public-const-Int-WP_GRAY_WINDOW">public const <code>Int WP_GRAY_WINDOW</code></dt>
+<dt id="WP_GRAY_WINDOW"><i>WP_GRAY_WINDOW</i></dt>
 <dd>
+
+<pre><code>  constant WP_GRAY_WINDOW = &lt; Int &gt;;</code></pre>
 
 <p>Black on gray color scheme.</p>
 
@@ -822,26 +949,28 @@
 
 <h2 id="Color-Palette-constants-:color">Color Palette constants (<i>:color</i>)</h2>
 
-<p>Except for <i>C_COLOR</i>, <i>C_BLACK_WHITE</i> and <i>C_MONO_CHROME</i>, all of the color palette constants contains indices into their owner&#39;s palette.</p>
+<p>Except for <i>CColor</i>, <i>CBlackWhite</i> and <i>CMonoChrome</i>, all of the color palette constants contains indices into their owner&#39;s palette.</p>
 
-<p>For <i>C_COLOR</i>, <i>C_BLACK_WHITE</i> and <i>C_MONO_CHROME</i>, each entry contains a BIOS video color attribute byte equivalent.</p>
+<p>For <i>CColor</i>, <i>CBlackWhite</i> and <i>CMonoChrome</i>, each entry contains a BIOS video color attribute byte equivalent.</p>
 
 <p>You can use these color palette maps to determine what color a particular object or component will have when it appears on the screen.</p>
 
 <p>For example, if you place a <i>TButton</i> object into a <i>TDialog</i> object, you can trace through the color palettes to determine what color it will have.</p>
 
-<p>A &quot;normal&quot; button will have the attribute &quot;Text Normal&quot; shown in the first byte of the <i>C_BUTTON</i> color palette.</p>
+<p>A &quot;normal&quot; button will have the attribute &quot;Text Normal&quot; shown in the first byte of the <i>CButton</i> color palette.</p>
 
-<p>This color entry is an index into its owner&#39;s palette, <i>C_DIALOG</i>.</p>
+<p>This color entry is an index into its owner&#39;s palette, <i>CDialog</i>.</p>
 
-<p>Looking at the 10th entry of <i>C_DIALOG</i>, we see that this maps to entry 41 in the application-level palette.</p>
+<p>Looking at the 10th entry of <i>CDialog</i>, we see that this maps to entry 41 in the application-level palette.</p>
 
-<p>In the case of <i>C_COLOR</i> (color display in use), this corresponds to black lettering on a green background.</p>
+<p>In the case of <i>CColor</i> (color display in use), this corresponds to black lettering on a green background.</p>
 
 <dl>
 
-<dt id="public-const-Str-C_FRAME">public const <code>Str C_FRAME</code></dt>
+<dt id="CFrame"><i>CFrame</i></dt>
 <dd>
+
+<pre><code>  constant CFrame = &lt; Str &gt;;</code></pre>
 
 <p>Frame palette</p>
 
@@ -850,11 +979,13 @@
   [ 2] Passive Title   1
   [ 3] Active Frame    2
   [ 4] Active Title    2
-  [ 5] Icons</code></pre>
+  [ 5] Icons           3</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_SCROLL_BAR">public const <code>Str C_SCROLL_BAR</code></dt>
+<dt id="CScrollBar"><i>CScrollBar</i></dt>
 <dd>
+
+<pre><code>  constant CScrollBar = &lt; Str &gt;;</code></pre>
 
 <p>Scrollbar palette</p>
 
@@ -864,8 +995,10 @@
   [ 3] Indicator         5</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_SCROLLER">public const <code>Str C_SCROLLER</code></dt>
+<dt id="CScroller"><i>CScroller</i></dt>
 <dd>
+
+<pre><code>  constant CScroller = &lt; Str &gt;;</code></pre>
 
 <p>Scroller palette</p>
 
@@ -874,8 +1007,10 @@
   [ 2] Highlight         7</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_LIST_VIEWER">public const <code>Str C_LIST_VIEWER</code></dt>
+<dt id="CListViewer"><i>CListViewer</i></dt>
 <dd>
+
+<pre><code>  constant CListViewer = &lt; Str &gt;;</code></pre>
 
 <p>Listviewer palette used for TListViewer and TLIistBox</p>
 
@@ -887,8 +1022,10 @@
   [ 5] Divider         29</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_BLUE_WINDOW">public const <code>Str C_BLUE_WINDOW</code></dt>
+<dt id="CBlueWindow"><i>CBlueWindow</i></dt>
 <dd>
+
+<pre><code>  constant CBlueWindow = &lt; Str &gt;;</code></pre>
 
 <p>Blue window palette</p>
 
@@ -903,8 +1040,10 @@
   [ 8] Reserved                 15</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_CYAN_WINDOW">public const <code>Str C_CYAN_WINDOW</code></dt>
+<dt id="CCyanWindow"><i>CCyanWindow</i></dt>
 <dd>
+
+<pre><code>  constant CCyanWindow = &lt; Str &gt;;</code></pre>
 
 <p>Cyan window palette</p>
 
@@ -919,8 +1058,10 @@
   [ 8] Reserved                 23</code></pre>
 
 </dd>
-<dt id="public-const-Str-C_GRAY_WINDOW">public const <code>Str C_GRAY_WINDOW</code></dt>
+<dt id="CGrayWindow"><i>CGrayWindow</i></dt>
 <dd>
+
+<pre><code>  constant CGrayWindow = &lt; Str &gt;;</code></pre>
 
 <p>Cyan window palette</p>
 

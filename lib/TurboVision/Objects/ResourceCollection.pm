@@ -197,15 +197,15 @@ calling I<< TStream->write >>.
 
 =head2 Inheritance
 
-Methods inherited from class C<TStringCollection>
+Methods inherited from class I<TStringCollection>
 
   compare
 
-Methods inherited from class C<TSortedCollection>
+Methods inherited from class I<TSortedCollection>
 
   load, index_of, insert, search, store
 
-Methods inherited from class C<TCollection>
+Methods inherited from class I<TCollection>
 
   init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
   first_that, for_each, free, free_all, free_item, last_that, pack,

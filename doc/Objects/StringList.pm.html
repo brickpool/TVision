@@ -60,7 +60,7 @@
 
 <p><i>TStringList</i> should be used in a separate program to create the string resources, and <i>TStringList</i> should be used to access the previously created string resources.</p>
 
-<p>Because both objects have the same &lt;obj_type&gt; value in their stream registration record, its very important that these object types not appear in the same program, but should be used in separate programs.</p>
+<p>Because both objects have the same <i>TStreamRec-&gt;obj_type</i> value in their stream registration record, its very important that these object types not appear in the same program, but should be used in separate programs.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -76,8 +76,10 @@
 
 <dl>
 
-<dt id="public-constant-Object-RStringList">public constant <code>Object RStringList</code></dt>
+<dt id="RStringList"><i>RStringList</i></dt>
 <dd>
+
+<pre><code>  constant RStringList = &lt; TStreamRec &gt;</code></pre>
 
 <p><i>TStringList</i> is registered with <i>TStreamRec-&gt;register_type(RStringList)</i>.</p>
 
@@ -88,10 +90,12 @@
 
 <dl>
 
-<dt id="public-TStringList-load-TStream-s">public <code>TStringList-&gt;load(TStream $s)</code></dt>
+<dt id="load"><i>load</i></dt>
 <dd>
 
-<p>Creates and reads the string list index from stream <i>$s</i> and stores internally a reference to <i>$s</i> so that <i>TStringList-&gt;get</i> can later access the stream when reading strings.</p>
+<pre><code>  factory load(TStream $s) : TStringList</code></pre>
+
+<p>Creates and reads the string list index from stream <i>$s</i> and stores internally a reference to <i>$s</i> so that <a href="#get">&quot;get&quot;</a> can later access the stream when reading strings.</p>
 
 </dd>
 </dl>
@@ -100,16 +104,20 @@
 
 <dl>
 
-<dt id="public-SimpleStr-get-Int-key">public <code>SimpleStr get(Int $key)</code></dt>
+<dt id="get"><i>get</i></dt>
 <dd>
 
-<p>The method &lt;$key&gt; is the primary function used to access individual strings in the string list.</p>
+<pre><code>  method get(Int $key) : SimpleStr </code></pre>
 
-<p>The &lt;$key&gt; is a numeric value, typically a predefined constant, used to access particular strings in the resource file.</p>
+<p>The method <i>$key</i> is the primary function used to access individual strings in the string list.</p>
+
+<p>The <i>$key</i> is a numeric value, typically a predefined constant, used to access particular strings in the resource file.</p>
 
 </dd>
-<dt id="private-_read_str-SimpleStr-s-Int-offset-Int-skip">private <code>_read_str(SimpleStr $s, Int $offset, Int $skip)</code></dt>
+<dt id="read_str"><i>_read_str</i></dt>
 <dd>
+
+<pre><code>  method _read_str(SimpleStr $s,, Int $offset, Int $skip)</code></pre>
 
 <p><i>TStringList</i> private method.</p>
 
@@ -118,7 +126,7 @@
 
 <h2 id="Inheritance">Inheritance</h2>
 
-<p>Methods inherited from class <code>TObject</code></p>
+<p>Methods inherited from class <i>TObject</i></p>
 
 <pre><code>  init</code></pre>
 
@@ -178,7 +186,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

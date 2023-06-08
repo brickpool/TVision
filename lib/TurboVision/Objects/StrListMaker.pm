@@ -131,7 +131,9 @@ package TurboVision::Objects::StrListMaker {
 
 =over
 
-=item public constant C<< Object RStrListMaker >>
+=item I<RStrListMaker>
+
+  constant RStrListMaker = < TStreamRec >;
 
 Defining a registration record constant for I<TStrListMaker>.
 
@@ -156,9 +158,25 @@ I<< TStreamRec->register_type(RStrListMaker) >>.
 
 =begin comment
 
-=item private C<< HashRef _cur >>
+=item I<_cur>
+
+  has _cur ( is => rw, type => TStrIndexRec ) = {
+    key     => 0,
+    count   => 0,
+    offset  => 0,
+  };
 
 Holds the current hash of I<_index>.
+
+The I<TStrIndexRec> is a I<HashRef> which has the following form:
+
+  $record = {
+    key     => $key,
+    count   => $count,
+    offset  => $offset,
+  };
+
+The hash entries I<$key>, I<$count> and I<$offset> are all of type I<Int>.
 
 =end comment
 
@@ -178,19 +196,11 @@ Holds the current hash of I<_index>.
 
 =begin comment
 
-=item private C<< ArrayRef[HashRef] _index >>
+=item I<_index>
+
+  has _index ( is => rw, type => TStrIndex ) = [];
 
 As strings are added to the string list, a string index is built.
-
-The HashRef is a equivalent for I<TStringList> which has the following form:
-
-  $record = {
-    key     => $key,
-    count   => $count,
-    offset  => $offset,
-  };
-
-The hash entries I<$key>, I<$count> and I<$offset> are all of type I<Int>.
 
 =end comment
 
@@ -204,7 +214,9 @@ The hash entries I<$key>, I<$count> and I<$offset> are all of type I<Int>.
 
 =begin comment
 
-=item private C<< Int _index_pos >>
+=item I<_index_pos>
+
+  has _index_pos ( is => rw, type => Int ) = 0;
 
 Index position.
 
@@ -220,7 +232,9 @@ Index position.
 
 =begin comment
 
-=item private C<< Int _index_size >>
+=item I<_index_size>
+
+  param _index_size ( is => rw, type => Int );
 
 Hold the index size.
 
@@ -236,7 +250,9 @@ Hold the index size.
 
 =begin comment
 
-=item private C<< Int _str_pos >>
+=item I<_str_pos>
+
+  has _str_pos ( is => rw, type => Int ) = 0;
 
 String position.
 
@@ -252,7 +268,9 @@ String position.
 
 =begin comment
 
-=item private C<< Int _str_size >>
+=item I<_str_size>
+
+  param _str_size ( is => rw, type => Int );
 
 Hold string size.
 
@@ -268,7 +286,9 @@ Hold string size.
 
 =begin comment
 
-=item private C<< Str _strings >>
+=item I<_strings>
+
+  param _strings ( is => rw, type => Str );
 
 Hold all strings as a packed string of bytes.
 
@@ -292,7 +312,9 @@ Hold all strings as a packed string of bytes.
 
 =over
 
-=item public C<< TStrListMaker->init(Int $a_str_size, Int $a_index_size) >>
+=item I<init>
+
+  factory init(Int $a_str_size, Int $a_index_size) : TStrListMaker
  
 The constructor I<init> reserves a string buffer having I<$a_str_size> bytes and
 index of I<$a_index_size> elements.
@@ -322,14 +344,16 @@ I<$a_str_size> sould be large enough to hold all the strings.
 
 =over
 
-=item public C<< put(Int $key, SimpleStr $s) >>
+=item I<put>
+
+  method put(Int $key, SimpleStr $s)
 
 Use I<put> to add each string into the string list, where I<$key> is the index
 value to assign to the string, and I<$s> is the string value.
 
 The I<TStrListMaker> appears to have no error checking so make sure that you do
-not add more elements than were specified by I<a_index_size> and which will fit
-into the string buffer.
+not add more elements than were specified by paramter I<$a_index_size> from the
+L</init> constructor and which will fit into the string buffer.
  
 =cut
 
@@ -365,7 +389,9 @@ into the string buffer.
     return;
   }
 
-=item public C<< store(TStream $s) >>
+=item I<store>
+
+  method store(TStream $s)
 
 Writes the string list to stream I<$s>.
 
@@ -409,7 +435,9 @@ Writes the string list to stream I<$s>.
 
 =begin comment
 
-=item private C<< _close_current() >>
+=item I<_close_current>
+
+  method _close_current()
 
 I<TStrListMaker> private method.
 
@@ -507,7 +535,7 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

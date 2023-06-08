@@ -79,8 +79,10 @@
 
 <dl>
 
-<dt id="public-constant-Object-RStringCollection">public constant <code>Object RStringCollection</code></dt>
+<dt id="RStringCollection"><i>RStringCollection</i></dt>
 <dd>
+
+<pre><code>  constant RStringCollection = &lt; TStreamRec &gt;;</code></pre>
 
 <p>Defining a registration record constant for <i>TStringCollection</i>.</p>
 
@@ -91,22 +93,28 @@
 
 <dl>
 
-<dt id="public-Int-compare-ScalarRef-SimpleStr-key1-ScalarRef-SimpleStr-key2">public <code>Int compare(ScalarRef[SimpleStr] $key1, ScalarRef[SimpleStr] $key2)</code></dt>
+<dt id="compare"><i>compare</i></dt>
 <dd>
 
-<p>Compares <i>$$key1</i> to <i>$$key2</i> as strings and returns -1, 0 or 1.</p>
+<pre><code>  around compare(ScalarRef[SimpleStr] $key1, ScalarRef[SimpleStr] $key2) : Int </code></pre>
+
+<p>Compares <i>$$key1</i> to <i>$$key2</i> as strings and returns <code>-1</code>, <code>0</code> or <code>1</code>.</p>
 
 <p>See <i>TSortedCollection-&gt;compare</i> for details.</p>
 
 </dd>
-<dt id="public-ScalarRef-SimpleStr-get_item-TStream-s">public <code>ScalarRef[SimpleStr] get_item(TStream $s)</code></dt>
+<dt id="get_item"><i>get_item</i></dt>
 <dd>
+
+<pre><code>  around get_item(TStream $s) : ScalarRef[SimpleStr]</code></pre>
 
 <p>Uses the <i>TStream-&gt;read_str</i> function to read a string from stream <i>$s</i> and return a reference to a string containing the result.</p>
 
 </dd>
-<dt id="public-put_item-TStream-s-Ref-item">public <code>put_item(TStream $s, Ref $item)</code></dt>
+<dt id="put_item"><i>put_item</i></dt>
 <dd>
+
+<pre><code>  around put_item(TStream $s, ScalarRef[SimpleStr] $item)</code></pre>
 
 <p>By default, writes a string referenced by <i>$item</i> to the stream <i>$s</i> by calling <i>TStream-&gt;write_str</i>.</p>
 
@@ -115,11 +123,11 @@
 
 <h2 id="Inheritance">Inheritance</h2>
 
-<p>Methods inherited from class <code>TSortedCollection</code></p>
+<p>Methods inherited from class <i>TSortedCollection</i></p>
 
 <pre><code>  load, index_of, insert, key_of, search, store</code></pre>
 
-<p>Methods inherited from class <code>TCollection</code></p>
+<p>Methods inherited from class <i>TCollection</i></p>
 
 <pre><code>  init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
   first_that, for_each, free, free_all, free_item, last_that, pack,
@@ -181,7 +189,7 @@
 
 <ul>
 
-<li><p>2021 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021,2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

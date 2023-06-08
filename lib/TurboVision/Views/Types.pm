@@ -2,7 +2,12 @@
 
 =head1 NAME
 
-Types - Types for I<Views>
+TurboVision::Views::Types - Types for I<Views>
+
+=head1 SYNOPSIS
+
+  use TurboVision::Views::Types;
+  ...
 
 =cut
 
@@ -56,7 +61,9 @@ use namespace::autoclean;
 
 =over
 
-=item public type C<< TCommandSet >>
+=item I<TCommandSet>
+
+  subtype TCommandSet : ArrayRef[Int];
 
 In Turbo Vision, command codes are assigned values from 0 to 65535, with
 values in the range of 0 to 255 reserved for items that can be selectively
@@ -66,37 +73,40 @@ I<TCommandSet> is used to hold a set of up to 256 commands, specifically those
 that can be disabled, and is used as a parameter for the I<TView> methods,
 I<enable_commands>, I<disable_commands>, I<get_commands> and I<set_commands>.
 
-The foloowing listing illustrates the use of a I<TCommandSet> type.
+The following listing illustrates the use of a I<TCommandSet> type.
 
    1  # tcmdset.pl
    2  # Example using TCommandSet, from 'TVSHELL8.PAS'
-   3  use Array::Utils qw( array_minus );
-   4  ...
-   5    my $commands_on;
-   6    my $commands_off;
-   7    ...
-   8    $commands_on = [CM_USE_DOS, CM_DELETE];
-   9    $commands_off = [ @$commands_on ];
-  10  
-  11    if ( $set_up_data->prog_options & 2 == 2 ) {
-  12      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
-  13    }
-  14  
-  15    if ( $set_up_data->prog_options & 4 == 4 ) {
-  16      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
-  17    }
-  18  
-  19    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
-  20  
-  21    $self->disable_commands( $commands_off );
-  22    $self->enable_commands( $commands_on );
+   3  use Turbo::Vision::Views;
+   4  use Array::Utils qw( array_minus );
+   5  ...
+   6    my $commands_on;
+   7    my $commands_off;
+   8    ...
+   9    $commands_on = [ CM_USE_DOS, CM_DELETE ];
+  10    $commands_off = [ @$commands_on ];
+  11  
+  12    if ( $set_up_data->prog_options & 2 == 2 ) {
+  13      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
+  14    }
+  15  
+  16    if ( $set_up_data->prog_options & 4 == 4 ) {
+  17      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
+  18    }
+  19  
+  20    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
+  21  
+  22    $self->disable_commands( $commands_off );
+  23    $self->enable_commands( $commands_on );
 
 =cut
 
 subtype TCommandSet,
   as ArrayRef[Int];
 
-=item public type C<< TPalette >>
+=item I<TPalette>
+
+  subtype TPalette : Str;
 
 Defines the data type used for storing color palettes.
 
@@ -110,7 +120,9 @@ on.
 subtype TPalette,
   as Str;
 
-=item public type C<< TDrawBuffer >>
+=item I<TDrawBuffer>
+
+  subtype TDrawBuffer : ArrayRef[Ref];
 
 I<TDrawBuffer> is used to create temporary storage areas for a line of text to
 be written to the screen where the low byte of each word contains the character
@@ -135,7 +147,9 @@ See: I<TView> methods I<write_buf> and I<write_line>.
 subtype TDrawBuffer,
   as ArrayRef[Ref];
 
-=item public type C<< TTitleStr >>
+=item I<TTitleStr>
+
+  subtype TTitleStr : Str;
 
 Defines a type used by I<TWindow> for window title strings.
 
@@ -144,7 +158,9 @@ Defines a type used by I<TWindow> for window title strings.
 subtype TTitleStr,
   as Str;
 
-=item public type C<< TScrollChars >>
+=item I<TScrollChars>
+
+  subtype TScrollChars : Str;
 
 This is an internal type used inside I<TScrollBar> to store the characters used
 to draw a I<TScrollBar> object on the display.
@@ -154,7 +170,9 @@ to draw a I<TScrollBar> object on the display.
 subtype TScrollChars,
   as Str;
 
-=item public type C<< TVideoBuf >>
+=item I<TVideoBuf>
+
+  subtype TVideoBuf : ArrayRef[Int];
 
 This defines the internal type used in video buffer declarations in I<TGroup>.
 
@@ -264,5 +282,5 @@ __END__
 
 =head1 SEE ALSO
 
-I<MooseX::Types>, I<Views>, 
+L<MooseX::Types>, I<Views>, 
 L<views.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/views.pas>

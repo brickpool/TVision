@@ -32,8 +32,8 @@
       <li><a href="#Class">Class</a></li>
       <li><a href="#Attributes">Attributes</a>
         <ul>
+          <li><a href="#Object-Attributes">Object Attributes</a></li>
           <li><a href="#Class-Attributes">Class Attributes</a></li>
-          <li><a href="#Attributes1">Attributes</a></li>
         </ul>
       </li>
       <li><a href="#Class-Methods">Class Methods</a></li>
@@ -84,7 +84,7 @@
 
 <p>The <i>TStreamRec</i> record <i>type</i> is used in registering objects prior to storing to or loading from a <i>TStream</i>. You register an object for stream I/O by initializing the attributes of the <i>TStreamRec</i> and then passing the record as a parameter to the <i>register_type</i> procedure.</p>
 
-<p>When you define your own variables as <i>TStreamRec</i> <i>types</i>, it is recommended that you begin each registration record variable name with the letter <i>R</i> as an aid to identifying registration records. Turbo Vision predefines registration records for all of its objects, each beginning with an <code>R</code> instead of a <code>T</code>. For example, <i>TCollection</i>&#39;s registration record is <i>RCollection</i>.</p>
+<p>When you define your own variables as <i>TStreamRec</i> <i>types</i>, it is recommended that you begin each registration record variable name with the letter <i>R</i> as an aid to identifying registration records. Turbo Vision predefines registration records for all of its objects, each beginning with an <i>R</i> instead of a <i>T</i>. For example, <i>TCollection</i>&#39;s registration record is <i>RCollection</i>.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -92,50 +92,71 @@
 
 <h2 id="Attributes">Attributes</h2>
 
-<h3 id="Class-Attributes">Class Attributes</h3>
+<h3 id="Object-Attributes">Object Attributes</h3>
 
 <dl>
 
-<dt id="private-static-TStreamRec-_stream_types">private static <code>TStreamRec _stream_types</code></dt>
+<dt id="load"><i>load</i></dt>
 <dd>
 
-</dd>
-</dl>
-
-<h3 id="Attributes1">Attributes</h3>
-
-<dl>
-
-<dt id="public-readonly-Int-obj_type">public readonly <code>Int obj_type</code></dt>
-<dd>
-
-<p><i>obj_type</i> is a unique number from 1,000 to 65,535 that you choose to identify your object.</p>
-
-</dd>
-<dt id="public-readonly-ClassName-vmt_link">public readonly <code>ClassName vmt_link</code></dt>
-<dd>
-
-<p><i>vmt_link</i> is an internal link to the object&#39;s virtual method table.</p>
-
-<p>In Pascal, you would set this attribute equal to <code>Ofs(TypeOf(TSomeObject)^)</code> where <i>TSomeObject</i> is any object type, but in Perl we use the package class name <code>__PACKAGE__</code>.</p>
-
-</dd>
-<dt id="public-readonly-Str-load">public readonly <code>Str load</code></dt>
-<dd>
+<pre><code>  has load ( is =&gt; ro, type =&gt; Str, predicate =&gt; &#39;has_load&#39; );</code></pre>
 
 <p>Class load code name to the <i>load</i> constructor.</p>
 
 </dd>
-<dt id="public-readonly-Str-store">public readonly <code>Str store</code></dt>
+<dt id="next"><i>next</i></dt>
 <dd>
+
+<pre><code>  has next ( is =&gt; ro, type =&gt; TStreamRec, predicate =&gt; &#39;has_next&#39; );</code></pre>
+
+<p><i>next</i> is a reference to the next <i>TStreamRec</i>. You do not need to initialize this value.</p>
+
+</dd>
+<dt id="obj_type"><i>obj_type</i></dt>
+<dd>
+
+<pre><code>  param obj_type ( is =&gt; ro, type =&gt; Int );</code></pre>
+
+<p><i>obj_type</i> is a unique number from 1,000 to 65,535 that you choose to identify your object.</p>
+
+</dd>
+<dt id="store"><i>store</i></dt>
+<dd>
+
+<pre><code>  has store ( is =&gt; ro, type =&gt; Str, predicate =&gt; &#39;has_store&#39; );</code></pre>
 
 <p>Class store code name to the <i>store</i> method.</p>
 
 </dd>
-<dt id="public-readonly-TStreamRec-next">public readonly <code>TStreamRec next</code></dt>
+<dt id="vmt_link"><i>vmt_link</i></dt>
 <dd>
 
-<p><i>next</i> is a reference to the next <i>TStreamRec</i>. You do not need to initialize this value.</p>
+<pre><code>  param vmt_link ( is =&gt; ro, type =&gt; ClassName );</code></pre>
+
+<p><i>vmt_link</i> is an internal link to the object&#39;s virtual method table.</p>
+
+<p>In Pascal, you would set this attribute to <code>Ofs(TypeOf(TSomeObject)^)</code> where <i>TSomeObject</i> is any object type, but in Perl we use the package class name <code>__PACKAGE__</code>.</p>
+
+</dd>
+</dl>
+
+<h3 id="Class-Attributes">Class Attributes</h3>
+
+<dl>
+
+<dt id="stream_types"><i>_stream_types</i></dt>
+<dd>
+
+<pre><code>  class_has _stream_types (
+    is        =&gt; &#39;rw&#39;,
+    isa       =&gt; TStreamRec,
+    predicate =&gt; &#39;_has_stream_types&#39;,
+    clearer   =&gt; &#39;_clear_stream_types&#39;,
+  );</code></pre>
+
+<p>Stream types reg.</p>
+
+<p>See module <a href="http://metacpan.org/module/MooseX::ClassAttribute">MooseX::ClassAttribute</a> for more information about <code>class_has</code>.</p>
 
 </dd>
 </dl>
@@ -146,18 +167,20 @@
 
 <dl>
 
-<dt id="private-static-_register_error">private static <code>_register_error()</code></dt>
+<dt id="register_type"><i>register_type</i></dt>
 <dd>
 
-<p>Register error when an invalid type is registered.</p>
-
-<p><b>Note</b>: Private internal routine.</p>
-
-</dd>
-<dt id="public-static-register_type-TStreamRec-s">public static <code>register_type(TStreamRec $s)</code></dt>
-<dd>
+<pre><code>  classmethod register_type(TStreamRec $s)</code></pre>
 
 <p>Registers the given object type with Turbo Vision&#39;s streams, creating a list of known classes. Streams can only store and return these known class types. Each registered class needs a unique stream registration record, of type <i>TStreamRec</i>.</p>
+
+</dd>
+<dt id="register_error"><i>_register_error</i></dt>
+<dd>
+
+<pre><code>  classmethod _register_error()</code></pre>
+
+<p>Register error when an invalid type is registered.</p>
 
 </dd>
 </dl>
@@ -220,14 +243,14 @@
 
 <ul>
 
-<li><p>2021 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021,2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>
 
 <h1 id="SEE-ALSO">SEE ALSO</h1>
 
-<p><a href="http://metacpan.org/module/MooseX::StrictConstructor">MooseX::StrictConstructor</a>, <i>Objects</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
+<p><i>Objects</i>, <a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp">objects.pp</a></p>
 
 </div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
 

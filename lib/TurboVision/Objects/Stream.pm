@@ -121,7 +121,14 @@ package TurboVision::Objects::Stream {
 
 =over
 
-=item public static C<< CodeRef stream_error >>
+=item I<stream_error>
+
+  class_has stream_error (
+    is        => rw,
+    type      => CodeRef,
+    predicate => 'has_stream_error',
+    clearer   => 'clear_stream_error',
+  );
 
 I<stream_error> allows you to globally override all stream error handling.
 For this purpose, an subroutine reference is assigned to the class variable.
@@ -134,6 +141,8 @@ A I<TStream> object is passed as a parameter.
   } );
   ...
   $stream->error(ST_ERROR, 1);  # 'Catch stream error info #1'
+
+See module L</MooseX::ClassAttribute> for C<class_has>.
 
 =cut
 
@@ -152,9 +161,11 @@ A I<TStream> object is passed as a parameter.
 
 =over
 
-=item public C<< Int error_info >>
+=item I<error_info>
 
-Whenever an error has occurred (indicated by I<status> != ST_OK), the
+  has error_info ( is => rw, type => Int ) = 0;
+
+Whenever an error has occurred (indicated by L</status> != I<ST_OK>), the
 I<error_info> attribute contains additional information.
 
 For some values these will be additional I<stXXXX> constants, although for
@@ -169,9 +180,11 @@ C<$!> use).
     default => 0,
   );
 
-=item public C<< Int status >>
+=item I<status>
 
-Holds either <ST_OK> or the last error code. See the I<stXXXX> constants for
+  has status ( is => rw, type => Int ) = ST_OK;
+
+Holds either I<ST_OK> or the last error code. See the I<stXXXX> constants for
 possible I<status> values.
 
 =cut
@@ -184,7 +197,9 @@ possible I<status> values.
 
 =begin comment
 
-=item private C<< Int _stream_size >>
+=item I<_stream_size>
+
+  field _stream_size ( is => rw, type => Int ) = 0;
 
 The size of the stream in bytes.
 
@@ -201,7 +216,9 @@ The size of the stream in bytes.
 
 =begin comment
 
-=item private C<< Int _position >>
+=item I<_position>
+
+  field _position ( is => rw, type => Int ) = 0;
 
 Current position.
 
@@ -234,7 +251,9 @@ Current position.
 
 =over
 
-=item public C<< copy_from(TStream $s, Int $count) >>
+=item I<copy_from>
+
+  method copy_from(TStream $s, Int $count)
 
 This method copies I<$count> bytes from stream I<$s> to the current stream
 object.
@@ -260,13 +279,15 @@ object.
     return;
   }
 
-=item public C<< error(Int $code, Int $info) >>
+=item I<error>
+
+  method error(Int $code, Int $info)
 
 The various stream methods call I<error> when a problem is encountered. 
 The method I<error>, in turn, calls the subroutine referenced to the class
-variable I<< TStream->stream_error >> (if its not C<undef>).
+variable L</stream_error> (if its not C<undef>).
 
-Once an error condition has been raised, you must call I<reset> before
+Once an error condition has been raised, you must call L</reset> before
 performing additional stream reads or writes.
 
 =cut
@@ -280,7 +301,9 @@ performing additional stream reads or writes.
     return;
   }
 
-=item public C<< flush() >>
+=item I<flush>
+
+  method flush()
 
 I<< TStream->flush >> has no operation, but is overridden in by descendant
 objects, such as I<TBufStream>, in order to write the buffer to disk.
@@ -291,13 +314,16 @@ objects, such as I<TBufStream>, in order to write the buffer to disk.
     return;
   }
 
-=item public C<< Object get() >>
+=item I<get>
+
+  method get() : Object|Undef
 
 Reads an object from the stream, interpreting the first bytes as the
-I<obj_type> attribute of a registeration record.
+I<< TStreamRec->obj_type >> attribute of a registeration record.
 
-The I<obj_type> is used to determined exactly what type of object this is, and
-then to call that object's I<load> constructor to create a new instance.
+I<< TStreamRec->obj_type >> is used to determined exactly what type of object
+this is, and then to call that object's I<load> constructor to create a new
+instance.
 
 The method I<get> returns a refernce to the newly created I<Object>, or C<undef>
 on error.
@@ -341,7 +367,9 @@ on error.
     return $class->$load( $self );
   }
  
-=item public C<< Int get_pos() >>
+=item I<get_pos>
+
+  method get_pos() : Int;
 
 The method I<get_pos> compute the current byte location within the stream.
 
@@ -358,7 +386,9 @@ It returns the stream's current position, or C<-1> on error.
           ;
   }
  
-=item public C<< Int get_size() >>
+=item I<get_size>
+
+  method get_size() : Int
 
 The method I<get_size> computer the total number of bytes in the stream.
 
@@ -375,13 +405,16 @@ It returns the total size, or C<-1> on error.
           ;
   }
  
-=item public C<< put(Object $p) >>
+=item I<put>
 
-Writes the I<obj_type> attribute of the registration record to the stream, and
-calls the object's I<store> method to write the appropriate data attributes.
+  method put(Object $p)
+
+Writes the I<< TStreamRec->obj_type >> attribute of the registration record to
+the stream, and calls the object's I<store> method to write the appropriate data
+attributes.
 
 If the object type of I<$p> has not been registered, I<put> calls
-I<error> and doesn't write anything to the stream.
+L</error> and doesn't write anything to the stream.
 
 =cut
 
@@ -427,7 +460,9 @@ I<error> and doesn't write anything to the stream.
     return;
   }
 
-=item public C<< read(Item $buf, Int $count) >>
+=item I<read>
+
+  method read(Item $buf, Int $count)
 
 All descendants of I<TStream> override this procedure to copy I<$count> bytes
 from the stream into I<$buf>, and to move the current stream position to the
@@ -440,7 +475,9 @@ next object position.
     return;
   }
 
-=item public C<< SimpleStr|Undef read_str() >>
+=item I<read_str>
+
+  method read_str() : SimpleStr|Undef
 
 Reads a string from the stream and returns a simple string (a string with less
 than 256 characters without any control character) from the current position of
@@ -472,7 +509,9 @@ from the stream.
     return $p;
   }
 
-=item public C<< reset() >>
+=item I<reset>
+
+  method reset()
 
 Clears any existing error conditions.
 
@@ -484,7 +523,9 @@ Clears any existing error conditions.
     return;
   }
 
-=item public C<< seek(Int $pos) >>
+=item I<seek>
+
+  method seek(Int $pos)
 
 The method I<seek> sets the stream's current position to the byte offset
 specified by I<$pos>.
@@ -508,12 +549,14 @@ specified by I<$pos>.
     return;
   }
 
-=item protected C<< Str|Undef str_read() >>
+=item I<str_read>
+
+  method str_read() Str|Undef
 
 Reads a string from the current position of the calling stream, returning a
 C<Str>.
 
-I<returns> C<Str>, or C<undef> on error.
+returns C<Str>, or C<undef> on error.
 
 =cut
 
@@ -538,7 +581,9 @@ I<returns> C<Str>, or C<undef> on error.
     return $p;
   }
  
-=item protected C<< str_write(Str $p) >>
+=item I<str_write>
+
+  method str_write(Str $p)
 
 Writes a string I<$p> to the calling stream, starting at the current position.
 
@@ -559,7 +604,9 @@ Writes a string I<$p> to the calling stream, starting at the current position.
     return;
   }
 
-=item public C<< truncate() >>
+=item I<truncate>
+
+  method truncate() >>
 
 All descendants must override I<truncate> to delete all data in the stream
 after the current position.
@@ -571,7 +618,9 @@ after the current position.
     return;
   }
 
-=item public C<< write(Str $buf, Int $count) >>
+=item I<write>
+
+  method write(Str $buf, Int $count)
 
 All descendants must override this method to copy I<$count> bytes from I<$buf>
 and write them to the stream.
@@ -583,7 +632,9 @@ and write them to the stream.
     return;
   }
 
-=item public C<< write_str(SimpleStr $p) >>
+=item I<write_str>
+
+  method write_str(SimpleStr $p)
 
 Outputs a simple string (a string with less than 256 characters without any
 control character) I<$p> to the current stream.
@@ -609,7 +660,7 @@ control character) I<$p> to the current stream.
 
 =head2 Inheritance
 
-Methods inherited from class C<TObject>
+Methods inherited from class I<TObject>
 
   init
 

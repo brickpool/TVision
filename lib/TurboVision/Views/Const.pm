@@ -7,6 +7,7 @@ TurboVision::Views::Const - Constants used by I<Views>
 =head1 SYNOPSIS
 
   use TurboVision::Views::Const qw(
+    MAX_VIEW_WIDTH
     :sfXXXX
   );
   ...
@@ -165,13 +166,13 @@ Nothing per default, but can export the following per request:
       CM_LIST_ITEM_SELECTED
 
     :color
-      C_FRAME
-      C_SCROLL_BAR
-      C_SCROLLER
-      C_LIST_VIEWER
-      C_BLUE_WINDOW
-      C_CYAN_WINDOW
-      C_GRAY_WINDOW
+      CFrame
+      CScrollBar
+      CScroller
+      CListViewer
+      CBlueWindow
+      CCyanWindow
+      CGrayWindow
 
 =cut
 
@@ -310,13 +311,13 @@ our %EXPORT_TAGS = (
   )],
 
   color => [qw(
-    C_FRAME
-    C_SCROLL_BAR
-    C_SCROLLER
-    C_LIST_VIEWER
-    C_BLUE_WINDOW
-    C_CYAN_WINDOW
-    C_GRAY_WINDOW
+    CFrame
+    CScrollBar
+    CSCROLLER
+    CLISTVIEWER
+    CBLUEWINDOW
+    CCYANWINDOW
+    CGRAYWINDOW
   )],
   
 );
@@ -350,7 +351,9 @@ tbd
 
 =over
 
-=item public const C<< Int MAX_VIEW_WIDTH >>
+=item I<MAX_VIEW_WIDTH>
+
+  constant MAX_VIEW_WIDTH = < Int >;
 
 Determines the maximum width of a view.
 
@@ -382,7 +385,9 @@ I<< TView->show >>, I<< TView->show_cursor >>.
 
 =over
 
-=item public const C<< Int SF_VISIBLE >>
+=item I<SF_VISIBLE>
+
+  constant SF_VISIBLE = < Int >;
 
 Set when the view is visible in front of its owner (for example, a button on a
 dialog) but note that a visible view's owner may itself be hidden from view.
@@ -395,7 +400,9 @@ I<< TView->show >> to set this bit and make the view visible.
 
   use constant SF_VISIBLE     => 0x0001;
 
-=item public const C<< Int SF_CURSOR_VIS >>
+=item I<SF_CURSOR_VIS>
+
+  constant SF_CURSOR_VIS = < Int >;
 
 Set when the view's cursor is visible.
 
@@ -406,7 +413,9 @@ I<< TView->hide_cursor >> to hide the cursor and clear this bit.
 
   use constant SF_CURSOR_VIS  => 0x0002;
 
-=item public const C<< Int SF_CURSOR_INS >>
+=item I<SF_CURSOR_INS>
+
+  constant SF_CURSOR_INS = < Int >;
 
 Set when the cursor is a solid block (the "insert" cursor), clear when the
 cursor is an underscore (the "overstrike" cursor).
@@ -418,7 +427,9 @@ to clear the bit.
 
   use constant SF_CURSOR_INS  => 0x0004;
 
-=item public const C<< Int SF_SHADOW >>
+=item I<SF_SHADOW>
+
+  constant SF_SHADOW = < Int >;
 
 Set when the view has a shadow.
 
@@ -426,7 +437,9 @@ Set when the view has a shadow.
 
   use constant SF_SHADOW      => 0x0008;
 
-=item public const C<< Int SF_ACTIVE >>
+=item I<SF_ACTIVE>
+
+  constant SF_ACTIVE = < Int >;
 
 Set whenever the view is an active window or a subview within an active window.
 
@@ -437,7 +450,9 @@ are currently using is the active window.
 
   use constant SF_ACTIVE      => 0x0010;
 
-=item public const C<< Int SF_SELECTED >>
+=item I<SF_SELECTED>
+
+  constant SF_SELECTED = < Int >;
 
 Set when this view is selected. (See I<< TView->selected >>).
 
@@ -445,7 +460,9 @@ Set when this view is selected. (See I<< TView->selected >>).
 
   use constant SF_SELECTED    => 0x0020;
 
-=item public const C<< Int SF_FOCUSED >>
+=item I<SF_FOCUSED>
+
+  constant SF_FOCUSED = < Int >;
 
 If the view is part of the focus chain, then this bit is set.
 
@@ -453,7 +470,9 @@ If the view is part of the focus chain, then this bit is set.
 
   use constant SF_FOCUSED     => 0x0040;
 
-=item public const C<< Int SF_DRAGGING >>
+=item I<SF_DRAGGING>
+
+  constant SF_DRAGGING = < Int >;
 
 Set whenever the view is being dragged.
 
@@ -461,7 +480,9 @@ Set whenever the view is being dragged.
 
   use constant SF_DRAGGING    => 0x0080;
 
-=item public const C<< Int SF_DISABLED >>
+=item I<SF_DISABLED>
+
+  constant SF_DISABLED = < Int >;
 
 Set if the view has been disabled and is no longer processing events.
 
@@ -469,7 +490,9 @@ Set if the view has been disabled and is no longer processing events.
 
   use constant SF_DISABLED    => 0x0100;
 
-=item public const C<< Int SF_MODAL >>
+=item I<SF_MODAL>
+
+  constant SF_MODAL = < Int >;
 
 Whenever a view is displayed using the <exec_view> call, that view becomes a
 modal view (as compared to a view that has been inserted into the desktop).
@@ -481,7 +504,9 @@ through the view hierarchy.
 
   use constant SF_MODAL       => 0x0200;
 
-=item public const C<< Int SF_DEFAULT >>
+=item I<SF_DEFAULT>
+
+  constant SF_DEFAULT = < Int >;
 
 View is default.
 
@@ -489,7 +514,9 @@ View is default.
 
   use constant SF_DEFAULT     => 0x0400;
 
-=item public const C<< Int SF_EXPOSED >>
+=item I<SF_EXPOSED>
+
+  constant SF_EXPOSED = < Int >;
 
 Set when a view is possibly visible on the screen.
 
@@ -515,7 +542,9 @@ position to 0 disables the indicated attributes.
 
 =over
 
-=item public const C<< Int OF_SELECTABLE >>
+=item I<OF_SELECTABLE>
+
+  constant OF_SELECTABLE = < Int >;
 
 If this bit is set, then the view can be selected with a mouse.
 
@@ -528,7 +557,9 @@ An example of an unselectable view is I<TStaticText> items.
 
   use constant OF_SELECTABLE    => 0x0001;
 
-=item public const C<< Int OF_TOP_SELECT >>
+=item I<OF_TOP_SELECT>
+
+  constant OF_TOP_SELECT = < Int >;
 
 When set, this view will move to the topmost view whenever it is selected.
 
@@ -538,7 +569,9 @@ This option should normally be set only for window objects.
 
   use constant OF_TOP_SELECT    => 0x0002;
 
-=item public const C<< Int OF_FIRST_CLICK >>
+=item I<OF_FIRST_CLICK>
+
+  constant OF_FIRST_CLICK = < Int >;
 
 When a mouse click is used to select a view, the click can be optionally passed
 to the view after it is selected.
@@ -551,7 +584,9 @@ at the same time.
 
   use constant OF_FIRST_CLICK   => 0x0004;
 
-=item public const C<< Int OF_FRAMED >>
+=item I<OF_FRAMED>
+
+  constant OF_FRAMED = < Int >;
 
 When set, the view has visible frame drawn around it.
 
@@ -559,7 +594,9 @@ When set, the view has visible frame drawn around it.
 
   use constant OF_FRAMED        => 0x0008;
 
-=item public const C<< Int OF_PRE_PROCESS >>
+=item I<OF_PRE_PROCESS>
+
+  constant OF_PRE_PROCESS = < Int >;
 
 This option enables views other than the focused view to have a chance at
 processing an event. 
@@ -572,7 +609,9 @@ process the event.
 
   use constant OF_PRE_PROCESS   => 0x0010;
 
-=item public const C<< Int OF_POST_PROCESS >>
+=item I<OF_POST_PROCESS>
+
+  constant OF_POST_PROCESS = < Int >;
 
 When this bit is set, subviews are given a chance after the focused view, to
 process events that have not yet cleared.
@@ -581,7 +620,9 @@ process events that have not yet cleared.
 
   use constant OF_POST_PROCESS  => 0x0020;
 
-=item public const C<< Int OF_BUFFERED >>
+=item I<OF_BUFFERED>
+
+  constant OF_BUFFERED = < Int >;
 
 Views can optionally store an image of themselves in a memory buffer.
 
@@ -606,7 +647,9 @@ See also: I<get_buf_mem>, I<free_mem>
 
   use constant OF_BUFFERED      => 0x0040;
 
-=item public const C<< Int OF_TILEABLE >>
+=item I<OF_TILEABLE>
+
+  constant OF_TILEABLE = < Int >;
 
 Generally, you will want window objects to be either tileable or cascadeable so
 that the desktop can automatically rearrange the windows, if desired.
@@ -623,7 +666,9 @@ See also: I<< TDeskTop->cascade >>, I<< TDeskTop->tile >>.
 
   use constant OF_TILEABLE      => 0x0080;
 
-=item public const C<< Int OF_CENTER_X >>
+=item I<OF_CENTER_X>
+
+  constant OF_CENTER_X = < Int >;
 
 When this bit is set, the insertion of the view causes the view to be
 horizontally centered.
@@ -632,7 +677,9 @@ horizontally centered.
 
   use constant OF_CENTER_X      => 0x0100;
 
-=item public const C<< Int OF_CENTER_Y >>
+=item I<OF_CENTER_Y>
+
+  constant OF_CENTER_Y = < Int >;
 
 When this bit is set, a view is centered in the vertical direction (especially
 useful when switching between 25 and 43/50 line modes).
@@ -641,7 +688,9 @@ useful when switching between 25 and 43/50 line modes).
 
   use constant OF_CENTER_Y      => 0x0200;
 
-=item public const C<< Int OF_CENTERED >>
+=item I<OF_CENTERED>
+
+  constant OF_CENTERED = < Int >;
 
 Same as setting both I<OF_CENTER_X> and I<OF_CENTER_Y>:
 
@@ -651,7 +700,9 @@ centers the view in both vertical and horizontal directions.
 
   use constant OF_CENTERED      => 0x0300;
 
-=item public const C<< Int OF_VALIDATE >>
+=item I<OF_VALIDATE>
+
+  constant OF_VALIDATE = < Int >;
 
 View validates.
 
@@ -659,7 +710,9 @@ View validates.
 
   use constant OF_VALIDATE      => 0x0400;
 
-=item public const C<< Int OF_VERSION >>
+=item I<OF_VERSION>
+
+  constant OF_VERSION = < Int >;
 
 View TV version.
 
@@ -667,7 +720,9 @@ View TV version.
 
   use constant OF_VERSION       => 0x3000;
 
-=item public const C<< Int OF_VERSION_10 >>
+=item I<OF_VERSION_10>
+
+  constant OF_VERSION_10 = < Int >;
 
 TV version 1 view.
 
@@ -675,7 +730,9 @@ TV version 1 view.
 
   use constant OF_VERSION_10    => 0x0000;
 
-=item public const C<< Int OF_VERSION_20 >>
+=item I<OF_VERSION_20>
+
+  constant OF_VERSION_20 = < Int >;
 
 TV version 2 view.
 
@@ -692,7 +749,9 @@ how a view grows in relation to the view that own's it.
 
 =over
 
-=item public const C<< Int GF_GROW_LO_X >>
+=item I<GF_GROW_LO_X>
+
+  constant GF_GROW_LO_X = < Int >;
 
 The left side of the view will stay a constant distance from it's owner's left
 side.
@@ -701,7 +760,9 @@ side.
 
   use constant GF_GROW_LO_X => 0x01;
 
-=item public const C<< Int GF_GROW_LO_Y >>
+=item I<GF_GROW_LO_Y>
+
+  constant GF_GROW_LO_Y = < Int >;
 
 The top of the view will stay a constant distance from it's owner's top.
 
@@ -709,7 +770,9 @@ The top of the view will stay a constant distance from it's owner's top.
 
   use constant GF_GROW_LO_Y => 0x02;
 
-=item public const C<< Int GF_GROW_HI_X >>
+=item I<GF_GROW_HI_X>
+
+  constant GF_GROW_HI_X = < Int >;
 
 The right side of the view will stay a constant distance from it's owner's right
 side.
@@ -718,7 +781,9 @@ side.
 
   use constant GF_GROW_HI_X => 0x04;
 
-=item public const C<< Int GF_GROW_HI_Y >>
+=item I<GF_GROW_HI_Y>
+
+  constant GF_GROW_HI_Y = < Int >;
 
 The bottom of the view will stay a constant distance from it's owner's bottom
 side.
@@ -727,7 +792,9 @@ side.
 
   use constant GF_GROW_HI_Y => 0x08;
 
-=item public const C<< Int GF_GROW_ALL >>
+=item I<GF_GROW_ALL>
+
+  constant GF_GROW_ALL = < Int >;
 
 The view should maintain the same size and move with respect to the lower right
 corner of the owner.
@@ -736,7 +803,9 @@ corner of the owner.
 
   use constant GF_GROW_ALL  => 0x0F;
 
-=item public const C<< Int GF_GROW_REL >>
+=item I<GF_GROW_REL>
+
+  constant GF_GROW_REL = < Int >;
 
 The view will maintain its size relative to the owner.
 
@@ -761,7 +830,9 @@ I<< TView->drag_view >>.
 
 =over
 
-=item public const C<< Int DM_DRAG_MOVE >>
+=item I<DM_DRAG_MOVE>
+
+  constant DM_DRAG_MOVE = < Int >;
 
 Allow the view to move.
 
@@ -769,7 +840,9 @@ Allow the view to move.
 
   use constant DM_DRAG_MOVE   => 0x01;
 
-=item public const C<< Int DM_DRAG_GROW >>
+=item I<DM_DRAG_GROW>
+
+  constant DM_DRAG_GROW = < Int >;
 
 Allow the view to change size.
 
@@ -777,7 +850,9 @@ Allow the view to change size.
 
   use constant DM_DRAG_GROW   => 0x02;
 
-=item public const C<< Int DM_LIMIT_LO_X >>
+=item I<DM_LIMIT_LO_X>
+
+  constant DM_LIMIT_LO_X = < Int >;
 
 The left hand side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
@@ -785,7 +860,9 @@ The left hand side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
   use constant DM_LIMIT_LO_X  => 0x10;
 
-=item public const C<< Int DM_LIMIT_LO_Y >>
+=item I<DM_LIMIT_LO_Y>
+
+  constant DM_LIMIT_LO_Y = < Int >;
 
 The top side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
@@ -793,7 +870,9 @@ The top side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
   use constant DM_LIMIT_LO_Y  => 0x20;
 
-=item public const C<< Int DM_LIMIT_HI_X >>
+=item I<DM_LIMIT_HI_X>
+
+  constant DM_LIMIT_HI_X = < Int >;
 
 The right hand side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
@@ -801,7 +880,9 @@ The right hand side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
   use constant DM_LIMIT_HI_X  => 0x40;
 
-=item public const C<< Int DM_LIMIT_HI_Y >>
+=item I<DM_LIMIT_HI_Y>
+
+  constant DM_LIMIT_HI_Y = < Int >;
 
 The bottom side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
@@ -809,7 +890,9 @@ The bottom side cannot move outside I<$limits> of I<< TView->drag_view >>.
 
   use constant DM_LIMIT_HI_Y  => 0x80;
 
-=item public const C<< Int DM_LIMIT_ALL >>
+=item I<DM_LIMIT_ALL>
+
+  constant DM_LIMIT_ALL = < Int >;
 
 None of the view can move outside I<$limits> of I<< TView->drag_view >>.
 
@@ -823,7 +906,9 @@ None of the view can move outside I<$limits> of I<< TView->drag_view >>.
 
 =over
 
-=item public const C<< Int HC_NO_CONTEXT >>
+=item I<HC_NO_CONTEXT>
+
+  constant HC_NO_CONTEXT = < Int >;
 
 No view contex.
 
@@ -831,7 +916,9 @@ No view contex.
 
   use constant HC_NO_CONTEXT  => 0;
 
-=item public const C<< Int HC_DRAGGING >>
+=item I<HC_DRAGGING>
+
+  constant HC_DRAGGING = < Int >;
 
 No drag context.
 
@@ -848,7 +935,9 @@ I<< TScrollBar->scroll_step >>.
 
 =over
 
-=item public const C<< Int SB_LEFT_ARROW >>
+=item I<SB_LEFT_ARROW>
+
+  constant SB_LEFT_ARROW = < Int >;
 
 The horizontal scroll bar's left arrow.
 
@@ -856,7 +945,9 @@ The horizontal scroll bar's left arrow.
 
   use constant SB_LEFT_ARROW  => 0;
 
-=item public const C<< Int SB_RIGHT_ARROW >>
+=item I<SB_RIGHT_ARROW>
+
+  constant SB_RIGHT_ARROW = < Int >;
 
 Horizontal scroll bar's right arrow.
 
@@ -864,7 +955,9 @@ Horizontal scroll bar's right arrow.
  
   use constant SB_RIGHT_ARROW => 1;
 
-=item public const C<< Int SB_PAGE_LEFT >>
+=item I<SB_PAGE_LEFT>
+
+  constant SB_PAGE_LEFT = < Int >;
 
 The page area to the left of the position indicator.
 
@@ -872,7 +965,9 @@ The page area to the left of the position indicator.
  
   use constant SB_PAGE_LEFT   => 2;
 
-=item public const C<< Int SB_PAGE_RIGHT >>
+=item I<SB_PAGE_RIGHT>
+
+  constant SB_PAGE_RIGHT = < Int >;
 
 The page indicator to the right of the indicator.
 
@@ -880,7 +975,9 @@ The page indicator to the right of the indicator.
  
   use constant SB_PAGE_RIGHT  => 3;
 
-=item public const C<< Int SB_UP_ARROW >>
+=item I<SB_UP_ARROW>
+
+  constant SB_UP_ARROW = < Int >;
 
 Vertical scroll bar's up arrow.
 
@@ -888,7 +985,9 @@ Vertical scroll bar's up arrow.
  
   use constant SB_UP_ARROW    => 4;
 
-=item public const C<< Int SB_DOWN_ARROW >>
+=item I<SB_DOWN_ARROW>
+
+  constant SB_DOWN_ARROW = < Int >;
 
 Vertical scroll bar's down arrow.
 
@@ -896,7 +995,9 @@ Vertical scroll bar's down arrow.
  
   use constant SB_DOWN_ARROW  => 5;
 
-=item public const C<< Int SB_PAGE_UP >>
+=item I<SB_PAGE_UP>
+
+  constant SB_PAGE_UP = < Int >;
 
 Paging area above the position indicator.
 
@@ -904,7 +1005,9 @@ Paging area above the position indicator.
  
   use constant SB_PAGE_UP     => 6;
 
-=item public const C<< Int SB_PAGE_DOWN >>
+=item I<SB_PAGE_DOWN>
+
+  constant SB_PAGE_DOWN = < Int >;
 
 Paging area below the position indicator.
 
@@ -912,7 +1015,9 @@ Paging area below the position indicator.
  
   use constant SB_PAGE_DOWN   => 7;
 
-=item public const C<< Int SB_INDICATOR >>
+=item I<SB_INDICATOR>
+
+  constant SB_INDICATOR = < Int >;
 
 Position indicator on the scroll bar.
 
@@ -931,7 +1036,9 @@ I<< TWindow->standard_scroll_bar >> method.
 
 =over
 
-=item public const C<< Int SB_HORIZONTAL >>
+=item I<SB_HORIZONTAL>
+
+  constant SB_HORIZONTAL = < Int >;
 
 The scroll bar is horizontal.
 
@@ -939,7 +1046,9 @@ The scroll bar is horizontal.
 
   use constant SB_HORIZONTAL      => 0x0000;
 
-=item public const C<< Int SB_VERTICAL >>
+=item I<SB_VERTICAL>
+
+  constant SB_VERTICAL = < Int >;
 
 The scroll bar is vertical.
 
@@ -947,7 +1056,9 @@ The scroll bar is vertical.
 
   use constant SB_VERTICAL        => 0x0001;
 
-=item public const C<< Int SB_HANDLE_KEYBOARD >>
+=item I<SB_HANDLE_KEYBOARD>
+
+  constant SB_HANDLE_KEYBOARD = < Int >;
 
 Scroll bar accepts keyboard commands.
 
@@ -963,7 +1074,9 @@ See: I<TWindow>, I<< TWindog->flags >>
 
 =over
 
-=item public const C<< Int WF_MOVE >>
+=item I<WF_MOVE>
+
+  constant WF_MOVE = < Int >;
 
 When bit is set, the window can be moved.
 
@@ -971,7 +1084,9 @@ When bit is set, the window can be moved.
 
   use constant WF_MOVE  => 0x01;
 
-=item public const C<< Int WF_GROW >>
+=item I<WF_GROW>
+
+  constant WF_GROW = < Int >;
 
 When the bit is set, the window can be resized and has a "grow" icon in the
 lower right corner.
@@ -982,7 +1097,9 @@ If you clear this bit you can prevent a window from being resized.
 
   use constant WF_GROW  => 0x02;
 
-=item public const C<< Int WF_CLOSE >>
+=item I<WF_CLOSE>
+
+  constant WF_CLOSE = < Int >;
 
 Set this bit to add a close icon in the upper left corner of a window.
 
@@ -992,7 +1109,9 @@ Clear the bit to eliminate the icon.
 
   use constant WF_CLOSE => 0x04;
 
-=item public const C<< Int WF_ZOOM >>
+=item I<WF_ZOOM>
+
+  constant WF_ZOOM = < Int >;
 
 When this bit is set, the window contains a zoom icon for zooming a window to
 full size.
@@ -1007,7 +1126,9 @@ full size.
 
 =over
 
-=item public const C<< Int WN_NO_NUMBER >>
+=item I<WN_NO_NUMBER>
+
+  constant WN_NO_NUMBER = < Int >;
 
 When ever a I<< TWindow->number >> attribute contains this value, it means that
 the window has no number.
@@ -1043,7 +1164,9 @@ Example, where DirWindow is I<TWindow>-derived object:
 
 =over
 
-=item public const C<< Int WP_BLUE_WINDOW >>
+=item I<WP_BLUE_WINDOW>
+
+  constant WP_BLUE_WINDOW = < Int >;
 
 Yellow on blue color scheme.
 
@@ -1051,7 +1174,9 @@ Yellow on blue color scheme.
 
   use constant WP_BLUE_WINDOW => 0;
 
-=item public const C<< Int WP_CYAN_WINDOW >>
+=item I<WP_CYAN_WINDOW>
+
+  constant WP_CYAN_WINDOW = < Int >;
 
 Blue on cyan color scheme.
 
@@ -1059,7 +1184,9 @@ Blue on cyan color scheme.
 
   use constant WP_CYAN_WINDOW => 1;
 
-=item public const C<< Int WP_GRAY_WINDOW >>
+=item I<WP_GRAY_WINDOW>
+
+  constant WP_GRAY_WINDOW = < Int >;
 
 Black on gray color scheme.
 
@@ -1199,11 +1326,11 @@ Black on gray color scheme.
 
 =head2 Color Palette constants (I<:color>)
 
-Except for I<C_COLOR>, I<C_BLACK_WHITE> and I<C_MONO_CHROME>, all of the color
+Except for I<CColor>, I<CBlackWhite> and I<CMonoChrome>, all of the color
 palette constants contains indices into their owner's palette.
 
-For I<C_COLOR>, I<C_BLACK_WHITE> and I<C_MONO_CHROME>, each entry contains a
-BIOS video color attribute byte equivalent.
+For I<CColor>, I<CBlackWhite> and I<CMonoChrome>, each entry contains a BIOS
+video color attribute byte equivalent.
 
 You can use these color palette maps to determine what color a particular
 object or component will have when it appears on the screen.
@@ -1212,19 +1339,21 @@ For example, if you place a I<TButton> object into a I<TDialog> object, you can
 trace through the color palettes to determine what color it will have.
 
 A "normal" button will have the attribute "Text Normal" shown in the first byte
-of the I<C_BUTTON> color palette.
+of the I<CButton> color palette.
 
-This color entry is an index into its owner's palette, I<C_DIALOG>.
+This color entry is an index into its owner's palette, I<CDialog>.
 
-Looking at the 10th entry of I<C_DIALOG>, we see that this maps to entry 41 in
+Looking at the 10th entry of I<CDialog>, we see that this maps to entry 41 in
 the application-level palette.
 
-In the case of I<C_COLOR> (color display in use), this corresponds to black
+In the case of I<CColor> (color display in use), this corresponds to black
 lettering on a green background.
 
 =over
 
-=item public const C<< Str C_FRAME >>
+=item I<CFrame>
+
+  constant CFrame = < Str >;
 
 Frame palette
 
@@ -1233,13 +1362,15 @@ Frame palette
   [ 2] Passive Title   1
   [ 3] Active Frame    2
   [ 4] Active Title    2
-  [ 5] Icons
+  [ 5] Icons           3
 
 =cut
 
-  use constant C_FRAME        => pack('C*',1,1,2,2,3);
+  use constant CFrame       => pack('C*',1,1,2,2,3);
 
-=item public const C<< Str C_SCROLL_BAR >>
+=item I<CScrollBar>
+
+  constant CScrollBar = < Str >;
 
 Scrollbar palette
 
@@ -1250,9 +1381,11 @@ Scrollbar palette
 
 =cut
 
-  use constant C_SCROLL_BAR   => pack('C*',4,5,5);
+  use constant CScrollBar   => pack('C*',4,5,5);
 
-=item public const C<< Str C_SCROLLER >>
+=item I<CScroller>
+
+  constant CScroller = < Str >;
 
 Scroller palette
 
@@ -1262,9 +1395,11 @@ Scroller palette
 
 =cut
 
-  use constant C_SCROLLER     => pack('C*',6,7);
+  use constant CScroller    => pack('C*',6,7);
 
-=item public const C<< Str C_LIST_VIEWER >>
+=item I<CListViewer>
+
+  constant CListViewer = < Str >;
 
 Listviewer palette used for TListViewer and TLIistBox
 
@@ -1277,9 +1412,11 @@ Listviewer palette used for TListViewer and TLIistBox
 
 =cut
 
-  use constant C_LIST_VIEWER  => pack('C*',26,26,27,28,29);
+  use constant CListViewer  => pack('C*',26,26,27,28,29);
 
-=item public const C<< Str C_BLUE_WINDOW >>
+=item I<CBlueWindow>
+
+  constant CBlueWindow = < Str >;
 
 Blue window palette
 
@@ -1295,9 +1432,11 @@ Blue window palette
 
 =cut
 
-  use constant C_BLUE_WINDOW  => pack('C*',8,9,10,11,12,13,14,15);
+  use constant CBlueWindow  => pack('C*',8,9,10,11,12,13,14,15);
 
-=item public const C<< Str C_CYAN_WINDOW >>
+=item I<CCyanWindow>
+
+  constant CCyanWindow = < Str >;
 
 Cyan window palette
 
@@ -1313,9 +1452,11 @@ Cyan window palette
 
 =cut
 
-  use constant C_CYAN_WINDOW  => pack('C*',16,17,18,19,20,21,22,23);
+  use constant CCyanWindow  => pack('C*',16,17,18,19,20,21,22,23);
 
-=item public const C<< Str C_GRAY_WINDOW >>
+=item I<CGrayWindow>
+
+  constant CGrayWindow = < Str >;
 
 Cyan window palette
 
@@ -1331,7 +1472,7 @@ Cyan window palette
 
 =cut
 
-  use constant C_GRAY_WINDOW  => pack('C*',24,25,26,27,28,29,30,31);
+  use constant CGrayWindow  => pack('C*',24,25,26,27,28,29,30,31);
 
 =back
 

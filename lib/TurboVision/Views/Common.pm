@@ -4,6 +4,13 @@
 
 TurboVision::Views::Common - Variables and tools used by I<Views>
 
+=head1 SYNOPSIS
+
+  use TurboVision::Views::Common qw(
+    :vars
+  );
+  ...
+
 =cut
 
 package TurboVision::Views::Common;

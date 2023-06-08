@@ -73,11 +73,11 @@
 
 <p>When you want to have your collection sorted into some order (that you specify), use the <i>TSortedCollection</i> type.</p>
 
-<p>Items added to a <i>TSortedCollection</i> are always ordered by the order you specify with a custom, overridden <i>TSortedCollection-&gt;compare</i> function.</p>
+<p>Items added to a <i>TSortedCollection</i> are always ordered by the order you specify with a custom, overridden <a href="#compare">&quot;compare&quot;</a> function.</p>
 
 <p><b>Commonly Used Features</b></p>
 
-<p>In addition to the inherited <i>TCollection-&gt;init</i>, you&#39;ll use <i>insert</i> to add new items to the collection, <i>delete</i> to remove items from the collection, and finally, you must override <i>key_of</i> and <i>compare</i>.</p>
+<p>In addition to the inherited <i>TCollection-&gt;init</i>, you&#39;ll use <a href="#insert">&quot;insert&quot;</a> to add new items to the collection, <i>TCollection-&gt;delete</i> to remove items from the collection, and finally, you must override <a href="#key_of">&quot;key_of&quot;</a> and <a href="#compare">&quot;compare&quot;</a>.</p>
 
 <h2 id="Class">Class</h2>
 
@@ -94,8 +94,10 @@
 
 <dl>
 
-<dt id="public-Bool-duplicates">public <code>Bool duplicates</code></dt>
+<dt id="duplicates"><i>duplicates</i></dt>
 <dd>
+
+<pre><code>  has duplicates ( is =&gt; rw, type =&gt; Bool ) = !! 0;</code></pre>
 
 <p>The default setting of <i>duplicates</i> is false and this prohibits the addition of duplicate entries to the collection.</p>
 
@@ -108,10 +110,12 @@
 
 <dl>
 
-<dt id="public-TSortedCollection-load-TStream-s">public <code>TSortedCollection-&gt;load(TStream $s)</code></dt>
+<dt id="load"><i>load</i></dt>
 <dd>
 
-<p>Constructs and loads a sorted collection from the stream <i>$s</i> by first calling the <i>load</i> constructor inherited from <i>TCollection</i>, then reading the <i>duplicates</i> attribute.</p>
+<pre><code>  factory load(TStream $s) : TSortedCollection</code></pre>
+
+<p>Constructs and loads a sorted collection from the stream <i>$s</i> by first calling the <i>load</i> constructor inherited from <i>TCollection</i>, then reading the <a href="#duplicates">&quot;duplicates&quot;</a> attribute.</p>
 
 </dd>
 </dl>
@@ -120,8 +124,10 @@
 
 <dl>
 
-<dt id="public-Int-compare-Ref-key1-Ref-key2">public <code>Int compare(Ref $key1, Ref $key2)</code></dt>
+<dt id="compare"><i>compare</i></dt>
 <dd>
+
+<pre><code>  method compare(Ref $key1, Ref $key2) : Int</code></pre>
 
 <p>You must override <i>compare</i> for your data object type.</p>
 
@@ -132,24 +138,30 @@
    1 if $$keyl &gt;  $$key2</code></pre>
 
 </dd>
-<dt id="public-Int-index_of-Ref-item">public <code>Int index_of(Ref $item)</code></dt>
+<dt id="index_of"><i>index_of</i></dt>
 <dd>
+
+<pre><code>  method index_of(Ref $item) : Int</code></pre>
 
 <p>Where <i>$item</i> is a reference to an object type that is stored in the collection, <i>index_of</i> returns the Index position where it is located, or -1 if the <i>$item</i> is not found.</p>
 
 </dd>
-<dt id="public-insert-Ref-item">public <code>insert(Ref $item)</code></dt>
+<dt id="insert"><i>insert</i></dt>
 <dd>
+
+<pre><code>  method insert(Ref $item)</code></pre>
 
 <p>Adds the <i>$item</i> to the collection.</p>
 
-<p>If <i>$item</i> already exists in the collection, <i>insert</i> checks the value of the <i>duplicates</i> attribute.</p>
+<p>If <i>$item</i> already exists in the collection, <i>insert</i> checks the value of the <a href="#duplicates">&quot;duplicates&quot;</a> attribute.</p>
 
-<p>If <i>duplicates</i> is false then the <i>$item</i> is not added, but if <i>duplicates</i> is true, then the <i>$item</i> is inserted just prior to any duplicate entries.</p>
+<p>If <a href="#duplicates">&quot;duplicates&quot;</a> is false then the <i>$item</i> is not added, but if <a href="#duplicates">&quot;duplicates&quot;</a> is true, then the <i>$item</i> is inserted just prior to any duplicate entries.</p>
 
 </dd>
-<dt id="public-Ref-key_of-Ref-item">public <code>Ref key_of(Ref $item)</code></dt>
+<dt id="key_of"><i>key_of</i></dt>
 <dd>
+
+<pre><code>  mehod key_of(Ref $item) : Ref</code></pre>
 
 <p>You must override this function.</p>
 
@@ -168,8 +180,10 @@
 <p>The content of the attribute to be used as the sort key is returned as the result.</p>
 
 </dd>
-<dt id="public-Bool-search-Ref-key-Int-index">public <code>Bool search(Ref $key, Int $index)</code></dt>
+<dt id="search"><i>search</i></dt>
 <dd>
+
+<pre><code>  method search(Ref $key, Int $index) : Bool</code></pre>
 
 <p>Use <i>search</i> to look for specific items in the collection.</p>
 
@@ -178,17 +192,19 @@
 <p>If found, <i>$index</i> is set to the location in the collection where the item resides.</p>
 
 </dd>
-<dt id="public-store-TStream-s">public <code>store(TStream $s)</code></dt>
+<dt id="store"><i>store</i></dt>
 <dd>
 
-<p>Writes the sorted collection and all its items to the stream <i>$s</i> by first calling the <i>store</i> method inherited from <i>TCollection</i>, then writing the <i>duplicates</i> attribute introduced by <i>TSortedCollection</i>.</p>
+<pre><code>  around store(TStream $s)</code></pre>
+
+<p>Writes the sorted collection and all its items to the stream <i>$s</i> by first calling the <i>store</i> method inherited from <i>TCollection</i>, then writing the <a href="#duplicates">&quot;duplicates&quot;</a> attribute introduced by <i>TSortedCollection</i>.</p>
 
 </dd>
 </dl>
 
 <h2 id="Inheritance">Inheritance</h2>
 
-<p>Methods inherited from class <code>TCollection</code></p>
+<p>Methods inherited from class <i>TCollection</i></p>
 
 <pre><code>  init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
   first_that, for_each, free, free_all, free_item, get_item, last_that, pack,
@@ -250,7 +266,7 @@
 
 <ul>
 
-<li><p>2021-2022 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021-2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

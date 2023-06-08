@@ -424,7 +424,7 @@ Otherwise false is returned.
 
 =head2 Inheritance
 
-Methods inherited from class C<TStream>
+Methods inherited from class I<TStream>
 
   copy_from, error, flush, get, get_pos, get_size, put, read_str, reset,
   write_str

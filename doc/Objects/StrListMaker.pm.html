@@ -92,8 +92,10 @@
 
 <dl>
 
-<dt id="public-constant-Object-RStrListMaker">public constant <code>Object RStrListMaker</code></dt>
+<dt id="RStrListMaker"><i>RStrListMaker</i></dt>
 <dd>
+
+<pre><code>  constant RStrListMaker = &lt; TStreamRec &gt;;</code></pre>
 
 <p>Defining a registration record constant for <i>TStrListMaker</i>.</p>
 
@@ -106,8 +108,11 @@
 
 <dl>
 
-<dt id="public-TStrListMaker-init-Int-a_str_size-Int-a_index_size">public <code>TStrListMaker-&gt;init(Int $a_str_size, Int $a_index_size)</code></dt>
+<dt id="init"><i>init</i></dt>
 <dd>
+
+<pre><code>  factory init(Int $a_str_size, Int $a_index_size) : TStrListMaker
+ </code></pre>
 
 <p>The constructor <i>init</i> reserves a string buffer having <i>$a_str_size</i> bytes and index of <i>$a_index_size</i> elements.</p>
 
@@ -120,16 +125,20 @@
 
 <dl>
 
-<dt id="public-put-Int-key-SimpleStr-s">public <code>put(Int $key, SimpleStr $s)</code></dt>
+<dt id="put"><i>put</i></dt>
 <dd>
+
+<pre><code>  method put(Int $key, SimpleStr $s)</code></pre>
 
 <p>Use <i>put</i> to add each string into the string list, where <i>$key</i> is the index value to assign to the string, and <i>$s</i> is the string value.</p>
 
-<p>The <i>TStrListMaker</i> appears to have no error checking so make sure that you do not add more elements than were specified by <i>a_index_size</i> and which will fit into the string buffer.</p>
+<p>The <i>TStrListMaker</i> appears to have no error checking so make sure that you do not add more elements than were specified by paramter <i>$a_index_size</i> from the <a href="#init">&quot;init&quot;</a> constructor and which will fit into the string buffer.</p>
 
 </dd>
-<dt id="public-store-TStream-s">public <code>store(TStream $s)</code></dt>
+<dt id="store"><i>store</i></dt>
 <dd>
+
+<pre><code>  method store(TStream $s)</code></pre>
 
 <p>Writes the string list to stream <i>$s</i>.</p>
 
@@ -194,7 +203,7 @@
 
 <ul>
 
-<li><p>2021 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+<li><p>2021,2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
 
 </li>
 </ul>

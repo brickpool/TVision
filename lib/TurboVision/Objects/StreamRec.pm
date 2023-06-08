@@ -87,7 +87,7 @@ a parameter to the I<register_type> procedure.
 When you define your own variables as I<TStreamRec> I<types>, it is recommended
 that you begin each registration record variable name with the letter I<R> as
 an aid to identifying registration records. Turbo Vision predefines registration
-records for all of its objects, each beginning with an C<R> instead of a C<T>.
+records for all of its objects, each beginning with an I<R> instead of a I<T>.
 For example, I<TCollection>'s registration record is I<RCollection>.
 
 =cut
@@ -106,28 +106,41 @@ package TurboVision::Objects::StreamRec {
   
 =head2 Attributes
 
-=head3 Class Attributes
+=head3 Object Attributes
 
 =over
 
-=item private static C<< TStreamRec _stream_types >>
+=item I<load>
 
-=back
+  has load ( is => ro, type => Str, predicate => 'has_load' );
+
+Class load code name to the I<load> constructor.
 
 =cut
 
-  class_has '_stream_types' => (
-    is        => 'rw',
-    isa       => TStreamRec,
-    predicate => '_has_stream_types',
-    clearer   => '_clear_stream_types',
+  has 'load' => (
+    isa       => Identifier,
+    predicate => 'has_load',
   );
 
-=head3 Attributes
+=item I<next>
 
-=over
+  has next ( is => ro, type => TStreamRec, predicate => 'has_next' );
 
-=item public readonly C<< Int obj_type >>
+I<next> is a reference to the next I<TStreamRec>. You do not need to initialize
+this value.
+
+=cut
+
+  has 'next' => (
+    isa       => TStreamRec,
+    predicate => 'has_next',
+    writer    => '_next',
+  );
+
+=item I<obj_type>
+
+  param obj_type ( is => ro, type => Int );
 
 I<obj_type> is a unique number from 1,000 to 65,535 that you choose to
 identify your object.
@@ -139,33 +152,9 @@ identify your object.
     required  => 1,
   );
 
-=item public readonly C<< ClassName vmt_link >>
+=item I<store>
 
-I<vmt_link> is an internal link to the object's virtual method table. 
-
-In Pascal, you would set this attribute equal to C<Ofs(TypeOf(TSomeObject)^)>
-where I<TSomeObject> is any object type, but in Perl we use the package class
-name C<__PACKAGE__>.
-
-=cut
-
-  has 'vmt_link' => (
-    isa       => ClassName,
-    required  => 1,
-  );
-
-=item public readonly C<< Str load >>
-
-Class load code name to the I<load> constructor.
-
-=cut
-
-  has 'load' => (
-    isa       => Identifier,
-    predicate => 'has_load',
-  );
-
-=item public readonly C<< Str store >>
+  has store ( is => ro, type => Str, predicate => 'has_store' );
 
 Class store code name to the I<store> method.
 
@@ -176,17 +165,49 @@ Class store code name to the I<store> method.
     predicate => 'has_store',
   );
 
-=item public readonly C<< TStreamRec next >>
+=item I<vmt_link>
 
-I<next> is a reference to the next I<TStreamRec>. You do not need to initialize
-this value.
+  param vmt_link ( is => ro, type => ClassName );
+
+I<vmt_link> is an internal link to the object's virtual method table. 
+
+In Pascal, you would set this attribute to C<Ofs(TypeOf(TSomeObject)^)> where
+I<TSomeObject> is any object type, but in Perl we use the package class name
+C<__PACKAGE__>.
 
 =cut
 
-  has 'next' => (
+  has 'vmt_link' => (
+    isa       => ClassName,
+    required  => 1,
+  );
+
+=head3 Class Attributes
+
+=over
+
+=item I<_stream_types>
+
+  class_has _stream_types (
+    is        => 'rw',
     isa       => TStreamRec,
-    predicate => 'has_next',
-    writer    => '_next',
+    predicate => '_has_stream_types',
+    clearer   => '_clear_stream_types',
+  );
+
+Stream types reg.
+
+See module L<MooseX::ClassAttribute> for more information about C<class_has>.
+
+=back
+
+=cut
+
+  class_has '_stream_types' => (
+    is        => 'rw',
+    isa       => TStreamRec,
+    predicate => '_has_stream_types',
+    clearer   => '_clear_stream_types',
   );
 
 =back
@@ -203,21 +224,9 @@ Stream interface routines
 
 =over
 
-=item private static C<< _register_error() >>
+=item I<register_type>
 
-Register error when an invalid type is registered.
-
-B<Note>: Private internal routine.
-
-=cut
-
-  classmethod _register_error() {
-    $ERRNO = -212;
-    confess 'Stream registration error';
-    return;
-  }
-
-=item public static C<< register_type(TStreamRec $s) >>
+  classmethod register_type(TStreamRec $s)
 
 Registers the given object type with Turbo Vision's streams, creating a list of
 known classes. Streams can only store and return these known class types. Each
@@ -246,6 +255,20 @@ I<TStreamRec>.
     else {
       goto &_register_error();                            # Register the error
     }
+    return;
+  }
+
+=item I<_register_error>
+
+  classmethod _register_error()
+
+Register error when an invalid type is registered.
+
+=cut
+
+  classmethod _register_error() {
+    $ERRNO = -212;
+    confess 'Stream registration error';
     return;
   }
 
@@ -326,12 +349,11 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
 =head1 SEE ALSO
 
-L<MooseX::StrictConstructor>, 
 I<Objects>, 
 L<objects.pp|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-extra/src/inc/objects.pp>

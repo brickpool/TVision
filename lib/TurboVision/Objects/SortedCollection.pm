@@ -74,7 +74,11 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use Scalar::Util qw( refaddr weaken isweak );
+use Scalar::Util qw(
+  refaddr
+  weaken
+  isweak
+);
 use Try::Tiny;
 
 use TurboVision::Const qw(
@@ -104,13 +108,13 @@ When you want to have your collection sorted into some order (that you specify),
 use the I<TSortedCollection> type.
 
 Items added to a I<TSortedCollection> are always ordered by the order you
-specify with a custom, overridden I<< TSortedCollection->compare >> function.
+specify with a custom, overridden L</compare> function.
 
 B<Commonly Used Features>
 
-In addition to the inherited I<< TCollection->init >>, you'll use I<insert> to
-add new items to the collection, I<delete> to remove items from the collection,
-and finally, you must override I<key_of> and I<compare>.
+In addition to the inherited I<< TCollection->init >>, you'll use L</insert> to
+add new items to the collection, I<< TCollection->delete >> to remove items from
+the collection, and finally, you must override L</key_of> and L</compare>.
 
 =head2 Class
 
@@ -137,7 +141,9 @@ package TurboVision::Objects::SortedCollection {
 
 =over
 
-=item public C<< Bool duplicates >>
+=item I<duplicates>
+
+  has duplicates ( is => rw, type => Bool ) = !! 0;
 
 The default setting of I<duplicates> is false and this prohibits the addition
 of duplicate entries to the collection.
@@ -167,11 +173,13 @@ before any other items having the same key.
 
 =over
 
-=item public C<< TSortedCollection->load(TStream $s) >>
+=item I<load>
+
+  factory load(TStream $s) : TSortedCollection
 
 Constructs and loads a sorted collection from the stream I<$s> by first calling
 the I<load> constructor inherited from I<TCollection>, then reading the
-I<duplicates> attribute.
+L</duplicates> attribute.
 
 =cut
 
@@ -209,7 +217,9 @@ I<duplicates> attribute.
 
 =over
 
-=item public C<< Int compare(Ref $key1, Ref $key2) >>
+=item I<compare>
+
+  method compare(Ref $key1, Ref $key2) : Int
 
 You must override I<compare> for your data object type.
 
@@ -227,7 +237,9 @@ value according to this:
     return 0;
   }
 
-=item public C<< Int index_of(Ref $item) >>
+=item I<index_of>
+
+  method index_of(Ref $item) : Int
 
 Where I<$item> is a reference to an object type that is stored in the
 collection, I<index_of> returns the Index position where it is located, or -1
@@ -254,14 +266,16 @@ if the I<$item> is not found.
           ;
   }
  
-=item public C<< insert(Ref $item) >>
+=item I<insert>
+
+  method insert(Ref $item)
 
 Adds the I<$item> to the collection.
 
 If I<$item> already exists in the collection, I<insert> checks the value of the
-I<duplicates> attribute.
+L</duplicates> attribute.
 
-If I<duplicates> is false then the I<$item> is not added, but if I<duplicates>
+If L</duplicates> is false then the I<$item> is not added, but if L</duplicates>
 is true, then the I<$item> is inserted just prior to any duplicate entries.
 
 =cut
@@ -277,7 +291,9 @@ is true, then the I<$item> is inserted just prior to any duplicate entries.
     return;
   }
  
-=item public C<< Ref key_of(Ref $item) >>
+=item I<key_of>
+
+  mehod key_of(Ref $item) : Ref
 
 You must override this function.
 
@@ -304,7 +320,9 @@ result.
     return $item;                                         # Return item as key
   }
  
-=item public C<< Bool search(Ref $key, Int $index) >>
+=item I<search>
+
+  method search(Ref $key, Int $index) : Bool
 
 Use I<search> to look for specific items in the collection.
 
@@ -348,11 +366,13 @@ resides.
     return $retval;
   }
  
-=item public C<< store(TStream $s) >>
+=item I<store>
+
+  around store(TStream $s)
 
 Writes the sorted collection and all its items to the stream I<$s> by first
 calling the I<store> method inherited from I<TCollection>, then writing the
-I<duplicates> attribute introduced by I<TSortedCollection>.
+L</duplicates> attribute introduced by I<TSortedCollection>.
 
 =cut
 
@@ -367,7 +387,7 @@ I<duplicates> attribute introduced by I<TSortedCollection>.
 
 =head2 Inheritance
 
-Methods inherited from class C<TCollection>
+Methods inherited from class I<TCollection>
 
   init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
   first_that, for_each, free, free_all, free_item, get_item, last_that, pack,
@@ -446,7 +466,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

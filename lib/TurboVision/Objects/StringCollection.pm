@@ -116,7 +116,9 @@ package TurboVision::Objects::StringCollection {
 
 =over
 
-=item public constant C<< Object RStringCollection >>
+=item I<RStringCollection>
+
+  constant RStringCollection = < TStreamRec >;
 
 Defining a registration record constant for I<TStringCollection>.
 
@@ -147,9 +149,11 @@ Defining a registration record constant for I<TStringCollection>.
 
 =over
 
-=item public C<< Int compare(ScalarRef[SimpleStr] $key1, ScalarRef[SimpleStr] $key2) >>
+=item I<compare>
 
-Compares I<$$key1> to I<$$key2> as strings and returns -1, 0 or 1.
+  around compare(ScalarRef[SimpleStr] $key1, ScalarRef[SimpleStr] $key2) : Int 
+
+Compares I<$$key1> to I<$$key2> as strings and returns C<-1>, C<0> or C<1>.
 
 See I<< TSortedCollection->compare >> for details.
 
@@ -159,7 +163,9 @@ See I<< TSortedCollection->compare >> for details.
     return ${$key1} cmp ${$key2};
   }
 
-=item public C<< ScalarRef[SimpleStr] get_item(TStream $s) >>
+=item I<get_item>
+
+  around get_item(TStream $s) : ScalarRef[SimpleStr]
 
 Uses the I<< TStream->read_str >> function to read a string from stream I<$s>
 and return a reference to a string containing the result.
@@ -170,7 +176,9 @@ and return a reference to a string containing the result.
     return \$s->read_str();
   }
 
-=item public C<< put_item(TStream $s, Ref $item) >>
+=item I<put_item>
+
+  around put_item(TStream $s, ScalarRef[SimpleStr] $item)
 
 By default, writes a string referenced by I<$item> to the stream I<$s> by
 calling I<< TStream->write_str >>.
@@ -188,11 +196,11 @@ calling I<< TStream->write_str >>.
 
 =head2 Inheritance
 
-Methods inherited from class C<TSortedCollection>
+Methods inherited from class I<TSortedCollection>
 
   load, index_of, insert, key_of, search, store
 
-Methods inherited from class C<TCollection>
+Methods inherited from class I<TCollection>
 
   init, at, at_delte, at_free, at_insert, at_put, delete, delete_all, error,
   first_that, for_each, free, free_all, free_item, last_that, pack,
@@ -271,7 +279,7 @@ __END__
 
 =item *
 
-2021 by J. Schneider L<https://github.com/brickpool/>
+2021,2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

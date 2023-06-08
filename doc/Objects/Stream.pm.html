@@ -77,8 +77,15 @@
 
 <dl>
 
-<dt id="public-static-CodeRef-stream_error">public static <code>CodeRef stream_error</code></dt>
+<dt id="stream_error"><i>stream_error</i></dt>
 <dd>
+
+<pre><code>  class_has stream_error (
+    is        =&gt; rw,
+    type      =&gt; CodeRef,
+    predicate =&gt; &#39;has_stream_error&#39;,
+    clearer   =&gt; &#39;clear_stream_error&#39;,
+  );</code></pre>
 
 <p><i>stream_error</i> allows you to globally override all stream error handling. For this purpose, an subroutine reference is assigned to the class variable. A <i>TStream</i> object is passed as a parameter.</p>
 
@@ -90,6 +97,8 @@
   ...
   $stream-&gt;error(ST_ERROR, 1);  # &#39;Catch stream error info #1&#39;</code></pre>
 
+<p>See module <a href="#MooseX::ClassAttribute">&quot;MooseX::ClassAttribute&quot;</a> for <code>class_has</code>.</p>
+
 </dd>
 </dl>
 
@@ -97,18 +106,22 @@
 
 <dl>
 
-<dt id="public-Int-error_info">public <code>Int error_info</code></dt>
+<dt id="error_info"><i>error_info</i></dt>
 <dd>
 
-<p>Whenever an error has occurred (indicated by <i>status</i> != ST_OK), the <i>error_info</i> attribute contains additional information.</p>
+<pre><code>  has error_info ( is =&gt; rw, type =&gt; Int ) = 0;</code></pre>
+
+<p>Whenever an error has occurred (indicated by <a href="#status">&quot;status&quot;</a> != <i>ST_OK</i>), the <i>error_info</i> attribute contains additional information.</p>
 
 <p>For some values these will be additional <i>stXXXX</i> constants, although for OS-level file errors, <i>error_info</i> will contain the system errno code (like <code>$!</code> use).</p>
 
 </dd>
-<dt id="public-Int-status">public <code>Int status</code></dt>
+<dt id="status"><i>status</i></dt>
 <dd>
 
-<p>Holds either &lt;ST_OK&gt; or the last error code. See the <i>stXXXX</i> constants for possible <i>status</i> values.</p>
+<pre><code>  has status ( is =&gt; rw, type =&gt; Int ) = ST_OK;</code></pre>
+
+<p>Holds either <i>ST_OK</i> or the last error code. See the <i>stXXXX</i> constants for possible <i>status</i> values.</p>
 
 </dd>
 </dl>
@@ -117,114 +130,146 @@
 
 <dl>
 
-<dt id="public-copy_from-TStream-s-Int-count">public <code>copy_from(TStream $s, Int $count)</code></dt>
+<dt id="copy_from"><i>copy_from</i></dt>
 <dd>
+
+<pre><code>  method copy_from(TStream $s, Int $count)</code></pre>
 
 <p>This method copies <i>$count</i> bytes from stream <i>$s</i> to the current stream object.</p>
 
 </dd>
-<dt id="public-error-Int-code-Int-info">public <code>error(Int $code, Int $info)</code></dt>
+<dt id="error"><i>error</i></dt>
 <dd>
 
-<p>The various stream methods call <i>error</i> when a problem is encountered. The method <i>error</i>, in turn, calls the subroutine referenced to the class variable <i>TStream-&gt;stream_error</i> (if its not <code>undef</code>).</p>
+<pre><code>  method error(Int $code, Int $info)</code></pre>
 
-<p>Once an error condition has been raised, you must call <i>reset</i> before performing additional stream reads or writes.</p>
+<p>The various stream methods call <i>error</i> when a problem is encountered. The method <i>error</i>, in turn, calls the subroutine referenced to the class variable <a href="#stream_error">&quot;stream_error&quot;</a> (if its not <code>undef</code>).</p>
+
+<p>Once an error condition has been raised, you must call <a href="#reset">&quot;reset&quot;</a> before performing additional stream reads or writes.</p>
 
 </dd>
-<dt id="public-flush">public <code>flush()</code></dt>
+<dt id="flush"><i>flush</i></dt>
 <dd>
+
+<pre><code>  method flush()</code></pre>
 
 <p><i>TStream-&gt;flush</i> has no operation, but is overridden in by descendant objects, such as <i>TBufStream</i>, in order to write the buffer to disk.</p>
 
 </dd>
-<dt id="public-Object-get">public <code>Object get()</code></dt>
+<dt id="get"><i>get</i></dt>
 <dd>
 
-<p>Reads an object from the stream, interpreting the first bytes as the <i>obj_type</i> attribute of a registeration record.</p>
+<pre><code>  method get() : Object|Undef</code></pre>
 
-<p>The <i>obj_type</i> is used to determined exactly what type of object this is, and then to call that object&#39;s <i>load</i> constructor to create a new instance.</p>
+<p>Reads an object from the stream, interpreting the first bytes as the <i>TStreamRec-&gt;obj_type</i> attribute of a registeration record.</p>
+
+<p><i>TStreamRec-&gt;obj_type</i> is used to determined exactly what type of object this is, and then to call that object&#39;s <i>load</i> constructor to create a new instance.</p>
 
 <p>The method <i>get</i> returns a refernce to the newly created <i>Object</i>, or <code>undef</code> on error.</p>
 
 </dd>
-<dt id="public-Int-get_pos">public <code>Int get_pos()</code></dt>
+<dt id="get_pos"><i>get_pos</i></dt>
 <dd>
+
+<pre><code>  method get_pos() : Int;</code></pre>
 
 <p>The method <i>get_pos</i> compute the current byte location within the stream.</p>
 
 <p>It returns the stream&#39;s current position, or <code>-1</code> on error.</p>
 
 </dd>
-<dt id="public-Int-get_size">public <code>Int get_size()</code></dt>
+<dt id="get_size"><i>get_size</i></dt>
 <dd>
+
+<pre><code>  method get_size() : Int</code></pre>
 
 <p>The method <i>get_size</i> computer the total number of bytes in the stream.</p>
 
 <p>It returns the total size, or <code>-1</code> on error.</p>
 
 </dd>
-<dt id="public-put-Object-p">public <code>put(Object $p)</code></dt>
+<dt id="put"><i>put</i></dt>
 <dd>
 
-<p>Writes the <i>obj_type</i> attribute of the registration record to the stream, and calls the object&#39;s <i>store</i> method to write the appropriate data attributes.</p>
+<pre><code>  method put(Object $p)</code></pre>
 
-<p>If the object type of <i>$p</i> has not been registered, <i>put</i> calls <i>error</i> and doesn&#39;t write anything to the stream.</p>
+<p>Writes the <i>TStreamRec-&gt;obj_type</i> attribute of the registration record to the stream, and calls the object&#39;s <i>store</i> method to write the appropriate data attributes.</p>
+
+<p>If the object type of <i>$p</i> has not been registered, <i>put</i> calls <a href="#error">&quot;error&quot;</a> and doesn&#39;t write anything to the stream.</p>
 
 </dd>
-<dt id="public-read-Item-buf-Int-count">public <code>read(Item $buf, Int $count)</code></dt>
+<dt id="read"><i>read</i></dt>
 <dd>
+
+<pre><code>  method read(Item $buf, Int $count)</code></pre>
 
 <p>All descendants of <i>TStream</i> override this procedure to copy <i>$count</i> bytes from the stream into <i>$buf</i>, and to move the current stream position to the next object position.</p>
 
 </dd>
-<dt id="public-SimpleStr-Undef-read_str">public <code>SimpleStr|Undef read_str()</code></dt>
+<dt id="read_str"><i>read_str</i></dt>
 <dd>
+
+<pre><code>  method read_str() : SimpleStr|Undef</code></pre>
 
 <p>Reads a string from the stream and returns a simple string (a string with less than 256 characters without any control character) from the current position of the stream, or <code>undef</code> on error.</p>
 
 <p>This function is used by <i>TStringCollection-&gt;get_item</i> to read a string from the stream.</p>
 
 </dd>
-<dt id="public-reset">public <code>reset()</code></dt>
+<dt id="reset"><i>reset</i></dt>
 <dd>
+
+<pre><code>  method reset()</code></pre>
 
 <p>Clears any existing error conditions.</p>
 
 </dd>
-<dt id="public-seek-Int-pos">public <code>seek(Int $pos)</code></dt>
+<dt id="seek"><i>seek</i></dt>
 <dd>
+
+<pre><code>  method seek(Int $pos)</code></pre>
 
 <p>The method <i>seek</i> sets the stream&#39;s current position to the byte offset specified by <i>$pos</i>.</p>
 
 </dd>
-<dt id="protected-Str-Undef-str_read">protected <code>Str|Undef str_read()</code></dt>
+<dt id="str_read"><i>str_read</i></dt>
 <dd>
+
+<pre><code>  method str_read() Str|Undef</code></pre>
 
 <p>Reads a string from the current position of the calling stream, returning a <code>Str</code>.</p>
 
-<p><i>returns</i> <code>Str</code>, or <code>undef</code> on error.</p>
+<p>returns <code>Str</code>, or <code>undef</code> on error.</p>
 
 </dd>
-<dt id="protected-str_write-Str-p">protected <code>str_write(Str $p)</code></dt>
+<dt id="str_write"><i>str_write</i></dt>
 <dd>
+
+<pre><code>  method str_write(Str $p)</code></pre>
 
 <p>Writes a string <i>$p</i> to the calling stream, starting at the current position.</p>
 
 </dd>
-<dt id="public-truncate">public <code>truncate()</code></dt>
+<dt id="truncate"><i>truncate</i></dt>
 <dd>
+
+<pre><code>  method truncate() &gt;&gt;</code></pre>
 
 <p>All descendants must override <i>truncate</i> to delete all data in the stream after the current position.</p>
 
 </dd>
-<dt id="public-write-Str-buf-Int-count">public <code>write(Str $buf, Int $count)</code></dt>
+<dt id="write"><i>write</i></dt>
 <dd>
+
+<pre><code>  method write(Str $buf, Int $count)</code></pre>
 
 <p>All descendants must override this method to copy <i>$count</i> bytes from <i>$buf</i> and write them to the stream.</p>
 
 </dd>
-<dt id="public-write_str-SimpleStr-p">public <code>write_str(SimpleStr $p)</code></dt>
+<dt id="write_str"><i>write_str</i></dt>
 <dd>
+
+<pre><code>  method write_str(SimpleStr $p)</code></pre>
 
 <p>Outputs a simple string (a string with less than 256 characters without any control character) <i>$p</i> to the current stream.</p>
 
@@ -233,7 +278,7 @@
 
 <h2 id="Inheritance">Inheritance</h2>
 
-<p>Methods inherited from class <code>TObject</code></p>
+<p>Methods inherited from class <i>TObject</i></p>
 
 <pre><code>  init</code></pre>
 

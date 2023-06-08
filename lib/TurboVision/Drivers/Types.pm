@@ -2,7 +2,12 @@
 
 =head1 NAME
 
-Types - Types for I<Drivers>
+TurboVision::Drivers::Types - Types for I<Drivers>
+
+=head1 SYNOPSIS
+
+  use TurboVision::Drivers::Types;
+  ...
 
 =cut
 

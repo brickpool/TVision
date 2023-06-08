@@ -93,9 +93,9 @@ I<TStringList> should be used in a separate program to create the string
 resources, and I<TStringList> should be used to access the previously created
 string resources.
 
-Because both objects have the same <obj_type> value in their stream registration
-record, its very important that these object types not appear in the same
-program, but should be used in separate programs.
+Because both objects have the same I<< TStreamRec->obj_type >> value in their
+stream registration record, its very important that these object types not
+appear in the same program, but should be used in separate programs.
 
 =head2 Class
 
@@ -121,7 +121,9 @@ package TurboVision::Objects::StringList {
 
 =over
 
-=item public constant C<< Object RStringList >>
+=item I<RStringList>
+
+  constant RStringList = < TStreamRec >
 
 I<TStringList> is registered with I<< TStreamRec->register_type(RStringList) >>.
 
@@ -143,7 +145,9 @@ I<TStringList> is registered with I<< TStreamRec->register_type(RStringList) >>.
 
 =begin comment
 
-=item private C<< TStream _stream >>
+=item I<_stream>
+
+  has _stream ( is => rw, type => TStream ) = TStream->init();
 
 Hold stream object.
 
@@ -159,7 +163,9 @@ Hold stream object.
 
 =begin comment
 
-=item private C<< Int _base_pos >>
+=item I<_base_pos>
+
+  has _base_pos ( is => rw, type => Int ) = 0;
 
 Hold position.
 
@@ -175,7 +181,28 @@ Hold position.
 
 =begin comment
 
-=item private C<< Int _index_size >>
+=item I<_index>
+
+  has _index ( is => rw, type => TStrIndex ) = [];
+
+When loading, it creates an index of a string list and stores it internally so
+that L</get> can access the stream later.
+
+=end comment
+
+=cut
+
+  has '_index' => (
+    is      => 'rw',
+    isa     => TStrIndex,
+    default => sub { [] },
+  );
+  
+=begin comment
+
+=item I<_index_size>
+
+  has _index_size ( is => rw, type => Int ) = 0;
 
 Index size.
 
@@ -189,33 +216,6 @@ Index size.
     default => 0,
   );
 
-=begin comment
-
-=item private C<< ArrayRef[HashRef] _index >>
-
-When loading, it creates an index of a string list and stores it internally so
-that I<< TStringList->get >> can access the stream later.
-
-The HashRef is a equivalent for I<TStrIndexRec> which has the following form:
-
-  $record = {
-    key     => $key,
-    count   => $count,
-    offset  => $offset,
-  };
-
-The hash entries I<$key>, I<$count> and I<$offset> are all of type I<Int>.
-
-=end comment
-
-=cut
-
-  has '_index' => (
-    is      => 'rw',
-    isa     => TStrIndex,
-    default => sub { [] },
-  );
-  
   # ------------------------------------------------------------------------
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
@@ -226,11 +226,13 @@ The hash entries I<$key>, I<$count> and I<$offset> are all of type I<Int>.
 
 =over
 
-=item public C<< TStringList->load(TStream $s) >>
+=item I<load>
+
+  factory load(TStream $s) : TStringList
 
 Creates and reads the string list index from stream I<$s> and stores internally
-a reference to I<$s> so that I<< TStringList->get >> can later access the stream
-when reading strings.
+a reference to I<$s> so that L</get> can later access the stream when reading
+strings.
 
 =cut
 
@@ -293,12 +295,14 @@ when reading strings.
 
 =over
 
-=item public C<< SimpleStr get(Int $key) >>
+=item I<get>
 
-The method <$key> is the primary function used to access individual strings in
+  method get(Int $key) : SimpleStr 
+
+The method I<$key> is the primary function used to access individual strings in
 the string list.
 
-The <$key> is a numeric value, typically a predefined constant, used to access
+The I<$key> is a numeric value, typically a predefined constant, used to access
 particular strings in the resource file.
  
 =cut
@@ -320,7 +324,9 @@ particular strings in the resource file.
     return $str // _EMPTY_STRING;                         # Return string
   }
 
-=item private C<< _read_str(SimpleStr $s, Int $offset, Int $skip) >>
+=item I<_read_str>
+
+  method _read_str(SimpleStr $s,, Int $offset, Int $skip)
 
 I<TStringList> private method.
 
@@ -348,7 +354,7 @@ I<TStringList> private method.
 
 =head2 Inheritance
 
-Methods inherited from class C<TObject>
+Methods inherited from class I<TObject>
 
   init
 
@@ -425,7 +431,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2023 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
