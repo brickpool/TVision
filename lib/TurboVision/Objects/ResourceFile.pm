@@ -624,10 +624,6 @@ See: L</delete>
 
 =head2 Inheritance
 
-Methods inherited from class I<TObject>
-
-  n/a
-
 Methods inherited from class L<Moose::Object>
 
   new, BUILDARGS, does, DOES, dump, DESTROY
