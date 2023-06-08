@@ -59,7 +59,9 @@
     :vars
       $command_set_changed
       $cur_command_set
-  </code></pre>
+
+    private:
+      $_the_top_view</code></pre>
 
 <h2 id="Variables">Variables</h2>
 
@@ -81,6 +83,14 @@
 <p><i>$cur_command_set</i> is a string created with Perl&#39;s command <i>vec</i>.</p>
 
 <p>It stores the current command set. By default, all commands except those of the window are active.</p>
+
+</dd>
+<dt id="the_top_view"><i>$_the_top_view</i></dt>
+<dd>
+
+<pre><code>  our $_the_top_view = &lt; TView &gt;;</code></pre>
+
+<p>Top focused view.</p>
 
 </dd>
 </dl>
