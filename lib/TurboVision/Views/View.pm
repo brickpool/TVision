@@ -181,6 +181,35 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
     store     => 'store',                                 # Object store method
   );
 
+=begin comment
+
+=item I<_EMPTY_SET>
+
+  constant _EMPTY_SET = < Str >;
+
+The constant I<_EMPTY_SET> is for the definition of a 265-bit vector of the Str
+data type.
+
+=end comment
+
+=cut
+
+  use constant _EMPTY_SET => pack('b*', 0 x 256);
+
+=begin comment
+
+=item I<_ERROR_ATTR>
+
+  constant _ERROR_ATTR = < Int >;
+
+Error colours.
+
+=end comment
+
+=cut
+
+  use constant _ERROR_ATTR => 0xcf;
+
 =back
 
 =cut
@@ -195,7 +224,7 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
 
 =over
 
-=item I<$static_var2>
+=item I<$_static_var2>
 
   my $static_var2 = < HashRef[TView|Undef|Int] >;
 
@@ -714,14 +743,14 @@ See: L</enable_commands>
 =cut
 
   method disable_commands(TCommandSet $commands) {
-    state $empty_set = pack('b*', 0 x 256);
+    # Map ArrayRef[Int] to bit vector (which is similar to the Pascal 'set')
     $commands = do {
-      my $bit_set = $empty_set;
+      my $bit_set = _EMPTY_SET;
       vec($bit_set, $_, 1) = 1 foreach @$commands;
       $bit_set;
     };
                                                           # Set changed flag
-    $command_set_changed ||= ( $cur_command_set & $commands ) ne $empty_set;
+    $command_set_changed ||= ( $cur_command_set & $commands ) ne _EMPTY_SET;
     $cur_command_set &= ~$commands;                       # Update command set
     return;
   }
@@ -796,7 +825,7 @@ view can be resized.
 
     $self->set_state(SF_DRAGGING, _TRUE);
     if ( $event->what == EV_MOUSE_DOWN ) {
-      if ( $mode & DM_DRAG_MOVE != 0 ) {
+      if ( $mode & DM_DRAG_MOVE ) {
         $p = TPoint->new(
           x => $self->origin->x - $event->where->x,
           y => $self->origin->y - $event->where->y,
@@ -804,7 +833,7 @@ view can be resized.
         do {
           $event->where( $event->where + $p );
           $move_grow->( $event->where, $self->size );
-        } while ( not $self->mouse_event($event, EV_MOUSE_MOVE) );
+        } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
         # we need to process the mouse-up event, since not all terminals
         # send drag events.
         $event->where( $event->where + $p );
@@ -818,7 +847,7 @@ view can be resized.
         do {
           $event->where( $event->where + $p );
           $move_grow->( $self->origin, $event->where );
-        } while ( not $self->mouse_event($event, EV_MOUSE_MOVE) );
+        } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
         # we need to process the mouse-up event, since not all terminals
         # send drag events.
         $event->where( $event->where + $p );
@@ -874,7 +903,7 @@ view can be resized.
           };
         }
         $self->move_grow($p, $s);
-      } while ( $event->key_code == KB_ENTER || $event->key_code == KB_ESC );
+      } while ( $event->key_code != KB_ENTER && $event->key_code != KB_ESC );
       $self->locate($save_bounds)
         if $event->key_code == KB_ESC;
     }
@@ -964,9 +993,9 @@ See: L</disable_commands>
 =cut
 
   method enable_commands(TCommandSet $commands) {
-    state $empty_set = pack('b*', 0 x 256);
+    # Map ArrayRef[Int] to bit vector (which is similar to the Pascal 'set')
     $commands = do {
-      my $bit_set = $empty_set;
+      my $bit_set = _EMPTY_SET;
       vec($bit_set, $_, 1) = 1 foreach @$commands;
       $bit_set;
     };
@@ -1037,9 +1066,9 @@ If the view is completely hidden, then I<exposed> returns False.
 =cut
 
   method exposed() {
-    if ( $self->state & SF_EXPOSED != 0
-      && $self->size->x > 0
-      && $self->size->y > 0
+    if ( $self->state & SF_EXPOSED 
+      and $self->size->x > 0
+      and $self->size->y > 0
     ) {
       my $ok = _FALSE;
       my $y = 0;
@@ -1051,6 +1080,253 @@ If the view is completely hidden, then I<exposed> returns False.
       return $ok;
     }
     return _FALSE;
+  }
+
+=item I<get_bounds>
+
+  method get_bounds()
+
+Returns the upper left and lower right corners of this view in I<$bounds>,
+relative to the owner of the view.
+
+=cut
+
+  method get_bounds(TRect $bounds) {
+    $bounds->a( $self->origin );                          # Get first corner
+    $bounds->b->x( $self->origin->x + $self->size->x );   # Calc corner x value
+    $bounds->b->y( $self->origin->y + $self->size->y );   # Calc corner y value
+    return;
+  }
+
+=item I<get_clip_rect>
+
+  method get_clip_rect(TRect $clip)
+
+Returns the upper left and lower right corners in I<$clip> of the minimum
+sized area that needs to be redrawn.
+
+Uses this procedure in L</draw> to help locate only the area on the screen that
+needs to be updated.
+
+See: L</draw>
+
+=cut
+
+  method get_clip_rect(TRect $clip) {
+    $self->get_bounds($clip);                             # Get current bounds
+    $clip->intersect($self->owner->_clip)                 # Intersect with owner
+      if defined $self->owner;
+    $clip->move(- $self->origin->x, - $self->origin->y);  # Sub owner origin
+    return;
+  }
+
+=item I<get_color>
+
+  method get_color(Int $color) : Int;
+
+I<$color> contains two color indexes, one in the high byte and one in the low
+byte.
+
+I<get_color> maps these indexes into the each color palette, in turn, going all
+the way back to the palette containing the video color attributes.
+
+These values are then returned in the corresponding high and low bytes of the
+result.
+
+=cut
+
+  method get_color(Int $color) {
+    my $offset = $self->_colour_ofs;
+    my ( $col, $palette, $value );
+
+    $value = 0;                                           # Clear colour value
+    if ( $color & 0xff00 ) {                              # High colour req
+      $col = word($color)->hi + $offset;                  # Initial offset
+      my $view = $self;                                   # Reference to self
+      do {
+        $palette = $view->get_palette;                    # Get our palette
+        if ( defined $palette ) {                         # Palette is valid
+          $col = $col <= length $palette
+               ? ( unpack 'C*', $palette )[$col]          # Return colour
+               : _ERROR_ATTR                              # Error attribute
+               ;
+        }
+        $view = $view->owner;                             # Move up to owner
+      } while ( defined $view );                          # Until no owner
+      $value = $col << 8;                                 # Translate colour
+    }
+    if ( $color & 0x00ff ) {
+      $col = word($color)->lo + $offset;                  # Initial offset
+      my $view = $self;                                   # Reference to self
+      do {
+        $palette = $view->get_palette;                    # Get our palette
+        if ( defined $palette ) {                         # Palette is valid
+          $col = $col <= length $palette
+               ? ( unpack 'C*', $palette )[$col]          # Return colour
+               : _ERROR_ATTR                              # Error attribute
+               ;
+        }
+        $view = $view->owner;                             # Move up to owner
+      } while ( defined $view );                          # Until no owner
+    }
+    else {
+      $col = _ERROR_ATTR;                                 # No colour found
+    }
+    return $value | $col;                                 # Return color
+  }
+
+=item I<get_commands>
+
+  method get_commands(TCommandSet $commands)
+
+Use I<get_commands> to fetch a set containing all of the currently enabled
+commands.
+
+=cut
+
+  method get_commands(TCommandSet $commands) {
+    $commands = [];
+    foreach ( 0..255 ) {                                  # Return command set
+      push( @$commands, $_ )
+        if vec( $cur_command_set, $_, 1 );
+    }
+    return;
+  }
+
+=item I<get_data>
+
+  method get_data(HashRef $rec)
+
+This method is overridden in descendants to copy the appropriate amount of view
+data to I<$rec>.
+
+This method is primarily of interest to dialog box controls.
+
+=cut
+
+  method get_data(HashRef $rec) {
+    return;
+  }
+
+=item I<get_event>
+
+  method get_event(TEvent $event)
+
+Returns the next event from the event queue (typically called after calling
+L</event_avail>).
+
+=cut
+
+  method get_event(TEvent $event) {
+    $self->owner->get_event($event)                       # Event from owner
+      if defined $self->owner;
+    return;
+  }
+
+=item I<get_extent>
+
+  method get_extent(TRect $extent)
+
+Similar to L</get_bounds>, except that I<get_extent> sets I<$extent->a> = (0,0)
+such that I<$extent->b>, which is set to L</size>, reflects the total extent of
+the view relative to the upper left corner.
+
+=cut
+
+  method get_extent(TRect $extent) {
+    $extent->a->x( 0 );                                   # Zero x field
+    $extent->a->y( 0 );                                   # Zero y field
+    $extent->b->x( $self->size->x );                      # Return x size
+    $extent->b->y( $self->size->y );                      # Return y size
+    return;
+  }
+
+=item I<get_help_ctx>
+
+  method get_help_ctx() : Int
+
+Returns the L</help_ctx> value. 
+
+=cut
+
+  method get_help_ctx() {
+    return HC_DRAGGING                                    # Return dragging
+        if $self->state and SF_DRAGGING;                  # Dragging state check
+    return $self->help_ctx                                # Return help context
+  }
+
+=item I<get_palette>
+
+  method get_palette() : TPalette|Undef
+
+The default I<get_palette> returns C<undef>, so most views will elect to
+override this function such that it returns a I<TPalette> (= packed I<Str>) to
+the color palette for this view.
+
+=cut
+
+  method get_palette() {
+    return undef;                                         # Return undef
+  }
+
+=item I<get_peer_view_ptr>
+
+  method get_peer_view_ptr(TStream $s, Object|Undef $p)
+
+Used by L</load> when certain objects need to load a peer view, I<$p>, from
+stream I<$s>, such as a list box needing to load it scroll bar object.
+
+=cut
+
+  method get_peer_view_ptr(TStream $s, Object|Undef $p) {
+    return;
+  }
+
+=item I<get_state>
+
+  method get_state(Int $a_state) : Bool
+
+Parameter I<$a_state> can be set to multiple combinations of the I<sfXXXX>
+constants and returns True if the the indicated bits are set in the L</state>
+variable.
+
+See: L</state>, I<sfXXXX> constants
+
+=cut
+
+  method get_state(Int $a_state) {
+  }
+
+=item I<grow_to>
+
+  method grow_to(Int $x, Int $y)
+
+Calls L</locate> to adjust the size of the view.
+
+=cut
+
+  method grow_to(Int $x, Int $y) {
+    return;
+  }
+
+=item I<handle_event>
+
+  method handle_event(TEvent $event)
+
+Every view must override the I<handle_event> method.
+
+This is where events are recognized and parceled out to make the view come
+alive.
+
+For an example, see I<TVSHELL8.PAS>, I<< TShell.HandleEvent >>, in the Borland
+Pascal Developer's Guide.
+
+See: I<evXXXX> constants, I<cmXXXX> constants,
+     
+=cut
+
+  method handle_event(TEvent $event) {
+    return;
   }
 
 =item I<hide>
@@ -1130,8 +1406,8 @@ Sets I<$min> to (0,0) and I<$max> to I<< $self->owner->size >>.
       $max->y( $self->owner->size->y );
     }
     else {                                                # Max owner size
-      $max->x( _INT32_MAX );                              # Max possible x size
-      $max->y( _INT32_MAX );                              # Max possible y size
+      $max->x( _INT16_MAX );                              # Max possible x size
+      $max->y( _INT16_MAX );                              # Max possible y size
     }
     return;
   }
@@ -1145,7 +1421,7 @@ Writes I<$self> view to stream <$s>.
 =cut
 
   method store(TStream $s) {
-    my $write = sub {
+    my $write = sub ($$) {
       my $value = shift // 0;
       my $type = shift;
       SWITCH: foreach( $type ) {
@@ -1155,27 +1431,25 @@ Writes I<$self> view to stream <$s>.
       }
     };
 
-    my $state = $self->state // 0;                        # Hold current state
+    my $state = $self->state;                             # Hold current state
     $state &= ~(                                          # Clear flags
         SF_ACTIVE
       | SF_SELECTED
       | SF_FOCUSED
       | SF_EXPOSED
     );
-    try {
-      $write->( $self->origin->x,   'integer' );          # Write view x origin
-      $write->( $self->origin->y,   'integer' );          # Write view x origin
-      $write->( $self->size->x,     'integer' );          # Write view x size
-      $write->( $self->size->y,     'integer' );          # Write view x size
-      $write->( $self->cursor->x,   'integer' );          # Write view x cursor
-      $write->( $self->cursor->y,   'integer' );          # Write view x cursor
-      $write->( $self->grow_mode,   'byte'    );          # Write growmode flags
-      $write->( $self->drag_mode,   'byte'    );          # Write dragmode flags
-      $write->( $self->help_ctx,    'word'    );          # Write help context
-      $write->( $state,             'word'    );          # Write state masks
-      $write->( $self->options,     'word'    );          # Write options masks
-      $write->( $self->event_mask,  'word'    );          # Write event masks
-    }
+    $write->( $self->origin->x,   'integer' );            # Write view x origin
+    $write->( $self->origin->y,   'integer' );            # Write view x origin
+    $write->( $self->size->x,     'integer' );            # Write view x size
+    $write->( $self->size->y,     'integer' );            # Write view x size
+    $write->( $self->cursor->x,   'integer' );            # Write view x cursor
+    $write->( $self->cursor->y,   'integer' );            # Write view x cursor
+    $write->( $self->grow_mode,   'byte'    );            # Write growmode flags
+    $write->( $self->drag_mode,   'byte'    );            # Write dragmode flags
+    $write->( $self->help_ctx,    'word'    );            # Write help context
+    $write->( $state,             'word'    );            # Write state masks
+    $write->( $self->options,     'word'    );            # Write options masks
+    $write->( $self->event_mask,  'word'    );            # Write event masks
     return;
   }
 
@@ -1191,10 +1465,10 @@ Returns a reference to the view modal view that is on top.
     my $view;
     if ( not defined $_the_top_view ) {                   # Check topmost view
       $view = $self;                                      # Start with us
-      $view = $view->owner                                # Search each owner
-        while defined($view)
-          && ( $view->state & SF_MODAL == 0 )             # Check if modal
-          ;                             
+                                                          # Check if modal
+      while ( defined $view and not $view->state & SF_MODAL ) {
+        $view = $view->owner;                             # Search each owner
+      }
       return $view;                                       # Return result
     }
     return $_the_top_view;                                # Return topview
