@@ -420,6 +420,128 @@
 <p>If the view is completely hidden, then <i>exposed</i> returns False.</p>
 
 </dd>
+<dt id="get_bounds"><i>get_bounds</i></dt>
+<dd>
+
+<pre><code>  method get_bounds()</code></pre>
+
+<p>Returns the upper left and lower right corners of this view in <i>$bounds</i>, relative to the owner of the view.</p>
+
+</dd>
+<dt id="get_clip_rect"><i>get_clip_rect</i></dt>
+<dd>
+
+<pre><code>  method get_clip_rect(TRect $clip)</code></pre>
+
+<p>Returns the upper left and lower right corners in <i>$clip</i> of the minimum sized area that needs to be redrawn.</p>
+
+<p>Uses this procedure in <a href="#draw">&quot;draw&quot;</a> to help locate only the area on the screen that needs to be updated.</p>
+
+<p>See: <a href="#draw">&quot;draw&quot;</a></p>
+
+</dd>
+<dt id="get_color"><i>get_color</i></dt>
+<dd>
+
+<pre><code>  method get_color(Int $color) : Int;</code></pre>
+
+<p><i>$color</i> contains two color indexes, one in the high byte and one in the low byte.</p>
+
+<p><i>get_color</i> maps these indexes into the each color palette, in turn, going all the way back to the palette containing the video color attributes.</p>
+
+<p>These values are then returned in the corresponding high and low bytes of the result.</p>
+
+</dd>
+<dt id="get_commands"><i>get_commands</i></dt>
+<dd>
+
+<pre><code>  method get_commands(TCommandSet $commands)</code></pre>
+
+<p>Use <i>get_commands</i> to fetch a set containing all of the currently enabled commands.</p>
+
+</dd>
+<dt id="get_data"><i>get_data</i></dt>
+<dd>
+
+<pre><code>  method get_data(HashRef $rec)</code></pre>
+
+<p>This method is overridden in descendants to copy the appropriate amount of view data to <i>$rec</i>.</p>
+
+<p>This method is primarily of interest to dialog box controls.</p>
+
+</dd>
+<dt id="get_event"><i>get_event</i></dt>
+<dd>
+
+<pre><code>  method get_event(TEvent $event)</code></pre>
+
+<p>Returns the next event from the event queue (typically called after calling <a href="#event_avail">&quot;event_avail&quot;</a>).</p>
+
+</dd>
+<dt id="get_extent"><i>get_extent</i></dt>
+<dd>
+
+<pre><code>  method get_extent(TRect $extent)</code></pre>
+
+<p>Similar to <a href="#get_bounds">&quot;get_bounds&quot;</a>, except that <i>get_extent</i> sets <i>$extent-</i>a&gt; = (0,0) such that <i>$extent-</i>b&gt;, which is set to <a href="#size">&quot;size&quot;</a>, reflects the total extent of the view relative to the upper left corner.</p>
+
+</dd>
+<dt id="get_help_ctx"><i>get_help_ctx</i></dt>
+<dd>
+
+<pre><code>  method get_help_ctx() : Int</code></pre>
+
+<p>Returns the <a href="#help_ctx">&quot;help_ctx&quot;</a> value.</p>
+
+</dd>
+<dt id="get_palette"><i>get_palette</i></dt>
+<dd>
+
+<pre><code>  method get_palette() : TPalette|Undef</code></pre>
+
+<p>The default <i>get_palette</i> returns <code>undef</code>, so most views will elect to override this function such that it returns a <i>TPalette</i> (= packed <i>Str</i>) to the color palette for this view.</p>
+
+</dd>
+<dt id="get_peer_view_ptr"><i>get_peer_view_ptr</i></dt>
+<dd>
+
+<pre><code>  method get_peer_view_ptr(TStream $s, Object|Undef $p)</code></pre>
+
+<p>Used by <a href="#load">&quot;load&quot;</a> when certain objects need to load a peer view, <i>$p</i>, from stream <i>$s</i>, such as a list box needing to load it scroll bar object.</p>
+
+</dd>
+<dt id="get_state"><i>get_state</i></dt>
+<dd>
+
+<pre><code>  method get_state(Int $a_state) : Bool</code></pre>
+
+<p>Parameter <i>$a_state</i> can be set to multiple combinations of the <i>sfXXXX</i> constants and returns True if the the indicated bits are set in the <a href="#state">&quot;state&quot;</a> variable.</p>
+
+<p>See: <a href="#state">&quot;state&quot;</a>, <i>sfXXXX</i> constants</p>
+
+</dd>
+<dt id="grow_to"><i>grow_to</i></dt>
+<dd>
+
+<pre><code>  method grow_to(Int $x, Int $y)</code></pre>
+
+<p>Calls <a href="#locate">&quot;locate&quot;</a> to adjust the size of the view.</p>
+
+</dd>
+<dt id="handle_event"><i>handle_event</i></dt>
+<dd>
+
+<pre><code>  method handle_event(TEvent $event)</code></pre>
+
+<p>Every view must override the <i>handle_event</i> method.</p>
+
+<p>This is where events are recognized and parceled out to make the view come alive.</p>
+
+<p>For an example, see <i>TVSHELL8.PAS</i>, <i>TShell.HandleEvent</i>, in the Borland Pascal Developer&#39;s Guide.</p>
+
+<p>See: <i>evXXXX</i> constants, <i>cmXXXX</i> constants,</p>
+
+</dd>
 <dt id="hide"><i>hide</i></dt>
 <dd>
 
