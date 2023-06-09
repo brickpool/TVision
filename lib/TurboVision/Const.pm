@@ -54,6 +54,8 @@ Nothing per default, but can export the following per request:
       _TRUE
 
     :limits
+      _INT16_MIN
+      _INT16_MAX
       _INT32_MIN
       _INT32_MAX
       _SIMPLE_STR_MAX
@@ -93,6 +95,8 @@ our %EXPORT_TAGS = (
   )],
 
   limits => [qw(
+    _INT16_MIN
+    _INT16_MAX
     _INT32_MIN
     _INT32_MAX
     _SIMPLE_STR_MAX
@@ -194,6 +198,26 @@ True constant.
 
 =over
 
+=item I<_INT16_MIN>
+
+  constant _INT16_MIN = < Int >;
+
+Minimum value for a variable of the type signed short (16-bit).
+
+=cut
+
+  use constant _INT16_MIN       => -32767 - 1;
+
+=item I<_INT16_MAX>
+
+  constant _INT16_MAX = < Int >;
+
+Maximum value for a variable of the type signed short (16-bit).
+
+=cut
+
+  use constant _INT16_MAX       => 32767;
+
 =item I<_INT32_MIN>
 
   constant _INT32_MIN = < Int >;
@@ -213,7 +237,6 @@ Maximum value for a variable of the type signed long (32-bit).
 =cut
 
   use constant _INT32_MAX       => 2147483647;
-
 
 =item I<_SIMPLE_STR_MAX>
 
