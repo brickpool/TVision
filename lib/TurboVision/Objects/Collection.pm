@@ -399,7 +399,7 @@ individual item in the collection.
 
   factory load(TStream $s) {
     my $read = sub {
-      SWITCH: foreach( $_[0] ) {
+      SWITCH: for( $_[0] ) {
         /word/ && do {
           $s->read(my $buf, word->size);
           return word( $buf )->unpack;

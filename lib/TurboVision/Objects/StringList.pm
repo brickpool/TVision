@@ -238,7 +238,7 @@ strings.
 
   factory load(TStream $s) {
     my $read = sub {
-      SWITCH: foreach( $_[0] ) {
+      SWITCH: for( $_[0] ) {
         /longint/ && do {
           $s->read(my $buf, longint->size);
           return longint( $buf )->unpack;

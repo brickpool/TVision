@@ -185,7 +185,7 @@ L</duplicates> attribute.
 
   factory_inherit load(TStream $s) {
     my $read = sub {
-      SWITCH: foreach( $_[0] ) {
+      SWITCH: for( $_[0] ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;

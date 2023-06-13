@@ -144,7 +144,7 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
 
   around get_item(TStream $s) {
     my $read = sub {
-      SWITCH: foreach( $_[0] ) {
+      SWITCH: for( $_[0] ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
