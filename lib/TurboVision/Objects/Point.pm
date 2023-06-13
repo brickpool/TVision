@@ -141,62 +141,89 @@ I<copy> sets all attributes equal to those in point I<$pt>.
 
 =over
 
-=item I<_sub>
-
-  func _sub(TPoint $one, TPoint $two) : TPoint
-
-Overload subtraction so we can write code like C<< $pt = $one - $two  >>.
-
-=cut
-
-  func _sub(TPoint $one, TPoint $two, Bool $swap) {
-    return
-      $swap ? TPoint->new(
-                x => $two->x - $one->x,
-                y => $two->y - $one->y,
-              )
-            : TPoint->new(
-                x => $one->x - $two->x,
-                y => $one->y - $two->y,
-              )
-            ;
-  };
-  use overload '-' => \&_sub, fallback => 1;
-
 =item I<_add>
 
-  func _add(TPoint $one, TPoint $two) : TPoint
+  func _add(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint
 
-Overload addition so we can write code like C<< $pt = $one + $two >>.
+Overload addition so that we can write code like C<< $pt = $one + $two >>.
 
 =cut
 
   func _add(TPoint $one, TPoint|Int $two, $=) {
-    return TPoint->new(
-      x => $one->x + $two->x,
-      y => $one->y + $two->y,
-    );
+    return
+      TPoint->new(
+        x => $one->x + (is_Int($two) ? $two : $two->x),
+        y => $one->y + (is_Int($two) ? $two : $two->y),
+      );
   };
-  use overload '+' => \&_add, fallback => 1;
+  use overload '+' => '_add', fallback => 1;
+
+=item I<_clone>
+
+  method _clone() : TPoint
+
+Overloading the copy constructor so that we can write code like
+C<< $c = $pt; $c++; >> without affecting C<$pt>.
+
+=cut
+
+  method _clone(@) {
+    return
+      TPoint->new(
+          x => $self->x,
+          y => $self->y,
+        );
+  };
+  use overload '=' => '_clone', fallback => 0;
+
+=item I<_decr>
+
+  method _decr()
+
+Overloading decrement so that we can write code like C<< $pt-- >>.
+
+=cut
+
+  method _decr(@) {
+    $self->x( $self->x - 1 );
+    $self->y( $self->y - 1 );
+    return;
+  };
+  use overload '--' => '_decr', fallback => 1;
 
 =item I<_equal>
 
   func _equal(TPoint $one, TPoint $two) : Bool
 
-Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
+Overload equal comparison C<==> so that we can write code like C<< $one == $two >>.
 
 =cut
 
   func _equal(TPoint $one, TPoint $two, $=) {
     return $one->x == $two->x && $one->y == $two->y;
   };
-  use overload '==' => \&_equal, fallback => 1;
+  use overload '==' => '_equal', fallback => 1;
+
+=item I<_incr>
+
+  method _incr()
+
+Overloading increment so that we can write code like C<< $pt++ >>.
+
+=cut
+
+  method _incr(@) {
+    $self->x( $self->x + 1 );
+    $self->y( $self->y + 1 );
+    return;
+  };
+  use overload '++' => '_incr', fallback => 1;
 
 =item I<_not_equal>
 
   func _not_equal(TPoint $one, TPoint $two) : Bool
 
-Overload not equal comparison C<!=> so we can write code like
+Overload not equal comparison C<!=> so that we can write code like
 C<< $one != $two >>.
 
 =cut
@@ -204,13 +231,13 @@ C<< $one != $two >>.
   func _not_equal(TPoint $one, TPoint $two, $=) {
     return $one->x != $two->x || $one->y != $two->y;
   };
-  use overload '!=' => \&_not_equal, fallback => 1;
+  use overload '!=' => '_not_equal', fallback => 1;
 
 =item I<_stringify>
 
   method _stringify() : Str
 
-Overload stringify so we can write code like C<< print $pt >>.
+Overload stringify so that we can write code like C<< print $pt >>.
 
 =cut
 
@@ -219,7 +246,29 @@ Overload stringify so we can write code like C<< print $pt >>.
       "p->x : %d\np->y : %d", $self->x, $self->y
     );
   };
-  use overload '""' => \&_stringify, fallback => 1;
+  use overload '""' => '_stringify', fallback => 1;
+
+=item I<_sub>
+
+  func _sub(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint
+
+Overload subtraction so that we can write code like C<< $pt = $one - $two >>.
+
+=cut
+
+  func _sub(TPoint $one, TPoint|Int $two, Bool $swap) {
+    return
+      $swap ? TPoint->new(
+                x => (is_Int($two) ? $two : $two->x) - $one->x,
+                y => (is_Int($two) ? $two : $two->x) - $one->y,
+              )
+            : TPoint->new(
+                x => $one->x - (is_Int($two) ? $two : $two->x),
+                y => $one->y - (is_Int($two) ? $two : $two->y),
+              )
+            ;
+  };
+  use overload '-' => '_sub', fallback => 1;
 
 =back
 

@@ -48,6 +48,22 @@ ok(
   'TPoint->_not_equal'
 );
 
+$a++;
+is( $a->x, 2, 'TPoint->_inc && TPoint->a->x' );
+is( $a->y, 3, 'TPoint->_inc && TPoint->a->y' );
+
+$d = 5 - $a;
+$d--;
+is( $d->x, 2, 'Int && TPoint->_sub && TPoint->d->x' );
+is( $d->y, 1, 'Int && TPoint->_sub && TPoint->d->y' );
+
+$c = $pt;
+$c++;
+ok(
+  $a == $c && $pt != $c,
+  'TPoint->_clone'
+);
+
 ok( length($a) > 15, 'TPoint->_stringify' );
 
 #------------
