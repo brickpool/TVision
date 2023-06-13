@@ -91,16 +91,6 @@
   23    $self-&gt;enable_commands( $commands_on );</code></pre>
 
 </dd>
-<dt id="TPalette"><i>TPalette</i></dt>
-<dd>
-
-<pre><code>  subtype TPalette : Str;</code></pre>
-
-<p>Defines the data type used for storing color palettes.</p>
-
-<p>Since all color palettes are equivalent to strings, you can use, if you wish, all of the various string manipulation functions, including indexing (with <code>substr</code>), copy (with <code>=</code>), delete (<code>undef</code>), insert (also <code>substr</code>) and so on.</p>
-
-</dd>
 <dt id="TDrawBuffer"><i>TDrawBuffer</i></dt>
 <dd>
 
@@ -120,20 +110,30 @@
 <p>See: <i>TView</i> methods <i>write_buf</i> and <i>write_line</i>.</p>
 
 </dd>
+<dt id="TFixupList"><i>TFixupList</i></dt>
+<dd>
+
+<pre><code>  subtype TFixupList : ArrayRef[Ref];</code></pre>
+
+<p>Fix up reference array.</p>
+
+</dd>
+<dt id="TPalette"><i>TPalette</i></dt>
+<dd>
+
+<pre><code>  subtype TPalette : Str;</code></pre>
+
+<p>Defines the data type used for storing color palettes.</p>
+
+<p>Since all color palettes are equivalent to strings, you can use, if you wish, all of the various string manipulation functions, including indexing (with <code>substr</code>), copy (with <code>=</code>), delete (<code>undef</code>), insert (also <code>substr</code>) and so on.</p>
+
+</dd>
 <dt id="TTitleStr"><i>TTitleStr</i></dt>
 <dd>
 
 <pre><code>  subtype TTitleStr : Str;</code></pre>
 
 <p>Defines a type used by <i>TWindow</i> for window title strings.</p>
-
-</dd>
-<dt id="TScrollChars"><i>TScrollChars</i></dt>
-<dd>
-
-<pre><code>  subtype TScrollChars : Str;</code></pre>
-
-<p>This is an internal type used inside <i>TScrollBar</i> to store the characters used to draw a <i>TScrollBar</i> object on the display.</p>
 
 </dd>
 <dt id="TVideoBuf"><i>TVideoBuf</i></dt>
@@ -144,6 +144,14 @@
 <p>This defines the internal type used in video buffer declarations in <i>TGroup</i>.</p>
 
 <p>Video buffers are used to store screen images in cache memory (see <i>get_buf_mem</i>) for rapid screen update.</p>
+
+</dd>
+<dt id="TScrollChars"><i>TScrollChars</i></dt>
+<dd>
+
+<pre><code>  subtype TScrollChars : Str;</code></pre>
+
+<p>This is an internal type used inside <i>TScrollBar</i> to store the characters used to draw a <i>TScrollBar</i> object on the display.</p>
 
 </dd>
 </dl>

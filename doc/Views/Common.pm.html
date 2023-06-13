@@ -59,8 +59,11 @@
     :vars
       $command_set_changed
       $cur_command_set
+      $shadow_size
 
     private:
+      $_fixup_list
+      $_owner_group
       $_the_top_view</code></pre>
 
 <h2 id="Variables">Variables</h2>
@@ -83,6 +86,30 @@
 <p><i>$cur_command_set</i> is a string created with Perl&#39;s command <i>vec</i>.</p>
 
 <p>It stores the current command set. By default, all commands except those of the window are active.</p>
+
+</dd>
+<dt id="shadow_size"><i>$shadow_size</i></dt>
+<dd>
+
+<pre><code>  our $shadow_size = &lt; TPoint &gt;;</code></pre>
+
+<p>Shadow sizes.</p>
+
+</dd>
+<dt id="fixup_list"><i>$_fixup_list</i></dt>
+<dd>
+
+<pre><code>  our $_fixup_list = &lt; TFixupList &gt;;</code></pre>
+
+<p>Used for loading.</p>
+
+</dd>
+<dt id="owner_group"><i>$_owner_group</i></dt>
+<dd>
+
+<pre><code>  our $_owner_group = &lt; TGroup &gt;;</code></pre>
+
+<p>Used for loading.</p>
 
 </dd>
 <dt id="the_top_view"><i>$_the_top_view</i></dt>

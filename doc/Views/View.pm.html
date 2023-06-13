@@ -123,7 +123,7 @@
 
 <p>You must directly set a value to <i>drag_mode</i> using the <i>dmXXXX</i> constants.</p>
 
-<p>See: <i>dmXXXX</i> constants for more information on these settings.</p>
+<p>See <i>dmXXXX</i> constants for more information on these settings.</p>
 
 </dd>
 <dt id="event_mask"><i>event_mask</i></dt>
@@ -137,7 +137,7 @@
 
 <p>You set <i>event_mask</i>to a combination of the <i>evXXXX</i> constants.</p>
 
-<p>See: <i>evXXXX</i> constants</p>
+<p>See <i>evXXXX</i> constants.</p>
 
 </dd>
 <dt id="grow_mode"><i>grow_mode</i></dt>
@@ -149,7 +149,7 @@
 
 <p>You must explicitly assign values to <i>grow_mode</i>.</p>
 
-<p>See: <i>gfXXXX</i> constants for more information on these bit settings.</p>
+<p>See <i>gfXXXX</i> constants for more information on these bit settings.</p>
 
 </dd>
 <dt id="help_ctx"><i>help_ctx</i></dt>
@@ -263,7 +263,7 @@
 
 <p>Changes the cursor to the solid block cursor by setting the <i>SF_CURSOR_INS</i> bit in the <i>state</i> attribute.</p>
 
-<p>See: <a href="#normal_cursor">&quot;normal_cursor&quot;</a></p>
+<p>See <a href="#normal_cursor">&quot;normal_cursor&quot;</a></p>
 
 </dd>
 <dt id="calc_bounds"><i>calc_bounds</i></dt>
@@ -307,7 +307,7 @@
 
 <p>Used in conjunction with <a href="#get_data">&quot;get_data&quot;</a> and <a href="#set_data">&quot;set_data&quot;</a> to copy the views data to and from a data record.</p>
 
-<p>See: <a href="#get_data">&quot;get_data&quot;</a>, <a href="#set_data">&quot;set_data&quot;</a></p>
+<p>See <a href="#get_data">&quot;get_data&quot;</a>, <a href="#set_data">&quot;set_data&quot;</a></p>
 
 </dd>
 <dt id="disable_commands"><i>disable_commands</i></dt>
@@ -319,7 +319,7 @@
 
 <p>Calling <i>disable_commands</i> causes these <i>$commands</i> to become greyed out on the menus and status line.</p>
 
-<p>See: <a href="#enable_commands">&quot;enable_commands&quot;</a></p>
+<p>See <a href="#enable_commands">&quot;enable_commands&quot;</a></p>
 
 </dd>
 <dt id="drag_view"><i>drag_view</i></dt>
@@ -353,7 +353,7 @@
 
 <p>The use of <a href="#get_clip_rect">&quot;get_clip_rect&quot;</a> can noticeably improve performance by minimizing the amount of time spent updating the screen.</p>
 
-<p>See: <a href="#draw_view">&quot;draw_view&quot;</a>, <a href="#get_clip_rect">&quot;get_clip_rect&quot;</a></p>
+<p>See <a href="#draw_view">&quot;draw_view&quot;</a>, <a href="#get_clip_rect">&quot;get_clip_rect&quot;</a></p>
 
 </dd>
 <dt id="draw_view"><i>draw_view</i></dt>
@@ -367,7 +367,7 @@
 
 <p><a href="#draw">&quot;draw&quot;</a> doesn&#39;t care if the view is visible since Turbo Vision will automatically clip away text that doesn&#39;t currently appear in a view.</p>
 
-<p>See: <a href="#draw">&quot;draw&quot;</a></p>
+<p>See <a href="#draw">&quot;draw&quot;</a></p>
 
 </dd>
 <dt id="enable_commands"><i>enable_commands</i></dt>
@@ -379,8 +379,6 @@
 
 <p><i>enable_commands</i> is the inverse of <a href="#disable_commands">&quot;disable_commands&quot;</a> and restores commands to an operable state.</p>
 
-<p>See: <a href="#disable_commands">&quot;disable_commands&quot;</a></p>
-
 </dd>
 <dt id="end_modal"><i>end_modal</i></dt>
 <dd>
@@ -389,7 +387,7 @@
 
 <p>Used internally in conjunction with <i>exec_view</i> for displaying modal views, such as dialogs, to terminate the modal view.</p>
 
-<p>See: <i>TGroup-&gt;end_modal</i>, <i>TGroup-&gt;execute</i>, <i>TGroup-&gt;exec_view</i></p>
+<p>See <i>TGroup-&gt;end_modal</i>, <i>TGroup-&gt;execute</i>, <i>TGroup-&gt;exec_view</i></p>
 
 </dd>
 <dt id="event_avail"><i>event_avail</i></dt>
@@ -407,7 +405,7 @@
 
 <p><i>execute</i> is overridden in <i>TGroup</i> descendants to provide the event loop that makes the view a modal view.</p>
 
-<p>See: <i>TGroup-&gt;end_modal</i>, <i>TGroup-&gt;execute</i>, <i>TGroup-&gt;exec_view</i></p>
+<p>See <i>TGroup-&gt;end_modal</i>, <i>TGroup-&gt;execute</i>, <i>TGroup-&gt;exec_view</i></p>
 
 </dd>
 <dt id="exposed"><i>exposed</i></dt>
@@ -437,7 +435,7 @@
 
 <p>Uses this procedure in <a href="#draw">&quot;draw&quot;</a> to help locate only the area on the screen that needs to be updated.</p>
 
-<p>See: <a href="#draw">&quot;draw&quot;</a></p>
+<p>See <a href="#draw">&quot;draw&quot;</a></p>
 
 </dd>
 <dt id="get_color"><i>get_color</i></dt>
@@ -463,7 +461,7 @@
 <dt id="get_data"><i>get_data</i></dt>
 <dd>
 
-<pre><code>  method get_data(HashRef $rec)</code></pre>
+<pre><code>  method get_data(Str $rec)</code></pre>
 
 <p>This method is overridden in descendants to copy the appropriate amount of view data to <i>$rec</i>.</p>
 
@@ -483,7 +481,7 @@
 
 <pre><code>  method get_extent(TRect $extent)</code></pre>
 
-<p>Similar to <a href="#get_bounds">&quot;get_bounds&quot;</a>, except that <i>get_extent</i> sets <i>$extent-</i>a&gt; = (0,0) such that <i>$extent-</i>b&gt;, which is set to <a href="#size">&quot;size&quot;</a>, reflects the total extent of the view relative to the upper left corner.</p>
+<p>Similar to <a href="#get_bounds">&quot;get_bounds&quot;</a>, except that <i>get_extent</i> sets <i>$extent-&gt;a</i> = (0,0) such that <i>$extent-&gt;b</i>, which is set to <a href="#size">&quot;size&quot;</a>, reflects the total extent of the view relative to the upper left corner.</p>
 
 </dd>
 <dt id="get_help_ctx"><i>get_help_ctx</i></dt>
@@ -505,9 +503,9 @@
 <dt id="get_peer_view_ptr"><i>get_peer_view_ptr</i></dt>
 <dd>
 
-<pre><code>  method get_peer_view_ptr(TStream $s, Object|Undef $p)</code></pre>
+<pre><code>  method get_peer_view_ptr(TStream $s, Ref $r)</code></pre>
 
-<p>Used by <a href="#load">&quot;load&quot;</a> when certain objects need to load a peer view, <i>$p</i>, from stream <i>$s</i>, such as a list box needing to load it scroll bar object.</p>
+<p>Used by <a href="#load">&quot;load&quot;</a> when certain objects need to load a peer view, <i>$r</i>, from stream <i>$s</i>, such as a list box needing to load it scroll bar object.</p>
 
 </dd>
 <dt id="get_state"><i>get_state</i></dt>
@@ -517,7 +515,7 @@
 
 <p>Parameter <i>$a_state</i> can be set to multiple combinations of the <i>sfXXXX</i> constants and returns True if the the indicated bits are set in the <a href="#state">&quot;state&quot;</a> variable.</p>
 
-<p>See: <a href="#state">&quot;state&quot;</a>, <i>sfXXXX</i> constants</p>
+<p>See <a href="#state">&quot;state&quot;</a>, <i>sfXXXX</i> constants</p>
 
 </dd>
 <dt id="grow_to"><i>grow_to</i></dt>
@@ -539,7 +537,7 @@
 
 <p>For an example, see <i>TVSHELL8.PAS</i>, <i>TShell.HandleEvent</i>, in the Borland Pascal Developer&#39;s Guide.</p>
 
-<p>See: <i>evXXXX</i> constants, <i>cmXXXX</i> constants,</p>
+<p>See <i>evXXXX</i> constants, <i>cmXXXX</i> constants</p>
 
 </dd>
 <dt id="hide"><i>hide</i></dt>
@@ -549,7 +547,187 @@
 
 <p>Hides the view.</p>
 
-<p>See: <a href="#show">&quot;show&quot;</a></p>
+<p>See <a href="#show">&quot;show&quot;</a></p>
+
+</dd>
+<dt id="hide_cursor"><i>hide_cursor</i></dt>
+<dd>
+
+<pre><code>  method hide_cursor()</code></pre>
+
+<p>Hides the cursor.</p>
+
+<p>See <a href="#show_cursor">&quot;show_cursor&quot;</a></p>
+
+</dd>
+<dt id="key_event"><i>key_event</i></dt>
+<dd>
+
+<pre><code>  method key_event(TEvent $event)</code></pre>
+
+<p><i>key_event</i> ignores all incoming events until it gets an <i>EV_KEY_DOWN</i> event, and it returns that event.</p>
+
+</dd>
+<dt id="locate"><i>locate</i></dt>
+<dd>
+
+<pre><code>  method locate(TRect $bounds)</code></pre>
+
+<p>Changes the boundaries of the view and redisplays the view on the screen.</p>
+
+</dd>
+<dt id="make_first"><i>make_first</i></dt>
+<dd>
+
+<pre><code>  method make_first()</code></pre>
+
+<p>Moves this view to the first position (closest to the screen) in the owner&#39;s Z-ordered list of views.</p>
+
+</dd>
+<dt id="make_global"><i>make_global</i></dt>
+<dd>
+
+<pre><code>  method make_global(TPoint $source, TPoint $dest)</code></pre>
+
+<p>Use <i>make_global</i> (see also <a href="#make_local">&quot;make_local&quot;</a>) to convert <i>$source</i>, which contains view relative coordinates, to screen coordinates.</p>
+
+<p>The converted value is returned in <i>$dest</i>.</p>
+
+</dd>
+<dt id="make_local"><i>make_local</i></dt>
+<dd>
+
+<pre><code>  method make_local(TPoint $source, TPoint $dest)</code></pre>
+
+<p>Converts the screen coordinates into view relative coordinates.</p>
+
+<p>See <a href="#make_global">&quot;make_global&quot;</a>.</p>
+
+</dd>
+<dt id="mouse_event"><i>mouse_event</i></dt>
+<dd>
+
+<pre><code>  method mouse_event(TEvent $event, Int $mask) : Bool</code></pre>
+
+<p><i>$mask</i> is an <i>EV_MOUSE</i> event.</p>
+
+<p><i>mouse_event</i> sets <i>$event</i> to the next mouse event and returns True if the <i>$event-&gt;what</i> field matches <i>$mask</i>, and False if when <i>EV_MOUSE_UP</i> occurs.</p>
+
+<p>Typically, this function is called when a mouse is being dragged.</p>
+
+<p>To process the dragging operation, keep calling this routine until it returns False, meaning that the mouse button has been let up.</p>
+
+</dd>
+<dt id="mouse_in_view"><i>mouse_in_view</i></dt>
+<dd>
+
+<pre><code>  method mouse_in_view(TPoint $mouse) : Bool</code></pre>
+
+<p>If the point described by <i>$mouse</i> (in screen coordinates) lies within this view, then <i>mouse_in_view</i> returns True.</p>
+
+</dd>
+<dt id="move_to"><i>move_to</i></dt>
+<dd>
+
+<pre><code>  method move_to(Int $x, Int $y)</code></pre>
+
+<p>Keeping the view the same size, <i>move_to</i> moves the upper left corner, and hence the entire view, to the new point <i>($x,$y)</i>.</p>
+
+</dd>
+<dt id="next_view"><i>next_view</i></dt>
+<dd>
+
+<pre><code>  method next_view() : TView|Undef</code></pre>
+
+<p><i>next_view</i> returns a Reference to the next view, in sequence, in the owner&#39;s list of views, or <code>undef</code> if it has reached the end of the list.</p>
+
+</dd>
+<dt id="normal_cursor"><i>normal_cursor</i></dt>
+<dd>
+
+<pre><code>  method normal_cursor()</code></pre>
+
+<p>Sets the screen cursor to an underscore-style cursor.</p>
+
+<p>See <a href="#block_cursor">&quot;block_cursor&quot;</a>.</p>
+
+</dd>
+<dt id="prev"><i>prev</i></dt>
+<dd>
+
+<pre><code>  method prev() : TView</code></pre>
+
+<p><i>prev</i> returns a reference to the previous view, in sequence, in the owner&#39;s list of views, and cycles back to the beginning of the list if it has reached the end.</p>
+
+</dd>
+<dt id="prev_view"><i>prev_view</i></dt>
+<dd>
+
+<pre><code>  method prev_view() : TView|Undef</code></pre>
+
+<p>Identical to <a href="#prev">&quot;prev&quot;</a> except that if <i>prev_view</i> reaches the beginning of the view list, <i>prev_view</i> returns <code>undef</code>.</p>
+
+</dd>
+<dt id="put_event"><i>put_event</i></dt>
+<dd>
+
+<pre><code>  method put_event(TEvent $event)</code></pre>
+
+<p>Using <i>put_event</i>, you can force one and only one event to be inserted as the next event in the event queue.</p>
+
+<p><i>$event</i> will become the next event retrieved by <a href="#get_event">&quot;get_event&quot;</a>.</p>
+
+</dd>
+<dt id="put_in_front_of"><i>put_in_front_of</i></dt>
+<dd>
+
+<pre><code>  method put_in_front_of(TView $target)</code></pre>
+
+<p>Where <i>$target</i> is any view in this view&#39;s owner&#39;s view list, <i>put_in_front_of</i> moves this view to be placed directly in front of <i>$target</i>.</p>
+
+</dd>
+<dt id="put_peer_view_ptr"><i>put_peer_view_ptr</i></dt>
+<dd>
+
+<pre><code>  method put_peer_view_ptr(TStream $s, TView $r)</code></pre>
+
+<p>The <a href="#store">&quot;store&quot;</a> method calls this routine to write the &quot;peer&quot; view object <i>$r</i> to stream <i>$s</i>.</p>
+
+</dd>
+<dt id="select"><i>select</i></dt>
+<dd>
+
+<pre><code>  method select()</code></pre>
+
+<p><i>select</i> makes this view the active view in the group, and if the owning group is on the focused chain, then this view becomes the focused view.</p>
+
+</dd>
+<dt id="set_bounds"><i>set_bounds</i></dt>
+<dd>
+
+<pre><code>  method set_bounds(TRect $bounds)</code></pre>
+
+<p>This is an internal routine called by <a href="#change_bounds">&quot;change_bounds&quot;</a>.</p>
+
+</dd>
+<dt id="set_commands"><i>set_commands</i></dt>
+<dd>
+
+<pre><code>  method set_commands(TCommandSet $commands)</code></pre>
+
+<p>Sets the currently list of enabled commands to the set passed in the <i>$commands</i> parameter.</p>
+
+<p>See <a href="#enable_commands">&quot;enable_commands&quot;</a>, <a href="#disablecommands">&quot;disablecommands&quot;</a></p>
+
+</dd>
+<dt id="set_data"><i>set_data</i></dt>
+<dd>
+
+<pre><code>  method set_data(Str $rec)</code></pre>
+
+<p>Copies <a href="#data_size">&quot;data_size&quot;</a> bytes from <i>$rec</i> to the view&#39;s data fields.</p>
+
+<p>See <a href="#data_size">&quot;data_size&quot;</a>, <a href="#get_data">&quot;get_data&quot;</a></p>
 
 </dd>
 <dt id="set_state"><i>set_state</i></dt>
@@ -569,7 +747,7 @@
 
 <p>Causes the view to be displayed.</p>
 
-<p>See: <a href="#hide">&quot;hide&quot;</a></p>
+<p>See <a href="#hide">&quot;hide&quot;</a></p>
 
 </dd>
 <dt id="show_cursor"><i>show_cursor</i></dt>

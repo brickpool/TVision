@@ -104,20 +104,28 @@
 
 <dl>
 
-<dt id="sub"><i>_sub</i></dt>
-<dd>
-
-<pre><code>  func _sub(TPoint $one, TPoint $two) : TPoint</code></pre>
-
-<p>Overload subtraction so we can write code like <code>$pt = $one - $two</code>.</p>
-
-</dd>
 <dt id="add"><i>_add</i></dt>
 <dd>
 
-<pre><code>  func _add(TPoint $one, TPoint $two) : TPoint</code></pre>
+<pre><code>  func _add(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint</code></pre>
 
-<p>Overload addition so we can write code like <code>$pt = $one + $two</code>.</p>
+<p>Overload addition so that we can write code like <code>$pt = $one + $two</code>.</p>
+
+</dd>
+<dt id="clone"><i>_clone</i></dt>
+<dd>
+
+<pre><code>  method _clone() : TPoint</code></pre>
+
+<p>Overloading the copy constructor so that we can write code like <code>$c = $pt; $c++;</code> without affecting <code>$pt</code>.</p>
+
+</dd>
+<dt id="decr"><i>_decr</i></dt>
+<dd>
+
+<pre><code>  method _decr()</code></pre>
+
+<p>Overloading decrement so that we can write code like <code>$pt--</code>.</p>
 
 </dd>
 <dt id="equal"><i>_equal</i></dt>
@@ -125,7 +133,15 @@
 
 <pre><code>  func _equal(TPoint $one, TPoint $two) : Bool</code></pre>
 
-<p>Overload equal comparison <code>==</code> so we can write code like <code>$one == $two</code>.</p>
+<p>Overload equal comparison <code>==</code> so that we can write code like <code>$one == $two</code>.</p>
+
+</dd>
+<dt id="incr"><i>_incr</i></dt>
+<dd>
+
+<pre><code>  method _incr()</code></pre>
+
+<p>Overloading increment so that we can write code like <code>$pt++</code>.</p>
 
 </dd>
 <dt id="not_equal"><i>_not_equal</i></dt>
@@ -133,7 +149,7 @@
 
 <pre><code>  func _not_equal(TPoint $one, TPoint $two) : Bool</code></pre>
 
-<p>Overload not equal comparison <code>!=</code> so we can write code like <code>$one != $two</code>.</p>
+<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$one != $two</code>.</p>
 
 </dd>
 <dt id="stringify"><i>_stringify</i></dt>
@@ -141,7 +157,15 @@
 
 <pre><code>  method _stringify() : Str</code></pre>
 
-<p>Overload stringify so we can write code like <code>print $pt</code>.</p>
+<p>Overload stringify so that we can write code like <code>print $pt</code>.</p>
+
+</dd>
+<dt id="sub"><i>_sub</i></dt>
+<dd>
+
+<pre><code>  func _sub(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint</code></pre>
+
+<p>Overload subtraction so that we can write code like <code>$pt = $one - $two</code>.</p>
 
 </dd>
 </dl>
