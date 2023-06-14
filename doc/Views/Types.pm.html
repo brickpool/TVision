@@ -58,37 +58,11 @@
 <dt id="TCommandSet"><i>TCommandSet</i></dt>
 <dd>
 
-<pre><code>  subtype TCommandSet : ArrayRef[Int];</code></pre>
+<pre><code>  class_type TCommandSet : Object;</code></pre>
 
 <p>In Turbo Vision, command codes are assigned values from 0 to 65535, with values in the range of 0 to 255 reserved for items that can be selectively disabled.</p>
 
 <p><i>TCommandSet</i> is used to hold a set of up to 256 commands, specifically those that can be disabled, and is used as a parameter for the <i>TView</i> methods, <i>enable_commands</i>, <i>disable_commands</i>, <i>get_commands</i> and <i>set_commands</i>.</p>
-
-<p>The following listing illustrates the use of a <i>TCommandSet</i> type.</p>
-
-<pre><code>   1  # tcmdset.pl
-   2  # Example using TCommandSet, from &#39;TVSHELL8.PAS&#39;
-   3  use Turbo::Vision::Views;
-   4  use Array::Utils qw( array_minus );
-   5  ...
-   6    my $commands_on;
-   7    my $commands_off;
-   8    ...
-   9    $commands_on = [ CM_USE_DOS, CM_DELETE ];
-  10    $commands_off = [ @$commands_on ];
-  11  
-  12    if ( $set_up_data-&gt;prog_options &amp; 2 == 2 ) {
-  13      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
-  14    }
-  15  
-  16    if ( $set_up_data-&gt;prog_options &amp; 4 == 4 ) {
-  17      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
-  18    }
-  19  
-  20    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
-  21  
-  22    $self-&gt;disable_commands( $commands_off );
-  23    $self-&gt;enable_commands( $commands_on );</code></pre>
 
 </dd>
 <dt id="TDrawBuffer"><i>TDrawBuffer</i></dt>
