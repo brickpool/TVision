@@ -195,7 +195,8 @@ Overloading decrement so that we can write code like C<< $pt-- >>.
 
   func _equal(TPoint $one, TPoint $two) : Bool
 
-Overload equal comparison C<==> so that we can write code like C<< $one == $two >>.
+Overload equal comparison C<==> so that we can write code like
+C<< $one == $two >>.
 
 =cut
 
