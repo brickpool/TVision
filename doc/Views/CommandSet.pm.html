@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Views::CommandSet &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Views::CommandSet
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Attributes">Attributes</a></li>
+      <li><a href="#Constructors">Constructors</a></li>
+      <li><a href="#Methods">Methods</a></li>
+      <li><a href="#Overload-Methods">Overload Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Views::CommandSet - Bit vector with a set of 256 bits</p>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>In Turbo Vision, command codes are assigned values from 0 to 65535, with values in the range of 0 to 255 reserved for items that can be selectively disabled.</p>
+
+<p><i>TCommandSet</i> is used to hold a set of up to 256 commands, specifically those that can be disabled, and is used as a parameter for the <i>TView</i> methods, <i>enable_commands</i>, <i>disable_commands</i>, <i>get_commands</i> and <i>set_commands</i>.</p>
+
+<p>Listing <code>tcmdset.pl</code> illustrates the use of a <i>TCommandSet</i> type.</p>
+
+<pre><code>   1  # tcmdset.pl
+   2  # Example using TCommandSet, from TVSHELL8.PAS }
+   3
+   4    my $commands_on = TCommandSet-&gt;new();
+   5    my $commands_off = TCommandSet-&gt;new();
+   6    ...
+   7    $commands_on += [CM_USE_DOS, CM_DELETE];
+   8    $commands_off = $commands_on;
+   9  
+  10    if ( $set_up_data-&gt;prog_options &amp; 2 ) {
+  11      $commands_off -= [CM_USE_DOS];
+  12    }
+  13    if ( $set_up_data-&gt;prog_options &amp; 4 ) {
+  14      $commands_off -= [CM_DELETE];
+  15    }
+  16    $commands_on = $commands_on - $commands_off;
+  17  
+  18    $self-&gt;disable_commands( $commands_off );
+  19    $self-&gt;enable_commands( $commands_on );</code></pre>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>TCommandSet</i></p>
+
+<p>Turbo Vision Hierarchy</p>
+
+<pre><code>  Moose::Object
+    TCommandSet</code></pre>
+
+<h2 id="Attributes">Attributes</h2>
+
+<dl>
+
+<dt id="cmds"><i>_cmds</i></dt>
+<dd>
+
+<pre><code>  has _cmds ( is =&gt; rw, type =&gt; Str );</code></pre>
+
+<p>Internal attribute to hold the bit vector.</p>
+
+</dd>
+</dl>
+
+<h2 id="Constructors">Constructors</h2>
+
+<dl>
+
+<dt id="new"><i>new</i></dt>
+<dd>
+
+<pre><code>  factory $class-&gt;new() : TCommandSet
+  factory $class-&gt;new( TCommandSet $set ) : TCommandSet
+  factory $class-&gt;new( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+
+<p>The <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a> method <i>BUILDARGS</i> is overridden for a customized (simple non-hash based) passing of parameters.</p>
+
+</dd>
+</dl>
+
+<h2 id="Methods">Methods</h2>
+
+<dl>
+
+<dt id="disable_cmd"><i>disable_cmd</i></dt>
+<dd>
+
+<pre><code>  method disable_cmd( Int $cmd )</code></pre>
+
+<p>The method clear the command &lt;$cmd&gt; into the given command set.</p>
+
+<pre><code>  method disable_cmd( TCommandSet $set )
+  method disable_cmd( ArrayRef[Int] $set )</code></pre>
+
+<p>This methods insert all commands of <i>$set</i> into the given command set.</p>
+
+</dd>
+<dt id="enable_cmd"><i>enable_cmd</i></dt>
+<dd>
+
+<pre><code>  method enable_cmd( Int $cmd )</code></pre>
+
+<p>The method puts the command &lt;$cmd&gt; into the given command set.</p>
+
+<pre><code>  method enable_cmd( TCommandSet $set )
+  method enable_cmd( ArrayRef[Int] $set )</code></pre>
+
+<p>This methods insert all commands of <i>$set</i> into the given command set.</p>
+
+</dd>
+<dt id="enabled"><i>enabled</i></dt>
+<dd>
+
+<pre><code>  method enabled(Int $cmd) : Bool</code></pre>
+
+<p>Returns the current state of the command <i>$cmd</i> in the command set, i.e., returns false if it is cleared (in the &quot;off&quot; state) or true if it is set (in the &quot;on&quot; state).</p>
+
+</dd>
+<dt id="is_empty"><i>is_empty</i></dt>
+<dd>
+
+<pre><code>  method is_empty() : Bool</code></pre>
+
+<p>Tests whether the given bit vector is empty, i.e., whether ALL of its bits are cleared (in the &quot;off&quot; state).</p>
+
+<p>Returns true if the bit vector is empty and false otherwise.</p>
+
+</dd>
+</dl>
+
+<h2 id="Overload-Methods">Overload Methods</h2>
+
+<dl>
+
+<dt id="and"><i>_and</i></dt>
+<dd>
+
+<pre><code>  func _and(TCommandSet $set1, TCommandSet $set2) : TCommandSet</code></pre>
+
+<p>This sub routine calculates the intersection of <i>$set1</i> and <i>$set2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $set1 &amp; $set2</code>.</p>
+
+<p>See: <a href="#intersect">&quot;_intersect&quot;</a>, <a href="#or">&quot;_or&quot;</a></p>
+
+</dd>
+<dt id="clone"><i>_clone</i></dt>
+<dd>
+
+<pre><code>  method _clone() : TCommandSet</code></pre>
+
+<p>Overloading the copy constructor so that we can write code like <code>$cmds = $set; $cmds += CM_QUIT;</code> without affecting <code>$set</code>.</p>
+
+</dd>
+<dt id="disable"><i>_disable</i></dt>
+<dd>
+
+<pre><code>  method _disable( Int $cmd ) : TCommandSet
+  method _disable( TCommandSet $set ) : TCommandSet
+  method _disable( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+
+<p>This method disabled all commands of <i>$set</i> in the given command set.</p>
+
+<p>Used for overloading <code>-=</code> assignment so that we can write code like <code>$cmds -= $set</code>.</p>
+
+<p>See: <a href="#disable_cmd">&quot;disable_cmd&quot;</a></p>
+
+</dd>
+<dt id="enable"><i>_enable</i></dt>
+<dd>
+
+<pre><code>  method _enable( Int $cmd ) : TCommandSet
+  method _enable( TCommandSet $set ) : TCommandSet
+  method _enable( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+
+<p>This method enabled all commands of <i>$set</i> in the given command set.</p>
+
+<p>Used for overloading <code>+=</code> assignment so that we can write code like <code>$cmds += $set</code>.</p>
+
+<p>See: <a href="#enable_cmd">&quot;enable_cmd&quot;</a>, <a href="#or">&quot;_or&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+
+</dd>
+<dt id="equal"><i>_equal</i></dt>
+<dd>
+
+<pre><code>  func _equal(TCommandSet $set1, TCommandSet $set2) : Bool</code></pre>
+
+<p>Overload equal comparison <code>==</code> so that we can write code like <code>$set1 == $set2</code>.</p>
+
+<p>See: <a href="#not_equal">&quot;_not_equal&quot;</a></p>
+
+</dd>
+<dt id="intersect"><i>_intersect</i></dt>
+<dd>
+
+<pre><code>  method _intersect( Int $cmd ) : TCommandSet
+  method _intersect( TCommandSet $set ) : TCommandSet
+  method _intersect( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+
+<p>This method calculates the intersection of the <i>$self</i> and <i>$set</i> and stores the result in <i>$self</i> so that we can write code like <code>$cmds &amp;= $set</code>.</p>
+
+<p>See: <a href="#and">&quot;_and&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+
+</dd>
+<dt id="not_equal"><i>_not_equal</i></dt>
+<dd>
+
+<pre><code>  func _not_equal(TCommandSet $set1, TCommandSet $two) : Bool</code></pre>
+
+<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$set1 != $set2</code>.</p>
+
+<p>See: <a href="#equal">&quot;_equal&quot;</a></p>
+
+</dd>
+<dt id="or"><i>_or</i></dt>
+<dd>
+
+<pre><code>  func _or(TCommandSet $set1, TCommandSet $set2) : TCommandSet</code></pre>
+
+<p>This sub routine calculates the union of <i>$set1</i> and <i>$set2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $set1 | $set2</code>.</p>
+
+<p>See: <a href="#and">&quot;_and&quot;</a>, <a href="#enable">&quot;_enable&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+
+</dd>
+<dt id="union"><i>_union</i></dt>
+<dd>
+
+<pre><code>  method _union( Int $cmd ) : TCommandSet
+  method _union( TCommandSet $set ) : TCommandSet
+  method _union( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+
+<p>This method calculates the union of the <i>$self</i> and <i>$set</i> and stores the result in <i>$self</i> so that we can write code like <code>$cmds |= $set</code>.</p>
+
+<p>See: <a href="#enable">&quot;_enable&quot;</a>, <a href="#or">&quot;_or&quot;</a></p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Turbo Vision library.
+
+ Copyright (c) 2019-2021 by magiblot
+
+ This library content was taken from the framework
+ &quot;A modern port of Turbo Vision 2.0&quot;, which is licensed under MIT licence.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1994 by Borland International</p>
+
+</li>
+<li><p>2019-2021 by magiblot &lt;magiblot@hotmail.com&gt;</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="http://metacpan.org/module/Moose::Object">Moose::Object</a>, <a href="https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/include/tvision/views.h">views.h</a>, <a href="https://github.com/magiblot/tvision/blob/ad2a2e7ce846c3d9a7746c7ed278c00c8c1d6583/source/tvision/tcmdset.cpp">tcmdset.cpp</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

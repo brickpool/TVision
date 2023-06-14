@@ -35,10 +35,11 @@ use MooseX::Types::Moose qw( :all );
 
 use MooseX::Types -declare => [qw(
   TCommandSet
-  TPalette
   TDrawBuffer
-  TTitleStr
+  TFixupList
+  TPalette
   TScrollChars
+  TTitleStr
   TVideoBuf
 
   TView
@@ -63,7 +64,7 @@ use namespace::autoclean;
 
 =item I<TCommandSet>
 
-  subtype TCommandSet : ArrayRef[Int];
+  class_type TCommandSet : Object;
 
 In Turbo Vision, command codes are assigned values from 0 to 65535, with
 values in the range of 0 to 255 reserved for items that can be selectively
@@ -73,52 +74,11 @@ I<TCommandSet> is used to hold a set of up to 256 commands, specifically those
 that can be disabled, and is used as a parameter for the I<TView> methods,
 I<enable_commands>, I<disable_commands>, I<get_commands> and I<set_commands>.
 
-The following listing illustrates the use of a I<TCommandSet> type.
-
-   1  # tcmdset.pl
-   2  # Example using TCommandSet, from 'TVSHELL8.PAS'
-   3  use Turbo::Vision::Views;
-   4  use Array::Utils qw( array_minus );
-   5  ...
-   6    my $commands_on;
-   7    my $commands_off;
-   8    ...
-   9    $commands_on = [ CM_USE_DOS, CM_DELETE ];
-  10    $commands_off = [ @$commands_on ];
-  11  
-  12    if ( $set_up_data->prog_options & 2 == 2 ) {
-  13      $commands_off = [ array_minus(@$commands_off, ( CM_USE_DOS )) ];
-  14    }
-  15  
-  16    if ( $set_up_data->prog_options & 4 == 4 ) {
-  17      $commands_off = [ array_minus(@$commands_off, ( CM_DELETE )) ];
-  18    }
-  19  
-  20    $commands_on = [ array_minus(@$commands_on, @$commands_off) ];
-  21  
-  22    $self->disable_commands( $commands_off );
-  23    $self->enable_commands( $commands_on );
-
 =cut
 
-subtype TCommandSet,
-  as ArrayRef[Int];
-
-=item I<TPalette>
-
-  subtype TPalette : Str;
-
-Defines the data type used for storing color palettes.
-
-Since all color palettes are equivalent to strings, you can use, if you wish,
-all of the various string manipulation functions, including indexing (with
-C<substr>), copy (with C<=>), delete (C<undef>), insert (also C<substr>) and so
-on.
-
-=cut
-
-subtype TPalette,
-  as Str;
+class_type TCommandSet, {
+  class => 'TurboVision::Views::CommandSet'
+};
 
 =item I<TDrawBuffer>
 
@@ -147,23 +107,38 @@ See: I<TView> methods I<write_buf> and I<write_line>.
 subtype TDrawBuffer,
   as ArrayRef[Ref];
 
+=item I<TFixupList>
+
+  subtype TFixupList : ArrayRef[Ref];
+
+Fix up reference array.
+
+=cut
+
+subtype TFixupList,
+  as ArrayRef[Ref];
+
+=item I<TPalette>
+
+  subtype TPalette : Str;
+
+Defines the data type used for storing color palettes.
+
+Since all color palettes are equivalent to strings, you can use, if you wish,
+all of the various string manipulation functions, including indexing (with
+C<substr>), copy (with C<=>), delete (C<undef>), insert (also C<substr>) and so
+on.
+
+=cut
+
+subtype TPalette,
+  as Str;
+
 =item I<TTitleStr>
 
   subtype TTitleStr : Str;
 
 Defines a type used by I<TWindow> for window title strings.
-
-=cut
-
-subtype TTitleStr,
-  as Str;
-
-=item I<TScrollChars>
-
-  subtype TScrollChars : Str;
-
-This is an internal type used inside I<TScrollBar> to store the characters used
-to draw a I<TScrollBar> object on the display.
 
 =cut
 
@@ -178,6 +153,18 @@ This defines the internal type used in video buffer declarations in I<TGroup>.
 
 Video buffers are used to store screen images in cache memory (see
 I<get_buf_mem>) for rapid screen update.
+
+=cut
+
+subtype TTitleStr,
+  as Str;
+
+=item I<TScrollChars>
+
+  subtype TScrollChars : Str;
+
+This is an internal type used inside I<TScrollBar> to store the characters used
+to draw a I<TScrollBar> object on the display.
 
 =cut
 
