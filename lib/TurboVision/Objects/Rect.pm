@@ -390,6 +390,8 @@ Sets the values of the point I<a> and I<b> to zero if the rectangle is empty.
 
 =item I<_equal>
 
+=item operator C<==>
+
   func _equal(TRect $one, TRect $two) : Bool
 
 Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
@@ -399,9 +401,11 @@ Overload equal comparison C<==> so we can write code like C<< $one == $two >>.
   func _equal(TRect $one, TRect $two, $=) {
     return $one->a == $two->a && $one->b == $two->b;
   };
-  use overload '==' => \&_equal, fallback => 1;
+  use overload '==' => '_equal';
 
 =item I<_not_equal>
+
+=item operator C<!=>
 
   func _not_equal(TRect $one, TRect $two) : Bool
 
@@ -413,9 +417,11 @@ C<< $one != $two >>.
   func _not_equal(TRect $one, TRect $two, $=) {
     return $one->a != $two->a || $one->b != $two->b;
   };
-  use overload '!=' => \&_not_equal, fallback => 1;
+  use overload '!=' => '_not_equal';
 
 =item I<_stringify>
+
+=item operator C<"">
 
   method _stringify() : Str
 
@@ -429,7 +435,7 @@ Overload stringify so we can write code like C<< print $rect >>.
       $self->a->x, $self->a->y, $self->b->x, $self->b->y
     );
   };
-  use overload '""' => \&_stringify, fallback => 1;
+  use overload '""' => '_stringify', fallback => 1;
 
 =back
 

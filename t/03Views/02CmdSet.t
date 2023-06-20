@@ -1,6 +1,7 @@
 use 5.014;
 use warnings;
 use Test::More;
+no if ($] >= 5.018), 'warnings' => 'experimental';
 
 use TurboVision::Views::Const qw( CM_VALID CM_QUIT CM_CLOSE );
 use TurboVision::Views::Types qw( TCommandSet );
@@ -34,74 +35,77 @@ isa_ok(
 );
 
 ok (
-  $set->enabled( CM_QUIT ) && !$set->enabled( CM_CLOSE ),
-  'TCommandSet->enabled'
+  $set->contains( CM_QUIT ) && !$set->contains( CM_CLOSE ),
+  '$set->contains'
 );
 
 $set->enable_cmd( CM_CLOSE );
 ok (
-  $set->enabled( CM_CLOSE ),
-  'TCommandSet->enable_cmd( $cmd )'
+  $set->contains( CM_CLOSE ),
+  '$set->enable_cmd( $cmd )'
 );
 
-$set->disable_cmd( TCommandSet->new( [CM_CLOSE] ) );
+$set->disable_cmd( CM_CLOSE );
 ok (
-  $set->enabled( CM_QUIT ) && !$set->enabled( CM_CLOSE ),
-  'TCommandSet->disable_cmd( TCommandSet->new( $set ) )'
+  $set->contains( CM_QUIT ) && !$set->contains( CM_CLOSE ),
+  '$set->disable_cmd( $cmd )'
 );
 
-$set->enable_cmd( [CM_CLOSE] );
+$set->enable_cmd( CM_CLOSE );
 ok (
-  $set->enabled( CM_CLOSE ),
-  'TCommandSet->enable_cmd( $set )'
+  $set->contains( CM_CLOSE ),
+  '$set->enable_cmd( $cmd )'
 );
 
-$set->disable_cmd( $set );
-ok (
-  $set->is_empty,
-  'TCommandSet->disable_cmd( $self )->is_empty'
-);
-
-$set += CM_VALID;
-$set += [CM_CLOSE];
-$set += TCommandSet->new( [CM_QUIT] );
+$set = TCommandSet->new();
+$set += [CM_VALID];
 ok (
   !$set->is_empty,
-  'not TCommandSet->_enable( $set )->is_empty'
+  'TCommandSet->new() && $set->_include( $cmd ) && not $set->is_empty'
 );
 
 my $copy = $set;
-$set -= $set;
+$set -= [CM_VALID];
 ok (
   $set->is_empty,
-  'TCommandSet->_disable( $self )->is_empty'
+  '$set->_exclude( $cmd ) && $set->is_empty'
 );
 
 cmp_ok(
-  $copy, '!=', $set,
-  'TCommandSet->_clone && _not_equal( $set1, $set2 )'
+  $set, '!=', $copy,
+  '$set->_clone && $set->_not_equal( $copy )'
 );
 
-$set |= CM_VALID;
-$set |= [CM_CLOSE];
-$set |= TCommandSet->new( [CM_QUIT] );
-cmp_ok(
-  $copy, '==', $set,
-  'TCommandSet->_union( $set ) && _equal( $set1, $set2 )'
-);
-
-$set &= [CM_QUIT, CM_CLOSE];
-$copy = $copy & TCommandSet->new( [CM_QUIT, CM_CLOSE] );
+$set += [CM_VALID];
 cmp_ok(
   $set, '==', $copy,
-  'TCommandSet->_intersect( $set ) && _and( $set1, $set2 )'
+  '$set->_include( $set ) && $set->_equal( $copy )'
 );
 
-$set |= CM_VALID;
+$set = TCommandSet->new( [CM_QUIT] );
+$copy = TCommandSet->new( [CM_VALID, CM_QUIT] );
+$copy = $copy & $set;
+cmp_ok(
+  $set, '==', $copy,
+  '$set->_intersect( $copy )'
+);
+
+$set += [CM_VALID];
 $copy = $copy | TCommandSet->new( [CM_VALID] );
 cmp_ok(
   $set, '==', $copy,
-  '_or( $set1, $set2 )'
+  '$set->_union( $copy )'
+);
+
+ok (
+  CM_QUIT ~~ $set,
+  '$set->_matching( $cmd )'
+);
+
+$set = $set ^ $copy;
+ok (
+  $set->is_empty,
+  '$set->_sym_diff( $copy )'
 );
 
 done_testing;

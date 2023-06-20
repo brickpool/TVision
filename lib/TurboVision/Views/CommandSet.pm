@@ -207,35 +207,48 @@ The L<Moose::Object> method I<BUILDARGS> is overridden for a customized
 
 =over
 
+=item I<contains>
+
+  method contains(Int $cmd) : Bool
+
+Check wether the command I<$cmd> is in the command set.
+
+Returns false if the element is not in the command set, or true if it is.
+
+=cut
+
+  method contains(Int $cmd) {
+    return _FALSE
+        if $cmd < 0 || $cmd > 255;
+    return !! vec($self->_cmds, $cmd, 1)
+  }
+
+=item I<copy>
+
+  method copy(TCommandSet $set)
+
+I<copy> sets the command set to the same commands as in I<$set>.
+
+=cut
+
+  method copy(TCommandSet $set) {
+    $self->_cmds( $set->_cmds );
+    return;
+  }
+
 =item I<disable_cmd>
 
   method disable_cmd( Int $cmd )
 
 The method clear the command <$cmd> into the given command set.
 
-  method disable_cmd( TCommandSet $set )
-  method disable_cmd( ArrayRef[Int] $set )
-
-This methods insert all commands of I<$set> into the given command set.
-
 =cut
 
-  method disable_cmd(Int|TCommandSet|ArrayRef[Int] $set) {
+  method disable_cmd(Int $cmd) {
+    return
+        if $cmd < 0 || $cmd > 255;
     my $cmds = $self->_cmds;
-    if ( is_Int $set ) {
-      my $cmd = $set;
-      vec ($cmds, $cmd, 1) = 0
-        if $cmd >= 0 && $cmd <= 255;
-    }
-    elsif ( is_TCommandSet $set ) {
-      $cmds &= ~$set->_cmds;
-    }
-    else { # is ArrayRef[Int]
-      foreach my $cmd ( @$set ) {
-        vec ($cmds, $cmd, 1) = 0
-          if $cmd >= 0 && $cmd <= 255;
-      }
-    }
+    vec ($cmds, $cmd, 1) = 0;
     $self->_cmds( $cmds );
     return;
   }
@@ -246,57 +259,24 @@ This methods insert all commands of I<$set> into the given command set.
 
 The method puts the command <$cmd> into the given command set.
 
-  method enable_cmd( TCommandSet $set )
-  method enable_cmd( ArrayRef[Int] $set )
-
-This methods insert all commands of I<$set> into the given command set.
-
 =cut
 
-  method enable_cmd(Int|TCommandSet|ArrayRef[Int] $set) {
+  method enable_cmd(Int $cmd) {
+    return
+        if $cmd < 0 || $cmd > 255;
     my $cmds = $self->_cmds;
-    if ( is_Int $set ) {
-      my $cmd = $set;
-      vec ($cmds, $cmd, 1) = 1
-        if $cmd >= 0 && $cmd <= 255;
-    }
-    elsif ( is_TCommandSet $set ) {
-      $cmds |= $set->_cmds;
-    }
-    else { # is ArrayRef[Int]
-      foreach my $cmd ( @$set ) {
-        vec ($cmds, $cmd, 1) = 1
-          if $cmd >= 0 && $cmd <= 255;
-      }
-    }
+    vec ($cmds, $cmd, 1) = 1;
     $self->_cmds( $cmds );
     return;
-  }
-
-=item I<enabled>
-
-  method enabled(Int $cmd) : Bool
-
-Returns the current state of the command I<$cmd> in the command set, i.e.,
-returns false if it is cleared (in the "off" state) or true if it is set
-(in the "on" state).
-
-=cut
-
-  method enabled(Int $cmd) {
-    return _FALSE
-        if $cmd < 0 || $cmd > 255;
-    return !! vec($self->_cmds, $cmd, 1)
   }
 
 =item I<is_empty>
 
   method is_empty() : Bool
 
-Tests whether the given bit vector is empty, i.e., whether ALL of its bits are
-cleared (in the "off" state).
+Tests whether the given command set is empty.
 
-Returns true if the bit vector is empty and false otherwise.
+Returns true if the command set is empty and false otherwise.
 
 =cut
 
@@ -308,28 +288,33 @@ Returns true if the bit vector is empty and false otherwise.
 
 =head2 Overload Methods
 
+The following operations on sets can be performed with operators: union,
+difference, symmetric difference and intersection.
+
+Elements can be added or removed from the set with the include or exclude
+operators.
+
+Furthermore, sets can be compared or checked if an element is included.
+
+The supported operators for this are listed in the following table:
+
+  Operator  Subroutine    Action
+  =         _clone        copy constructor
+  |         _union        union
+  -         _difference   difference
+  &         _intersection intersection
+  ^         _sym_diff     symmetric difference
+  +=        _include      include elements to the set
+  -=        _exclude      exclude elements from the set
+  ==        _equal        equal
+  !=        _not_equal    not equal
+  ~~        _matching     check whether an element is in the set
+
 =over
 
-=item I<_and>
-
-  func _and(TCommandSet $set1, TCommandSet $set2) : TCommandSet
-
-This sub routine calculates the intersection of I<$set1> and I<$set2> and
-returns the result as a new commend set so that we can write code like
-C<< $cmds = $set1 & $set2 >>.
-
-See: L</_intersect>, L</_or>
-
-=cut
-
-  func _and(TCommandSet $set1, TCommandSet $set2, $=) {
-    my $set = TCommandSet->new();
-    $set->_cmds( $set1->_cmds & $set2->_cmds );
-    return $set;
-  };
-  use overload '&' => '_and', fallback => 0;
-
 =item I<_clone>
+
+=item operator C<=>
 
   method _clone() : TCommandSet
 
@@ -339,139 +324,189 @@ C<< $cmds = $set; $cmds += CM_QUIT; >> without affecting C<$set>.
 =cut
 
   method _clone(@) {
-    return TCommandSet->new( $self );
+    my $this = TCommandSet->new();
+    $this->copy( $self );
+    return $this;
   };
   use overload '=' => '_clone', fallback => 0;
 
-=item I<_disable>
+=item I<_difference>
 
-  method _disable( Int $cmd ) : TCommandSet
-  method _disable( TCommandSet $set ) : TCommandSet
-  method _disable( ArrayRef[Int] $set ) : TCommandSet
+=item operator C<->
 
-This method disabled all commands of I<$set> in the given command set.
+  func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) : TCommandSet
 
-Used for overloading C<-=> assignment so that we can write code like
-C<< $cmds -= $set >>.
-
-See: L</disable_cmd>
+This method calculates the difference of I<$a> and I<$b> and returns the result
+as a new commend set so that we can write code like C<< $cmds = $a - $b >>.
 
 =cut
 
-  method _disable($set, $=) {
-    $self->disable_cmd($set);
-    return $self;
+  func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) {
+    my $this = TCommandSet->new();
+    if ( $swap ) {
+      $this->_cmds( $a->_cmds & ~$b->_cmds );
+    }
+    else {
+      $this->_cmds( $b->_cmds & ~$a->_cmds );
+    }
+    return $this;
   };
-  use overload '-=' => '_disable', fallback => 1;
-
-=item I<_enable>
-
-  method _enable( Int $cmd ) : TCommandSet
-  method _enable( TCommandSet $set ) : TCommandSet
-  method _enable( ArrayRef[Int] $set ) : TCommandSet
-
-This method enabled all commands of I<$set> in the given command set.
-
-Used for overloading C<+=> assignment so that we can write code like
-C<< $cmds += $set >>.
-
-See: L</enable_cmd>, L</_or>, L</_union>
-
-=cut
-
-  method _enable($set, $=) {
-    $self->enable_cmd($set);
-    return $self;
-  };
-  use overload '+=' => '_enable', fallback => 1;
+  use overload '-' => '_difference';
 
 =item I<_equal>
 
-  func _equal(TCommandSet $set1, TCommandSet $set2) : Bool
+=item operator C<==>
 
-Overload equal comparison C<==> so that we can write code like
-C<< $set1 == $set2 >>.
+  func _equal(TCommandSet $a, TCommandSet $b) : Bool
+
+Overload equal comparison C<==> so that we can write code like C<< $a == $b >>.
 
 See: L</_not_equal>
 
 =cut
 
-  func _equal(TCommandSet $set1, TCommandSet $set2, $=) {
-    return $set1->_cmds eq $set2->_cmds;
+  func _equal(TCommandSet $a, TCommandSet $b, $=) {
+    return $a->_cmds eq $b->_cmds;
   };
-  use overload '==' => '_equal', fallback => 0;
+  use overload '==' => '_equal';
 
-=item I<_intersect>
+=item I<_exclude>
 
-  method _intersect( Int $cmd ) : TCommandSet
-  method _intersect( TCommandSet $set ) : TCommandSet
-  method _intersect( ArrayRef[Int] $set ) : TCommandSet
+=item operator C<-=>
 
-This method calculates the intersection of the I<$self> and I<$set> and stores
-the result in I<$self> so that we can write code like C<< $cmds &= $set >>.
+  method _exclude(ArrayRef[Int] $set) : TCommandSet
 
-See: L</_and>, L</_union>
+Exclude an element from the set, so that we can write code like
+C<< $cmds -= $cmd >>.
+
+See: L</disable_cmd>
 
 =cut
 
-  method _intersect($set, $=) {
-    $self->_cmds( $self->_cmds & TCommandSet->new($set)->_cmds );
+  method _exclude(ArrayRef[Int] $set, $=) {
+    $self->disable_cmd($_) foreach @$set;
     return $self;
   };
-  use overload '&=' => '_intersect', fallback => 1;
+  use overload '-=' => '_exclude';
+
+=cut
+
+=item I<_include>
+
+=item operator C<+=>
+
+  method _include(ArrayRef[Int] $set) : TCommandSet
+
+Include an element in the set, so that we can write code like
+C<< $cmds += $cmd >>.
+
+See: L</enable_cmd>
+
+=cut
+
+  method _include(ArrayRef[Int] $set, $=) {
+    $self->enable_cmd($_) foreach @$set;
+    return $self;
+  };
+  use overload '+=' => '_include';
+
+=item I<_intersection>
+
+=item operator C<&>
+
+  func _intersection(TCommandSet $a, TCommandSet $b) : TCommandSet
+
+This sub routine calculates the intersection of I<$a> and I<$b> and returns the
+result as a new commend set so that we can write code like
+C<< $cmds = $a & $b >>.
+
+See: L</_union>
+
+=cut
+
+  func _intersection(TCommandSet $a, TCommandSet $b, $=) {
+    my $this = TCommandSet->new();
+    $this->_cmds( $a->_cmds & $b->_cmds );
+    return $this;
+  };
+  use overload '&' => '_intersection';
+
+=item I<_matching>
+
+=item operator C<~~>
+
+  method _matching(Int $cmd, Bool $swap) : Bool
+
+The matching operation C<~~> results true if the left operand (an command) is
+included of the right operand (a command set), the result will be false
+otherwise.
+
+=cut
+
+  method _matching(Int $cmd, Bool $swap) {
+    return $swap
+          ? $self->contains($cmd)
+          : _FALSE
+          ;
+  };
+  use overload '~~' => '_matching';
 
 =item I<_not_equal>
 
-  func _not_equal(TCommandSet $set1, TCommandSet $two) : Bool
+=item operator C<!=>
+
+  func _not_equal(TCommandSet $a, TCommandSet $b) : Bool
 
 Overload not equal comparison C<!=> so that we can write code like
-C<< $set1 != $set2 >>.
+C<< $a != $b >>.
 
 See: L</_equal>
 
 =cut
 
-  func _not_equal(TCommandSet $set1, TCommandSet $set2, $=) {
-    return $set1->_cmds ne $set2->_cmds;
+  func _not_equal(TCommandSet $a, TCommandSet $b, $=) {
+    return $a->_cmds ne $b->_cmds;
   };
-  use overload '!=' => '_not_equal', fallback => 0;
+  use overload '!=' => '_not_equal';
 
-=item I<_or>
+=item I<_sym_diff>
 
-  func _or(TCommandSet $set1, TCommandSet $set2) : TCommandSet
+=item operator C<^>
 
-This sub routine calculates the union of I<$set1> and I<$set2> and returns the
-result as a new commend set so that we can write code like
-C<< $cmds = $set1 | $set2 >>.
+  func _sym_diff(TCommandSet $a, TCommandSet $b) : TCommandSet
 
-See: L</_and>, L</_enable>, L</_union>
+It calculates the set of all elements that are in one, but not both sets.
+Returns the result as a new commend set so that we can write code like
+C<< $cmds = $a ^ $b >>.
 
 =cut
 
-  func _or(TCommandSet $set1, TCommandSet $set2, $=) {
-    my $set = TCommandSet->new();
-    $set->_cmds( $set1->_cmds | $set2->_cmds );
-    return $set;
+  func _sym_diff(TCommandSet $a, TCommandSet $b, $=) {
+    my $this = TCommandSet->new();
+    $this->_cmds( $a->_cmds ^ $b->_cmds );
+    return $this;
   };
-  use overload '|' => '_or', fallback => 0;
+  use overload '^' => '_sym_diff';
 
 =item I<_union>
 
-  method _union( Int $cmd ) : TCommandSet
-  method _union( TCommandSet $set ) : TCommandSet
-  method _union( ArrayRef[Int] $set ) : TCommandSet
+=item operator C<|> (or alternative operator C<+>)
 
-This method calculates the union of the I<$self> and I<$set> and stores the
-result in I<$self> so that we can write code like C<< $cmds |= $set >>.
+  func _union(TCommandSet $a, TCommandSet $b) : TCommandSet
 
-See: L</_enable>, L</_or>
+This method calculates the union of I<$a> and I<$b> and returns the result as a
+new commend set so that we can write code like C<< $cmds = $a | $b >>.
+
+See: L</_intersection>, L</_include>
 
 =cut
 
-  func _union(@) {
-    goto &_enable;
+  func _union(TCommandSet $a, TCommandSet $b, $=) {
+    my $this = TCommandSet->new();
+    $this->_cmds( $a->_cmds | $b->_cmds );
+    return $this;
   };
-  use overload '|=' => '_union', fallback => 1;
+  use overload '|' => '_union';
 
 =back
 

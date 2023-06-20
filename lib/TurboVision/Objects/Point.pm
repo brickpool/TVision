@@ -143,7 +143,9 @@ I<copy> sets all attributes equal to those in point I<$pt>.
 
 =item I<_add>
 
-  func _add(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint
+=item operator C<+>
+
+  func _add(TPoint $one, TPoint|Int $two) : TPoint
 
 Overload addition so that we can write code like C<< $pt = $one + $two >>.
 
@@ -159,6 +161,8 @@ Overload addition so that we can write code like C<< $pt = $one + $two >>.
   use overload '+' => '_add', fallback => 1;
 
 =item I<_clone>
+
+=item operator C<=>
 
   method _clone() : TPoint
 
@@ -178,6 +182,8 @@ C<< $c = $pt; $c++; >> without affecting C<$pt>.
 
 =item I<_decr>
 
+=item operator C<-->
+
   method _decr()
 
 Overloading decrement so that we can write code like C<< $pt-- >>.
@@ -189,9 +195,11 @@ Overloading decrement so that we can write code like C<< $pt-- >>.
     $self->y( $self->y - 1 );
     return;
   };
-  use overload '--' => '_decr', fallback => 1;
+  use overload '--' => '_decr';
 
 =item I<_equal>
+
+=item operator C<==>
 
   func _equal(TPoint $one, TPoint $two) : Bool
 
@@ -203,9 +211,11 @@ C<< $one == $two >>.
   func _equal(TPoint $one, TPoint $two, $=) {
     return $one->x == $two->x && $one->y == $two->y;
   };
-  use overload '==' => '_equal', fallback => 1;
+  use overload '==' => '_equal';
 
 =item I<_incr>
+
+=item operator C<++>
 
   method _incr()
 
@@ -218,9 +228,11 @@ Overloading increment so that we can write code like C<< $pt++ >>.
     $self->y( $self->y + 1 );
     return;
   };
-  use overload '++' => '_incr', fallback => 1;
+  use overload '++' => '_incr';
 
 =item I<_not_equal>
+
+=item operator C<!=>
 
   func _not_equal(TPoint $one, TPoint $two) : Bool
 
@@ -232,9 +244,11 @@ C<< $one != $two >>.
   func _not_equal(TPoint $one, TPoint $two, $=) {
     return $one->x != $two->x || $one->y != $two->y;
   };
-  use overload '!=' => '_not_equal', fallback => 1;
+  use overload '!=' => '_not_equal';
 
 =item I<_stringify>
+
+=item operator C<"">
 
   method _stringify() : Str
 
@@ -250,6 +264,8 @@ Overload stringify so that we can write code like C<< print $pt >>.
   use overload '""' => '_stringify', fallback => 1;
 
 =item I<_sub>
+
+=item operator C<->
 
   func _sub(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint
 
@@ -269,7 +285,7 @@ Overload subtraction so that we can write code like C<< $pt = $one - $two >>.
               )
             ;
   };
-  use overload '-' => '_sub', fallback => 1;
+  use overload '-' => '_sub';
 
 =back
 
