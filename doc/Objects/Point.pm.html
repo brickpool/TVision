@@ -107,12 +107,20 @@
 <dt id="add"><i>_add</i></dt>
 <dd>
 
-<pre><code>  func _add(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint</code></pre>
+</dd>
+<dt id="operator">operator <code>+</code></dt>
+<dd>
+
+<pre><code>  func _add(TPoint $one, TPoint|Int $two) : TPoint</code></pre>
 
 <p>Overload addition so that we can write code like <code>$pt = $one + $two</code>.</p>
 
 </dd>
 <dt id="clone"><i>_clone</i></dt>
+<dd>
+
+</dd>
+<dt id="operator1">operator <code>=</code></dt>
 <dd>
 
 <pre><code>  method _clone() : TPoint</code></pre>
@@ -123,12 +131,20 @@
 <dt id="decr"><i>_decr</i></dt>
 <dd>
 
+</dd>
+<dt id="operator2">operator <code>--</code></dt>
+<dd>
+
 <pre><code>  method _decr()</code></pre>
 
 <p>Overloading decrement so that we can write code like <code>$pt--</code>.</p>
 
 </dd>
 <dt id="equal"><i>_equal</i></dt>
+<dd>
+
+</dd>
+<dt id="operator3">operator <code>==</code></dt>
 <dd>
 
 <pre><code>  func _equal(TPoint $one, TPoint $two) : Bool</code></pre>
@@ -139,12 +155,20 @@
 <dt id="incr"><i>_incr</i></dt>
 <dd>
 
+</dd>
+<dt id="operator4">operator <code>++</code></dt>
+<dd>
+
 <pre><code>  method _incr()</code></pre>
 
 <p>Overloading increment so that we can write code like <code>$pt++</code>.</p>
 
 </dd>
 <dt id="not_equal"><i>_not_equal</i></dt>
+<dd>
+
+</dd>
+<dt id="operator5">operator <code>!=</code></dt>
 <dd>
 
 <pre><code>  func _not_equal(TPoint $one, TPoint $two) : Bool</code></pre>
@@ -155,12 +179,20 @@
 <dt id="stringify"><i>_stringify</i></dt>
 <dd>
 
+</dd>
+<dt id="operator6">operator <code>&quot;&quot;</code></dt>
+<dd>
+
 <pre><code>  method _stringify() : Str</code></pre>
 
 <p>Overload stringify so that we can write code like <code>print $pt</code>.</p>
 
 </dd>
 <dt id="sub"><i>_sub</i></dt>
+<dd>
+
+</dd>
+<dt id="operator7">operator <code>-</code></dt>
 <dd>
 
 <pre><code>  func _sub(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint</code></pre>

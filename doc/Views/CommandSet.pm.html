@@ -118,17 +118,30 @@
 
 <dl>
 
+<dt id="contains"><i>contains</i></dt>
+<dd>
+
+<pre><code>  method contains(Int $cmd) : Bool</code></pre>
+
+<p>Check wether the command <i>$cmd</i> is in the command set.</p>
+
+<p>Returns false if the element is not in the command set, or true if it is.</p>
+
+</dd>
+<dt id="copy"><i>copy</i></dt>
+<dd>
+
+<pre><code>  method copy(TCommandSet $set)</code></pre>
+
+<p><i>copy</i> sets the command set to the same commands as in <i>$set</i>.</p>
+
+</dd>
 <dt id="disable_cmd"><i>disable_cmd</i></dt>
 <dd>
 
 <pre><code>  method disable_cmd( Int $cmd )</code></pre>
 
 <p>The method clear the command &lt;$cmd&gt; into the given command set.</p>
-
-<pre><code>  method disable_cmd( TCommandSet $set )
-  method disable_cmd( ArrayRef[Int] $set )</code></pre>
-
-<p>This methods insert all commands of <i>$set</i> into the given command set.</p>
 
 </dd>
 <dt id="enable_cmd"><i>enable_cmd</i></dt>
@@ -138,47 +151,48 @@
 
 <p>The method puts the command &lt;$cmd&gt; into the given command set.</p>
 
-<pre><code>  method enable_cmd( TCommandSet $set )
-  method enable_cmd( ArrayRef[Int] $set )</code></pre>
-
-<p>This methods insert all commands of <i>$set</i> into the given command set.</p>
-
-</dd>
-<dt id="enabled"><i>enabled</i></dt>
-<dd>
-
-<pre><code>  method enabled(Int $cmd) : Bool</code></pre>
-
-<p>Returns the current state of the command <i>$cmd</i> in the command set, i.e., returns false if it is cleared (in the &quot;off&quot; state) or true if it is set (in the &quot;on&quot; state).</p>
-
 </dd>
 <dt id="is_empty"><i>is_empty</i></dt>
 <dd>
 
 <pre><code>  method is_empty() : Bool</code></pre>
 
-<p>Tests whether the given bit vector is empty, i.e., whether ALL of its bits are cleared (in the &quot;off&quot; state).</p>
+<p>Tests whether the given command set is empty.</p>
 
-<p>Returns true if the bit vector is empty and false otherwise.</p>
+<p>Returns true if the command set is empty and false otherwise.</p>
 
 </dd>
 </dl>
 
 <h2 id="Overload-Methods">Overload Methods</h2>
 
+<p>The following operations on sets can be performed with operators: union, difference, symmetric difference and intersection.</p>
+
+<p>Elements can be added or removed from the set with the include or exclude operators.</p>
+
+<p>Furthermore, sets can be compared or checked if an element is included.</p>
+
+<p>The supported operators for this are listed in the following table:</p>
+
+<pre><code>  Operator  Subroutine    Action
+  =         _clone        copy constructor
+  |         _union        union
+  -         _difference   difference
+  &amp;         _intersection intersection
+  ^         _sym_diff     symmetric difference
+  +=        _include      include elements to the set
+  -=        _exclude      exclude elements from the set
+  ==        _equal        equal
+  !=        _not_equal    not equal
+  ~~        _matching     check whether an element is in the set</code></pre>
+
 <dl>
 
-<dt id="and"><i>_and</i></dt>
+<dt id="clone"><i>_clone</i></dt>
 <dd>
 
-<pre><code>  func _and(TCommandSet $set1, TCommandSet $set2) : TCommandSet</code></pre>
-
-<p>This sub routine calculates the intersection of <i>$set1</i> and <i>$set2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $set1 &amp; $set2</code>.</p>
-
-<p>See: <a href="#intersect">&quot;_intersect&quot;</a>, <a href="#or">&quot;_or&quot;</a></p>
-
 </dd>
-<dt id="clone"><i>_clone</i></dt>
+<dt id="operator">operator <code>=</code></dt>
 <dd>
 
 <pre><code>  method _clone() : TCommandSet</code></pre>
@@ -186,86 +200,124 @@
 <p>Overloading the copy constructor so that we can write code like <code>$cmds = $set; $cmds += CM_QUIT;</code> without affecting <code>$set</code>.</p>
 
 </dd>
-<dt id="disable"><i>_disable</i></dt>
+<dt id="difference"><i>_difference</i></dt>
 <dd>
-
-<pre><code>  method _disable( Int $cmd ) : TCommandSet
-  method _disable( TCommandSet $set ) : TCommandSet
-  method _disable( ArrayRef[Int] $set ) : TCommandSet</code></pre>
-
-<p>This method disabled all commands of <i>$set</i> in the given command set.</p>
-
-<p>Used for overloading <code>-=</code> assignment so that we can write code like <code>$cmds -= $set</code>.</p>
-
-<p>See: <a href="#disable_cmd">&quot;disable_cmd&quot;</a></p>
 
 </dd>
-<dt id="enable"><i>_enable</i></dt>
+<dt id="operator1">operator <code>-</code></dt>
 <dd>
 
-<pre><code>  method _enable( Int $cmd ) : TCommandSet
-  method _enable( TCommandSet $set ) : TCommandSet
-  method _enable( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+<pre><code>  func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) : TCommandSet</code></pre>
 
-<p>This method enabled all commands of <i>$set</i> in the given command set.</p>
-
-<p>Used for overloading <code>+=</code> assignment so that we can write code like <code>$cmds += $set</code>.</p>
-
-<p>See: <a href="#enable_cmd">&quot;enable_cmd&quot;</a>, <a href="#or">&quot;_or&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+<p>This method calculates the difference of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a - $b</code>.</p>
 
 </dd>
 <dt id="equal"><i>_equal</i></dt>
 <dd>
 
-<pre><code>  func _equal(TCommandSet $set1, TCommandSet $set2) : Bool</code></pre>
+</dd>
+<dt id="operator2">operator <code>==</code></dt>
+<dd>
 
-<p>Overload equal comparison <code>==</code> so that we can write code like <code>$set1 == $set2</code>.</p>
+<pre><code>  func _equal(TCommandSet $a, TCommandSet $b) : Bool</code></pre>
+
+<p>Overload equal comparison <code>==</code> so that we can write code like <code>$a == $b</code>.</p>
 
 <p>See: <a href="#not_equal">&quot;_not_equal&quot;</a></p>
 
 </dd>
-<dt id="intersect"><i>_intersect</i></dt>
+<dt id="exclude"><i>_exclude</i></dt>
 <dd>
 
-<pre><code>  method _intersect( Int $cmd ) : TCommandSet
-  method _intersect( TCommandSet $set ) : TCommandSet
-  method _intersect( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+</dd>
+<dt id="operator3">operator <code>-=</code></dt>
+<dd>
 
-<p>This method calculates the intersection of the <i>$self</i> and <i>$set</i> and stores the result in <i>$self</i> so that we can write code like <code>$cmds &amp;= $set</code>.</p>
+<pre><code>  method _exclude(ArrayRef[Int] $set) : TCommandSet</code></pre>
 
-<p>See: <a href="#and">&quot;_and&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+<p>Exclude an element from the set, so that we can write code like <code>$cmds -= $cmd</code>.</p>
+
+<p>See: <a href="#disable_cmd">&quot;disable_cmd&quot;</a></p>
+
+</dd>
+<dt id="include"><i>_include</i></dt>
+<dd>
+
+</dd>
+<dt id="operator4">operator <code>+=</code></dt>
+<dd>
+
+<pre><code>  method _include(ArrayRef[Int] $set) : TCommandSet</code></pre>
+
+<p>Include an element in the set, so that we can write code like <code>$cmds += $cmd</code>.</p>
+
+<p>See: <a href="#enable_cmd">&quot;enable_cmd&quot;</a></p>
+
+</dd>
+<dt id="intersection"><i>_intersection</i></dt>
+<dd>
+
+</dd>
+<dt id="operator5">operator <code>&amp;</code></dt>
+<dd>
+
+<pre><code>  func _intersection(TCommandSet $a, TCommandSet $b) : TCommandSet</code></pre>
+
+<p>This sub routine calculates the intersection of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a &amp; $b</code>.</p>
+
+<p>See: <a href="#union">&quot;_union&quot;</a></p>
+
+</dd>
+<dt id="matching"><i>_matching</i></dt>
+<dd>
+
+</dd>
+<dt id="operator6">operator <code>~~</code></dt>
+<dd>
+
+<pre><code>  method _matching(Int $cmd, Bool $swap) : Bool</code></pre>
+
+<p>The matching operation <code>~~</code> results true if the left operand (an command) is included of the right operand (a command set), the result will be false otherwise.</p>
 
 </dd>
 <dt id="not_equal"><i>_not_equal</i></dt>
 <dd>
 
-<pre><code>  func _not_equal(TCommandSet $set1, TCommandSet $two) : Bool</code></pre>
+</dd>
+<dt id="operator7">operator <code>!=</code></dt>
+<dd>
 
-<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$set1 != $set2</code>.</p>
+<pre><code>  func _not_equal(TCommandSet $a, TCommandSet $b) : Bool</code></pre>
+
+<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$a != $b</code>.</p>
 
 <p>See: <a href="#equal">&quot;_equal&quot;</a></p>
 
 </dd>
-<dt id="or"><i>_or</i></dt>
+<dt id="sym_diff"><i>_sym_diff</i></dt>
 <dd>
 
-<pre><code>  func _or(TCommandSet $set1, TCommandSet $set2) : TCommandSet</code></pre>
+</dd>
+<dt id="operator8">operator <code>^</code></dt>
+<dd>
 
-<p>This sub routine calculates the union of <i>$set1</i> and <i>$set2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $set1 | $set2</code>.</p>
+<pre><code>  func _sym_diff(TCommandSet $a, TCommandSet $b) : TCommandSet</code></pre>
 
-<p>See: <a href="#and">&quot;_and&quot;</a>, <a href="#enable">&quot;_enable&quot;</a>, <a href="#union">&quot;_union&quot;</a></p>
+<p>It calculates the set of all elements that are in one, but not both sets. Returns the result as a new commend set so that we can write code like <code>$cmds = $a ^ $b</code>.</p>
 
 </dd>
 <dt id="union"><i>_union</i></dt>
 <dd>
 
-<pre><code>  method _union( Int $cmd ) : TCommandSet
-  method _union( TCommandSet $set ) : TCommandSet
-  method _union( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+</dd>
+<dt id="operator-or-alternative-operator">operator <code>|</code> (or alternative operator <code>+</code>)</dt>
+<dd>
 
-<p>This method calculates the union of the <i>$self</i> and <i>$set</i> and stores the result in <i>$self</i> so that we can write code like <code>$cmds |= $set</code>.</p>
+<pre><code>  func _union(TCommandSet $a, TCommandSet $b) : TCommandSet</code></pre>
 
-<p>See: <a href="#enable">&quot;_enable&quot;</a>, <a href="#or">&quot;_or&quot;</a></p>
+<p>This method calculates the union of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a | $b</code>.</p>
+
+<p>See: <a href="#intersection">&quot;_intersection&quot;</a>, <a href="#include">&quot;_include&quot;</a></p>
 
 </dd>
 </dl>
