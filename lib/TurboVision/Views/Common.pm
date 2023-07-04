@@ -43,7 +43,11 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use TurboVision::Const qw( :bool );
+use TurboVision::Objects::Point;
+use TurboVision::Objects::Types qw( TPoint );
+use TurboVision::Views::CommandSet;
 use TurboVision::Views::Const qw( :cmXXXX );
+use TurboVision::Views::Types qw( TCommandSet );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -58,8 +62,11 @@ Nothing per default, but can export the following per request:
     :vars
       $command_set_changed
       $cur_command_set
+      $shadow_size
 
     private:
+      $_fixup_list
+      $_owner_group
       $_the_top_view
 
 =cut
@@ -74,9 +81,12 @@ our %EXPORT_TAGS = (
   vars => [qw(
     $command_set_changed
     $cur_command_set
+    $shadow_size
   )],
 
   private => [qw(
+    $_fixup_list
+    $_owner_group
     $_the_top_view
   )],
 
@@ -115,9 +125,9 @@ True if the command set has changed since being set to false.
 
 =item I<$cur_command_set>
 
-  our $cur_command_set = < Str >;
+  our $cur_command_set = < TCommandSet >;
 
-I<$cur_command_set> is a string created with Perl's command I<vec>.
+I<$cur_command_set> is a command set object that uses bit vector arithmetic.
 
 It stores the current command set. By default, all commands except those of the
 window are active.
@@ -125,11 +135,41 @@ window are active.
 =cut
 
   our $cur_command_set = do {
-    my $set = pack( 'b*', 1 x 256 );
-    vec ($set, $_, 1) = 0                                 # All active but these
-      foreach CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV;
-    $set;
+    my $set = TCommandSet->new(
+      set => pack( 'b*', 1 x 256 )
+    );                                                    # All active but these
+    $set -= [CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV];
   };
+
+=item I<$shadow_size>
+
+  our $shadow_size = < TPoint >;
+
+Shadow sizes.
+
+=cut
+
+  our $shadow_size = TPoint->new(x => 2, y => 1);
+
+=item I<$_fixup_list>
+
+  our $_fixup_list = < TFixupList >;
+
+Used for loading.
+
+=cut
+
+  our $_fixup_list;
+
+=item I<$_owner_group>
+
+  our $_owner_group = < TGroup >;
+
+Used for loading.
+
+=cut
+
+  our $_owner_group;
 
 =item I<$_the_top_view>
 

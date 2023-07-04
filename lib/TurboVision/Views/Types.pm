@@ -28,6 +28,7 @@ $VERSION =~ tr/_//d;
 our $AUTHORITY = 'github:fpc';
 
 use MooseX::Types::Moose qw( :all );
+use namespace::autoclean;
 
 # ------------------------------------------------------------------------
 # Used Modules -----------------------------------------------------------
@@ -50,7 +51,7 @@ use MooseX::Types -declare => [qw(
   TGroup
   TWindow
 )];
-use namespace::autoclean;
+use Moose::Util::TypeConstraints;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -79,6 +80,21 @@ I<enable_commands>, I<disable_commands>, I<get_commands> and I<set_commands>.
 class_type TCommandSet, {
   class => 'TurboVision::Views::CommandSet'
 };
+
+subtype 'Bit::Vector::Str'
+	=> as 'Str'
+	=> where { length $_ == 32 };
+
+coerce 'Bit::Vector::Str'
+  => from 'ArrayRef[Int]'
+    => via {
+      my $set = pack('b*', 0 x 256);
+      foreach my $cmd ( @$_ ) {
+        vec ($set, $cmd, 1) = 1
+          if $cmd >= 0 && $cmd <= 255;
+      }
+      $set;
+    };
 
 =item I<TDrawBuffer>
 

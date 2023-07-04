@@ -85,6 +85,7 @@ use TurboVision::Views::Const qw(
   :dmXXXX
   :gfXXXX
   :hcXXXX
+  :ofXXXX
   :sfXXXX
   MAX_VIEW_WIDTH
 );
@@ -183,21 +184,6 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
 
 =begin comment
 
-=item I<_EMPTY_SET>
-
-  constant _EMPTY_SET = < Str >;
-
-The constant I<_EMPTY_SET> is for the definition of a 265-bit vector of the Str
-data type.
-
-=end comment
-
-=cut
-
-  use constant _EMPTY_SET => pack('b*', 0 x 256);
-
-=begin comment
-
 =item I<_ERROR_ATTR>
 
   constant _ERROR_ATTR = < Int >;
@@ -279,7 +265,7 @@ dragged with the mouse.
 
 You must directly set a value to I<drag_mode> using the I<dmXXXX> constants.
 
-See: I<dmXXXX> constants for more information on these settings.
+See I<dmXXXX> constants for more information on these settings.
 
 =cut
 
@@ -300,7 +286,7 @@ A value of C<0xffff> means that the view will accept all messages.
 
 You set I<event_mask>to a combination of the I<evXXXX> constants.
 
-See: I<evXXXX> constants
+See I<evXXXX> constants.
 
 =cut
 
@@ -319,7 +305,7 @@ it is resized.
 
 You must explicitly assign values to I<grow_mode>.
 
-See: I<gfXXXX> constants for more information on these bit settings.
+See I<gfXXXX> constants for more information on these bit settings.
 
 =cut
 
@@ -483,8 +469,8 @@ Creates and reads a view from stream I<$s>.
 =cut
 
   factory load(TStream $s) {
-    my $read = sub {
-      SWITCH: foreach( $_[0] ) {
+    my $read = method() {
+      SWITCH: for( $self ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
@@ -503,23 +489,23 @@ Creates and reads a view from stream I<$s>.
 
     try {
       my $origin = TPoint->new(
-        x => $read->('integer'),                          # Read origin x value
-        y => $read->('integer'),                          # Read origin y value
+        x => 'integer'->$read,                            # Read origin x value
+        y => 'integer'->$read,                            # Read origin y value
       );
       my $size = TPoint->new(
-        x => $read->('integer'),                          # Read view x size
-        y => $read->('integer'),                          # Read view y size
+        x => 'integer'->$read,                            # Read view x size
+        y => 'integer'->$read,                            # Read view y size
       );
       my $cursor = TPoint->new(
-        x => $read->('integer'),                          # Read cursor x size
-        y => $read->('integer'),                          # Read cursor y size
+        x => 'integer'->$read,                            # Read cursor x size
+        y => 'integer'->$read,                            # Read cursor y size
       );
-      my $grow_mode   = $read->('byte');                  # Read growmode flags
-      my $drag_mode   = $read->('byte');                  # Read dragmode flags
-      my $help_ctx    = $read->('word');                  # Read help context
-      my $state       = $read->('word');                  # Read state masks
-      my $options     = $read->('word');                  # Read options masks
-      my $event_mask  = $read->('word');                  # Read event masks
+      my $grow_mode   = 'byte'->$read;                    # Read growmode flags
+      my $drag_mode   = 'byte'->$read;                    # Read dragmode flags
+      my $help_ctx    = 'word'->$read;                    # Read help context
+      my $state       = 'word'->$read;                    # Read state masks
+      my $options     = 'word'->$read;                    # Read options masks
+      my $event_mask  = 'word'->$read;                    # Read event masks
       return $class->new(                                 # Call ancestor
         origin      => $origin,
         size        => $size,
@@ -583,7 +569,7 @@ Deletes the view after erasing it from the screen.
 Changes the cursor to the solid block cursor by setting the I<SF_CURSOR_INS>
 bit in the I<state> attribute.
 
-See: L</normal_cursor>
+See L</normal_cursor>
 
 =cut
 
@@ -602,9 +588,9 @@ that the L</owner>'s view was changed in size.
 =cut
 
   method calc_bounds(TRect $bounds, TPoint $delta) {
-    my ($siz, $dlt, $min, $max);
+    my ($s, $d, $min, $max);
     
-    my $range = sub {
+    my $range = sub($$$) {
       my ($val, $min, $max) = @_;
       return $min                                         # Value below min
           if $val < $min;
@@ -613,19 +599,17 @@ that the L</owner>'s view was changed in size.
       return $val;                                        # Accept value
     };
 
-    my $grow_i = sub {
+    my $grow_i = sub(\$) {
       alias my $i = $_[0];
-      if ( $self->grow_mode & GF_GROW_REL == 0 ) {
-        $i -= $dlt;
+      if ( not $self->grow_mode & GF_GROW_REL ) {
+        $i -= $d;
       }
-      elsif ( $siz == $dlt ) {
+      elsif ( $s == $d ) {
         $i = 1;
       }
       else {
         $i = int(                                         # Calc grow value
-          ($i * $siz + ($siz - $dlt) >> 1)
-            /
-          ($siz - $dlt)
+          ($i * $s + ($s - $d) >> 1) / ($s - $d)
         )
       }
     };
@@ -634,30 +618,33 @@ that the L</owner>'s view was changed in size.
     return                                                # No grow flags exits
         if $self->grow_mode == 0;
 
-    $siz = $self->owner->size->x;                         # Set initial size
-    $dlt = $delta->x;                                     # Set initial delta
-    $grow_i->( $bounds->a->{x} )                          # Grow left side
-      if $self->grow_mode & GF_GROW_LO_X != 0;
-    $grow_i->( $bounds->b->{x} )                          # Grow right side
-      if $self->grow_mode & GF_GROW_HI_X != 0;
-    $bounds->b->{x} = $bounds->a->x + MAX_VIEW_WIDTH      # Check values
-      if $bounds->b->x - bounds->a->x > MAX_VIEW_WIDTH;
+    $s = $self->owner->size->x;                           # Set initial size
+    $d = $delta->x;                                       # Set initial delta
+    $grow_i->($bounds->a->{x})                            # Grow left side
+      if $self->grow_mode & GF_GROW_LO_X;
+    $grow_i->($bounds->b->{x})                            # Grow right side
+      if $self->grow_mode & GF_GROW_HI_X;
+    $bounds->b->x # =
+      ( $bounds->a->x + MAX_VIEW_WIDTH )                  # Check values
+        if $bounds->b->x - bounds->a->x > MAX_VIEW_WIDTH;
 
-    $siz = $self->owner->size->y;                         # Set initial size
-    $dlt = $delta->y;                                     # Set initial delta
-    $grow_i->( $bounds->a->{y} )                          # Grow top side
-      if $self->grow_mode & GF_GROW_LO_Y != 0;
-    $grow_i->( $bounds->b->{y} )                          # Grow lower side
-      if $self->grow_mode & GF_GROW_HI_Y != 0;
+    $s = $self->owner->size->y;                           # Set initial size
+    $d = $delta->y;                                       # Set initial delta
+    $grow_i->($bounds->a->{y})                            # Grow top side
+      if $self->grow_mode & GF_GROW_LO_Y;
+    $grow_i->($bounds->b->{y})                            # Grow lower side
+      if $self->grow_mode & GF_GROW_HI_Y;
 
     $self->size_limits($min, $max);                       # Check sizes
-    $bounds->b->x(                                        # Set right side
-        $bounds->a->x
-      + $range->( $bounds->b->x - $bounds->a->x, $min->x, $max->x )
+    $bounds->b->x # =                                     # Set right side
+    (
+      $bounds->a->x
+      + $range->($bounds->b->x - $bounds->a->x, $min->x, $max->x)
     );
-    $bounds->b->y(                                        # Set lower side
-        $bounds->a->y
-      + $range->( $bounds->b->y - $bounds->a->y, $min->y, $max->y )
+    $bounds->b->y # =                                     # Set lower side
+    (
+      $bounds->a->y
+      + $range->($bounds->b->y - $bounds->a->y, $min->y, $max->y)
     );
 
     return;
@@ -690,8 +677,8 @@ other views can determine who it was that process the event.
 =cut
 
   method clear_event(TEvent $event)  {
-    $event->what( EV_NOTHING );                           # Clear the event
-    $event->info_ptr( $self );                            # Set us as handler
+    $event->what(EV_NOTHING);                             # Clear the event
+    $event->info_ptr($self);                              # Set us as handler
     return;
   }
 
@@ -709,8 +696,9 @@ been disabled.
 =cut
 
   method command_enabled(Int $command) {
+    no if $] >= 5.018, warnings => 'experimental::smartmatch';
     return $command > 255
-        || vec( $cur_command_set, $command, 1 );          # Check command
+        || $command ~~ $cur_command_set;                  # Check command
   }
 
 =item I<data_size>
@@ -720,7 +708,7 @@ been disabled.
 Used in conjunction with L</get_data> and L</set_data> to copy the views data to
 and from a data record.
 
-See: L</get_data>, L</set_data>
+See L</get_data>, L</set_data>
 
 =cut
 
@@ -738,20 +726,14 @@ their I<cmXXXX> constant values, to be disabled.
 Calling I<disable_commands> causes these I<$commands> to become greyed out on
 the menus and status line.
 
-See: L</enable_commands>
+See L</enable_commands>
 
 =cut
 
   method disable_commands(TCommandSet $commands) {
-    # Map ArrayRef[Int] to bit vector (which is similar to the Pascal 'set')
-    $commands = do {
-      my $bit_set = _EMPTY_SET;
-      vec($bit_set, $_, 1) = 1 foreach @$commands;
-      $bit_set;
-    };
-                                                          # Set changed flag
-    $command_set_changed ||= ( $cur_command_set & $commands ) ne _EMPTY_SET;
-    $cur_command_set &= ~$commands;                       # Update command set
+    $command_set_changed ||=                              # Set changed flag
+      ( $cur_command_set * $commands ) != [];
+    $cur_command_set = $cur_command_set - $commands;      # Update command set
     return;
   }
 
@@ -776,131 +758,103 @@ view can be resized.
 
     my $move_grow = sub($$) {
       my ( $p, $s ) = @_;
-      my $r;
 
-      $s->x( min( max( $s->x, $min_size->x ), $max_size->x ) );
-      $s->y( min( max( $s->y, $min_size->y ), $max_size->y ) );
+      $s->x # =
+        ( min( max($s->x, $min_size->x), $max_size->x ) );
+      $s->y # =
+        ( min( max($s->y, $min_size->y), $max_size->y ) );
 
-      $p->x( min( max( $p->x, $limits->a->x - $s->x+1 ), $limits->b->x-1 ) );
-      $p->y( min( max( $p->y, $limits->a->y - $s->y+1 ), $limits->b->y-1 ) );
+      $p->x # =
+        ( min( max($p->x, $limits->a->x - $s->x+1), $limits->b->x-1 ) );
+      $p->y # =
+        ( min( max($p->y, $limits->a->y - $s->y+1), $limits->b->y-1 ) );
 
-      $p->x( max( $p->x, $limits->a->x ) )
-        if $mode and DM_LIMIT_LO_X != 0;
+      $p->x # =
+        ( max($p->x, $limits->a->x) )
+          if $mode & DM_LIMIT_LO_X;
 
-      $p->y( max( $p->y, $limits->a->y ) )
-        if $mode and DM_LIMIT_LO_Y != 0;
+      $p->y # =
+        ( max($p->y, $limits->a->y) )
+          if $mode & DM_LIMIT_LO_Y;
 
-      $p->x( min( $p->x, $limits->b->x - $s->x ) )
-        if $mode and DM_LIMIT_HI_X != 0;
+      $p->x # =
+        ( min($p->x, $limits->b->x - $s->x) )
+          if $mode & DM_LIMIT_HI_X;
 
-      $p->y( min( $p->y, $limits->b->y - $s->y ) )
-        if $mode and DM_LIMIT_HI_Y != 0;
+      $p->y # =
+        ( min($p->y, $limits->b->y - $s->y) )
+          if $mode & DM_LIMIT_HI_Y;
 
-      $r->assign( $p->x, $p->y, $p->x + $s->x, $p->y + $s->y );
+      my $r = TRect->init( $p->x, $p->y, $p->x + $s->x, $p->y + $s->y );
       $self->locate($r);
     };
     
     my $change = sub($$) {
       my ( $dx, $dy ) = @_;
-
-      if ( $mode & DM_DRAG_MOVE != 0 ) {
-        if ( get_shift_state & 0x03 == 0 ) {
-          $p->x( $p->x + $dx );
-          $p->y( $p->y + $dy );
-        }
-        elsif ( get_shift_state & 0x03 != 0 ) {
-          $s->x( $s->x + $dx );
-          $s->y( $s->y + $dy );
-        }
+      if ( $mode & DM_DRAG_MOVE and not get_shift_state & 0x03 ) {
+        $p->x # =
+          ( $p->x + $dx );
+        $p->y # =
+          ( $p->y + $dy );
+      }
+      elsif ( $mode & DM_DRAG_MOVE and get_shift_state & 0x03 ) {
+        $s->x # =
+          ( $s->x + $dx );
+        $s->y # =
+          ( $s->y + $dy );
       }
     };
 
     my $update = sub($$) {
       my ($x, $y) = @_;
-      if ( $mode & DM_DRAG_MOVE != 0 ) {
-        $p->x( $x );
-        $p->y( $y );
+      if ( $mode & DM_DRAG_MOVE ) {
+        $p->x($x);
+        $p->y($y);
       }
     };
 
     $self->set_state(SF_DRAGGING, _TRUE);
     if ( $event->what == EV_MOUSE_DOWN ) {
       if ( $mode & DM_DRAG_MOVE ) {
-        $p = TPoint->new(
-          x => $self->origin->x - $event->where->x,
-          y => $self->origin->y - $event->where->y,
-        );
+        $p = $self->origin - $event->where;
         do {
-          $event->where( $event->where + $p );
-          $move_grow->( $event->where, $self->size );
+          $event->where += $p;
+          $move_grow->($event->where, $self->size);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
         # we need to process the mouse-up event, since not all terminals
         # send drag events.
-        $event->where( $event->where + $p );
-        $move_grow->( $event->where, $self->size );
+        $event->where += $p;
+        $move_grow->($event->where, $self->size);
       }
       else {
-        $p = TPoint->new(
-          x => $self->size->x - event->where->x,
-          y => $self->size->y - event->where->y,
-        );
+        $p = $self->size - $event->where;
         do {
-          $event->where( $event->where + $p );
-          $move_grow->( $self->origin, $event->where );
+          $event->where += $p;
+          $move_grow->($self->origin, $event->where);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
         # we need to process the mouse-up event, since not all terminals
         # send drag events.
-        $event->where( $event->where + $p );
-        $move_grow->( $self->origin, $event->where );
+        $event->where += $p;
+        $move_grow->($self->origin, $event->where);
       }
     }
     else {
       $self->get_bounds($save_bounds);
       do {
-        $p->copy( $self->origin );
-        $s->copy( $self->size );
+        $p->copy($self->origin);
+        $s->copy($self->size);
         $self->key_event($event);
         SWITCH: for ( $event->key_code & 0xff00 ) {
-          $_ == KB_LEFT && do {
-            $change->( -1, 0 );
-            last;
-          };
-          $_ == KB_RIGHT && do {
-            $change->( 1, 0 );
-            last;
-          };
-          $_ == KB_UP && do {
-            $change->( 0, -1 );
-            last;
-          };
-          $_ == KB_DOWN && do {
-            $change->( 0, 1 );
-            last;
-          };
-          $_ == KB_CTRL_LEFT && do {
-            $change->( -8, 0 );
-            last;
-          };
-          $_ == KB_CTRL_RIGHT && do {
-            $change->( 8, 0 );
-            last;
-          };
-          $_ == KB_HOME && do {
-            $update->( $limits->a->x, $p->y );
-            last;
-          };
-          $_ == KB_END && do {
-            $update->( $limits->b->x - $s->x, $p->y );
-            last;
-          };
-          $_ == KB_PG_UP && do {
-            $update->( $p->x, $limits->a->y );
-            last;
-          };
-          $_ == KB_PG_DN && do {
-            $update->( $p->x, $limits->b->y - $s->y );
-            last;
-          };
+          $_ == KB_LEFT       && $change->( -1, 0 );
+          $_ == KB_RIGHT      && $change->( 1, 0 );
+          $_ == KB_UP         && $change->( 0, -1 );
+          $_ == KB_DOWN       && $change->( 0, 1 );
+          $_ == KB_CTRL_LEFT  && $change->( -8, 0 );
+          $_ == KB_CTRL_RIGHT && $change->( 8, 0 );
+          $_ == KB_HOME       && $update->( $limits->a->x, $p->y );
+          $_ == KB_END        && $update->( $limits->b->x - $s->x, $p->y );
+          $_ == KB_PG_UP      && $update->( $p->x, $limits->a->y );
+          $_ == KB_PG_DN      && $update->( $p->x, $limits->b->y - $s->y );
         }
         $self->move_grow($p, $s);
       } while ( $event->key_code != KB_ENTER && $event->key_code != KB_ESC );
@@ -940,7 +894,7 @@ updating.
 The use of L</get_clip_rect> can noticeably improve performance by minimizing
 the amount of time spent updating the screen.
 
-See: L</draw_view>, L</get_clip_rect>
+See L</draw_view>, L</get_clip_rect>
 
 =cut
 
@@ -963,7 +917,7 @@ That's because I<draw_view> makes a check to determine if the view is exposed
 L</draw> doesn't care if the view is visible since Turbo Vision will
 automatically clip away text that doesn't currently appear in a view.
 
-See: L</draw>
+See L</draw>
 
 =cut
 
@@ -988,20 +942,12 @@ their I<cmXXXX> constant values, to be enabled.
 I<enable_commands> is the inverse of L</disable_commands> and restores commands
 to an operable state.
 
-See: L</disable_commands>
-
 =cut
 
   method enable_commands(TCommandSet $commands) {
-    # Map ArrayRef[Int] to bit vector (which is similar to the Pascal 'set')
-    $commands = do {
-      my $bit_set = _EMPTY_SET;
-      vec($bit_set, $_, 1) = 1 foreach @$commands;
-      $bit_set;
-    };
-                                                          # Set changed flag
-    $command_set_changed ||= ( $cur_command_set & $commands ) ne $commands;
-    $cur_command_set |= $commands;                        # Update command set
+    $command_set_changed ||=                              # Set changed flag
+      $cur_command_set * $commands != $commands;
+    $cur_command_set = $cur_command_set + $commands;      # Update command set
     return;
   }
 
@@ -1012,7 +958,7 @@ See: L</disable_commands>
 Used internally in conjunction with I<exec_view> for displaying modal views,
 such as dialogs, to terminate the modal view.
 
-See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
+See I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
 
 =cut
 
@@ -1046,7 +992,7 @@ Returns True if an event is available.
 I<execute> is overridden in I<TGroup> descendants to provide the event loop that
 makes the view a modal view.
 
-See: I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
+See I<< TGroup->end_modal >>, I<< TGroup->execute >>, I<< TGroup->exec_view >>
 
 =cut
 
@@ -1067,8 +1013,8 @@ If the view is completely hidden, then I<exposed> returns False.
 
   method exposed() {
     if ( $self->state & SF_EXPOSED 
-      and $self->size->x > 0
-      and $self->size->y > 0
+      && $self->size->x > 0
+      && $self->size->y > 0
     ) {
       my $ok = _FALSE;
       my $y = 0;
@@ -1092,9 +1038,10 @@ relative to the owner of the view.
 =cut
 
   method get_bounds(TRect $bounds) {
-    $bounds->a( $self->origin );                          # Get first corner
-    $bounds->b->x( $self->origin->x + $self->size->x );   # Calc corner x value
-    $bounds->b->y( $self->origin->y + $self->size->y );   # Calc corner y value
+    $bounds->a # =
+      ( $self->origin );                                  # Get first corner
+    $bounds->b # =
+      ( $self->origin + $self->size );                    # Calc corner value
     return;
   }
 
@@ -1108,7 +1055,7 @@ sized area that needs to be redrawn.
 Uses this procedure in L</draw> to help locate only the area on the screen that
 needs to be updated.
 
-See: L</draw>
+See L</draw>
 
 =cut
 
@@ -1187,15 +1134,15 @@ commands.
   method get_commands(TCommandSet $commands) {
     $commands = [];
     foreach ( 0..255 ) {                                  # Return command set
-      push( @$commands, $_ )
-        if vec( $cur_command_set, $_, 1 );
+      push(@$commands, $_)
+        if vec($cur_command_set, $_, 1);
     }
     return;
   }
 
 =item I<get_data>
 
-  method get_data(HashRef $rec)
+  method get_data(Str $rec)
 
 This method is overridden in descendants to copy the appropriate amount of view
 data to I<$rec>.
@@ -1204,7 +1151,9 @@ This method is primarily of interest to dialog box controls.
 
 =cut
 
-  method get_data(HashRef $rec) {
+  method get_data($) {
+    alias my $rec = $_[-1];
+    assert( is_Str $rec );
     return;
   }
 
@@ -1227,17 +1176,17 @@ L</event_avail>).
 
   method get_extent(TRect $extent)
 
-Similar to L</get_bounds>, except that I<get_extent> sets I<$extent->a> = (0,0)
-such that I<$extent->b>, which is set to L</size>, reflects the total extent of
-the view relative to the upper left corner.
+Similar to L</get_bounds>, except that I<get_extent> sets I<< $extent->a >> =
+(0,0) such that I<< $extent->b >>, which is set to L</size>, reflects the total
+extent of the view relative to the upper left corner.
 
 =cut
 
   method get_extent(TRect $extent) {
-    $extent->a->x( 0 );                                   # Zero x field
-    $extent->a->y( 0 );                                   # Zero y field
-    $extent->b->x( $self->size->x );                      # Return x size
-    $extent->b->y( $self->size->y );                      # Return y size
+    $extent->a->x(0);                                     # Zero x field
+    $extent->a->y(0);                                     # Zero y field
+    $extent->b # =
+      ( $self->size );                                    # Return size
     return;
   }
 
@@ -1251,7 +1200,7 @@ Returns the L</help_ctx> value.
 
   method get_help_ctx() {
     return HC_DRAGGING                                    # Return dragging
-        if $self->state and SF_DRAGGING;                  # Dragging state check
+        if $self->state & SF_DRAGGING;                    # Dragging state check
     return $self->help_ctx                                # Return help context
   }
 
@@ -1271,14 +1220,23 @@ the color palette for this view.
 
 =item I<get_peer_view_ptr>
 
-  method get_peer_view_ptr(TStream $s, Object|Undef $p)
+  method get_peer_view_ptr(TStream $s, Ref $r)
 
-Used by L</load> when certain objects need to load a peer view, I<$p>, from
+Used by L</load> when certain objects need to load a peer view, I<$r>, from
 stream I<$s>, such as a list box needing to load it scroll bar object.
 
 =cut
 
-  method get_peer_view_ptr(TStream $s, Object|Undef $p) {
+  method get_peer_view_ptr(TStream $s, Ref $r) {
+    my $index = 0;                                        # Zero index value
+    $s->read($index, integer()->size);                    # Read view index
+    if ( $index == 0 or not defined $_owner_group ) {     # Check for peer views
+      $r = \undef;                                        # Return undef
+    }
+    else {
+      $r = $_fixup_list->[$index];                        # New view reference
+      $_fixup_list->[$index] = \$r;                       # Patch this reference
+    }
     return;
   }
 
@@ -1290,11 +1248,12 @@ Parameter I<$a_state> can be set to multiple combinations of the I<sfXXXX>
 constants and returns True if the the indicated bits are set in the L</state>
 variable.
 
-See: L</state>, I<sfXXXX> constants
+See L</state>, I<sfXXXX> constants
 
 =cut
 
   method get_state(Int $a_state) {
+    return ($self->state & $a_state) == $a_state;         # Check states equal
   }
 
 =item I<grow_to>
@@ -1306,6 +1265,13 @@ Calls L</locate> to adjust the size of the view.
 =cut
 
   method grow_to(Int $x, Int $y) {
+    my $rect = TRect->init(                               # Assign area
+      $self->origin->x,
+      $self->origin->y,
+      $self->origin->x + $x,
+      $self->origin->y + $y
+    );
+    $self->locate($rect);                                 # Locate the view
     return;
   }
 
@@ -1321,11 +1287,21 @@ alive.
 For an example, see I<TVSHELL8.PAS>, I<< TShell.HandleEvent >>, in the Borland
 Pascal Developer's Guide.
 
-See: I<evXXXX> constants, I<cmXXXX> constants,
+See I<evXXXX> constants, I<cmXXXX> constants
      
 =cut
 
   method handle_event(TEvent $event) {
+    if ( $event->what == EV_MOUSE_DOWN ) {                # Mouse down event
+      $self->clear_event($event)                          # Handle the event
+        if !($self->state & (SF_SELECTED | SF_DISABLED))  # Not selected/disabled
+        && $self->options & OF_SELECTABLE                 # View is selectable
+        && (
+          !$self->focus                                   # Not view with focus
+            ||
+          !($self->options & OF_FIRST_CLICK)              # Not 1st click select
+        );
+    }
     return;
   }
 
@@ -1335,13 +1311,358 @@ See: I<evXXXX> constants, I<cmXXXX> constants,
 
 Hides the view.
 
-See: L</show>
+See L</show>
 
 =cut
 
   method hide() {
     $self->set_state(SF_VISIBLE, _FALSE)                  # Hide the view
-      if $self->state & SF_VISIBLE != 0;                  # View is visible
+      if $self->state & SF_VISIBLE;                       # View is visible
+    return;
+  }
+
+=item I<hide_cursor>
+
+  method hide_cursor()
+
+Hides the cursor.
+
+See L</show_cursor>
+
+=cut
+
+  method hide_cursor() {
+    $self->set_state(SF_CURSOR_VIS, _FALSE);              # Hide the cursor
+    return;
+  }
+
+=item I<key_event>
+
+  method key_event(TEvent $event)
+
+I<key_event> ignores all incoming events until it gets an I<EV_KEY_DOWN> event,
+and it returns that event.
+
+=cut
+
+  method key_event(TEvent $event) {
+    do {
+      $self->get_event($event);                           # Get next event
+    } while ( $event->what != EV_KEY_DOWN );              # Wait till keydown
+    return;
+  }
+
+=item I<locate>
+
+  method locate(TRect $bounds)
+
+Changes the boundaries of the view and redisplays the view on the screen.
+
+=cut
+
+  method locate(TRect $bounds) {
+    my $range = sub ($$$) {
+      my ($val, $min, $max) = @_;
+      return $min                                     # Value to small
+        if $val < $min;
+      return $max                                     # Value to large
+        if $val > $max;
+      return $val;                                    # Value is okay
+    };
+
+    $self->size_limits(my $min, my $max);             # Get size limits
+    $bounds->b->x # =                                 # X bound limit
+    (
+      $bounds->a->x
+      + $range->( $bounds->b->x - $bounds->a->x, $min->x, $max->x )
+    );
+    $bounds->b->y # =                                 # Y bound limit
+    (
+      $bounds->a->y
+      + $range->( $bounds->b->y - $bounds->a->y, $min->y, $max->y )
+    );
+    $self->get_bounds(my $r);                         # Current bounds
+    if ( $bounds != $r ) {                            # Size has changed
+      $self->change_bounds($bounds);                  # Change bounds
+      if ( $self->state & SF_VISIBLE                  # View is visible
+        && $self->state & SF_EXPOSED                  # Check view exposed
+        && defined $self->owner
+      ) {
+        if ( $self->state & SF_SHADOW ) {
+          $r->union($bounds);
+          $r->b += $shadow_size;
+        }
+        $self->_draw_under_rect($r, undef);
+      }
+    }
+    return;
+  }
+
+=item I<make_first>
+
+  method make_first()
+
+Moves this view to the first position (closest to the screen) in the owner's
+Z-ordered list of views.
+
+=cut
+
+  method make_first() {
+    $self->put_in_front_of($self->owner->first)           # Float to the top
+      if defined $self->owner;                            # Must have owner
+    return;
+  }
+
+=item I<make_global>
+
+  method make_global(TPoint $source, TPoint $dest)
+
+Use I<make_global> (see also L</make_local>) to convert I<$source>, which
+contains view relative coordinates, to screen coordinates.
+
+The converted value is returned in I<$dest>.
+
+=cut
+
+  method make_global(TPoint $source, TPoint $dest) {
+    my $cur = $self;
+    $dest->copy($source);
+    do {
+      $dest += $cur->origin;
+      $cur = $cur->owner;
+    } while ( defined $cur );
+    return;
+  }
+
+=item I<make_local>
+
+  method make_local(TPoint $source, TPoint $dest)
+
+Converts the screen coordinates into view relative coordinates.
+
+See L</make_global>.
+
+=cut
+
+  method make_local(TPoint $source, TPoint $dest) {
+    my $cur = $self;
+    $dest->copy($source);
+    do {
+      $dest->x # =
+        ( $dest->x - $cur->origin->x );
+      last
+        if $dest->x < 0;
+      $dest->y # =
+        ( $dest->y - $cur->origin->y );
+      last
+        if $dest->y < 0;
+      $cur = $cur->owner;
+    } while ( defined $cur );
+    return;
+  }
+
+=item I<mouse_event>
+
+  method mouse_event(TEvent $event, Int $mask) : Bool
+
+I<$mask> is an I<EV_MOUSE> event.
+
+I<mouse_event> sets I<$event> to the next mouse event and returns True if the
+I<< $event->what >> field matches I<$mask>, and False if when I<EV_MOUSE_UP>
+occurs.
+
+Typically, this function is called when a mouse is being dragged.
+
+To process the dragging operation, keep calling this routine until it returns
+False, meaning that the mouse button has been let up.
+
+=cut
+
+  method mouse_event(TEvent $event, Int $mask) {
+  }
+
+=item I<mouse_in_view>
+
+  method mouse_in_view(TPoint $mouse) : Bool
+
+If the point described by I<$mouse> (in screen coordinates) lies within this
+view, then I<mouse_in_view> returns True.
+
+=cut
+
+  method mouse_in_view(TPoint $mouse) {
+  }
+
+=item I<move_to>
+
+  method move_to(Int $x, Int $y)
+
+Keeping the view the same size, I<move_to> moves the upper left corner, and
+hence the entire view, to the new point I<($x,$y)>.
+
+=cut
+
+  method move_to(Int $x, Int $y) {
+    return;
+  }
+
+=item I<next_view>
+
+  method next_view() : TView|Undef
+
+I<next_view> returns a Reference to the next view, in sequence, in the owner's
+list of views, or C<undef> if it has reached the end of the list.
+
+=cut
+
+  method next_view() {
+    return;
+  }
+
+=item I<normal_cursor>
+
+  method normal_cursor()
+
+Sets the screen cursor to an underscore-style cursor.
+
+See L</block_cursor>.
+
+=cut
+
+  method normal_cursor() {
+    return;
+  }
+
+=item I<prev>
+
+  method prev() : TView
+
+I<prev> returns a reference to the previous view, in sequence, in the owner's
+list of views, and cycles back to the beginning of the list if it has reached
+the end.
+
+=cut
+
+  method prev() {
+  }
+
+=item I<prev_view>
+
+  method prev_view() : TView|Undef
+
+Identical to L</prev> except that if I<prev_view> reaches the beginning of
+the view list, I<prev_view> returns C<undef>.
+
+=cut
+
+  method prev_view() {
+  }
+
+=item I<put_event>
+
+  method put_event(TEvent $event)
+
+Using I<put_event>, you can force one and only one event to be inserted as the
+next event in the event queue.
+
+I<$event> will become the next event retrieved by L</get_event>.
+
+=cut
+
+  method put_event(TEvent $event) {
+    return;
+  }
+
+=item I<put_in_front_of>
+
+  method put_in_front_of(TView $target)
+
+Where I<$target> is any view in this view's owner's view list,
+I<put_in_front_of> moves this view to be placed directly in front of I<$target>.
+
+=cut
+
+  method put_in_front_of(TView $target) {
+    return;
+  }
+
+=item I<put_peer_view_ptr>
+
+  method put_peer_view_ptr(TStream $s, TView $r)
+
+The L</store> method calls this routine to write the "peer" view object I<$r>
+to stream I<$s>.
+
+=cut
+
+  method put_peer_view_ptr(TStream $s, TView $r) {
+    return;
+  }
+
+=item I<select>
+
+  method select()
+
+I<select> makes this view the active view in the group, and if the owning group
+is on the focused chain, then this view becomes the focused view.
+
+=cut
+
+  method select() {
+    return;
+  }
+
+=item I<set_bounds>
+
+  method set_bounds(TRect $bounds)
+
+This is an internal routine called by L</change_bounds>.
+
+=cut
+
+  method set_bounds(TRect $bounds) {
+    return;
+  }
+
+=item I<set_commands>
+
+  method set_commands(TCommandSet $commands)
+
+Sets the currently list of enabled commands to the set passed in the
+I<$commands> parameter.
+
+See L</enable_commands>, L</disablecommands>
+
+=cut
+
+  method set_commands(TCommandSet $commands) {
+    return;
+  }
+
+=item I<set_cursor>
+
+  method set_cursor(Int $x, Int $y)
+
+Moves the screen cursor to I<($x,$y)> where I<$x> and I<$y> are local
+coordinates.
+
+=cut
+
+  method set_cursor(Int $x, Int $y) {
+    return;
+  }
+
+=item I<set_data>
+
+  method set_data(Str $rec)
+
+Copies L</data_size> bytes from I<$rec> to the view's data fields.
+
+See L</data_size>, L</get_data>
+
+=cut
+
+  method set_data(Str $rec) {
     return;
   }
 
@@ -1367,13 +1688,13 @@ I<$a_state> are cleared.
 
 Causes the view to be displayed.
 
-See: L</hide>
+See L</hide>
 
 =cut
 
   method show() {
     $self->set_state(SF_VISIBLE, _TRUE)                   # Show the view
-      if $self->state & SF_VISIBLE == 0;                  # View not visible
+      if not $self->state & SF_VISIBLE;                   # View not visible
     return;
   }
 
@@ -1402,12 +1723,13 @@ Sets I<$min> to (0,0) and I<$max> to I<< $self->owner->size >>.
     $min->x(0);                                           # Zero x minimum
     $min->y(0);                                           # Zero y minimum
     if ( defined $self->owner ) {
-      $max->x( $self->owner->size->x );
-      $max->y( $self->owner->size->y );
+      $max->copy($self->owner->size);
     }
     else {                                                # Max owner size
-      $max->x( _INT16_MAX );                              # Max possible x size
-      $max->y( _INT16_MAX );                              # Max possible y size
+      $max->x # =
+        ( _INT16_MAX );                                   # Max possible x size
+      $max->y # =
+        ( _INT16_MAX );                                   # Max possible y size
     }
     return;
   }
@@ -1424,7 +1746,7 @@ Writes I<$self> view to stream <$s>.
     my $write = sub ($$) {
       my $value = shift // 0;
       my $type = shift;
-      SWITCH: foreach( $type ) {
+      SWITCH: for( $type ) {
         /byte/    && $s->write(    byte($value)->pack,    byte->size );
         /integer/ && $s->write( integer($value)->pack, integer->size );
         /word/    && $s->write(    word($value)->pack,    word->size );
@@ -1503,6 +1825,23 @@ parameter.
 
 =back
 
+=cut
+
+  method _draw_under_rect(TRect $r, TView $last_view) {
+    $self->owner->_clip->intersect($r);
+    $self->owner->_draw_sub_views($self->next_view, $last_view);
+    $self->owner->get_extent($self->owner->_clip);
+    return;
+  }
+
+  method _draw_under_view(Bool $shadow, TView $last_view) {
+    $self->get_bounds(my $r);
+    $r->b += $shadow_size
+      if $shadow;
+    $self->_draw_under_rect($r, $last_view);
+    return;
+  }
+  
 =head2 Inheritance
 
 Methods inherited from class L<Moose::Object>

@@ -1,7 +1,7 @@
 use 5.014;
 use warnings;
 use Test::More;
-no if ($] >= 5.018), 'warnings' => 'experimental';
+no if $] >= 5.018, warnings => 'experimental::smartmatch';
 
 use TurboVision::Views::Const qw( CM_VALID CM_QUIT CM_CLOSE );
 use TurboVision::Views::Types qw( TCommandSet );
@@ -20,18 +20,18 @@ ok (
   'TCommandSet->new->is_empty'
 );
 
-$set = TCommandSet->new( TCommandSet->new() );
+$set = TCommandSet->new( set => [] );
 isa_ok(
   $set,
   'TurboVision::Views::CommandSet',
-  'TCommandSet->new( TCommandSet->new() )'
+  'TCommandSet->new( set => [] )'
 );
 
-$set = TCommandSet->new( [CM_QUIT] );
+$set = TCommandSet->init( [CM_QUIT] );
 isa_ok(
   $set,
   'TurboVision::Views::CommandSet',
-  'TCommandSet->new( $set )'
+  'TCommandSet->init( $set )'
 );
 
 ok (
@@ -57,11 +57,11 @@ ok (
   '$set->enable_cmd( $cmd )'
 );
 
-$set = TCommandSet->new();
+$set = TCommandSet->init();
 $set += [CM_VALID];
 ok (
   !$set->is_empty,
-  'TCommandSet->new() && $set->_include( $cmd ) && not $set->is_empty'
+  'TCommandSet->init() && $set->_include( $cmd ) && not $set->is_empty'
 );
 
 my $copy = $set;
@@ -82,16 +82,16 @@ cmp_ok(
   '$set->_include( $set ) && $set->_equal( $copy )'
 );
 
-$set = TCommandSet->new( [CM_QUIT] );
-$copy = TCommandSet->new( [CM_VALID, CM_QUIT] );
-$copy = $copy & $set;
+$set = TCommandSet->init( [CM_QUIT] );
+$copy = TCommandSet->init( [CM_VALID, CM_QUIT] );
+$copy = $copy * $set;
 cmp_ok(
   $set, '==', $copy,
   '$set->_intersect( $copy )'
 );
 
 $set += [CM_VALID];
-$copy = $copy | TCommandSet->new( [CM_VALID] );
+$copy = $copy + TCommandSet->init( [CM_VALID] );
 cmp_ok(
   $set, '==', $copy,
   '$set->_union( $copy )'
@@ -102,10 +102,10 @@ ok (
   '$set->_matching( $cmd )'
 );
 
-$set = $set ^ $copy;
+$set = [] * $set ;
 ok (
   $set->is_empty,
-  '$set->_sym_diff( $copy )'
+  '$set->_intersect( [] ) & $set->is_empty'
 );
 
 done_testing;

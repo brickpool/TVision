@@ -145,15 +145,23 @@ data type.
 
 =item I<_cmds>
 
-  has _cmds ( is => rw, type => Str );
+  has _cmds (
+    is        => rw,
+    type      => Bit::Vector::Str,
+    init_arg  => 'set',
+    coerce    => 1,
+  ) = '';
 
-Internal attribute to hold the bit vector.
+Internal attribute to hold the bit vector string.
 
 =cut
 
   has '_cmds' => (
-    is  => 'rw',
-    isa => Str,
+    is        => 'rw',
+    isa       => 'Bit::Vector::Str',
+    init_arg  => 'set',
+    coerce    => 1,
+    default   => _EMPTY_SET,
   );
 
 =back
@@ -170,29 +178,21 @@ Internal attribute to hold the bit vector.
 
 =over
 
-=item I<new>
+=item I<init>
 
-  factory $class->new() : TCommandSet
-  factory $class->new( TCommandSet $set ) : TCommandSet
-  factory $class->new( ArrayRef[Int] $set ) : TCommandSet
+  factory $class->init() : TCommandSet
+  factory $class->init( ArrayRef[Int] $set ) : TCommandSet
 
-The L<Moose::Object> method I<BUILDARGS> is overridden for a customized
-(simple non-hash based) passing of parameters.
+Calls the I<new> constructor, but uses a simple non-hash based passing of
+commands.
 
 =cut
 
-  around BUILDARGS(Undef|TCommandSet|ArrayRef[Int] $set=) {
-    my $cmds = _EMPTY_SET;
-    if ( is_TCommandSet $set ) {
-      $cmds = $set->_cmds;
-    }
-    elsif ( is_ArrayRef $set ) {
-      foreach my $cmd ( @$set ) {
-        vec ($cmds, $cmd, 1) = 1
-          if $cmd >= 0 && $cmd <= 255;
-      }
-    }
-    return $self->$next( _cmds => $cmds );
+  factory init(Undef|ArrayRef[Int] $set=) {
+    return defined $set
+          ? $class->new( set => $set )
+          : $class->new()
+          ;
   }
 
 =back
@@ -300,10 +300,9 @@ The supported operators for this are listed in the following table:
 
   Operator  Subroutine    Action
   =         _clone        copy constructor
-  |         _union        union
+  +         _union        union
   -         _difference   difference
-  &         _intersection intersection
-  ^         _sym_diff     symmetric difference
+  *         _intersection intersection
   +=        _include      include elements to the set
   -=        _exclude      exclude elements from the set
   ==        _equal        equal
@@ -335,21 +334,19 @@ C<< $cmds = $set; $cmds += CM_QUIT; >> without affecting C<$set>.
 =item operator C<->
 
   func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) : TCommandSet
+  func _difference(TCommandSet $a, ArrayRef[Int] $b, Bool $swap) : TCommandSet
 
 This method calculates the difference of I<$a> and I<$b> and returns the result
 as a new commend set so that we can write code like C<< $cmds = $a - $b >>.
 
 =cut
 
-  func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) {
-    my $this = TCommandSet->new();
-    if ( $swap ) {
-      $this->_cmds( $a->_cmds & ~$b->_cmds );
-    }
-    else {
-      $this->_cmds( $b->_cmds & ~$a->_cmds );
-    }
-    return $this;
+  func _difference(TCommandSet $a, TCommandSet|ArrayRef[Int] $b, Bool $swap) {
+    $b = TCommandSet->new(set => $b) if is_ArrayRef $b;
+    ( $a, $b ) = ( $b, $a ) if $swap;
+    return TCommandSet->new(
+      set => ( $b->_cmds & ~$a->_cmds )
+    );
   };
   use overload '-' => '_difference';
 
@@ -358,6 +355,7 @@ as a new commend set so that we can write code like C<< $cmds = $a - $b >>.
 =item operator C<==>
 
   func _equal(TCommandSet $a, TCommandSet $b) : Bool
+  func _equal(TCommandSet $a, ArrayRef[Int] $b) : Bool
 
 Overload equal comparison C<==> so that we can write code like C<< $a == $b >>.
 
@@ -365,7 +363,8 @@ See: L</_not_equal>
 
 =cut
 
-  func _equal(TCommandSet $a, TCommandSet $b, $=) {
+  func _equal(TCommandSet $a, TCommandSet|ArrayRef[Int] $b, $=) {
+    $b = TCommandSet->new(set => $b) if is_ArrayRef $b;
     return $a->_cmds eq $b->_cmds;
   };
   use overload '==' => '_equal';
@@ -412,24 +411,26 @@ See: L</enable_cmd>
 
 =item I<_intersection>
 
-=item operator C<&>
+=item operator C<*>
 
   func _intersection(TCommandSet $a, TCommandSet $b) : TCommandSet
+  func _intersection(TCommandSet $a, ArrayRef[Int] $b) : TCommandSet
 
 This sub routine calculates the intersection of I<$a> and I<$b> and returns the
 result as a new commend set so that we can write code like
-C<< $cmds = $a & $b >>.
+C<< $cmds = $a * $b >>.
 
 See: L</_union>
 
 =cut
 
-  func _intersection(TCommandSet $a, TCommandSet $b, $=) {
-    my $this = TCommandSet->new();
-    $this->_cmds( $a->_cmds & $b->_cmds );
-    return $this;
+  func _intersection(TCommandSet $a, TCommandSet|ArrayRef[Int] $b, $=) {
+    $b = TCommandSet->new(set => $b) if is_ArrayRef $b;
+    return TCommandSet->new(
+      set => ($a->_cmds & $b->_cmds)
+    );
   };
-  use overload '&' => '_intersection';
+  use overload '*' => '_intersection';
 
 =item I<_matching>
 
@@ -456,6 +457,7 @@ otherwise.
 =item operator C<!=>
 
   func _not_equal(TCommandSet $a, TCommandSet $b) : Bool
+  func _not_equal(TCommandSet $a, ArrayRef[Int] $b) : Bool
 
 Overload not equal comparison C<!=> so that we can write code like
 C<< $a != $b >>.
@@ -464,49 +466,34 @@ See: L</_equal>
 
 =cut
 
-  func _not_equal(TCommandSet $a, TCommandSet $b, $=) {
+  func _not_equal(TCommandSet $a, TCommandSet|ArrayRef[Int] $b, $=) {
+    $b = TCommandSet->new(set => $b) if is_ArrayRef $b;
     return $a->_cmds ne $b->_cmds;
   };
   use overload '!=' => '_not_equal';
 
-=item I<_sym_diff>
-
-=item operator C<^>
-
-  func _sym_diff(TCommandSet $a, TCommandSet $b) : TCommandSet
-
-It calculates the set of all elements that are in one, but not both sets.
-Returns the result as a new commend set so that we can write code like
-C<< $cmds = $a ^ $b >>.
-
-=cut
-
-  func _sym_diff(TCommandSet $a, TCommandSet $b, $=) {
-    my $this = TCommandSet->new();
-    $this->_cmds( $a->_cmds ^ $b->_cmds );
-    return $this;
-  };
-  use overload '^' => '_sym_diff';
-
 =item I<_union>
 
-=item operator C<|> (or alternative operator C<+>)
+=item operator C<+>
 
   func _union(TCommandSet $a, TCommandSet $b) : TCommandSet
+  func _union(TCommandSet $a, ArrayRef[Int] $b) : TCommandSet
 
 This method calculates the union of I<$a> and I<$b> and returns the result as a
-new commend set so that we can write code like C<< $cmds = $a | $b >>.
+new commend set so that we can write code like C<< $cmds = $a + $b >>.
 
 See: L</_intersection>, L</_include>
 
 =cut
 
-  func _union(TCommandSet $a, TCommandSet $b, $=) {
-    my $this = TCommandSet->new();
-    $this->_cmds( $a->_cmds | $b->_cmds );
-    return $this;
+  func _union(TCommandSet $a, TCommandSet|ArrayRef[Int] $b, $=) {
+    $b = TCommandSet->new(set => $b)
+      if is_ArrayRef $b;
+    return TCommandSet->new(
+      set => ($a->_cmds | $b->_cmds)
+    );
   };
-  use overload '|' => '_union';
+  use overload '+' => '_union';
 
 =back
 
@@ -519,6 +506,8 @@ Methods inherited from class L<Moose::Object>
 =cut
 
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 
