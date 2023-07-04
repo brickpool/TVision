@@ -28,6 +28,7 @@ $VERSION =~ tr/_//d;
 our $AUTHORITY = 'github:fpc';
 
 use MooseX::Types::Moose qw( :all );
+use namespace::autoclean;
 
 # ------------------------------------------------------------------------
 # Used Modules -----------------------------------------------------------
@@ -61,7 +62,6 @@ use MooseX::Types -declare => [qw(
 )];
 use MooseX::Types::Common::String qw( SimpleStr );
 use MooseX::Types::Structured qw( Dict );
-use namespace::autoclean;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------

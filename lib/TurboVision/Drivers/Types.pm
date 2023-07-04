@@ -28,6 +28,7 @@ $VERSION =~ tr/_//d;
 our $AUTHORITY = 'github:fpc';
 
 use MooseX::Types::Moose qw( :all );
+use namespace::autoclean;
 
 # ------------------------------------------------------------------------
 # Used Modules -----------------------------------------------------------
@@ -39,7 +40,6 @@ use MooseX::Types -declare => [qw(
   StdioCtl
   TEvent
 )];
-use namespace::autoclean;
 
 use TurboVision::Const qw( :platform );
 
