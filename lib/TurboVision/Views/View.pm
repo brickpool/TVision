@@ -469,8 +469,9 @@ Creates and reads a view from stream I<$s>.
 =cut
 
   factory load(TStream $s) {
-    my $read = method() {
-      SWITCH: for( $self ) {
+    my $read = sub {
+      my $type = shift;
+      SWITCH: for( $type ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
@@ -590,7 +591,7 @@ that the L</owner>'s view was changed in size.
   method calc_bounds(TRect $bounds, TPoint $delta) {
     my ($s, $d, $min, $max);
     
-    my $range = sub($$$) {
+    my $range = sub {
       my ($val, $min, $max) = @_;
       return $min                                         # Value below min
           if $val < $min;
@@ -719,9 +720,10 @@ See L</get_data>, L</set_data>
 =item I<disable_commands>
 
   method disable_commands(TCommandSet $commands)
+  method disable_commands(ArrayRef[Int] $commands)
 
-I<$commands> is a array reference containing a set of commands, specified by
-their I<cmXXXX> constant values, to be disabled.
+I<$commands> is a reference containing a set of commands, specified by their
+I<cmXXXX> constant values, to be disabled.
 
 Calling I<disable_commands> causes these I<$commands> to become greyed out on
 the menus and status line.
@@ -730,10 +732,14 @@ See L</enable_commands>
 
 =cut
 
-  method disable_commands(TCommandSet $commands) {
+  method disable_commands(TCommandSet|ArrayRef[Int] $commands) {
+    my $cmds = is_ArrayRef($commands)
+             ? TCommandSet->init($commands)
+             : $commands
+             ;
     $command_set_changed ||=                              # Set changed flag
-      ( $cur_command_set * $commands ) != [];
-    $cur_command_set = $cur_command_set - $commands;      # Update command set
+      $cur_command_set * $cmds != [];
+    $cur_command_set = $cur_command_set - $cmds;          # Update command set
     return;
   }
 
@@ -756,7 +762,7 @@ view can be resized.
     my ( $p, $s ) = ( TPoint->new(), TPoint->new() );
     my $save_bounds;
 
-    my $move_grow = sub($$) {
+    my $move_grow = sub {
       my ( $p, $s ) = @_;
 
       $s->x # =
@@ -789,7 +795,7 @@ view can be resized.
       $self->locate($r);
     };
     
-    my $change = sub($$) {
+    my $change = sub {
       my ( $dx, $dy ) = @_;
       if ( $mode & DM_DRAG_MOVE and not get_shift_state & 0x03 ) {
         $p->x # =
@@ -805,7 +811,7 @@ view can be resized.
       }
     };
 
-    my $update = sub($$) {
+    my $update = sub {
       my ($x, $y) = @_;
       if ( $mode & DM_DRAG_MOVE ) {
         $p->x($x);
@@ -935,19 +941,24 @@ See L</draw>
 =item I<enable_commands>
 
   method enable_commands(TCommandSet $commands)
+  method enable_commands(ArrayRef[Int] $commands)
 
-<$commands> is a array reference containing a set of commands, specified by
-their I<cmXXXX> constant values, to be enabled.
+<$commands> is a reference containing a set of commands, specified by their
+I<cmXXXX> constant values, to be enabled.
 
 I<enable_commands> is the inverse of L</disable_commands> and restores commands
 to an operable state.
 
 =cut
 
-  method enable_commands(TCommandSet $commands) {
+  method enable_commands(TCommandSet|ArrayRef[Int] $commands) {
+    my $cmds = is_ArrayRef($commands)
+             ? TCommandSet->init($commands)
+             : $commands
+             ;
     $command_set_changed ||=                              # Set changed flag
-      $cur_command_set * $commands != $commands;
-    $cur_command_set = $cur_command_set + $commands;      # Update command set
+      $cur_command_set * $cmds != [];
+    $cur_command_set = $cur_command_set + $cmds;          # Update command set
     return;
   }
 
@@ -1132,11 +1143,7 @@ commands.
 =cut
 
   method get_commands(TCommandSet $commands) {
-    $commands = [];
-    foreach ( 0..255 ) {                                  # Return command set
-      push(@$commands, $_)
-        if vec($cur_command_set, $_, 1);
-    }
+    $commands->copy($cur_command_set);                    # Return command set
     return;
   }
 
@@ -1361,7 +1368,7 @@ Changes the boundaries of the view and redisplays the view on the screen.
 =cut
 
   method locate(TRect $bounds) {
-    my $range = sub ($$$) {
+    my $range = sub {
       my ($val, $min, $max) = @_;
       return $min                                     # Value to small
         if $val < $min;
@@ -1624,6 +1631,29 @@ This is an internal routine called by L</change_bounds>.
     return;
   }
 
+=item I<set_cmd_state>
+
+  method set_cmd_state(TCommandSet $commands, Bool $enable)
+  method set_cmd_state(ArrayRef[Int] $commands, Bool $enable)
+
+Depending on I<$enable> the current list of commands is expanded
+(I<$enable> = true) or reduced (I<$enable> = false) to the set passed in the
+parameter I<$commands>.
+
+See L</enable_commands>, L</disable_commands>
+
+=cut
+
+  method set_cmd_state(TCommandSet|ArrayRef[Int] $commands, Bool $enable) {
+    if ($enable) {
+      $self->enable_commands($commands);
+    }
+    else {
+      $self->disable_commands($commands);
+    }
+    return;
+  }
+
 =item I<set_commands>
 
   method set_commands(TCommandSet $commands)
@@ -1631,7 +1661,7 @@ This is an internal routine called by L</change_bounds>.
 Sets the currently list of enabled commands to the set passed in the
 I<$commands> parameter.
 
-See L</enable_commands>, L</disablecommands>
+See L</enable_commands>, L</disable_commands>
 
 =cut
 
@@ -1743,9 +1773,9 @@ Writes I<$self> view to stream <$s>.
 =cut
 
   method store(TStream $s) {
-    my $write = sub ($$) {
-      my $value = shift // 0;
+    my $write = sub {
       my $type = shift;
+      my $value = shift // 0;
       SWITCH: for( $type ) {
         /byte/    && $s->write(    byte($value)->pack,    byte->size );
         /integer/ && $s->write( integer($value)->pack, integer->size );
@@ -1760,18 +1790,20 @@ Writes I<$self> view to stream <$s>.
       | SF_FOCUSED
       | SF_EXPOSED
     );
-    $write->( $self->origin->x,   'integer' );            # Write view x origin
-    $write->( $self->origin->y,   'integer' );            # Write view x origin
-    $write->( $self->size->x,     'integer' );            # Write view x size
-    $write->( $self->size->y,     'integer' );            # Write view x size
-    $write->( $self->cursor->x,   'integer' );            # Write view x cursor
-    $write->( $self->cursor->y,   'integer' );            # Write view x cursor
-    $write->( $self->grow_mode,   'byte'    );            # Write growmode flags
-    $write->( $self->drag_mode,   'byte'    );            # Write dragmode flags
-    $write->( $self->help_ctx,    'word'    );            # Write help context
-    $write->( $state,             'word'    );            # Write state masks
-    $write->( $self->options,     'word'    );            # Write options masks
-    $write->( $self->event_mask,  'word'    );            # Write event masks
+    'integer'->$write( $self->origin->x );                # Write view x origin
+    'integer'->$write( $self->origin->y );                # Write view x origin
+    'integer'->$write( $self->size->x   );                # Write view x size
+    'integer'->$write( $self->size->y   );                # Write view x size
+    'integer'->$write( $self->cursor->x );                # Write view x cursor
+    'integer'->$write( $self->cursor->y );                # Write view x cursor
+
+    'byte'->$write( $self->grow_mode  );                  # Write growmode flags
+    'byte'->$write( $self->drag_mode  );                  # Write dragmode flags
+    'word'->$write( $self->help_ctx   );                  # Write help context
+    'word'->$write( $state            );                  # Write state masks
+    'word'->$write( $self->options    );                  # Write options masks
+    'word'->$write( $self->event_mask );                  # Write event masks
+
     return;
   }
 
