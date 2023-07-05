@@ -64,10 +64,10 @@
    7    $commands_on += [CM_USE_DOS, CM_DELETE];
    8    $commands_off = $commands_on;
    9  
-  10    if ( $set_up_data-&gt;prog_options &amp; 2 ) {
+  10    if ( $tc_up_data-&gt;prog_options &amp; 2 ) {
   11      $commands_off -= [CM_USE_DOS];
   12    }
-  13    if ( $set_up_data-&gt;prog_options &amp; 4 ) {
+  13    if ( $tc_up_data-&gt;prog_options &amp; 4 ) {
   14      $commands_off -= [CM_DELETE];
   15    }
   16    $commands_on = $commands_on - $commands_off;
@@ -94,7 +94,7 @@
 <pre><code>  has _cmds (
     is        =&gt; rw,
     type      =&gt; Bit::Vector::Str,
-    init_arg  =&gt; &#39;set&#39;,
+    init_arg  =&gt; &#39;cmds&#39;,
     coerce    =&gt; 1,
   ) = &#39;&#39;;</code></pre>
 
@@ -111,7 +111,7 @@
 <dd>
 
 <pre><code>  factory $class-&gt;init() : TCommandSet
-  factory $class-&gt;init( ArrayRef[Int] $set ) : TCommandSet</code></pre>
+  factory $class-&gt;init(ArrayRef[Int] $tc) : TCommandSet</code></pre>
 
 <p>Calls the <i>new</i> constructor, but uses a simple non-hash based passing of commands.</p>
 
@@ -135,15 +135,15 @@
 <dt id="copy"><i>copy</i></dt>
 <dd>
 
-<pre><code>  method copy(TCommandSet $set)</code></pre>
+<pre><code>  method copy(TCommandSet $tc)</code></pre>
 
-<p><i>copy</i> sets the command set to the same commands as in <i>$set</i>.</p>
+<p><i>copy</i> sets the command set to the same commands as in <i>$tc</i>.</p>
 
 </dd>
 <dt id="disable_cmd"><i>disable_cmd</i></dt>
 <dd>
 
-<pre><code>  method disable_cmd( Int $cmd )</code></pre>
+<pre><code>  method disable_cmd(Int $cmd)</code></pre>
 
 <p>The method clear the command &lt;$cmd&gt; into the given command set.</p>
 
@@ -200,7 +200,7 @@
 
 <pre><code>  method _clone() : TCommandSet</code></pre>
 
-<p>Overloading the copy constructor so that we can write code like <code>$cmds = $set; $cmds += CM_QUIT;</code> without affecting <code>$set</code>.</p>
+<p>Overloading the copy constructor so that we can write code like <code>$tc2 = $tc1; $tc2 += CM_QUIT;</code> without affecting <code>$tc1</code>.</p>
 
 </dd>
 <dt id="difference"><i>_difference</i></dt>
@@ -210,10 +210,10 @@
 <dt id="operator1">operator <code>-</code></dt>
 <dd>
 
-<pre><code>  func _difference(TCommandSet $a, TCommandSet $b, Bool $swap) : TCommandSet
-  func _difference(TCommandSet $a, ArrayRef[Int] $b, Bool $swap) : TCommandSet</code></pre>
+<pre><code>  func _difference(TCommandSet $tc1, TCommandSet $tc2, Bool $swap) : TCommandSet
+  func _difference(TCommandSet $tc1, ArrayRef[Int] $tc2, Bool $swap) : TCommandSet</code></pre>
 
-<p>This method calculates the difference of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a - $b</code>.</p>
+<p>This method calculates the difference of <i>$tc1</i> and <i>$tc2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $tc1 - $tc2</code>.</p>
 
 </dd>
 <dt id="equal"><i>_equal</i></dt>
@@ -223,10 +223,10 @@
 <dt id="operator2">operator <code>==</code></dt>
 <dd>
 
-<pre><code>  func _equal(TCommandSet $a, TCommandSet $b) : Bool
-  func _equal(TCommandSet $a, ArrayRef[Int] $b) : Bool</code></pre>
+<pre><code>  func _equal(TCommandSet $tc1, TCommandSet $tc2) : Bool
+  func _equal(TCommandSet $tc1, ArrayRef[Int] $tc2) : Bool</code></pre>
 
-<p>Overload equal comparison <code>==</code> so that we can write code like <code>$a == $b</code>.</p>
+<p>Overload equal comparison <code>==</code> so that we can write code like <code>$tc1 == $tc2</code>.</p>
 
 <p>See: <a href="#not_equal">&quot;_not_equal&quot;</a></p>
 
@@ -238,7 +238,7 @@
 <dt id="operator3">operator <code>-=</code></dt>
 <dd>
 
-<pre><code>  method _exclude(ArrayRef[Int] $set) : TCommandSet</code></pre>
+<pre><code>  method _exclude(ArrayRef[Int] $tc) : TCommandSet</code></pre>
 
 <p>Exclude an element from the set, so that we can write code like <code>$cmds -= $cmd</code>.</p>
 
@@ -252,7 +252,7 @@
 <dt id="operator4">operator <code>+=</code></dt>
 <dd>
 
-<pre><code>  method _include(ArrayRef[Int] $set) : TCommandSet</code></pre>
+<pre><code>  method _include(ArrayRef[Int] $tc) : TCommandSet</code></pre>
 
 <p>Include an element in the set, so that we can write code like <code>$cmds += $cmd</code>.</p>
 
@@ -266,10 +266,10 @@
 <dt id="operator5">operator <code>*</code></dt>
 <dd>
 
-<pre><code>  func _intersection(TCommandSet $a, TCommandSet $b) : TCommandSet
-  func _intersection(TCommandSet $a, ArrayRef[Int] $b) : TCommandSet</code></pre>
+<pre><code>  func _intersection(TCommandSet $tc1, TCommandSet $tc2) : TCommandSet
+  func _intersection(TCommandSet $tc1, ArrayRef[Int] $tc2) : TCommandSet</code></pre>
 
-<p>This sub routine calculates the intersection of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a * $b</code>.</p>
+<p>This sub routine calculates the intersection of <i>$tc1</i> and <i>$tc2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $tc1 * $tc2</code>.</p>
 
 <p>See: <a href="#union">&quot;_union&quot;</a></p>
 
@@ -293,10 +293,10 @@
 <dt id="operator7">operator <code>!=</code></dt>
 <dd>
 
-<pre><code>  func _not_equal(TCommandSet $a, TCommandSet $b) : Bool
-  func _not_equal(TCommandSet $a, ArrayRef[Int] $b) : Bool</code></pre>
+<pre><code>  func _not_equal(TCommandSet $tc1, TCommandSet $tc2) : Bool
+  func _not_equal(TCommandSet $tc1, ArrayRef[Int] $tc2) : Bool</code></pre>
 
-<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$a != $b</code>.</p>
+<p>Overload not equal comparison <code>!=</code> so that we can write code like <code>$tc1 != $tc2</code>.</p>
 
 <p>See: <a href="#equal">&quot;_equal&quot;</a></p>
 
@@ -308,10 +308,10 @@
 <dt id="operator8">operator <code>+</code></dt>
 <dd>
 
-<pre><code>  func _union(TCommandSet $a, TCommandSet $b) : TCommandSet
-  func _union(TCommandSet $a, ArrayRef[Int] $b) : TCommandSet</code></pre>
+<pre><code>  func _union(TCommandSet $tc1, TCommandSet $tc2) : TCommandSet
+  func _union(TCommandSet $tc1, ArrayRef[Int] $tc2) : TCommandSet</code></pre>
 
-<p>This method calculates the union of <i>$a</i> and <i>$b</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $a + $b</code>.</p>
+<p>This method calculates the union of <i>$tc1</i> and <i>$tc2</i> and returns the result as a new commend set so that we can write code like <code>$cmds = $tc1 + $tc2</code>.</p>
 
 <p>See: <a href="#intersection">&quot;_intersection&quot;</a>, <a href="#include">&quot;_include&quot;</a></p>
 

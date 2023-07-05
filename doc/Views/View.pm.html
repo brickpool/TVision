@@ -313,9 +313,10 @@
 <dt id="disable_commands"><i>disable_commands</i></dt>
 <dd>
 
-<pre><code>  method disable_commands(TCommandSet $commands)</code></pre>
+<pre><code>  method disable_commands(TCommandSet $commands)
+  method disable_commands(ArrayRef[Int] $commands)</code></pre>
 
-<p><i>$commands</i> is a array reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be disabled.</p>
+<p><i>$commands</i> is a reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be disabled.</p>
 
 <p>Calling <i>disable_commands</i> causes these <i>$commands</i> to become greyed out on the menus and status line.</p>
 
@@ -373,9 +374,10 @@
 <dt id="enable_commands"><i>enable_commands</i></dt>
 <dd>
 
-<pre><code>  method enable_commands(TCommandSet $commands)</code></pre>
+<pre><code>  method enable_commands(TCommandSet $commands)
+  method enable_commands(ArrayRef[Int] $commands)</code></pre>
 
-<p>&lt;$commands&gt; is a array reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be enabled.</p>
+<p>&lt;$commands&gt; is a reference containing a set of commands, specified by their <i>cmXXXX</i> constant values, to be enabled.</p>
 
 <p><i>enable_commands</i> is the inverse of <a href="#disable_commands">&quot;disable_commands&quot;</a> and restores commands to an operable state.</p>
 
@@ -710,6 +712,17 @@
 <p>This is an internal routine called by <a href="#change_bounds">&quot;change_bounds&quot;</a>.</p>
 
 </dd>
+<dt id="set_cmd_state"><i>set_cmd_state</i></dt>
+<dd>
+
+<pre><code>  method set_cmd_state(TCommandSet $commands, Bool $enable)
+  method set_cmd_state(ArrayRef[Int] $commands, Bool $enable)</code></pre>
+
+<p>Depending on <i>$enable</i> the current list of commands is expanded (<i>$enable</i> = true) or reduced (<i>$enable</i> = false) to the set passed in the parameter <i>$commands</i>.</p>
+
+<p>See <a href="#enable_commands">&quot;enable_commands&quot;</a>, <a href="#disable_commands">&quot;disable_commands&quot;</a></p>
+
+</dd>
 <dt id="set_commands"><i>set_commands</i></dt>
 <dd>
 
@@ -717,7 +730,7 @@
 
 <p>Sets the currently list of enabled commands to the set passed in the <i>$commands</i> parameter.</p>
 
-<p>See <a href="#enable_commands">&quot;enable_commands&quot;</a>, <a href="#disablecommands">&quot;disablecommands&quot;</a></p>
+<p>See <a href="#enable_commands">&quot;enable_commands&quot;</a>, <a href="#disable_commands">&quot;disable_commands&quot;</a></p>
 
 </dd>
 <dt id="set_cursor"><i>set_cursor</i></dt>
