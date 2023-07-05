@@ -144,7 +144,8 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
 
   around get_item(TStream $s) {
     my $read = sub {
-      SWITCH: for( $_[0] ) {
+      my $type = shift;
+      SWITCH: for( $type ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
@@ -157,10 +158,10 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
       return undef;
     };
 
-    my $pos = $read->('longint') // 0;                    # Read position
-    my $size = $read->('longint') // 0;                   # Read size
-    my $len = $read->('byte') // 0;                       # Read key length
-    my $key = do {                                        # Read string data
+    my $pos  = 'longint'->$read() // 0;                   # Read position
+    my $size = 'longint'->$read() // 0;                   # Read size
+    my $len  = 'byte'->$read()    // 0;                   # Read key length
+    my $key  = do {                                       # Read string data
       my $buf;
       if ( $len > 0 ) {
         $s->read($buf, $len);

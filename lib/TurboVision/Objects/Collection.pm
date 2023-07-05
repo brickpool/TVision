@@ -399,7 +399,8 @@ individual item in the collection.
 
   factory load(TStream $s) {
     my $read = sub {
-      SWITCH: for( $_[0] ) {
+      my $type = shift;
+      SWITCH: for( $type ) {
         /word/ && do {
           $s->read(my $buf, word->size);
           return word( $buf )->unpack;
@@ -409,9 +410,9 @@ individual item in the collection.
     };
 
     try {
-      my $count = $read->('word');                        # Read count
-      my $limit = $read->('word');                        # Read limit
-      my $delta = $read->('word');                        # Read delta
+      my $count = 'word'->$read();                        # Read count
+      my $limit = 'word'->$read();                        # Read limit
+      my $delta = 'word'->$read();                        # Read delta
       my $self = $class->new(
         delta => $delta,
         limit => $limit,                                  # Set requested limit
@@ -854,18 +855,23 @@ Writes the entire collection to stream I<$s>.
   method store(TStream $s) {
     my ($count, $limit, $delta);
 
+    my $write = sub {
+      my $type = shift;
+      my $value = shift // 0;
+      SWITCH: for( $type ) {
+        /word/ && $s->write( word($value)->pack, word->size );
+      }
+    };
+
     my $do_put_item = sub {
-      alias my ($p) = @_;
-      $self->put_item($s, $p)                       # Put item on stream
+      alias my $p = $_[0];
+      $self->put_item($s, $p)                             # Put item on stream
     };
     
-    $count = word($self->count)->pack;
-    $limit = word($self->limit)->pack;
-    $delta = word($self->delta)->pack;
-    $s->write($count, word->size);                  # Write count 
-    $s->write($limit, word->size);                  # Write limit
-    $s->write($delta, word->size);                  # Write delta
-    $self->for_each($do_put_item);                  # Each item to stream
+    'word'->$write($self->count);                         # Write count 
+    'word'->$write($self->limit);                         # Write limit
+    'word'->$write($self->delta);                         # Write delta
+    $self->for_each($do_put_item);                        # Each item to stream
     return;
   }
 

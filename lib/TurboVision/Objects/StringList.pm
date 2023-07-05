@@ -238,7 +238,8 @@ strings.
 
   factory load(TStream $s) {
     my $read = sub {
-      SWITCH: for( $_[0] ) {
+      my $type = shift;
+      SWITCH: for( $type ) {
         /longint/ && do {
           $s->read(my $buf, longint->size);
           return longint( $buf )->unpack;
@@ -253,16 +254,16 @@ strings.
 
     try {
       my $stream = $s;                                      # Hold stream ref
-      my $size = $read->('word');                           # Read size
+      my $size = 'word'->$read();                           # Read size
       my $base_pos = $s->get_pos();                         # Hold position
       $s->seek($base_pos + $size);                          # Seek to position
-      my $index_size = $read->('longint');                  # Read index size
+      my $index_size = 'longint'->$read();                  # Read index size
       my $index = [];                                       # Allocate ArrayRef
       READ_INDEX:                                           # Read indexes
       for (0..$index_size-1) {
-        my $key     = $read->('word') // 0;
-        my $count   = $read->('word') // 0;
-        my $offset  = $read->('word') // 0;
+        my $key     = 'word'->$read() // 0;
+        my $count   = 'word'->$read() // 0;
+        my $offset  = 'word'->$read() // 0;
         last READ_INDEX if $s->status != ST_OK;
         my $record = {
           key     => $key,

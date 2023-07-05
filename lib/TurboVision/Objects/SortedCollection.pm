@@ -185,7 +185,8 @@ L</duplicates> attribute.
 
   factory_inherit load(TStream $s) {
     my $read = sub {
-      SWITCH: for( $_[0] ) {
+      my $type = shift;
+      SWITCH: for( $type ) {
         /byte/ && do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
@@ -196,7 +197,7 @@ L</duplicates> attribute.
 
     try {
       my $self = $class->$super($s);                      # Call ancestor
-      my $duplicates = !! $read->('byte');                # Read duplicate flag
+      my $duplicates = !! 'byte'->$read();                # Read duplicate flag
       $self->duplicates( $duplicates );
       return $self;
     }
@@ -284,7 +285,8 @@ is true, then the I<$item> is inserted just prior to any duplicate entries.
     my $index;
     if (
       !$self->search( $self->key_of($item), $index )      # Item valid
-      || $self->duplicates
+        ||
+      $self->duplicates
     ) {
       $self->at_insert($index, $item)                     # Insert the item
     }
@@ -377,9 +379,16 @@ L</duplicates> attribute introduced by I<TSortedCollection>.
 =cut
 
   around store(TStream $s) {
+    my $write = sub {
+      my $type = shift;
+      my $value = shift // 0;
+      SWITCH: for( $type ) {
+        /byte/ && $s->write(byte($value)->pack, byte->size );
+      }
+    };
+
     $self->$next($s);                                     # Call ancestor
-    my $byte = pack(_UINT8_T, $self->duplicates ? 1 : 0);
-    $s->write($byte, length $byte);                       # Write duplicate flag
+    'byte'->$write($self->duplicates ? 1 : 0);            # Write duplicate flag
     return;
   }
 

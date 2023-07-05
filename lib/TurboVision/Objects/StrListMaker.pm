@@ -398,36 +398,29 @@ Writes the string list to stream I<$s>.
 =cut
 
   method store(TStream $s) {
+    alias my $str_pos   = $self->{_str_pos};
+    alias my $strings   = $self->{_strings};
+    alias my $index_pos = $self->{_index_pos};
+
+    my $write = sub {
+      my $type = shift;
+      my $value = shift // 0;
+      SWITCH: for( $type ) {
+        /longint/ && $s->write( longint($value)->pack, longint->size );
+        /word/    && $s->write(    word($value)->pack,    word->size );
+      }
+    };
+
     $self->_close_current();                              # Close all current
-
-    # Write position
-    my $str_pos = $self->_str_pos // 0;
-    $s->write(
-      word( $str_pos )->pack(),
-      word->size
-    );
-    # Write string data
-    alias my $strings = $self->{_strings};
-    $s->write($strings, $str_pos);
-
-    # Write index position
-    my $index_pos = $self->_index_pos // 0;
-    $s->write(
-      longint( $index_pos )->pack(),
-      longint->size
-    );
-
-    # Write indexes
-    WRITE:
+    'word'->$write($str_pos);                             # Write position
+    $s->write($strings, $str_pos);                        # Write string data
+    'longint'->$write($index_pos);                        # Write index position
+    WRITE:                                                # Write indexes
     for my $i (0..$index_pos-1) {
-      last WRITE if $s->status != ST_OK;
-      alias my $record = $self->_index->[$i];
-      my $key     = word( $record->{key} )->pack;
-      my $count   = word( $record->{count} )->pack;
-      my $offset  = word( $record->{offset} )->pack;
-      $s->write($key,    word->size);
-      $s->write($count,  word->size);
-      $s->write($offset, word->size);
+      my $index = $self->_index->[$i];
+      'word'->$write($index->{key}   );
+      'word'->$write($index->{count} );
+      'word'->$write($index->{offset});
     }
 
     return;
