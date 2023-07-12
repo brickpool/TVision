@@ -134,12 +134,8 @@ window are active.
 
 =cut
 
-  our $cur_command_set = do {
-    my $tc = TCommandSet->new(
-      cmds => pack( 'b*', 1 x 256 )
-    );                                                    # All active but these
-    $tc -= [CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV];
-  };
+  our $cur_command_set = TCommandSet->new( cmds => pack( 'b*', 1 x 256 ) )
+    - [CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV];   # All active but these
 
 =item I<$shadow_size>
 

@@ -50,6 +50,7 @@ our $AUTHORITY = 'github:fpc';
 
 use Data::Alias qw( alias );
 use List::Util qw( min max );
+use PerlX::Assert;
 use Try::Tiny;
 
 use TurboVision::Const qw(
@@ -733,13 +734,9 @@ See L</enable_commands>
 =cut
 
   method disable_commands(TCommandSet|ArrayRef[Int] $commands) {
-    my $cmds = is_ArrayRef($commands)
-             ? TCommandSet->init($commands)
-             : $commands
-             ;
     $command_set_changed ||=                              # Set changed flag
-      $cur_command_set * $cmds != [];
-    $cur_command_set = $cur_command_set - $cmds;          # Update command set
+      $cur_command_set * $commands != [];
+    $cur_command_set = $cur_command_set - $commands;      # Update command set
     return;
   }
 
@@ -952,13 +949,9 @@ to an operable state.
 =cut
 
   method enable_commands(TCommandSet|ArrayRef[Int] $commands) {
-    my $cmds = is_ArrayRef($commands)
-             ? TCommandSet->init($commands)
-             : $commands
-             ;
     $command_set_changed ||=                              # Set changed flag
-      $cur_command_set * $cmds != [];
-    $cur_command_set = $cur_command_set + $cmds;          # Update command set
+      $cur_command_set * $commands != [];
+    $cur_command_set = $cur_command_set + $commands;      # Update command set
     return;
   }
 

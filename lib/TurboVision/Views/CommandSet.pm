@@ -24,13 +24,6 @@ use Function::Parameters {
     shift       => '$class',
     name        => 'required',
   },
-  around => {
-    defaults    => 'method_strict',
-    install_sub => 'around',
-    shift       => ['$next', '$self'],
-    runtime     => 1,
-    name        => 'required',
-  },
 },
 qw(
   method
@@ -53,6 +46,7 @@ our $AUTHORITY = 'github:magiblot';
 # ------------------------------------------------------------------------
 
 use MooseX::StrictConstructor;
+use PerlX::Assert;
 
 use TurboVision::Const qw( :bool );
 use TurboVision::Views::Types qw( TCommandSet );
@@ -246,11 +240,10 @@ The method clear the command <$cmd> into the given command set.
 =cut
 
   method disable_cmd(Int $cmd) {
-    return
-        if $cmd < 0 || $cmd > 255;
-    my $cmds = $self->_cmds;
-    vec ($cmds, $cmd, 1) = 0;
-    $self->_cmds( $cmds );
+    if ( $cmd >= 0 && $cmd < 256 ) {
+      assert( exists $$self{_cmds} );
+      vec ($self->{_cmds}, $cmd, 1) = 0;
+    }
     return;
   }
 
@@ -263,11 +256,10 @@ The method puts the command <$cmd> into the given command set.
 =cut
 
   method enable_cmd(Int $cmd) {
-    return
-        if $cmd < 0 || $cmd > 255;
-    my $cmds = $self->_cmds;
-    vec ($cmds, $cmd, 1) = 1;
-    $self->_cmds( $cmds );
+    if ( $cmd >= 0 && $cmd < 256 ) {
+      assert( exists $$self{_cmds} );
+      vec ($self->{_cmds}, $cmd, 1) = 1;
+    }
     return;
   }
 
@@ -352,7 +344,7 @@ C<< $cmds = $tc1 - $tc2 >>.
             ;
     ( $lhs, $rhs ) = ( $rhs, $lhs ) if $swap;
     return TCommandSet->new(
-      cmds => ( $rhs->_cmds & ~$lhs->_cmds )
+      cmds => ( $lhs->_cmds & ~$rhs->_cmds )
     );
   };
   use overload '-' => '_difference';
