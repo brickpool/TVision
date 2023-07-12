@@ -1099,9 +1099,9 @@ Returns true if successful.
 =cut
 
   func _update_ctrl_break(HashRef $event) {
-    assert { exists $event->{event_type}        };
-    assert { exists $event->{char}              };
-    assert { exists $event->{control_key_state} };
+    assert { exists $$event{event_type}        };
+    assert { exists $$event{char}              };
+    assert { exists $$event{control_key_state} };
     
     if (
        $event->{event_type} == _KEY_EVENT
@@ -1134,8 +1134,8 @@ See also: I<get_shift_state>
 =cut
 
   func _update_shift_state(HashRef $event) {
-    assert { exists $event->{event_type}        };
-    assert { exists $event->{control_key_state} };
+    assert { exists $$event{event_type}        };
+    assert { exists $$event{control_key_state} };
     
     $_shift_state &= KB_INS_STATE;                      # clear all excl. insert
 
