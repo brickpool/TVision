@@ -700,7 +700,7 @@ been disabled.
   method command_enabled(Int $command) {
     no if $] >= 5.018, warnings => 'experimental::smartmatch';
     return $command > 255
-        || $command ~~ $cur_command_set;                  # Check command
+        || [$command] ~~ $cur_command_set;                  # Check command
   }
 
 =item I<data_size>

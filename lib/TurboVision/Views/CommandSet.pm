@@ -215,7 +215,8 @@ Returns false if the element is not in the command set, or true if it is.
   method contains(Int $cmd) {
     return _FALSE
         if $cmd < 0 || $cmd > 255;
-    return !! vec($self->_cmds, $cmd, 1)
+    assert( exists $$self{_cmds} );
+    return vec($self->{_cmds}, $cmd, 1) == 1
   }
 
 =item I<copy>
@@ -337,14 +338,11 @@ C<< $cmds = $tc1 - $tc2 >>.
 
   func _difference(TCommandSet $tc1, TCommandSet|ArrayRef[Int] $tc2, Bool $swap)
   {
-    my $lhs = $tc1;
-    my $rhs = is_ArrayRef($tc2)
-            ? TCommandSet->new(cmds => $tc2)
-            : $tc2
-            ;
-    ( $lhs, $rhs ) = ( $rhs, $lhs ) if $swap;
+    $tc2 = TCommandSet->new(cmds => $tc2)
+      if is_ArrayRef $tc2;
+    ( $tc2, $tc1 ) = ( $tc1, $tc2 ) if $swap;
     return TCommandSet->new(
-      cmds => ( $lhs->_cmds & ~$rhs->_cmds )
+      cmds => ( $tc1->_cmds & ~$tc2->_cmds )
     );
   };
   use overload '-' => '_difference';
@@ -364,12 +362,9 @@ See: L</_not_equal>
 =cut
 
   func _equal(TCommandSet $tc1, TCommandSet|ArrayRef[Int] $tc2, $=) {
-    my $lhs = $tc1;
-    my $rhs = is_ArrayRef($tc2)
-            ? TCommandSet->new(cmds => $tc2)
-            : $tc2
-            ;
-    return $lhs->_cmds eq $rhs->_cmds;
+    $tc2 = TCommandSet->new(cmds => $tc2)
+      if is_ArrayRef $tc2;
+    return $tc1->_cmds eq $tc2->_cmds;
   };
   use overload '==' => '_equal';
 
@@ -431,13 +426,10 @@ See: L</_union>
 =cut
 
   func _intersection(TCommandSet $tc1, TCommandSet|ArrayRef[Int] $tc2, $=) {
-    my $lhs = $tc1;
-    my $rhs = is_ArrayRef($tc2)
-            ? TCommandSet->new(cmds => $tc2)
-            : $tc2
-            ;
+    $tc2 = TCommandSet->new(cmds => $tc2)
+      if is_ArrayRef $tc2;
     return TCommandSet->new(
-      cmds => ($lhs->_cmds & $rhs->_cmds)
+      cmds => ($tc1->_cmds & $tc2->_cmds)
     );
   };
   use overload '*' => '_intersection';
@@ -446,19 +438,17 @@ See: L</_union>
 
 =item operator C<~~>
 
-  method _matching(Int $cmd, Bool $swap) : Bool
+  method _matching(ArrayRef[Int] $tc) : Bool
 
-The matching operation C<~~> results true if the left operand (an command) is
-included of the right operand (a command set), the result will be false
+The matching operation C<~~> results true if the left operand (a command list)
+is included of the right operand (a command set), the result will be false
 otherwise.
 
 =cut
 
-  method _matching(Int $cmd, Bool $swap) {
-    return $swap
-          ? $self->contains($cmd)
-          : _FALSE
-          ;
+  method _matching(ArrayRef[Int] $tc, $=) {
+    my $hits = grep { $self->contains($_) } @$tc;
+    return $hits == scalar @$tc;
   };
   use overload '~~' => '_matching';
 
@@ -477,12 +467,9 @@ See: L</_equal>
 =cut
 
   func _not_equal(TCommandSet $tc1, TCommandSet|ArrayRef[Int] $tc2, $=) {
-    my $lhs = $tc1;
-    my $rhs = is_ArrayRef($tc2)
-            ? TCommandSet->new(cmds => $tc2)
-            : $tc2
-            ;
-    return $lhs->_cmds ne $rhs->_cmds;
+    $tc2 = TCommandSet->new(cmds => $tc2)
+      if is_ArrayRef $tc2;
+    return $tc1->_cmds ne $tc2->_cmds;
   };
   use overload '!=' => '_not_equal';
 
@@ -501,13 +488,10 @@ See: L</_intersection>, L</_include>
 =cut
 
   func _union(TCommandSet $tc1, TCommandSet|ArrayRef[Int] $tc2, $=) {
-    my $lhs = $tc1;
-    my $rhs = is_ArrayRef($tc2)
-            ? TCommandSet->new(cmds => $tc2)
-            : $tc2
-            ;
+    $tc2 = TCommandSet->new(cmds => $tc2)
+      if is_ArrayRef $tc2;
     return TCommandSet->new(
-      cmds => ($lhs->_cmds | $rhs->_cmds)
+      cmds => ($tc1->_cmds | $tc2->_cmds)
     );
   };
   use overload '+' => '_union';

@@ -34,6 +34,7 @@ use namespace::autoclean;
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Encode qw( is_utf8 );
 use MooseX::Types -declare => [qw(
   TCommandSet
   TDrawBuffer
@@ -82,8 +83,8 @@ class_type TCommandSet, {
 };
 
 subtype 'Bit::Vector::Str'
-	=> as 'Str'
-	=> where { length $_ == 32 };
+  => as 'Str'
+    => where { length $_ == 32 && !is_utf8 $_ };
 
 coerce 'Bit::Vector::Str'
   => from 'ArrayRef[Int]'

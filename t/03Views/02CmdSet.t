@@ -98,7 +98,7 @@ cmp_ok(
 );
 
 ok (
-  CM_QUIT ~~ $set,
+  [CM_QUIT, CM_VALID] ~~ $set,
   '$set->_matching($cmd)'
 );
 
