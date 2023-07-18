@@ -348,7 +348,7 @@ See also: I<PerlX::Assert>
         if not STRICT;
 
     my $what = $self->what();
-    SWITCH: for ( delete $args->{what} ) {
+    SWITCH: for ( delete($args->{what}) // 0 ) {
       $_ == EV_NOTHING and do {
         last;
       };
