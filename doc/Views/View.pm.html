@@ -189,7 +189,7 @@
 <dt id="owner"><i>owner</i></dt>
 <dd>
 
-<pre><code>  field owner ( is =&gt; rwp, type =&gt; TGroup|Undef );</code></pre>
+<pre><code>  field owner ( is =&gt; rwp, type =&gt; TGroup|Undef ) = undef;</code></pre>
 
 <p>Points to the <i>TGroup</i> that owns this view.</p>
 
@@ -421,6 +421,12 @@
 
 </dd>
 <dt id="get_bounds"><i>get_bounds</i></dt>
+<dd>
+
+<pre><code>  method focus() : Bool</code></pre>
+
+</dd>
+<dt id="get_bounds1"><i>get_bounds</i></dt>
 <dd>
 
 <pre><code>  method get_bounds()</code></pre>
