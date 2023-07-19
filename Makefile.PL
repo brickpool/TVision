@@ -33,6 +33,7 @@ WriteMakefile(
   },
   TEST_REQUIRES => {
     'Devel::Refcount' => 0.10,
+    'Test::Exception' => 0.43,
     'Test::More'      => 0.95,
     'Win32::GuiTest'  => 1.64,
   },
