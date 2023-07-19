@@ -1,111 +1,121 @@
 use 5.014;
 use warnings;
-use Test::More;
-no if $] >= 5.018, warnings => 'experimental::smartmatch';
+use Test::More tests => 22;
 
-use TurboVision::Views::Const qw( CM_VALID CM_QUIT CM_CLOSE );
-use TurboVision::Views::Types qw( TCommandSet );
+BEGIN {
+  use_ok 'TurboVision::Views::Const',  qw( CM_VALID CM_QUIT CM_CLOSE );
+  use_ok 'TurboVision::Views::Types', qw( TCommandSet );
+  use_ok 'TurboVision::Views::CommandSet';
+}
 
-use_ok 'TurboVision::Views::CommandSet';
+{
+  no strict 'subs';
 
-my $set = TCommandSet->new();
-isa_ok(
-  $set,
-  'TurboVision::Views::CommandSet',
-  'TCommandSet->new()'
-);
+  my $new = TCommandSet->new();
+  isa_ok(
+    $new,
+    TCommandSet->class,
+    'TCommandSet->new()'
+  );
 
-ok (
-  $set->is_empty,
-  'TCommandSet->new->is_empty'
-);
+  ok (
+    $new->is_empty,
+    'TCommandSet->is_empty'
+  );
 
-$set = TCommandSet->new(cmds => []);
-isa_ok(
-  $set,
-  'TurboVision::Views::CommandSet',
-  'TCommandSet->new(cmds => [])'
-);
-
-$set = TCommandSet->init([CM_QUIT]);
-isa_ok(
-  $set,
-  'TurboVision::Views::CommandSet',
-  'TCommandSet->init($set)'
-);
-
-ok (
-  $set->contains(CM_QUIT) && !$set->contains(CM_CLOSE),
-  '$set->contains'
-);
-
-$set->enable_cmd(CM_CLOSE);
-ok (
-  $set->contains(CM_CLOSE),
-  '$set->enable_cmd($cmd)'
-);
-
-$set->disable_cmd(CM_CLOSE);
-ok (
-  $set->contains(CM_QUIT) && !$set->contains(CM_CLOSE),
-  '$set->disable_cmd($cmd)'
-);
-
-$set->enable_cmd(CM_CLOSE);
-ok (
-  $set->contains(CM_CLOSE),
-  '$set->enable_cmd($cmd)'
-);
-
-$set = TCommandSet->init();
-$set += [CM_VALID];
-ok (
-  !$set->is_empty,
-  'TCommandSet->init() && $set->_include($cmd) && not $set->is_empty'
-);
-
-my $copy = $set;
-$set -= [CM_VALID];
-ok (
-  $set->is_empty,
-  '$set->_exclude($cmd) && $set->is_empty'
-);
-
-cmp_ok(
-  $set, '!=', $copy,
-  '$set->_clone && $set->_not_equal($copy)'
-);
-
-$set += [CM_VALID];
-cmp_ok(
-  $set, '==', $copy,
-  '$set->_include($set) && $set->_equal($copy)'
-);
-
-$set = TCommandSet->init([CM_QUIT]);
-$copy = TCommandSet->init([CM_VALID, CM_QUIT]);
-$copy = $copy * $set;
-cmp_ok(
-  $set, '==', $copy,
-  '$set->_intersect($copy)'
-);
-
-$set += [CM_VALID];
-$copy = $copy + TCommandSet->init([CM_VALID]);
-cmp_ok(
-  $set, '==', $copy,
-  '$set->_union($copy)'
-);
-
-ok (
-  [CM_QUIT, CM_VALID] ~~ $set,
-  '$set->_matching($cmd)'
-);
-
-$set = [] * $set ;
-ok (
-  $set->is_empty,
-  '$set->_intersect([]) & $set->is_empty'
-);
+  $new = TCommandSet->new(cmds => []);
+  isa_ok(
+    $new,
+    TCommandSet->class,
+    'TCommandSet->new(cmds => [])'
+  );
+  
+  my $init = TCommandSet->init([CM_QUIT]);
+  isa_ok($init, TCommandSet->class);
+  isa_ok(
+    $init,
+    'TurboVision::Views::CommandSet',
+    'TCommandSet->init'
+  );
+  
+  ok (
+    $init->contains(CM_QUIT) && !$init->contains(CM_CLOSE),
+    'TCommandSet->contains'
+  );
+  
+  $init->enable_cmd(CM_CLOSE);
+  ok (
+    $init->contains(CM_CLOSE),
+    'TCommandSet->enable_cmd'
+  );
+  
+  $init->disable_cmd(CM_CLOSE);
+  ok (
+    $init->contains(CM_QUIT) && !$init->contains(CM_CLOSE),
+    'TCommandSet->disable_cmd'
+  );
+  
+  $init->enable_cmd(CM_CLOSE);
+  ok (
+    $init->contains(CM_CLOSE),
+    'TCommandSet->enable_cmd'
+  );
+  
+  $init = TCommandSet->init();
+  isa_ok($init, TCommandSet->class);
+  $init += [CM_VALID];
+  ok (
+    !$init->is_empty,
+    'TCommandSet->init && TCommandSet->_include && not $set->is_empty'
+  );
+  
+  my $copy = $init;
+  $init -= [CM_VALID];
+  ok (
+    $init->is_empty,
+    'TCommandSet->_exclude && TCommandSet->is_empty'
+  );
+  
+  cmp_ok(
+    $init, '!=', $copy,
+    'TCommandSet->_clone && TCommandSet->_not_equal'
+  );
+  
+  $init += [CM_VALID];
+  cmp_ok(
+    $init, '==', $copy,
+    'TCommandSet->_include && TCommandSet->_equal'
+  );
+  
+  $init = TCommandSet->init([CM_QUIT]);
+  my $set = TCommandSet->init([CM_VALID, CM_QUIT]);
+  isa_ok($set, TCommandSet->class);
+  $set = $set * $init;
+  cmp_ok(
+    $init, '==', $set,
+    'TCommandSet->_intersect'
+  );
+  
+  $init += [CM_VALID];
+  $set = $set + TCommandSet->init([CM_VALID]);
+  cmp_ok(
+    $init, '==', $set,
+    'TCommandSet->_union'
+  );
+  
+  {
+    no if $] >= 5.018, warnings => 'experimental::smartmatch';
+    ok (
+      [CM_QUIT, CM_VALID] ~~ $init,
+      'TCommandSet->_matching'
+    );
+  }
+  
+  $set = [] * $set ;
+  ok (
+    $set->is_empty,
+    'TCommandSet->_intersect & TCommandSet->is_empty'
+  );
+}
 
 done_testing;

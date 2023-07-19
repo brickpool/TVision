@@ -3,9 +3,7 @@ use warnings;
 
 use Test::More tests => 1;
 
-require_ok 'TurboVision::Views';
-
-use TurboVision::Views;
+use_ok 'TurboVision::Views';
 
 #------------------
 note 'random check';
