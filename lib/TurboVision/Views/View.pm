@@ -65,7 +65,10 @@ use TurboVision::Drivers::Event;
 use TurboVision::Drivers::EventManager qw( :kbd );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::Utility qw( :move );
-use TurboVision::Objects::Common qw( fail );
+use TurboVision::Objects::Common qw(
+  :tools
+  fail
+);
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Rect;
 use TurboVision::Objects::Stream;
@@ -253,7 +256,7 @@ Records the position of the display cursor.
 
   has 'cursor' => (
     isa       => TPoint,
-    default   => sub { TPoint->new() },
+    default   => sub { TPoint->new },
     writer    => '_cursor',
   );
 
@@ -379,7 +382,7 @@ Describes the upper left corner of the view.
 
 =item I<owner>
 
-  field owner ( is => rwp, type => TGroup|Undef );
+  field owner ( is => rwp, type => TGroup|Undef ) = undef;
 
 Points to the I<TGroup> that owns this view.
 
@@ -389,6 +392,7 @@ Points to the I<TGroup> that owns this view.
     isa       => TGroup|Undef,
     init_arg  => undef,
     writer    => '_owner',
+    default   => undef,
   );
 
 =item I<size>
@@ -590,7 +594,7 @@ that the L</owner>'s view was changed in size.
 =cut
 
   method calc_bounds(TRect $bounds, TPoint $delta) {
-    my ($s, $d, $min, $max);
+    my ($min, $max, $s, $d) = ( TPoint->new, TPoint->new );
     
     my $range = sub {
       my ($val, $min, $max) = @_;
@@ -628,7 +632,7 @@ that the L</owner>'s view was changed in size.
       if $self->grow_mode & GF_GROW_HI_X;
     $bounds->b->x # =
       ( $bounds->a->x + MAX_VIEW_WIDTH )                  # Check values
-        if $bounds->b->x - bounds->a->x > MAX_VIEW_WIDTH;
+        if $bounds->b->x - $bounds->a->x > MAX_VIEW_WIDTH;
 
     $s = $self->owner->size->y;                           # Set initial size
     $d = $delta->y;                                       # Set initial delta
@@ -756,7 +760,7 @@ view can be resized.
   method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size,
                    TPoint $max_size)
   {
-    my ( $p, $s ) = ( TPoint->new(), TPoint->new() );
+    my ($p, $s) = ( TPoint->new, TPoint->new );
     my $save_bounds;
 
     my $move_grow = sub {
@@ -821,24 +825,38 @@ view can be resized.
       if ( $mode & DM_DRAG_MOVE ) {
         $p = $self->origin - $event->where;
         do {
-          $event->where += $p;
+          $event->where # =
+            ( $event->where + $p );
           $move_grow->($event->where, $self->size);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
-        # we need to process the mouse-up event, since not all terminals
-        # send drag events.
-        $event->where += $p;
-        $move_grow->($event->where, $self->size);
       }
-      else {
+      elsif ( $mode & DM_DRAG_GROW ) {
         $p = $self->size - $event->where;
         do {
-          $event->where += $p;
+          $event->where # =
+            ( $event->where + $p );
           $move_grow->($self->origin, $event->where);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
-        # we need to process the mouse-up event, since not all terminals
-        # send drag events.
-        $event->where += $p;
-        $move_grow->($self->origin, $event->where);
+      }
+      else {
+        my $bounds = $self->get_bounds;
+        $s->copy($self->origin);
+        $s->y # =
+          ( $s->y + $self->size->y );
+        $p = $s - $event->where;
+        do {
+          $event->where += $p;
+          $bounds->a->x # =
+            (
+              min(
+                max($event->where->x, $bounds->b->x - $max_size->x),
+                $bounds->b->x - $min_size->x
+              )
+            );
+          $bounds->b->y # =
+            ( $event->where->y );
+          $move_grow->($bounds->a, $bounds->b - $bounds->a);
+        } while( $self->mouse_event($event, EV_MOUSE_MOVE) );
       }
     }
     else {
@@ -860,7 +878,7 @@ view can be resized.
           $_ == KB_PG_DN      && $update->( $p->x, $limits->b->y - $s->y );
         }
         $self->move_grow($p, $s);
-      } while ( $event->key_code != KB_ENTER && $event->key_code != KB_ESC );
+      } while ( $event->key_code != KB_ESC && $event->key_code != KB_ENTER );
       $self->locate($save_bounds)
         if $event->key_code == KB_ESC;
     }
@@ -1022,7 +1040,7 @@ If the view is completely hidden, then I<exposed> returns False.
     ) {
       my $ok = _FALSE;
       my $y = 0;
-      while ( $y < $self->size->y and not $ok ) {
+      while ( $y < $self->size->y and !$ok ) {
         $_static_var2->{y} = $y;
         $ok = $self->_do_exposed_rec2(0, $self->size->x, $self);
         $y++;
@@ -1030,6 +1048,35 @@ If the view is completely hidden, then I<exposed> returns False.
       return $ok;
     }
     return _FALSE;
+  }
+
+=item I<get_bounds>
+
+  method focus() : Bool
+
+=cut
+
+  method focus() {
+    my $result = _TRUE;                                   # Preset result
+    if ( $self->state & (SF_SELECTED | SF_MODAL) == 0 ) { # Not modal/selected
+      if ( $self->owner ) {                               # View has an owner
+        WITH: for ( $self->owner ) {
+          $result = $_->focus;                            # Return focus state
+          if ( $result ) {                                # Owner has focus
+            if ( !$_->current                             # No current view
+              || !($_->current->options & OF_VALIDATE)    # Non validating view
+              || $_->current->valid(CM_RELEASED_FOCUS)    # Okay to drop focus
+            ) { 
+              $self->select
+            }
+            else {
+              $result = _FALSE;                           # Then select us
+            }
+          }
+        }
+      }
+    }
+    return $result;                                       # Return focus result
   }
 
 =item I<get_bounds>
@@ -1087,18 +1134,19 @@ result.
 =cut
 
   method get_color(Int $color) {
-    my $offset = $self->_colour_ofs;
-    my ( $col, $palette, $value );
+    #my $offset = $self->_colour_ofs;
+    my $offset = 0;
+    my ($col, $value, $palette);
 
     $value = 0;                                           # Clear colour value
     if ( $color & 0xff00 ) {                              # High colour req
-      $col = word($color)->hi + $offset;                  # Initial offset
+      $col = word_rec($color)->hi + $offset;              # Initial offset
       my $view = $self;                                   # Reference to self
       do {
         $palette = $view->get_palette;                    # Get our palette
-        if ( defined $palette ) {                         # Palette is valid
-          $col = $col <= length $palette
-               ? ( unpack 'C*', $palette )[$col]          # Return colour
+        if ( $palette ) {                                 # Palette is valid
+          $col = $col <= length($palette)
+               ? ord(substr($palette, $col))              # Return colour
                : _ERROR_ATTR                              # Error attribute
                ;
         }
@@ -1107,13 +1155,13 @@ result.
       $value = $col << 8;                                 # Translate colour
     }
     if ( $color & 0x00ff ) {
-      $col = word($color)->lo + $offset;                  # Initial offset
+      $col = word_rec($color)->lo + $offset;              # Initial offset
       my $view = $self;                                   # Reference to self
       do {
         $palette = $view->get_palette;                    # Get our palette
-        if ( defined $palette ) {                         # Palette is valid
-          $col = $col <= length $palette
-               ? ( unpack 'C*', $palette )[$col]          # Return colour
+        if ( $palette ) {                                 # Palette is valid
+          $col = $col <= length($palette)
+               ? ord(substr($palette, $col))              # Return colour
                : _ERROR_ATTR                              # Error attribute
                ;
         }
@@ -1265,13 +1313,13 @@ Calls L</locate> to adjust the size of the view.
 =cut
 
   method grow_to(Int $x, Int $y) {
-    my $rect = TRect->init(                               # Assign area
+    my $r = TRect->init(                                  # Assign area
       $self->origin->x,
       $self->origin->y,
       $self->origin->x + $x,
       $self->origin->y + $y
     );
-    $self->locate($rect);                                 # Locate the view
+    $self->locate($r);                                    # Locate the view
     return;
   }
 
@@ -1293,14 +1341,15 @@ See I<evXXXX> constants, I<cmXXXX> constants
 
   method handle_event(TEvent $event) {
     if ( $event->what == EV_MOUSE_DOWN ) {                # Mouse down event
-      $self->clear_event($event)                          # Handle the event
-        if !($self->state & (SF_SELECTED | SF_DISABLED))  # Not selected/disabled
-        && $self->options & OF_SELECTABLE                 # View is selectable
-        && (
-          !$self->focus                                   # Not view with focus
-            ||
-          !($self->options & OF_FIRST_CLICK)              # Not 1st click select
-        );
+      if ( !($self->state & (SF_SELECTED | SF_DISABLED))  # Not selected/disabled
+        && ($self->options & OF_SELECTABLE)               # View is selectable
+      ) {
+        if ( !$self->focus                                # Not view with focus
+          || !($self->options & OF_FIRST_CLICK)           # Not 1st click select
+        ) {
+          $self->clear_event($event)                      # Handle the event
+        }
+      }
     }
     return;
   }
@@ -1361,6 +1410,9 @@ Changes the boundaries of the view and redisplays the view on the screen.
 =cut
 
   method locate(TRect $bounds) {
+    my ($min, $max) = ( TPoint->new, TPoint->new );
+    my $r = TRect->new();
+
     my $range = sub {
       my ($val, $min, $max) = @_;
       return $min                                     # Value to small
@@ -1370,7 +1422,7 @@ Changes the boundaries of the view and redisplays the view on the screen.
       return $val;                                    # Value is okay
     };
 
-    $self->size_limits(my $min, my $max);             # Get size limits
+    $self->size_limits($min, $max);                   # Get size limits
     $bounds->b->x # =                                 # X bound limit
     (
       $bounds->a->x
@@ -1381,13 +1433,11 @@ Changes the boundaries of the view and redisplays the view on the screen.
       $bounds->a->y
       + $range->( $bounds->b->y - $bounds->a->y, $min->y, $max->y )
     );
-    $self->get_bounds(my $r);                         # Current bounds
+    $self->get_bounds($r);                            # Current bounds
     if ( $bounds != $r ) {                            # Size has changed
       $self->change_bounds($bounds);                  # Change bounds
-      if ( $self->state & SF_VISIBLE                  # View is visible
-        && $self->state & SF_EXPOSED                  # Check view exposed
-        && defined $self->owner
-      ) {
+                                                      # View is visible
+      if ( defined $self->owner && ($self->state & SF_VISIBLE) ) {
         if ( $self->state & SF_SHADOW ) {
           $r->union($bounds);
           $r->b += $shadow_size;
@@ -1479,6 +1529,10 @@ False, meaning that the mouse button has been let up.
 =cut
 
   method mouse_event(TEvent $event, Int $mask) {
+    do {
+      $self->get_event($event);                           # Get next event
+    } while ( !($event->what & ($mask | EV_MOUSE_UP)) );  # Wait till valid
+    return $event->what != EV_MOUSE_UP;                   # Return result
   }
 
 =item I<mouse_in_view>
@@ -1491,6 +1545,11 @@ view, then I<mouse_in_view> returns True.
 =cut
 
   method mouse_in_view(TPoint $mouse) {
+    $self->make_local($mouse, $mouse);
+    return $mouse->x >= 0
+        && $mouse->y >= 0
+        && $mouse->x < $self->size->x
+        && $mouse->y < $self->size->y;
   }
 
 =item I<move_to>
@@ -1503,6 +1562,12 @@ hence the entire view, to the new point I<($x,$y)>.
 =cut
 
   method move_to(Int $x, Int $y) {
+    my $r = TRect->init(                                  # Assign area
+      $x, $y,
+      $x + $self->size->x,
+      $y + $self->size->y
+    );
+    $self->locate($r);                                    # Locate the view
     return;
   }
 
@@ -1621,6 +1686,10 @@ This is an internal routine called by L</change_bounds>.
 =cut
 
   method set_bounds(TRect $bounds) {
+    $self->_origin # =
+      ( $bounds->a );                                     # Get first corner
+    $self->_size # =
+      ( $bounds->b - $bounds->a );                        # Get second corner
     return;
   }
 
@@ -1659,6 +1728,9 @@ See L</enable_commands>, L</disable_commands>
 =cut
 
   method set_commands(TCommandSet $commands) {
+    $command_set_changed ||=
+      $cur_command_set != $commands;                      # Set change flag
+    $cur_command_set->copy($commands);                    # Set command set
     return;
   }
 
@@ -1702,6 +1774,51 @@ I<$a_state> are cleared.
 =cut
 
   method set_state(Int $a_state, Bool $enable) {
+    my $state = $self->state;
+    if ( $enable ) {
+      $state |= $a_state
+    }
+    else {
+      $state &= ~$a_state
+    }
+    $self->_state($state);
+
+    return
+        if not defined $self->owner;
+    
+    SWITCH: for ( $a_state ) {
+      $_ == SF_VISIBLE && do {
+        $self->set_state(SF_EXPOSED, $enable)
+          if $self->owner->state & SF_EXPOSED;
+        if ( $enable ) {
+          $self->draw_show(undef)
+        }
+        else {
+          $self->draw_hide(undef)
+        }
+        $self->owner->reset_current
+          if $self->options & OF_SELECTABLE;
+        last;
+      };
+      $_ == SF_CURSOR_VIS
+        ||
+      $_ == SF_CURSOR_INS && do {
+        $self->draw_cursor;
+        last;
+      };
+      $_ == SF_SHADOW && do {
+        $self->_draw_under_view(_TRUE, undef);
+        last;
+      };
+      $_ == SF_FOCUSED && do {
+        $self->reset_cursor;
+        my $command = $enable ? CM_RECEIVED_FOCUS : CM_RELEASED_FOCUS;
+        message($self->owner, EV_BROADCAST, $command, $self);
+        last;
+      };
+    }
+    $self->cursor_changed
+      if ($state ^ $self->state) & (SF_CURSOR_VIS | SF_CURSOR_INS | SF_FOCUSED);
     return;
   }
 
@@ -1852,7 +1969,7 @@ parameter.
 
 =cut
 
-  method _draw_under_rect(TRect $r, TView $last_view) {
+  method _draw_under_rect(TRect $r, TView|Undef $last_view) {
     $self->owner->_clip->intersect($r);
     $self->owner->_draw_sub_views($self->next_view, $last_view);
     $self->owner->get_extent($self->owner->_clip);
