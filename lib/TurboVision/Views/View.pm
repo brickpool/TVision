@@ -248,7 +248,7 @@ Helper variable for I<TView> methods L</exposed> and L</write_str>.
 
 =item I<cursor>
 
-  has cursor ( is => rwp, type => TPoint ) = TPoint->new;
+  has cursor ( is => ro, type => TPoint ) = TPoint->new;
 
 Records the position of the display cursor.
 
@@ -257,7 +257,6 @@ Records the position of the display cursor.
   has 'cursor' => (
     isa       => TPoint,
     default   => sub { TPoint->new },
-    writer    => '_cursor',
   );
 
 =item I<drag_mode>
@@ -368,7 +367,7 @@ constants.
 
 =item I<origin>
 
-  param origin ( is => rwp, type => TPoint );
+  param origin ( is => ro, type => TPoint ) = TPoint->new;
 
 Describes the upper left corner of the view.
 
@@ -376,8 +375,7 @@ Describes the upper left corner of the view.
 
   has 'origin' => (
     isa       => TPoint,
-    required  => 1,
-    writer    => '_origin',
+    default   => sub { TPoint->new },
   );
 
 =item I<owner>
@@ -397,7 +395,7 @@ Points to the I<TGroup> that owns this view.
 
 =item I<size>
 
-  param size ( is => rwp, type => TPoint );
+  param size ( is => ro, type => TPoint ) = TPoint->new;
 
 Contains the size of the view.
 
@@ -405,8 +403,7 @@ Contains the size of the view.
 
   has 'size' => (
     isa       => TPoint,
-    required  => 1,
-    writer    => '_size',
+    default   => sub { TPoint->new },
   );
 
 =item I<state>
@@ -453,16 +450,16 @@ L</options>, L</event_mask>, L</grow_mode> and L</drag_mode>.
 =cut
 
   factory init(TRect $bounds) {
-    return $class->new(                                   # Call ancestor
+    my $self = $class->new(                               # Call ancestor
       drag_mode   => DM_LIMIT_LO_Y,                       # Default drag mode
       help_ctx    => HC_NO_CONTEXT,                       # Clear help context
       state       => SF_VISIBLE,                          # Default state
       event_mask  => EV_MOUSE_DOWN                        # Default event masks
                    + EV_KEY_DOWN
                    + EV_COMMAND,
-      origin      => $bounds->a,                          # Set view bounds
-      size        => $bounds->b - $bounds->a,
     );
+    $self->set_bounds($bounds);                           # Set view bounds
+    return $self;
   };
 
 =item I<load>
@@ -568,6 +565,21 @@ Deletes the view after erasing it from the screen.
 
 =over
 
+=item I<awaken>
+
+  method awaken()
+
+The default I<< TView->awaken> does nothing.
+
+When a group is loaded from a stream, the last thing the L</load> constructor
+does is call the I<awaken> methods of all subviews.
+
+=cut
+
+  method awaken() {
+    return;                                               # Abstract method
+  }
+
 =item I<block_cursor>
 
   method block_cursor()
@@ -630,9 +642,9 @@ that the L</owner>'s view was changed in size.
       if $self->grow_mode & GF_GROW_LO_X;
     $grow_i->($bounds->b->{x})                            # Grow right side
       if $self->grow_mode & GF_GROW_HI_X;
-    $bounds->b->x # =
-      ( $bounds->a->x + MAX_VIEW_WIDTH )                  # Check values
-        if $bounds->b->x - $bounds->a->x > MAX_VIEW_WIDTH;
+    if ( $bounds->b->x - $bounds->a->x > MAX_VIEW_WIDTH ) {
+      $bounds->b->x( $bounds->a->x + MAX_VIEW_WIDTH )     # Check values
+    }
 
     $s = $self->owner->size->y;                           # Set initial size
     $d = $delta->y;                                       # Set initial delta
@@ -825,16 +837,14 @@ view can be resized.
       if ( $mode & DM_DRAG_MOVE ) {
         $p = $self->origin - $event->where;
         do {
-          $event->where # =
-            ( $event->where + $p );
+          $event->where->_incr($p);
           $move_grow->($event->where, $self->size);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
       }
       elsif ( $mode & DM_DRAG_GROW ) {
         $p = $self->size - $event->where;
         do {
-          $event->where # =
-            ( $event->where + $p );
+          $event->where->_incr($p);
           $move_grow->($self->origin, $event->where);
         } while ( $self->mouse_event($event, EV_MOUSE_MOVE) );
       }
@@ -1054,6 +1064,12 @@ If the view is completely hidden, then I<exposed> returns False.
 
   method focus() : Bool
 
+Selects and focuses the view, returning True if the view owner returns True and
+the view is neither selected nor modal, or if the view has no owner. Otherwise,
+False is returned.
+
+The difference between Focus and Select is that Focus can fail.
+
 =cut
 
   method focus() {
@@ -1202,7 +1218,7 @@ This method is primarily of interest to dialog box controls.
   method get_data($) {
     alias my $rec = $_[-1];
     assert( is_Str $rec );
-    return;
+    return;                                               # Abstract method
   }
 
 =item I<get_event>
@@ -1268,22 +1284,33 @@ the color palette for this view.
 
 =item I<get_peer_view_ptr>
 
-  method get_peer_view_ptr(TStream $s, Ref $r)
+  method get_peer_view_ptr(TStream $s, Ref $p)
 
-Used by L</load> when certain objects need to load a peer view, I<$r>, from
+Used by L</load> when certain objects need to load a peer view, I<$p>, from
 stream I<$s>, such as a list box needing to load it scroll bar object.
 
 =cut
 
-  method get_peer_view_ptr(TStream $s, Ref $r) {
-    my $index = 0;                                        # Zero index value
-    $s->read($index, integer()->size);                    # Read view index
-    if ( $index == 0 or not defined $_owner_group ) {     # Check for peer views
-      $r = \undef;                                        # Return undef
+  method get_peer_view_ptr(TStream $s, Ref $p) {
+    my $read = sub {
+      my $type = shift;
+      if ( $type =~ /integer/ ) {
+        $s->read(my $buf, integer->size);
+        return integer( $buf )->unpack;
+      };
+      return undef;
+    };
+
+    my $index = 'integer'->$read();                       # Read view index
+    $index //= 0;                                         # Zero index value
+    if ( $index == 0 || !defined($_owner_group) ) {       # Check for peer views
+      $p = undef;                                         # Return undef
     }
     else {
-      $r = $_fixup_list->[$index];                        # New view reference
-      $_fixup_list->[$index] = \$r;                       # Patch this reference
+      require Carp;
+      Carp::carp "Unsafe: 'get_peer_view_ptr' must be adapted to perl suitable";
+      $p = $_fixup_list->[$index];                        # New view reference
+      $_fixup_list->[$index] = \$p;                       # Patch this reference
     }
     return;
   }
@@ -1474,7 +1501,11 @@ The converted value is returned in I<$dest>.
 
 =cut
 
-  method make_global(TPoint $source, TPoint $dest) {
+  method make_global(TPoint $source, $) {
+    # Note: $source and $dest can be the same variable
+    alias my $dest = $_[-1];
+    assert { is_TPoint $dest };
+
     my $cur = $self;
     $dest->copy($source);
     do {
@@ -1494,17 +1525,21 @@ See L</make_global>.
 
 =cut
 
-  method make_local(TPoint $source, TPoint $dest) {
+  method make_local(TPoint $source, $) {
+    # Note: $source and $dest can be the same variable
+    alias my $dest = $_[-1];
+    assert { is_TPoint $dest };
+
     my $cur = $self;
     $dest->copy($source);
     do {
       $dest->x # =
         ( $dest->x - $cur->origin->x );
-      last
+      return
         if $dest->x < 0;
       $dest->y # =
         ( $dest->y - $cur->origin->y );
-      last
+      return
         if $dest->y < 0;
       $cur = $cur->owner;
     } while ( defined $cur );
@@ -1581,7 +1616,9 @@ list of views, or C<undef> if it has reached the end of the list.
 =cut
 
   method next_view() {
-    return;
+    return undef
+      if $self->owner && $self == $self->owner->last;     # This is last view
+    return $self->next;                                   # Return our next
   }
 
 =item I<normal_cursor>
@@ -1595,6 +1632,7 @@ See L</block_cursor>.
 =cut
 
   method normal_cursor() {
+    $self->set_state(SF_CURSOR_INS, _FALSE);
     return;
   }
 
@@ -1609,6 +1647,11 @@ the end.
 =cut
 
   method prev() {
+    my $res = $self;
+    while( $res && $res->next != $self ) {
+      $res = $res->next;
+    }
+    return $res;
   }
 
 =item I<prev_view>
@@ -1621,6 +1664,9 @@ the view list, I<prev_view> returns C<undef>.
 =cut
 
   method prev_view() {
+    return undef
+      if $self->owner && $self == $self->owner->first;    # This is first view
+    return $self->prev;                                   # Return our prev
   }
 
 =item I<put_event>
@@ -1635,32 +1681,88 @@ I<$event> will become the next event retrieved by L</get_event>.
 =cut
 
   method put_event(TEvent $event) {
+    $self->owner->put_event($event)                       # Put in owner
+      if $self->owner;
     return;
   }
 
 =item I<put_in_front_of>
 
-  method put_in_front_of(TView $target)
+  method put_in_front_of(TView|Undef $target)
 
 Where I<$target> is any view in this view's owner's view list,
 I<put_in_front_of> moves this view to be placed directly in front of I<$target>.
 
 =cut
 
-  method put_in_front_of(TView $target) {
+  method put_in_front_of(TView|Undef $target) {
+          my $p;
+          my $last_view;
+    assert { exists $$self{state} };
+    alias my $state = $self->{state};
+          my $owner = $self->owner;
+
+    if ( $owner                                           # Check validity
+      && $target != $self
+      && $target != $self->next_view
+      && (!defined($target) || $target->owner == $owner)
+    ) {
+      if( ($self->state & SF_VISIBLE) == 0 ) {            # View not visible
+        $owner->remove_view($self);                       # Remove from list
+        $owner->insert_view($self, $target);              # Insert into list
+      }
+      else {
+        $last_view = $self->next_view;                    # Hold next view
+        if ( $last_view ) {                               # Last view is valid
+          $p = $target;                                   # P is target
+          while ( $p && $p != $last_view ) {
+            $p = $p->next_view;                           # Find our next view
+          }
+          $last_view = $target                            # Last view is target
+            if not defined $p
+        }
+        $state &= ~SF_VISIBLE;                            # Temp stop drawing
+        $self->draw_hide($last_view)
+          if $last_view == $target;
+        $owner->lock;
+        $owner->remove_view($self);                       # Remove from list
+        $owner->insert_view($self, $target);              # Insert into list }
+        $state |= SF_VISIBLE;                             # Allow drawing again
+        $self->draw_show($last_view)
+          if $last_view != $target;
+        if( $self->options & OF_SELECTABLE ) {            # View is selectable
+          $owner->reset_current;                          # Reset current
+          $owner->reset_cursor;
+        }
+        $owner->unlock;
+      }
+    }
     return;
   }
 
 =item I<put_peer_view_ptr>
 
-  method put_peer_view_ptr(TStream $s, TView $r)
+  method put_peer_view_ptr(TStream $s, TView|Undef $r)
 
 The L</store> method calls this routine to write the "peer" view object I<$r>
 to stream I<$s>.
 
 =cut
 
-  method put_peer_view_ptr(TStream $s, TView $r) {
+  method put_peer_view_ptr(TStream $s, TView|Undef $p) {
+    my $write = sub {
+      my $type = shift;
+      my $value = shift // 0;
+      if ( $type =~ /integer/ ) {
+        $s->write( integer($value)->pack, integer->size );
+      }
+    };
+
+    my $index = 0;                                        # Return zero index
+    if ( $p && $_owner_group ) {
+      $index = $_owner_group->index_of($p);               # Return view index
+    }
+    'integer'->$write( $index );                          # Write the index
     return;
   }
 
@@ -1674,6 +1776,15 @@ is on the focused chain, then this view becomes the focused view.
 =cut
 
   method select() {
+    if ( $self->options & OF_SELECTABLE ) {               # View is selectable
+      if ( $self->options & OF_TOP_SELECT ) {             # Top selectable
+        $self->make_first
+      }
+      elsif ( $self->owner ) {                            # Valid owner
+                                                          # Make owners current
+        $self->owner->set_current($self, $self->normal_select);
+      }
+    }
     return;
   }
 
@@ -1686,10 +1797,8 @@ This is an internal routine called by L</change_bounds>.
 =cut
 
   method set_bounds(TRect $bounds) {
-    $self->_origin # =
-      ( $bounds->a );                                     # Get first corner
-    $self->_size # =
-      ( $bounds->b - $bounds->a );                        # Get second corner
+    $self->origin->copy( $bounds->a );                    # Get first corner
+    $self->size->copy( $bounds->b - $bounds->a );         # Get second corner
     return;
   }
 
@@ -1744,6 +1853,12 @@ coordinates.
 =cut
 
   method set_cursor(Int $x, Int $y) {
+    if ( $self->cursor->x != $x && $self->cursor->y != $y ) {
+      $self->cursor->x($x);
+      $self->cursor->y($y);
+      $self->_cursor_changed;
+    }
+    $self->_draw_cursor;
     return;
   }
 
@@ -1758,7 +1873,7 @@ See L</data_size>, L</get_data>
 =cut
 
   method set_data(Str $rec) {
-    return;
+    return;                                               # Abstract method
   }
 
 =item I<set_state>
@@ -1791,10 +1906,10 @@ I<$a_state> are cleared.
         $self->set_state(SF_EXPOSED, $enable)
           if $self->owner->state & SF_EXPOSED;
         if ( $enable ) {
-          $self->draw_show(undef)
+          $self->_draw_show(undef)
         }
         else {
-          $self->draw_hide(undef)
+          $self->_draw_hide(undef)
         }
         $self->owner->reset_current
           if $self->options & OF_SELECTABLE;
@@ -1803,7 +1918,7 @@ I<$a_state> are cleared.
       $_ == SF_CURSOR_VIS
         ||
       $_ == SF_CURSOR_INS && do {
-        $self->draw_cursor;
+        $self->_draw_cursor;
         last;
       };
       $_ == SF_SHADOW && do {
@@ -1811,13 +1926,13 @@ I<$a_state> are cleared.
         last;
       };
       $_ == SF_FOCUSED && do {
-        $self->reset_cursor;
+        $self->_reset_cursor;
         my $command = $enable ? CM_RECEIVED_FOCUS : CM_RELEASED_FOCUS;
         message($self->owner, EV_BROADCAST, $command, $self);
         last;
       };
     }
-    $self->cursor_changed
+    $self->_cursor_changed
       if ($state ^ $self->state) & (SF_CURSOR_VIS | SF_CURSOR_INS | SF_FOCUSED);
     return;
   }
@@ -1862,14 +1977,12 @@ Sets I<$min> to (0,0) and I<$max> to I<< $self->owner->size >>.
   method size_limits(TPoint $min, TPoint $max) {
     $min->x(0);                                           # Zero x minimum
     $min->y(0);                                           # Zero y minimum
-    if ( defined $self->owner ) {
+    if ( $self->owner ) {
       $max->copy($self->owner->size);
     }
     else {                                                # Max owner size
-      $max->x # =
-        ( _INT16_MAX );                                   # Max possible x size
-      $max->y # =
-        ( _INT16_MAX );                                   # Max possible y size
+      $max->x(_INT16_MAX);                                # Max possible x size
+      $max->y(_INT16_MAX);                                # Max possible y size
     }
     return;
   }
@@ -1926,16 +2039,14 @@ Returns a reference to the view modal view that is on top.
 =cut
 
   method top_view() {
-    my $view;
-    if ( not defined $_the_top_view ) {                   # Check topmost view
-      $view = $self;                                      # Start with us
-                                                          # Check if modal
-      while ( defined $view and not $view->state & SF_MODAL ) {
-        $view = $view->owner;                             # Search each owner
-      }
-      return $view;                                       # Return result
+    return $_the_top_view                                 # Return topview
+      if $_the_top_view;                                  # Check topmost view
+
+    my $view = $self;                                     # Start with us
+    while ( $view && !($view->state & SF_MODAL) ) {       # Check if modal
+      $view = $view->owner;                               # Search each owner
     }
-    return $_the_top_view;                                # Return topview
+    return $view;                                         # Return result
   }
 
 =item I<valid>
@@ -1969,6 +2080,19 @@ parameter.
 
 =cut
 
+  method _cursor_changed() {
+    require Carp;
+    Carp::carp "Method '_cursor_changed' is not implemented yet!";
+#    message($self->owner, EV_BROADCAST, CM_CURSOR_CHANGED, $self);
+    return;
+  }
+
+  method _draw_cursor() {
+    $self->_reset_cursor
+      if $self->state & SF_FOCUSED;
+    return;
+  }
+
   method _draw_under_rect(TRect $r, TView|Undef $last_view) {
     $self->owner->_clip->intersect($r);
     $self->owner->_draw_sub_views($self->next_view, $last_view);
@@ -1984,6 +2108,12 @@ parameter.
     return;
   }
   
+  method _reset_cursor() {
+    require Carp;
+    Carp::carp "Method '_reset_cursor' is not implemented yet!";
+    return;
+  }
+
 =head2 Inheritance
 
 Methods inherited from class L<Moose::Object>
