@@ -1,8 +1,9 @@
 use 5.014;
 use warnings;
-use Test::More tests => 51;
+use Test::More tests => 64;
 
 BEGIN {
+  note 'use Objects, Drivers, Views';
   use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
@@ -11,14 +12,103 @@ BEGIN {
   use_ok 'TurboVision::Drivers::Event';
   use_ok 'TurboVision::Drivers::Types', qw( TEvent );
   use_ok 'TurboVision::Views::CommandSet';
-  use_ok 'TurboVision::Views::Const', qw( :cmXXXX :dmXXXX :gfXXXX :sfXXXX );
+  use_ok 'TurboVision::Views::Const', qw( :cmXXXX :dmXXXX :gfXXXX :hcXXXX :sfXXXX );
   use_ok 'TurboVision::Views::View';
   use_ok 'TurboVision::Views::Types', qw( TCommandSet TView );
 }
 
-note 'test: command_enabled, disable_commands, enable_commands, '
-    .'get_commands, set_commands, set_cmd_state';
-COMMAND: {
+#-----------------
+note 'Attributes';
+#-----------------
+# next, size, options, event_mask, state, origin, cursor, grow_mode, drag_mode, 
+# help_ctx, owner
+{
+  can_ok(TView->class, qw( 
+    next
+    size 
+    options
+    event_mask
+    state
+    origin
+    cursor
+    grow_mode
+    drag_mode
+    help_ctx
+    owner
+  ));
+}
+
+#-----------------
+note 'Constructor';
+#-----------------
+# init
+{
+  no strict 'subs';
+
+  my $bounds = TRect->init(0,1,80,24);
+  isa_ok($bounds, TRect->class);
+
+  my $view = TView->init($bounds);
+  isa_ok($view, TView->class);
+
+  is(
+    $view->owner,
+    undef,
+    'TView->owner'
+  );
+  is(
+    $view->next,
+    undef,
+    'TView->next'
+  );
+  subtest 'TView->origin' => sub {
+    plan tests => 2;
+    is( $view->origin->x, 0 );
+    is( $view->origin->y, 1 );
+  };
+  subtest 'TView->size' => sub {
+    plan tests => 2;
+    is( $view->size->x, 80 );
+    is( $view->size->y, 23 );
+  };
+  subtest 'TView->cursor' => sub {
+    plan tests => 2;
+    is( $view->cursor->x, 0 );
+    is( $view->cursor->y, 0 );
+  };
+  is(
+    $view->grow_mode,
+    0,
+    'TView->grow_mode'
+  );
+  is(
+    $view->drag_mode,
+    DM_LIMIT_LO_Y,
+    'TView->drag_mode'
+  );
+  is(
+    $view->help_ctx,
+    HC_NO_CONTEXT,
+    'TView->help_ctx'
+  );
+  is(
+    $view->state,
+    SF_VISIBLE,
+    'TView->state'
+  );
+  is(
+    $view->event_mask,
+    EV_MOUSE_DOWN | EV_KEY_DOWN | EV_COMMAND,
+    'TView->event_mask'
+  );
+}
+
+#---------------
+note 'Commands';
+#---------------
+# command_enabled, disable_commands, enable_commands, disable_command, 
+# enable_command, get_commands, set_commands, set_cmd_state
+{
   no strict 'subs';
 
   my $bounds = TRect->new(0,1,80,24);
@@ -64,8 +154,11 @@ COMMAND: {
   );
 }
 
-note 'test: size_limits, get_bounds, get_extent, get_clip_rect, mouse_in_view';
-INFO_COORD: {
+#-------------
+note 'Inform';
+#-------------
+# size_limits, get_bounds, get_extent, get_clip_rect, mouse_in_view
+{
   my $bounds = TRect->init(0,1,80,24);
   isa_ok($bounds, TRect->class);
   my $view = TView->init($bounds);
@@ -74,31 +167,34 @@ INFO_COORD: {
   isa_ok($min, TPoint->class);
   isa_ok($max, TPoint->class);
   $view->size_limits($min, $max);
-  ok(
-    $min->x == 0 && $min->y == 0
-      && 
-    $max->y > 80 && $max->y > 25,
-    'TView->size_limits'
-  );
+  subtest 'TView->size_limits' => sub {
+    plan tests => 4;
+    is( $min->x, 0 );
+    is( $min->y, 0 );
+    cmp_ok( $max->x, '>', 80 );
+    cmp_ok( $max->y, '>', 24 );
+  };
 
   $bounds->assign(0,0,0,0);
   $view->get_bounds($bounds);
-  ok(
-    $bounds->a->x == 0 && $bounds->a->y == 0
-      &&
-    $bounds->b->x == 80 && $bounds->b->y == 23,
-    'TView->get_bounds'
-  );
+  subtest 'TView->get_bounds' => sub {
+    plan tests => 4;
+    is( $bounds->a->x, 0 );
+    is( $bounds->a->y, 1 );
+    is( $bounds->b->x, 80 );
+    is( $bounds->b->y, 24 );
+  };
   
   my $extent = TRect->new();
   isa_ok($extent, TRect->class);
   $view->get_extent($extent);
-  ok(
-    $extent->a->x == 0 && $extent->a->y == 0
-      &&
-    $extent->b->x == 80 && $extent->b->y == 23,
-    'TView->get_extent'
-  );
+  subtest 'TView->get_extent' => sub {
+    plan tests => 4;
+    is( $extent->a->x, 0 );
+    is( $extent->a->y, 0 );
+    is( $extent->b->x, 80 );
+    is( $extent->b->y, 23 );
+  };
 
   my $clip = TRect->new();
   isa_ok($clip, TRect->class);
@@ -116,9 +212,11 @@ INFO_COORD: {
   );
 }
 
-note 'test: locate, drag_view, calc_bounds, change_bounds, grow_to, move_to, '
-    .'set_bounds';
-MODIFY_COORD: {
+#-------------
+note 'Modify';
+#-------------
+# locate, drag_view, calc_bounds, change_bounds, grow_to, move_to, set_bounds
+{
   no strict 'subs';
 
   my $bounds = TRect->init(0,0,80,25);
@@ -132,39 +230,43 @@ MODIFY_COORD: {
 
   $bounds->assign(0,1,80,24);
   $view->set_bounds($bounds);
-  ok(
-    $view->origin->x == 0 && $view->origin->y == 1
-      &&
-    $view->size->x == 80 && $view->size->y == 23,
-    'TView->set_bounds'
-  );
+  subtest 'TView->set_bounds' => sub {
+    plan tests => 4;
+    is( $view->origin->x, 0 );
+    is( $view->origin->y, 1 );
+    is( $view->size->x, 80 );
+    is( $view->size->y, 23 );
+  };
 
   $bounds->assign(0,0,80,25);
   $view->change_bounds($bounds);
-  ok(
-    $view->origin->x == 0 && $view->origin->y == 0
-      &&
-    $view->size->x == 80 && $view->size->y == 25,
-    'TView->change_bounds'
-  );
+  subtest 'TView->change_bounds' => sub {
+    plan tests => 4;
+    is( $view->origin->x, 0 );
+    is( $view->origin->y, 0 );
+    is( $view->size->x, 80 );
+    is( $view->size->y, 25 );
+  };
 
   $bounds->assign(0,1,80,24);
   $view->locate($bounds);
-  ok(
-    $view->origin->x == 0 && $view->origin->y == 1
-      &&
-    $view->size->x == 80 && $view->size->y == 23,
-    'TView->locate'
-  );
+  subtest 'TView->locate' => sub {
+    plan tests => 4;
+    is( $view->origin->x, 0 );
+    is( $view->origin->y, 1 );
+    is( $view->size->x, 80 );
+    is( $view->size->y, 23 );
+  };
 
   $view->move_to(0,0);
   $view->grow_to(80,25);
-  ok(
-    $view->origin->x == 0 && $view->origin->y == 0
-      &&
-    $view->size->x == 80 && $view->size->y == 25,
-    'TView->move_to && TView->grow_to'
-  );
+  subtest 'TView->move_to && TView->grow_to' => sub {
+    plan tests => 4;
+    is( $view->origin->x, 0 );
+    is( $view->origin->y, 0 );
+    is( $view->size->x, 80 );
+    is( $view->size->y, 25 );
+  };
 
   note 'Set temporary owner';
   $bounds->assign(0,1,80,24);
@@ -188,12 +290,13 @@ MODIFY_COORD: {
     'TView->grow_mode'
   );
   $view->calc_bounds($bounds, $delta);
-  ok(
-    $bounds->a->x == 0 && $bounds->a->y == 0
-      &&
-    $bounds->b->x == 80 && $bounds->b->y == 23,
-    'TView->calc_bounds'
-  );
+  subtest 'TView->calc_bounds' => sub {
+    plan tests => 4;
+    is( $bounds->a->x, 0 );
+    is( $bounds->a->y, 0 );
+    is( $bounds->b->x, 80 );
+    is( $bounds->b->y, 23 );
+  };
 
   my $mouse = TPoint->new(x => 1, y => 1);
   isa_ok($mouse, TPoint->class);
@@ -205,14 +308,15 @@ MODIFY_COORD: {
   isa_ok($min, TPoint->class);
   isa_ok($max, TPoint->class);
   TODO: {
-    todo_skip "'drag_view' doesn't work without TGroup.", 1;
+    todo_skip 'TView->drag_view', 1;
     $view->drag_view($event, $mode, $bounds, $min, $max);
-    ok(
-      $view->origin->x == 0 && $view->origin->y == 0
-        &&
-      $view->size->x == 40 && $view->size->y == 23,
-      'TView->drag_view'
-    );
+    subtest 'TView->drag_view' => sub {
+      plan tests => 4;
+      is( $view->origin->x, 0 );
+      is( $view->origin->y, 0 );
+      is( $view->size->x, 40 );
+      is( $view->size->y, 23 );
+    };
   }
 
   note 'Delete temporary owner';

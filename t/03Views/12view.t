@@ -1,11 +1,11 @@
 use 5.014;
 use warnings;
-use Test::More tests => 50;
+use Test::More tests => 43;
 use Test::Exception;
 use Scalar::Util qw( refaddr );
 
 BEGIN {
-  note "use Objects, Drivers, Views";
+  note 'use Objects, Drivers, Views';
   use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
@@ -13,24 +13,16 @@ BEGIN {
   use_ok 'TurboVision::Drivers::Const', qw( :evXXXX );
   use_ok 'TurboVision::Drivers::Event';
   use_ok 'TurboVision::Drivers::Types', qw( TEvent );
-  use_ok 'TurboVision::Views::Const', qw( :cmXXXX :dmXXXX :hcXXXX :ofXXXX :sfXXXX );
+  use_ok 'TurboVision::Views::Const', qw( :cmXXXX :hcXXXX :ofXXXX :sfXXXX );
   use_ok 'TurboVision::Views::View';
   use_ok 'TurboVision::Views::Types', qw( TView );
 }
 
-note 'test: size, options, event_mask, state, origin, cursor, grow_mode, '
-    .'drag_mode, help_ctx, owner';
-ATTR: {
-  ok 1;
-}
-
-note 'test: make_global, make_local';
-TRANS_COORD: {
-  ok 1;
-}
-
-note 'test: get_help_ctx, valid, end_modal, execute';
-HELPER: {
+#-------------
+note 'Helper';
+#-------------
+# get_help_ctx, valid, awaken, end_modal, execute
+{
   no strict 'subs';
   
   my $bounds = TRect->init(0,0,80,25);
@@ -56,6 +48,11 @@ HELPER: {
   );
 
   lives_ok(
+    sub { $view->awaken },
+    'TView->awaken'
+  );
+
+  lives_ok(
     sub { $view->end_modal(CM_CANCEL) }, 
     'TView->end_modal'
   );
@@ -67,8 +64,11 @@ HELPER: {
   );
 }
 
-note 'test: data_size, get_data, set_data';
-DATA: {
+#-----------
+note 'Data';
+#-----------
+# data_size, get_data, set_data
+{
   my $bounds = TRect->init(0,0,80,25);
   isa_ok($bounds, TRect->class);
 
@@ -93,8 +93,11 @@ DATA: {
   );
 }
 
-note 'test: get_state, select, set_state';
-STATE: {
+#------------
+note 'State';
+#------------
+# get_state, select, set_state
+{
   no strict 'subs';
 
   my $bounds = TRect->init(0,0,80,25);
@@ -131,8 +134,11 @@ STATE: {
   );
 }
 
-note 'test: clear_event, event_avail, get_event, handle_event, put_event';
-EVENT: {
+#------------
+note 'Event';
+#------------
+# clear_event, event_avail, get_event, handle_event, put_event
+{
   no strict 'subs';
 
   my $bounds = TRect->init(0,0,80,25);
@@ -188,13 +194,11 @@ EVENT: {
   );
 }
 
-note 'test: key_event, mouse_event';
-HW_EVENT: {
-  ok 1;
-}
-
-note 'test: get_color, get_palette';
-COLOR: {
+#------------
+note 'Color';
+#------------
+# get_color, get_palette
+{
   my $bounds = TRect->init(0,0,80,25);
   isa_ok($bounds, TRect->class);
 
@@ -212,33 +216,6 @@ COLOR: {
     TView->_ERROR_ATTR, # 0xcf
     'TView->get_color'
   );
-}
-
-note 'test: hide, show, draw, draw_view, exposed, focus, draw_hide, draw_show, '
-    .'draw_under_rect, draw_under_view';
-DRAW: {
-  ok 1;
-}
-
-note 'test: hide_cursor, awaken, block_cursor, normal_cursor, set_cursor, '
-    .'show_cursor';
-CURSOR: {
-  ok 1;
-}
-
-note 'test: next_view, prev_view, prev, next, make_first, put_in_front_of';
-OWNER: {
-  ok 1;
-}
-
-note 'test: write_buf, write_char, write_line, write_str';
-WRITE: {
-  ok 1;
-}
-
-note 'test: load, store';
-STREAM: {
-  ok 1;
 }
 
 done_testing();
