@@ -213,7 +213,13 @@ See <L/get_caret_size>
 
 =cut
   func is_caret_visible() {
-    return get_caret_size() != 0x2000;
+    my $shape = get_caret_size();
+    return
+        not (
+          ($shape & 0x2000)
+            ||
+          ($shape >> 8) > ($shape & 0xff)
+        );
   }
 
 =item I<set_caret_position>
