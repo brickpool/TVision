@@ -33,6 +33,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Errno qw( :POSIX );
 use Exporter qw( import );
 
 # ------------------------------------------------------------------------
@@ -155,6 +156,18 @@ Nothing per default, but can export the following per request:
       SM_MONO
       SM_FONT8X8
   
+    :crXXXX
+      CR_HIDDEN
+      CR_UNDER_LINE
+      CR_BLOCK
+      CR_HALF_BLOCK
+
+    :errXXXX
+      ERR_OK
+      ERR_VIO_INIT
+      ERR_VIO_NO_SUCH_MODE
+      ERR_VIO_NOT_SUPPORTED
+
     :private
       _ALT_CODES
       _CP437_TO_UTF8
@@ -282,6 +295,20 @@ our %EXPORT_TAGS = (
     SM_CO80
     SM_MONO
     SM_FONT8X8
+  )],
+
+  crXXXX => [qw(
+    CR_HIDDEN
+    CR_UNDER_LINE
+    CR_BLOCK
+    CR_HALF_BLOCK
+  )],
+
+  errXXXX => [qw(
+    ERR_OK
+    ERR_VIO_INIT
+    ERR_VIO_NO_SUCH_MODE
+    ERR_VIO_NOT_SUPPORTED
   )],
 
   private => [qw(
@@ -957,6 +984,102 @@ Monochrome mode, 80x25 chars.
 =cut
  
   use constant SM_FONT8X8 => 0x0100;
+
+=back
+
+=cut
+
+=head2 Cursor shape constants used by I<Video> (I<:crXXXX>)
+
+=over
+
+=item I<CR_HIDDEN>
+
+  constant CR_HIDDEN = < Int >;
+
+Cursor specified type: "Hide cursor".
+
+=cut
+
+  use constant CR_HIDDEN      => 0x2000;
+
+=item I<CR_UNDER_LINE>
+
+  constant CR_UNDER_LINE = < Int >;
+
+Cursor specified type: "Underline cursor".
+
+=cut
+
+  use constant CR_UNDER_LINE  => 0x0607;
+
+=item I<CR_BLOCK>
+
+  constant CR_BLOCK = < Int >;
+
+Cursor specified type: "Block cursor".
+
+=cut
+
+  use constant CR_BLOCK       => 0x0007;
+
+=item I<CR_HALF_BLOCK>
+
+  constant CR_HALF_BLOCK = < Int >;
+
+Cursor specified type: "Half block cursor".
+
+=cut
+
+  use constant CR_HALF_BLOCK  => 0x0307;
+
+=back
+
+=cut
+
+=head2 Error constants used by I<Video> (I<:errXXXX>)
+
+=over
+
+=item I<ERR_OK>
+
+  constant ERR_OK = 0;
+
+No error.
+
+=cut
+
+  use constant ERR_OK                 => 0;
+
+=item I<ERR_VIO_INIT>
+
+  constant ERR_VIO_INIT = ENODEV;
+
+Video driver initialization error.
+
+=cut
+
+  use constant ERR_VIO_INIT           => exists(&Errno::ENODEV) || 19;
+
+=item I<ERR_VIO_NO_SUCH_MODE>
+
+  constant ERR_VIO_NO_SUCH_MODE = EFAULT;
+
+Invalid video mode.
+
+=cut
+
+  use constant ERR_VIO_NO_SUCH_MODE  => exists(&Errno::EFAULT) || 14;
+
+=item I<ERR_VIO_NOT_SUPPORTED>
+
+  constant ERR_VIO_NOT_SUPPORTED = ENOTSUP;
+
+Unsupported video function.
+
+=cut
+
+  use constant ERR_VIO_NOT_SUPPORTED  => exists(&Errno::ENOTSUP) || 48;
 
 =back
 

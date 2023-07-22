@@ -34,12 +34,18 @@ use namespace::autoclean;
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Moose::Util::TypeConstraints;
 use MooseX::Types -declare => [qw(
   TSysErrorFunc
+  TVideoBuf
+  TVideoCell
+  TVideoMode
 
   StdioCtl
   TEvent
+  Video
 )];
+use MooseX::Types::Structured qw( Dict );
 
 use TurboVision::Const qw( :platform );
 
@@ -66,6 +72,50 @@ level errors.
 subtype TSysErrorFunc,
   as CodeRef;
 
+=item I<TVideoCell>
+
+  subtype TVideoCell : Int;
+
+I<TVideoCell> describes one character on the screen. One of the bytes contains
+the color attribute with which the character is drawn on the screen, and the
+other byte contains the ASCII code of the character to be drawn.
+
+The exact position the high byte represents the color attribute, while the
+low-byte represents the ASCII code of the character to be drawn.
+
+=cut
+
+subtype TVideoCell,
+  as Int;
+
+=item I<TVideoBuf>
+
+  subtype TVideoBuf : ArrayRef[TVideoCell];
+
+The I<TVideoBuf> type represents the screen.
+
+=cut
+
+subtype TVideoBuf,
+  as ArrayRef[TVideoCell];
+
+=item I<TVideoMode>
+
+  subtype TVideoMode : Dict[ col => Int, row => Int, color => Bool ];
+
+The I<TVideoMode> describes a video mode. Its fields are self-explaining: I<col>,
+I<row> describe the number of columns and rows on the screen for this mode.
+I<color> is True if this mode supports colors, or False if not.
+
+=cut
+
+subtype TVideoMode,
+  as Dict[
+    col   => Int,                               # Number of columns for display
+    row   => Int,                               # Number of rows for display
+    color => Bool,                              # Color support
+  ];
+
 =back
 
 =cut
@@ -77,6 +127,7 @@ The Drivers type hierarchy looks like this
   Moose::Object
     StdioCtl
     TEvent
+    Video
 
 =cut
 
@@ -92,6 +143,10 @@ class_type StdioCtl, {
 
 class_type TEvent, {
   class => 'TurboVision::Drivers::Event'
+};
+
+class_type Video, {
+  class => 'TurboVision::Drivers::Video'
 };
 
 1;
