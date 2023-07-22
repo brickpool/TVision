@@ -59,6 +59,10 @@ use TurboVision::Drivers::ScreenManager qw( :vars );
 #  GetWindowLong
 #  SetWindowLong
 #);
+use TurboVision::Drivers::Win32::Caret qw(
+  init_caret
+  done_caret
+);
 use TurboVision::Drivers::Win32::StdioCtl;
 
 # ------------------------------------------------------------------------
@@ -83,10 +87,8 @@ Nothing per default, but can export the following per request:
       _detect_video
       _fix_crt_mode
       _get_crt_mode
-      _get_cursor_type
       _set_crt_data
       _set_crt_mode
-      _set_cursor_type
 
 =cut
 
@@ -110,10 +112,8 @@ our %EXPORT_TAGS = (
     _detect_video
     _fix_crt_mode
     _get_crt_mode
-    _get_cursor_type
     _set_crt_data
     _set_crt_mode
-    _set_cursor_type
   )],
 
 );
@@ -219,8 +219,8 @@ information about the routine is described in the module I<ScreenManager>.
       _set_crt_mode( $startup_mode );
     }
     clear_screen();
-    _set_cursor_type( $cursor_lines );                  # Restore cursor shape
-    $startup_mode = 0xffff;                            # Reset the startup mode
+    done_caret();
+    $startup_mode = 0xffff;                             # Reset the startup mode
 
     return
         unless defined $_startup_console_mode;
@@ -254,9 +254,8 @@ information about the routine is described in the module I<ScreenManager>.
   func init_video() {
     my $mode = _get_crt_mode();
     if ( $startup_mode == 0xffff ) {
-      $startup_mode = $mode;                           # Set the startup mode
-      $cursor_lines = _get_cursor_type();               # Set the startup cursor
-      _set_cursor_type( 0x2000 );                       # hide text-mode cursor
+      $startup_mode = $mode;                            # Set the startup mode
+      init_caret();
     }
     if ( $mode != $screen_mode ) {
       _set_crt_mode( $mode );
@@ -397,44 +396,6 @@ Return CRT mode.
           ;                               
   }
 
-=item I<_get_cursor_type>
-
-  func _get_cursor_type() : Int
-
-Return the shape of the cursor, like interrupt
-L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
-
-=cut
-
-  func _get_cursor_type() {
-    # Get windows console cursor appearance
-    my $CONSOLE = do {
-      $_io //= StdioCtl->instance();
-      $_io->out();
-    };
-    my (undef, undef, $size, $visible) = $CONSOLE->Cursor();
-    $size    //= 0;
-    $visible &&= $size;
-
-    my $cursor;
-    if ( $visible ) {
-      # 1. A Windows Console use percentage of the character cell that is
-      #    filled. This value is between 1 and 100. So 15 is a
-      #    normal underline cursor, 100 is a full-block cursor.
-      # 2. For int 10h a character cell has 8 scan lines (0..7), so 0x0607 is a
-      #    normal underline cursor, 0x0007 is a full-block cursor
-      my $scan_row_start = 0x07 - int( $size * 7.0/(100-1) + 0.5 );
-      my $scan_row_end   = 0x07;
-      $cursor = $scan_row_start << 8 | $scan_row_end;
-    }
-    else {
-      # If bit 5 of "Scan Row Start" is set, that this means "Hide cursor"
-      $cursor = 0x2000;
-    }
-
-    return $cursor;
-  };
-
 =begin comment
 
 =item I<_get_windows_resizing>
@@ -531,42 +492,6 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
     return;
   }
-
-=item I<_set_cursor_type>
-
-  func _set_cursor_type(Int $cursor)
-
-Set the shape of the cursor, as interrupt
-L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
-
-=cut
-
-  func _set_cursor_type(Int $cursor) {
-    my $size = -1;
-    # If bit 5 of "Scan Row Start" is not set, that this means "Show cursor"
-    my $visible = $cursor & 0x2000
-                ? 0
-                : 1
-                ;
-    if ( $visible ) {
-      my $scan_row_start = $cursor >> 8 & 0xff;
-      my $scan_row_end   = $cursor & 0xff;
-      # Conversion from 0..7 to 1..100
-      $size = int( ($scan_row_end - $scan_row_start) / 7.0*(100-1) + 0.5 ) + 1;
-      # Correct or set usual standard values
-      $size = 15  if $size < 1;                         # Underline cursor
-      $size = 50  if $size == 58;                       # Half size cursor
-      $size = 100 if $size > 100;                       # Full-block cursor
-    }
-
-    my $CONSOLE = do {
-      $_io //= StdioCtl->instance();
-      $_io->out();
-    };
-    $CONSOLE->Cursor(-1, -1, $size, $visible);
-    
-    return;
-  };
 
 =begin comment
 
