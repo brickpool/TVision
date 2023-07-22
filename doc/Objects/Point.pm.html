@@ -116,11 +116,23 @@
 <p>Overload addition so that we can write code like <code>$pt = $one + $two</code>.</p>
 
 </dd>
+<dt id="clone"><i>_clone</i></dt>
+<dd>
+
+</dd>
+<dt id="operator1">operator <code>=</code></dt>
+<dd>
+
+<pre><code>  method _clone() : TPoint</code></pre>
+
+<p>Overloading the copy constructor so that we can write code like <code>$c = $pt; $c++;</code> without affecting <code>$pt</code>.</p>
+
+</dd>
 <dt id="decr"><i>_decr</i></dt>
 <dd>
 
 </dd>
-<dt id="operator1">operator <code>--</code></dt>
+<dt id="operator2">operator <code>--</code></dt>
 <dd>
 
 <pre><code>  method _decr()</code></pre>
@@ -132,7 +144,7 @@
 <dd>
 
 </dd>
-<dt id="operator2">operator <code>==</code></dt>
+<dt id="operator3">operator <code>==</code></dt>
 <dd>
 
 <pre><code>  func _equal(TPoint $one, TPoint $two) : Bool</code></pre>
@@ -144,7 +156,7 @@
 <dd>
 
 </dd>
-<dt id="operator3">operator <code>++</code></dt>
+<dt id="operator4">operator <code>++</code></dt>
 <dd>
 
 <pre><code>  method _incr()</code></pre>
@@ -156,7 +168,7 @@
 <dd>
 
 </dd>
-<dt id="operator4">operator <code>!=</code></dt>
+<dt id="operator5">operator <code>!=</code></dt>
 <dd>
 
 <pre><code>  func _not_equal(TPoint $one, TPoint $two) : Bool</code></pre>
@@ -168,7 +180,7 @@
 <dd>
 
 </dd>
-<dt id="operator5">operator <code>&quot;&quot;</code></dt>
+<dt id="operator6">operator <code>&quot;&quot;</code></dt>
 <dd>
 
 <pre><code>  method _stringify() : Str</code></pre>
@@ -180,7 +192,7 @@
 <dd>
 
 </dd>
-<dt id="operator6">operator <code>-</code></dt>
+<dt id="operator7">operator <code>-</code></dt>
 <dd>
 
 <pre><code>  func _sub(TPoint $one, TPoint|Int $two, Bool $swap) : TPoint</code></pre>

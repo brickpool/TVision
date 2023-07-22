@@ -109,7 +109,7 @@
 <dt id="cursor"><i>cursor</i></dt>
 <dd>
 
-<pre><code>  has cursor ( is =&gt; rwp, type =&gt; TPoint ) = TPoint-&gt;new;</code></pre>
+<pre><code>  has cursor ( is =&gt; ro, type =&gt; TPoint ) = TPoint-&gt;new;</code></pre>
 
 <p>Records the position of the display cursor.</p>
 
@@ -181,7 +181,7 @@
 <dt id="origin"><i>origin</i></dt>
 <dd>
 
-<pre><code>  param origin ( is =&gt; rwp, type =&gt; TPoint );</code></pre>
+<pre><code>  param origin ( is =&gt; ro, type =&gt; TPoint ) = TPoint-&gt;new;</code></pre>
 
 <p>Describes the upper left corner of the view.</p>
 
@@ -197,7 +197,7 @@
 <dt id="size"><i>size</i></dt>
 <dd>
 
-<pre><code>  param size ( is =&gt; rwp, type =&gt; TPoint );</code></pre>
+<pre><code>  param size ( is =&gt; ro, type =&gt; TPoint ) = TPoint-&gt;new;</code></pre>
 
 <p>Contains the size of the view.</p>
 
@@ -256,6 +256,16 @@
 
 <dl>
 
+<dt id="awaken"><i>awaken</i></dt>
+<dd>
+
+<pre><code>  method awaken()</code></pre>
+
+<p>The default <i>TView-&gt;awaken&gt; does nothing.</i></p>
+
+<p>When a group is loaded from a stream, the last thing the <a href="#load">&quot;load&quot;</a> constructor does is call the <i>awaken</i> methods of all subviews.</p>
+
+</dd>
 <dt id="block_cursor"><i>block_cursor</i></dt>
 <dd>
 
@@ -425,6 +435,10 @@
 
 <pre><code>  method focus() : Bool</code></pre>
 
+<p>Selects and focuses the view, returning True if the view owner returns True and the view is neither selected nor modal, or if the view has no owner. Otherwise, False is returned.</p>
+
+<p>The difference between Focus and Select is that Focus can fail.</p>
+
 </dd>
 <dt id="get_bounds1"><i>get_bounds</i></dt>
 <dd>
@@ -511,9 +525,9 @@
 <dt id="get_peer_view_ptr"><i>get_peer_view_ptr</i></dt>
 <dd>
 
-<pre><code>  method get_peer_view_ptr(TStream $s, Ref $r)</code></pre>
+<pre><code>  method get_peer_view_ptr(TStream $s, Ref $p)</code></pre>
 
-<p>Used by <a href="#load">&quot;load&quot;</a> when certain objects need to load a peer view, <i>$r</i>, from stream <i>$s</i>, such as a list box needing to load it scroll bar object.</p>
+<p>Used by <a href="#load">&quot;load&quot;</a> when certain objects need to load a peer view, <i>$p</i>, from stream <i>$s</i>, such as a list box needing to load it scroll bar object.</p>
 
 </dd>
 <dt id="get_state"><i>get_state</i></dt>
@@ -689,7 +703,7 @@
 <dt id="put_in_front_of"><i>put_in_front_of</i></dt>
 <dd>
 
-<pre><code>  method put_in_front_of(TView $target)</code></pre>
+<pre><code>  method put_in_front_of(TView|Undef $target)</code></pre>
 
 <p>Where <i>$target</i> is any view in this view&#39;s owner&#39;s view list, <i>put_in_front_of</i> moves this view to be placed directly in front of <i>$target</i>.</p>
 
@@ -697,7 +711,7 @@
 <dt id="put_peer_view_ptr"><i>put_peer_view_ptr</i></dt>
 <dd>
 
-<pre><code>  method put_peer_view_ptr(TStream $s, TView $r)</code></pre>
+<pre><code>  method put_peer_view_ptr(TStream $s, TView|Undef $r)</code></pre>
 
 <p>The <a href="#store">&quot;store&quot;</a> method calls this routine to write the &quot;peer&quot; view object <i>$r</i> to stream <i>$s</i>.</p>
 

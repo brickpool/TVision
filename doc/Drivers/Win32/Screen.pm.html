@@ -65,10 +65,8 @@
       _detect_video
       _fix_crt_mode
       _get_crt_mode
-      _get_cursor_type
       _set_crt_data
-      _set_crt_mode
-      _set_cursor_type</code></pre>
+      _set_crt_mode</code></pre>
 
 <h2 id="Subroutines">Subroutines</h2>
 
@@ -152,14 +150,6 @@
 <p>Return CRT mode.</p>
 
 </dd>
-<dt id="get_cursor_type"><i>_get_cursor_type</i></dt>
-<dd>
-
-<pre><code>  func _get_cursor_type() : Int</code></pre>
-
-<p>Return the shape of the cursor, like interrupt <a href="https://en.wikipedia.org/wiki/INT_10H">int 10h</a> function 03h does.</p>
-
-</dd>
 <dt id="set_crt_data"><i>_set_crt_data</i></dt>
 <dd>
 
@@ -176,14 +166,6 @@
 <p>Set CRT mode to value in <i>$mode</i>.</p>
 
 <p>See: <a href="https://stackoverflow.com/a/25916844">Set console window size on Windows</a></p>
-
-</dd>
-<dt id="set_cursor_type"><i>_set_cursor_type</i></dt>
-<dd>
-
-<pre><code>  func _set_cursor_type(Int $cursor)</code></pre>
-
-<p>Set the shape of the cursor, as interrupt <a href="https://en.wikipedia.org/wiki/INT_10H">int 10h</a> function 01h do.</p>
 
 </dd>
 </dl>
