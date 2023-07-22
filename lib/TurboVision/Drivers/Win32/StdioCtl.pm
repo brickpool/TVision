@@ -42,6 +42,7 @@ our $AUTHORITY = 'github:magiblot';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use English qw( -no_match_vars );
 use List::Util qw( max );
 use Try::Tiny;

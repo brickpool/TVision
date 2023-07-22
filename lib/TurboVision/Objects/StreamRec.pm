@@ -63,6 +63,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use English qw( -no_match_vars );
 use MooseX::ClassAttribute;
 use MooseX::StrictConstructor;

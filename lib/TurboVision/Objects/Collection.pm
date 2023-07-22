@@ -158,6 +158,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use Config;
 use Data::Alias qw( alias );
 use English qw( -no_match_vars );

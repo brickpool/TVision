@@ -59,7 +59,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use Carp qw( confess );
+use Carp;
 use Data::Alias qw( alias );
 use English qw( -no_match_vars );
 use Scalar::Util qw( refaddr weaken isweak );

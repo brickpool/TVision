@@ -54,6 +54,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use Data::Alias qw( alias );
 use IO::File;
 use POSIX qw(

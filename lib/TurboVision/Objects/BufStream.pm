@@ -119,6 +119,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use Data::Alias qw( alias );
 use POSIX qw(
   :errno_h

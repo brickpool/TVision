@@ -50,6 +50,7 @@ our $AUTHORITY = 'github:brickpool';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use Devel::StrictMode;
 use PerlX::Assert;
 use Scalar::Util qw( refaddr );
