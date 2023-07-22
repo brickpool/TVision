@@ -34,6 +34,7 @@ use namespace::autoclean;
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Moose::Util::TypeConstraints;
 use MooseX::Types -declare => [qw(
   FNameStr
   PString

@@ -35,6 +35,7 @@ use namespace::autoclean;
 # ------------------------------------------------------------------------
 
 use Encode qw( is_utf8 );
+use Moose::Util::TypeConstraints;
 use MooseX::Types -declare => [qw(
   TCommandSet
   TDrawBuffer
@@ -52,7 +53,6 @@ use MooseX::Types -declare => [qw(
   TGroup
   TWindow
 )];
-use Moose::Util::TypeConstraints;
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
