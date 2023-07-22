@@ -38,6 +38,8 @@
       <li><a href="#Keyboard-Scancode-Constants-:kbXXXX">Keyboard Scancode Constants (:kbXXXX)</a></li>
       <li><a href="#Mouse-Button-constants-:mbXXXX">Mouse Button constants (:mbXXXX)</a></li>
       <li><a href="#Screen-Mode-Constants-:smXXXX">Screen Mode Constants (:smXXXX)</a></li>
+      <li><a href="#Cursor-shape-constants-used-by-Video-:crXXXX">Cursor shape constants used by Video (:crXXXX)</a></li>
+      <li><a href="#Error-constants-used-by-Video-:errXXXX">Error constants used by Video (:errXXXX)</a></li>
       <li><a href="#Constants-used-by-Drivers-:private">Constants used by Drivers (:private)</a></li>
     </ul>
   </li>
@@ -175,6 +177,18 @@
       SM_MONO
       SM_FONT8X8
   
+    :crXXXX
+      CR_HIDDEN
+      CR_UNDER_LINE
+      CR_BLOCK
+      CR_HALF_BLOCK
+
+    :errXXXX
+      ERR_OK
+      ERR_VIO_INIT
+      ERR_VIO_NO_SUCH_MODE
+      ERR_VIO_NOT_SUPPORTED
+
     :private
       _ALT_CODES
       _CP437_TO_UTF8
@@ -645,6 +659,82 @@
 <pre><code>  constant SM_FONT8X8 = &lt; Int &gt;;</code></pre>
 
 <p>43 or 50 line modes.</p>
+
+</dd>
+</dl>
+
+<h2 id="Cursor-shape-constants-used-by-Video-:crXXXX">Cursor shape constants used by <i>Video</i> (<i>:crXXXX</i>)</h2>
+
+<dl>
+
+<dt id="CR_HIDDEN"><i>CR_HIDDEN</i></dt>
+<dd>
+
+<pre><code>  constant CR_HIDDEN = &lt; Int &gt;;</code></pre>
+
+<p>Cursor specified type: &quot;Hide cursor&quot;.</p>
+
+</dd>
+<dt id="CR_UNDER_LINE"><i>CR_UNDER_LINE</i></dt>
+<dd>
+
+<pre><code>  constant CR_UNDER_LINE = &lt; Int &gt;;</code></pre>
+
+<p>Cursor specified type: &quot;Underline cursor&quot;.</p>
+
+</dd>
+<dt id="CR_BLOCK"><i>CR_BLOCK</i></dt>
+<dd>
+
+<pre><code>  constant CR_BLOCK = &lt; Int &gt;;</code></pre>
+
+<p>Cursor specified type: &quot;Block cursor&quot;.</p>
+
+</dd>
+<dt id="CR_HALF_BLOCK"><i>CR_HALF_BLOCK</i></dt>
+<dd>
+
+<pre><code>  constant CR_HALF_BLOCK = &lt; Int &gt;;</code></pre>
+
+<p>Cursor specified type: &quot;Half block cursor&quot;.</p>
+
+</dd>
+</dl>
+
+<h2 id="Error-constants-used-by-Video-:errXXXX">Error constants used by <i>Video</i> (<i>:errXXXX</i>)</h2>
+
+<dl>
+
+<dt id="ERR_OK"><i>ERR_OK</i></dt>
+<dd>
+
+<pre><code>  constant ERR_OK = 0;</code></pre>
+
+<p>No error.</p>
+
+</dd>
+<dt id="ERR_VIO_INIT"><i>ERR_VIO_INIT</i></dt>
+<dd>
+
+<pre><code>  constant ERR_VIO_INIT = ENODEV;</code></pre>
+
+<p>Video driver initialization error.</p>
+
+</dd>
+<dt id="ERR_VIO_NO_SUCH_MODE"><i>ERR_VIO_NO_SUCH_MODE</i></dt>
+<dd>
+
+<pre><code>  constant ERR_VIO_NO_SUCH_MODE = EFAULT;</code></pre>
+
+<p>Invalid video mode.</p>
+
+</dd>
+<dt id="ERR_VIO_NOT_SUPPORTED"><i>ERR_VIO_NOT_SUPPORTED</i></dt>
+<dd>
+
+<pre><code>  constant ERR_VIO_NOT_SUPPORTED = ENOTSUP;</code></pre>
+
+<p>Unsupported video function.</p>
 
 </dd>
 </dl>

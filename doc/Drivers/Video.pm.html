@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en" xml:lang="en">
+<head>
+<title>Drivers::Video &mdash; TurboVision</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link rel="stylesheet" href="../podstyle.css" type="text/css" />
+</head>
+<body><div class="box">
+  <h1 class="t1">TurboVision</h1>
+  <table>
+    <tr>
+      <td class="label">Description</td>
+      <td class="cell">Turbo Vision is a character-mode text user interface framework.</td>
+    </tr>
+  </table>
+</div>
+<div class="path">
+  <a href="../index.html">TurboVision</a> &gt; Perl Modules &gt;
+  Drivers::Video
+</div>
+<div>
+
+</div>
+
+<div class="pod">
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Class">Class</a></li>
+      <li><a href="#Class-Attributes">Class Attributes</a></li>
+      <li><a href="#Class-Methods">Class Methods</a></li>
+      <li><a href="#Inheritance">Inheritance</a></li>
+    </ul>
+  </li>
+  <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</a></li>
+  <li><a href="#MAINTAINER">MAINTAINER</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>TurboVision::Drivers::Video - Video handling module for Turbo Vision</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>  package VideoUtil;
+
+  use TurboVision::Drivers::Video;
+  use TurboVision::Drivers::Types qw( Video );
+  use Exporter qw( import );
+
+  our @EXPORT_OK = qw(
+    text_out
+  );
+  
+  sub text_out {
+    my ($x, $y, $s) = @_;        # (Int, Int, Str)
+    my ($w, $p, $i, $m);         # (Int, Int, Int, Int)
+  
+    $p = ($x-1) + ($y-1) * Video-&gt;screen_width;
+    $m = length($s);
+    if ( $p+$m &gt; Video-&gt;screen_width * Video-&gt;screen_height
+    ) {
+      $m = Video-&gt;screen_width * Video-&gt;screen_heigh - $p;
+    }
+    for my $i (0..$m-1) {
+      Video-&gt;video_buf-&gt;[$p+$i] = ord(substr($s, $i, 1) + (0x07 &lt;&lt; 8);
+    }
+  }
+  
+  1;</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>The working of the <i>Video</i> module is simple: After calling <a href="#init_video">&quot;init_video&quot;</a>, the ArrayRef <a href="#video_buf">&quot;video_buf&quot;</a> contains a representation of the video screen of size <a href="#screen_width">&quot;screen_width&quot;</a> * <i>/screen_height</i>, going from left to right and top to bottom when walking the array elements:</p>
+
+<p><i>video_buf-&gt;[0]</i> contains the character and color code of the top-left character on the screen. <i>video_buf-&gt;[screen_width]</i> contains the data for the character in the first column of the second row on the screen, and so on.</p>
+
+<p>To write to the &#39;screen&#39;, the text to be written should be written to the <a href="#video_buf">&quot;video_buf&quot;</a> Array. Calling <a href="#update_screen">&quot;update_screen&quot;</a> will then copy the text to the screen in the most optimal way.</p>
+
+<p>The color attribute is a combination of the foreground and background color, plus the blink bit. The bits describe the various color combinations:</p>
+
+<pre><code>  bits 0-3  The foreground color.
+            Can be set using all color constants.
+  bits 4-6  The background color.
+            Can be set using a subset of the color constants.
+  bit 7     The blinking bit.
+            If this bit is set, the character will appear blinking.</code></pre>
+
+<p>Each possible color has a constant associated with it, see the constants section for a list of constants.</p>
+
+<p>The foreground and background color can be combined to a color attribute with the following code:</p>
+
+<pre><code>  $attr = $fore_ground_color + $back_ground-color &lt;&lt; 4;</code></pre>
+
+<p>The color attribute can be logically or-ed with the blink attribute to produce a blinking character:</p>
+
+<pre><code>  $attr |= 128;</code></pre>
+
+<p>But not all drivers may support this.</p>
+
+<p>The contents of the <a href="#video_buf">&quot;video_buf&quot;</a> Array may be modified: This is &#39;writing&#39; to the screen. As soon as everything that needs to be written in the array is in the <a href="#video_buf">&quot;video_buf&quot;</a> ArrayRef, calling <a href="#update_screen">&quot;update_screen&quot;</a> will copy the contents of the array screen to the screen, in a manner that is as efficient as possible.</p>
+
+<p>The updating of the screen can be prohibited to optimize performance; To this end, the <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a> class method can be used: This will increment an internal counter. As long as the counter differs from zero, calling <a href="#update_screen">&quot;update_screen&quot;</a> will not do anything. The counter can be lowered with <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>. When it reaches zero, the next call to <a href="#update_screen">&quot;update_screen&quot;</a> will actually update the screen. This is useful when having nested procedures that do a lot of screen writing.</p>
+
+<p>The <i>Video</i> module also presents an interface for Turbo Vision screen drivers.</p>
+
+<p>Note: The <i>Video</i> module should be used only together with the Turbo Vidion. Doing not so will result in very strange behaviour, possibly program aborts.</p>
+
+<h2 id="Class">Class</h2>
+
+<p>public class <i>Video</i></p>
+
+<h2 id="Class-Attributes">Class Attributes</h2>
+
+<dl>
+
+<dt id="error_code"><i>error_code</i></dt>
+<dd>
+
+<pre><code>  class_has error_code ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
+
+<p>Error code returned by the last operation.</p>
+
+</dd>
+<dt id="cursor_lines"><i>cursor_lines</i></dt>
+<dd>
+
+<pre><code>  class_has cursor_lines ( is =&gt; ro, type =&gt; Int );</code></pre>
+
+<p><i>cursor_lines</i> is a bitmask which determines which cursor lines are visible and which are not. Each set bit corresponds to a cursorline being shown.</p>
+
+</dd>
+<dt id="max_width"><i>max_width</i></dt>
+<dd>
+
+<pre><code>  class_has max_width ( is =&gt; rwp, type =&gt; Int ) = &lt; Int &gt;;</code></pre>
+
+<p>Maximum screen buffer width.</p>
+
+</dd>
+<dt id="screen_color"><i>screen_color</i></dt>
+<dd>
+
+<pre><code>  class_has screen_color ( is =&gt; rwp, type =&gt; Bool ) = _TRUE;</code></pre>
+
+<p><i>screen_color</i> indicates whether the current screen supports colors.</p>
+
+</dd>
+<dt id="screen_height"><i>screen_height</i></dt>
+<dd>
+
+<pre><code>  class_has screen_height ( is =&gt; ro, type =&gt; Int ) = 0;</code></pre>
+
+<p>Current screen height.</p>
+
+</dd>
+<dt id="screen_width"><i>screen_width</i></dt>
+<dd>
+
+<pre><code>  class_has screen_width ( is =&gt; ro, type =&gt; Int ) = 0;</code></pre>
+
+<p>Current screen width.</p>
+
+</dd>
+<dt id="video_buf"><i>video_buf</i></dt>
+<dd>
+
+<pre><code>  class_has video_buf ( is =&gt; ro, type =&gt; TVideoBuf ) = [];</code></pre>
+
+<p><i>video_buf</i> forms the heart of the <i>Video</i> module: This variable represents the physical screen. Writing to this array and calling <a href="#update_screen">&quot;update_screen&quot;</a> will write the actual characters to the screen.</p>
+
+</dd>
+<dt id="video_buf_size"><i>video_buf_size</i></dt>
+<dd>
+
+<pre><code>  class_has video_buf_size ( is =&gt; ro, type =&gt; Int ) = 0;</code></pre>
+
+<p>Current size of the video buffer pointed to by <i>video_buf</i>.</p>
+
+</dd>
+</dl>
+
+<h2 id="Class-Methods">Class Methods</h2>
+
+<p>Stream interface routines</p>
+
+<dl>
+
+<dt id="clear_screen"><i>clear_screen</i></dt>
+<dd>
+
+<pre><code>  classmethod clear_screen()</code></pre>
+
+<p><i>clear_screen</i> clears the entire screen, and calls <a href="#update_screen">&quot;update_screen&quot;</a> after that. This is done by writing spaces to all character cells of the video buffer in the default color (lightgray on black, color attribute <code>0x07</code>).</p>
+
+<p>See: <a href="#init_video">&quot;init_video&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
+
+</dd>
+<dt id="done_video"><i>done_video</i></dt>
+<dd>
+
+<pre><code>  classmethod done_video()</code></pre>
+
+<p><i>done_video</i> disables the <i>Video</i> driver if the video driver is active. If the video driver was already disabled or not yet initialized, it does nothing.</p>
+
+<p>Disabling the driver means it will clean up any allocated resources, possibly restore the screen in the state it was before <a href="#init_video">&quot;init_video&quot;</a> was called. Particularly, the <a href="#video_buf">&quot;video_buf&quot;</a> array are no longer valid after a call to <i>done_video</i>.</p>
+
+<p>The <i>done_video</i> should always be called if <i>init_video</i> was called. Failing to do so may leave the screen in an unusable state after the program exits.</p>
+
+</dd>
+<dt id="get_cursor_type"><i>get_cursor_type</i></dt>
+<dd>
+
+<pre><code>  classmethod get_cursor_type() : Int</code></pre>
+
+<p><i>get_cursor_type</i> returns the current cursor type. It is one of the following values:</p>
+
+<pre><code>  CR_HIDDEN     Hide cursor
+  CR_UNDERLINE  Underline cursor
+  CR_BLOCK      Block cursor
+  CR_HALF_BLOCK Half block cursor</code></pre>
+
+<p>Note: that not all drivers support all types of cursors.</p>
+
+<p>See: <a href="#set_cursor_type">&quot;set_cursor_type&quot;</a></p>
+
+</dd>
+<dt id="get_lock_screen_count"><i>get_lock_screen_count</i></dt>
+<dd>
+
+<pre><code>  classmethod get_lock_screen_count(): Int</code></pre>
+
+<p><i>get_lock_screen_count</i> returns the current lock level. When the lock level is zero, a call to <a href="#update_screen">&quot;update_screen&quot;</a> will actually update the screen.</p>
+
+<p>See <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
+
+</dd>
+<dt id="get_video_mode"><i>get_video_mode</i></dt>
+<dd>
+
+<pre><code>  classmethod get_video_mode(TVideoMode $mode)</code></pre>
+
+<p><i>get_video_mode</i> returns the settings of the currently active video mode. The <i>row</i>, <i>col</i> fields indicate the dimensions of the current video mode, and <i>color</i> is true if the current video supports colors.</p>
+
+<p>See <a href="#set_video_mode">&quot;set_video_mode&quot;</a></p>
+
+</dd>
+<dt id="init_video"><i>init_video</i></dt>
+<dd>
+
+<pre><code>  classmethod init_video()</code></pre>
+
+<p><i>init_video</i> Initializes the video subsystem. If the video system was already initialized, it does nothing. After the driver has been initialized, the <a href="#video_buf">&quot;video_buf&quot;</a> ArrayRef is initialized, based on the <a href="#screen_width">&quot;screen_width&quot;</a> and <a href="#screen_height">&quot;screen_height&quot;</a> attributes. When this is done, the screen is cleared.</p>
+
+<p>If the driver fails to initialize, the <a href="#error_code">&quot;error_code&quot;</a> attribute is set.</p>
+
+<p>See <i>done_video</i>.</p>
+
+</dd>
+<dt id="lock_screen_update"><i>lock_screen_update</i></dt>
+<dd>
+
+<pre><code>  classmethod lock_screen_update()</code></pre>
+
+<p><i>lock_screen_update</i> increments the screen update lock count with one. As long as the screen update lock count is not zero, <a href="#update_screen">&quot;update_screen&quot;</a> will not actually update the screen.</p>
+
+<p>This function can be used to optimize screen updating: If a lot of writing on the screen needs to be done (by possibly unknown functions), calling <i>lock_screen_update</i> before the drawing, and <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a> after the drawing, followed by a <a href="#update_screen">&quot;update_screen&quot;</a> call, all writing will be shown on screen at once.</p>
+
+<p>See <a href="#update_screen">&quot;update_screen&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a></p>
+
+</dd>
+<dt id="set_video_mode"><i>set_video_mode</i></dt>
+<dd>
+
+<pre><code>  classmethod set_video_mode(TVideoMode $mode) : Bool;</code></pre>
+
+<p><i>set_video_mode</i> sets the video mode to the mode specified in Mode:</p>
+
+<p>If the call was successful, then the screen will have <i>col =&gt; columns</i> and <i>row =&gt; rows</i>, and will be displaying in color if <i>color =&gt; 1</i> (color is true).</p>
+
+<p>The function returns True if the mode was set successfully, False otherwise.</p>
+
+<p>Note: The video mode may not always be set. E.g. a console on Linux or a telnet session cannot always set the mode. It is important to check the error value returned by this function if it was not successful.</p>
+
+<p>The mode can be set when the video driver has not yet been initialized (i.e. before <a href="#init_video">&quot;init_video&quot;</a> was called). In that case, the video mode will be stored, and after the driver was initialized, an attempt will be made to set the requested mode. Changing the video driver before the call to <a href="#init_video">&quot;init_video&quot;</a> will clear the stored video mode.</p>
+
+<p>To retrieve the current video mode, use the <a href="#get_video_mode">&quot;get_video_mode&quot;</a> procedure.</p>
+
+<p>See <a href="#get_video_mode">&quot;get_video_mode&quot;</a></p>
+
+</dd>
+<dt id="unlock_screen_update"><i>unlock_screen_update</i></dt>
+<dd>
+
+<pre><code>  classmethod unlock_screen_update()</code></pre>
+
+<p><i>unlock_screen_update</i> decrements the screen update lock count with one if it is larger than zero. When the lock count reaches zero, the <a href="#update_screen">&quot;update_screen&quot;</a> will actually update the screen. No screen update will be performed as long as the screen update lock count is nonzero. This mechanism can be used to increase screen performance in case a lot of writing is done.</p>
+
+<p>It is important to make sure that each call to <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a> is matched by exactly one call to <i>unlock_screen_update</i>.</p>
+
+<p>See <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
+
+</dd>
+<dt id="update_screen"><i>update_screen</i></dt>
+<dd>
+
+<pre><code>  classmethod update_screen(Bool $force)</code></pre>
+
+<p><i>update_screen</i> synchronizes the actual screen with the contents of the <a href="#video_buf">&quot;video_buf&quot;</a> internal buffer. The parameter Force specifies whether the whole screen has to be redrawn (<i>$force</i> = True) or only parts that have changed since the last update of the screen.</p>
+
+<p>The current contents of <a href="#video_buf">&quot;video_buf&quot;</a> are examined to see what locations on the screen need to be updated. On slow terminals (e.g. a Linux telnet session) this mechanism can speed up the screen redraw considerably.</p>
+
+<p>On platforms where mouse cursor visibility is not guaranteed to be preserved during screen updates this routine has to restore the mouse cursor after the update (usually by calling <i>hide_mouse</i> from module <i>Mouse</i> before the real update and <i>show_mouse</i> afterwards).</p>
+
+<p>See <a href="#clear_screen">&quot;clear_screen&quot;</a></p>
+
+</dd>
+</dl>
+
+<h2 id="Inheritance">Inheritance</h2>
+
+<p>Methods inherited from class <a href="http://metacpan.org/module/Moose::Object">Moose::Object</a></p>
+
+<pre><code>  new, BUILDARGS, does, DOES, dump, DESTROY</code></pre>
+
+<h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
+
+<pre><code> This file is part of the port of the Free Pascal run time library.
+ Copyright (c) 1999-2000 by the Free Pascal development team.
+
+ The run-time files are licensed under modified LGPL.
+
+ The creation of subclasses of this LGPL-licensed class is considered to be
+ using an interface of a library, in analogy to a function call of a library.
+ It is not considered a modification of the original class. Therefore,
+ subclasses created in this way are not subject to the obligations that an LGPL
+ imposes on licensees.</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<ul>
+
+<li><p>1999-2000 by Florian Klaempfl &lt;fnklaemp@cip.ft.uni-erlangen.de&gt;</p>
+
+</li>
+</ul>
+
+<h1 id="DISCLAIMER-OF-WARRANTIES">DISCLAIMER OF WARRANTIES</h1>
+
+<pre><code> THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.</code></pre>
+
+<h1 id="MAINTAINER">MAINTAINER</h1>
+
+<ul>
+
+<li><p>2023 by J. Schneider <a href="https://github.com/brickpool/">https://github.com/brickpool/</a></p>
+
+</li>
+</ul>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-console/src/win/video.pp">video.pas</a></p>
+
+</div><div class="footer">generated by <a href="http://metacpan.org/module/Pod::ProjectDocs">Pod::ProjectDocs</a></div></body></html>
+

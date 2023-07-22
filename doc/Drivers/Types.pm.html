@@ -63,6 +63,32 @@
 <p><i>TSysErrorFunc</i> defines what the system error handler function looks like. See <i>$sys_error_func</i> and <i>system_error</i> for details of intercepting system level errors.</p>
 
 </dd>
+<dt id="TVideoCell"><i>TVideoCell</i></dt>
+<dd>
+
+<pre><code>  subtype TVideoCell : Int;</code></pre>
+
+<p><i>TVideoCell</i> describes one character on the screen. One of the bytes contains the color attribute with which the character is drawn on the screen, and the other byte contains the ASCII code of the character to be drawn.</p>
+
+<p>The exact position the high byte represents the color attribute, while the low-byte represents the ASCII code of the character to be drawn.</p>
+
+</dd>
+<dt id="TVideoBuf"><i>TVideoBuf</i></dt>
+<dd>
+
+<pre><code>  subtype TVideoBuf : ArrayRef[TVideoCell];</code></pre>
+
+<p>The <i>TVideoBuf</i> type represents the screen.</p>
+
+</dd>
+<dt id="TVideoMode"><i>TVideoMode</i></dt>
+<dd>
+
+<pre><code>  subtype TVideoMode : Dict[ col =&gt; Int, row =&gt; Int, color =&gt; Bool ];</code></pre>
+
+<p>The <i>TVideoMode</i> describes a video mode. Its fields are self-explaining: <i>col</i>, <i>row</i> describe the number of columns and rows on the screen for this mode. <i>color</i> is True if this mode supports colors, or False if not.</p>
+
+</dd>
 </dl>
 
 <h2 id="Object-Types">Object Types</h2>
@@ -71,7 +97,8 @@
 
 <pre><code>  Moose::Object
     StdioCtl
-    TEvent</code></pre>
+    TEvent
+    Video</code></pre>
 
 <h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
 
