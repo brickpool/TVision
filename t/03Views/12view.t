@@ -9,11 +9,19 @@ BEGIN {
   use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
-  use_ok 'TurboVision::Objects::Types', qw( TPoint TRect );
+  use_ok 'TurboVision::Objects::Types', qw(
+    TPoint
+    TRect
+  );
   use_ok 'TurboVision::Drivers::Const', qw( :evXXXX );
   use_ok 'TurboVision::Drivers::Event';
   use_ok 'TurboVision::Drivers::Types', qw( TEvent );
-  use_ok 'TurboVision::Views::Const', qw( :cmXXXX :hcXXXX :ofXXXX :sfXXXX );
+  use_ok 'TurboVision::Views::Const', qw(
+    :cmXXXX
+    :hcXXXX
+    :ofXXXX
+    :sfXXXX
+  );
   use_ok 'TurboVision::Views::View';
   use_ok 'TurboVision::Views::Types', qw( TView );
 }

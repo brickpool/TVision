@@ -48,6 +48,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Carp;
 use Data::Alias qw( alias );
 use List::Util qw( min max );
 use PerlX::Assert;
@@ -58,6 +59,7 @@ use TurboVision::Const qw(
   :limits
 );
 use TurboVision::Drivers::Const qw(
+  :crXXXX
   :evXXXX
   :kbXXXX
 );
@@ -65,6 +67,7 @@ use TurboVision::Drivers::Event;
 use TurboVision::Drivers::EventManager qw( :kbd );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::Utility qw( :move );
+use TurboVision::Drivers::Video;
 use TurboVision::Objects::Common qw(
   :tools
   fail
@@ -605,7 +608,11 @@ that the L</owner>'s view was changed in size.
 
 =cut
 
-  method calc_bounds(TRect $bounds, TPoint $delta) {
+  method calc_bounds($, TPoint $delta) {
+    alias my $bounds = $_[-2];
+    confess 'Invalid argument $bounds'
+      if not is_TRect $bounds;
+
     my ($min, $max, $s, $d) = ( TPoint->new, TPoint->new );
     
     my $range = sub {
@@ -694,7 +701,11 @@ other views can determine who it was that process the event.
 
 =cut
 
-  method clear_event(TEvent $event)  {
+  method clear_event($)  {
+    alias my $event = $_[-1];
+    confess 'Invalid argument $event'
+      if not is_TEvent $event;
+
     $event->what(EV_NOTHING);                             # Clear the event
     $event->info_ptr($self);                              # Set us as handler
     return;
@@ -1104,7 +1115,11 @@ relative to the owner of the view.
 
 =cut
 
-  method get_bounds(TRect $bounds) {
+  method get_bounds($) {
+    alias my $bounds = $_[-1];
+    confess 'Invalid argument $bounds'
+      if not is_TRect $bounds;
+
     $bounds->a # =
       ( $self->origin );                                  # Get first corner
     $bounds->b # =
@@ -1126,7 +1141,11 @@ See L</draw>
 
 =cut
 
-  method get_clip_rect(TRect $clip) {
+  method get_clip_rect($) {
+    alias my $clip = $_[-1];
+    confess 'Invalid argument $clip'
+      if not is_TRect $clip;
+
     $self->get_bounds($clip);                             # Get current bounds
     $clip->intersect($self->owner->_clip)                 # Intersect with owner
       if defined $self->owner;
@@ -1199,7 +1218,11 @@ commands.
 
 =cut
 
-  method get_commands(TCommandSet $commands) {
+  method get_commands($) {
+    alias my $commands = $_[-1];
+    confess 'Invalid argument $commands'
+      if not is_TCommandSet $commands;
+
     $commands->copy($cur_command_set);                    # Return command set
     return;
   }
@@ -1217,7 +1240,9 @@ This method is primarily of interest to dialog box controls.
 
   method get_data($) {
     alias my $rec = $_[-1];
-    assert( is_Str $rec );
+    confess 'Invalid argument $rec'
+      if not is_Str $rec;
+
     return;                                               # Abstract method
   }
 
@@ -1230,7 +1255,11 @@ L</event_avail>).
 
 =cut
 
-  method get_event(TEvent $event) {
+  method get_event($) {
+    alias my $event = $_[-1];
+    confess 'Invalid argument $event'
+      if not is_TEvent $event;
+
     $self->owner->get_event($event)                       # Event from owner
       if defined $self->owner;
     return;
@@ -1246,7 +1275,11 @@ extent of the view relative to the upper left corner.
 
 =cut
 
-  method get_extent(TRect $extent) {
+  method get_extent($) {
+    alias my $extent = $_[-1];
+    confess 'Invalid argument $extent'
+      if not is_TRect $extent;
+
     $extent->a->x(0);                                     # Zero x field
     $extent->a->y(0);                                     # Zero y field
     $extent->b # =
@@ -1291,7 +1324,11 @@ stream I<$s>, such as a list box needing to load it scroll bar object.
 
 =cut
 
-  method get_peer_view_ptr(TStream $s, Ref $p) {
+  method get_peer_view_ptr(TStream $s, $p) {
+    alias my $p = $_[-1];
+    confess 'Invalid argument $p'
+      if not is_Ref $p;
+    
     my $read = sub {
       my $type = shift;
       if ( $type =~ /integer/ ) {
@@ -1307,8 +1344,7 @@ stream I<$s>, such as a list box needing to load it scroll bar object.
       $p = undef;                                         # Return undef
     }
     else {
-      require Carp;
-      Carp::carp "Unsafe: 'get_peer_view_ptr' must be adapted to perl suitable";
+      carp "Unsafe: 'get_peer_view_ptr' must be adapted to perl suitable";
       $p = $_fixup_list->[$index];                        # New view reference
       $_fixup_list->[$index] = \$p;                       # Patch this reference
     }
@@ -1366,7 +1402,11 @@ See I<evXXXX> constants, I<cmXXXX> constants
      
 =cut
 
-  method handle_event(TEvent $event) {
+  method handle_event($) {
+    alias my $event = $_[-1];
+    confess 'Invalid argument $event'
+      if not is_TEvent $event;
+
     if ( $event->what == EV_MOUSE_DOWN ) {                # Mouse down event
       if ( !($self->state & (SF_SELECTED | SF_DISABLED))  # Not selected/disabled
         && ($self->options & OF_SELECTABLE)               # View is selectable
@@ -1421,7 +1461,11 @@ and it returns that event.
 
 =cut
 
-  method key_event(TEvent $event) {
+  method key_event($) {
+    alias my $event = $_[-1];
+    confess 'Invalid argument $event'
+      if not is_TEvent $event;
+
     do {
       $self->get_event($event);                           # Get next event
     } while ( $event->what != EV_KEY_DOWN );              # Wait till keydown
@@ -1436,7 +1480,11 @@ Changes the boundaries of the view and redisplays the view on the screen.
 
 =cut
 
-  method locate(TRect $bounds) {
+  method locate($) {
+    alias my $bounds = $_[-1];
+    confess 'Invalid argument $bounds'
+      if not is_TRect $bounds;
+
     my ($min, $max) = ( TPoint->new, TPoint->new );
     my $r = TRect->new();
 
@@ -1504,7 +1552,8 @@ The converted value is returned in I<$dest>.
   method make_global(TPoint $source, $) {
     # Note: $source and $dest can be the same variable
     alias my $dest = $_[-1];
-    assert { is_TPoint $dest };
+    confess 'Invalid argument $dest'
+      if not is_TPoint $dest;
 
     my $cur = $self;
     $dest->copy($source);
@@ -1528,7 +1577,8 @@ See L</make_global>.
   method make_local(TPoint $source, $) {
     # Note: $source and $dest can be the same variable
     alias my $dest = $_[-1];
-    assert { is_TPoint $dest };
+    confess 'Invalid argument $dest'
+      if not is_TPoint $dest;
 
     my $cur = $self;
     $dest->copy($source);
@@ -1563,7 +1613,11 @@ False, meaning that the mouse button has been let up.
 
 =cut
 
-  method mouse_event(TEvent $event, Int $mask) {
+  method mouse_event($, Int $mask) {
+    alias my $event = $_[-2];
+    confess 'Invalid argument $event'
+      if not is_TEvent $event;
+
     do {
       $self->get_event($event);                           # Get next event
     } while ( !($event->what & ($mask | EV_MOUSE_UP)) );  # Wait till valid
@@ -1974,7 +2028,14 @@ Sets I<$min> to (0,0) and I<$max> to I<< $self->owner->size >>.
 
 =cut
 
-  method size_limits(TPoint $min, TPoint $max) {
+  method size_limits($, $) {
+    alias my $min = $_[-2];
+    alias my $max = $_[-1];
+    confess 'Invalid argument $min'
+      if not is_TPoint $min;
+    confess 'Invalid argument $max'
+      if not is_TPoint $max;
+
     $min->x(0);                                           # Zero x minimum
     $min->y(0);                                           # Zero y minimum
     if ( $self->owner ) {
@@ -2081,8 +2142,7 @@ parameter.
 =cut
 
   method _cursor_changed() {
-    require Carp;
-    Carp::carp "Method '_cursor_changed' is not implemented yet!";
+    carp "Method '_cursor_changed' is not implemented yet!";
 #    message($self->owner, EV_BROADCAST, CM_CURSOR_CHANGED, $self);
     return;
   }
@@ -2109,8 +2169,62 @@ parameter.
   }
   
   method _reset_cursor() {
-    require Carp;
-    Carp::carp "Method '_reset_cursor' is not implemented yet!";
+    use constant _SF_VCVF => SF_VISIBLE | SF_CURSOR_VIS | SF_FOCUSED;
+
+    my ($p, $p2);
+    my $g;
+    my $cur = TPoint->new;
+  
+    my $check0 = sub {
+      my $res = 0;
+      while ($res == 0) {
+        $p = p->next;
+        if ($p == $p2) {
+          $p = $p->owner;
+          $res = 1;
+        }
+        elsif ( ($p->state & SF_VISIBLE)
+          && ($cur->x >= $p->origin->x)
+          && ($cur->x < $p->size->x + $p->origin->x)
+          && ($cur->y >= $p->origin->y)
+          && ($cur->y < $p->size->y + $p->origin->y)
+        ) {
+          $res = 2;
+        }
+      }
+      return $res = 2;
+    };
+
+    if ( ($self->state & _SF_VCVF) == _SF_VCVF ) {
+      $p = $self;
+      $cur->copy($self->cursor);
+  #     while true do
+  #      begin
+  #        if (cur.x<0) or (cur.x>=p^.size.x) or
+  #           (cur.y<0) or (cur.y>=p^.size.y) then
+  #          break;
+  #        inc(cur.X,p^.origin.X);
+  #        inc(cur.Y,p^.origin.Y);
+  #        p2:=p;
+  #        G:=p^.owner;
+  #        if G=Nil then { top view }
+  #         begin
+  #           Video->set_cursor_pos(cur.x,cur.y);
+  #           if (state and sfCursorIns)<>0 then
+  #             Video->set_cursor_type(crBlock)
+  #           else
+  #             Video->set_cursor_type(crUnderline);
+  #           exit;
+  #         end;
+  #        if (G^.state and sfVisible)=0 then
+  #         break;
+  #        p:=G^.Last;
+  #        if Check0 then
+  #         break;
+  #      end; { while }
+    }
+    Video->set_cursor_type(CR_HIDDEN);
+    carp "Method '_reset_cursor' is not implemented yet!";
     return;
   }
 
