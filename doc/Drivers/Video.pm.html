@@ -69,7 +69,7 @@
       $m = Video-&gt;screen_width * Video-&gt;screen_heigh - $p;
     }
     for my $i (0..$m-1) {
-      Video-&gt;video_buf-&gt;[$p+$i] = ord(substr($s, $i, 1) + (0x07 &lt;&lt; 8);
+      Video-&gt;video_buf-&gt;set($p+$i, ord(substr($s, $i, 1) + (0x07 &lt;&lt; 8));
     }
   }
   
@@ -96,7 +96,7 @@
 
 <p>The foreground and background color can be combined to a color attribute with the following code:</p>
 
-<pre><code>  $attr = $fore_ground_color + $back_ground-color &lt;&lt; 4;</code></pre>
+<pre><code>  $attr = $fore_ground_color + $back_ground_color &lt;&lt; 4;</code></pre>
 
 <p>The color attribute can be logically or-ed with the blink attribute to produce a blinking character:</p>
 
@@ -123,7 +123,7 @@
 <dt id="error_code"><i>error_code</i></dt>
 <dd>
 
-<pre><code>  class_has error_code ( is =&gt; rwp, type =&gt; Int ) = 0;</code></pre>
+<pre><code>  class_has error_code ( is =&gt; rw, type =&gt; Int ) = 0;</code></pre>
 
 <p>Error code returned by the last operation.</p>
 
@@ -139,7 +139,7 @@
 <dt id="max_width"><i>max_width</i></dt>
 <dd>
 
-<pre><code>  class_has max_width ( is =&gt; rwp, type =&gt; Int ) = &lt; Int &gt;;</code></pre>
+<pre><code>  class_has max_width ( is =&gt; ro, type =&gt; Int ) = &lt; Int &gt;;</code></pre>
 
 <p>Maximum screen buffer width.</p>
 
@@ -147,7 +147,7 @@
 <dt id="screen_color"><i>screen_color</i></dt>
 <dd>
 
-<pre><code>  class_has screen_color ( is =&gt; rwp, type =&gt; Bool ) = _TRUE;</code></pre>
+<pre><code>  class_has screen_color ( is =&gt; ro, type =&gt; Bool ) = _TRUE;</code></pre>
 
 <p><i>screen_color</i> indicates whether the current screen supports colors.</p>
 
@@ -173,7 +173,7 @@
 
 <pre><code>  class_has video_buf ( is =&gt; ro, type =&gt; TVideoBuf ) = [];</code></pre>
 
-<p><i>video_buf</i> forms the heart of the <i>Video</i> module: This variable represents the physical screen. Writing to this array and calling <a href="#update_screen">&quot;update_screen&quot;</a> will write the actual characters to the screen.</p>
+<p><i>video_buf</i> forms the heart of the <i>Video</i> module: This attribute represents the physical screen. Writing to this array and calling <a href="#update_screen">&quot;update_screen&quot;</a> will write the actual characters to the screen.</p>
 
 </dd>
 <dt id="video_buf_size"><i>video_buf_size</i></dt>
@@ -222,7 +222,7 @@
 <p><i>get_cursor_type</i> returns the current cursor type. It is one of the following values:</p>
 
 <pre><code>  CR_HIDDEN     Hide cursor
-  CR_UNDERLINE  Underline cursor
+  CR_UNDER_LINE Underline cursor
   CR_BLOCK      Block cursor
   CR_HALF_BLOCK Half block cursor</code></pre>
 
@@ -238,7 +238,7 @@
 
 <p><i>get_lock_screen_count</i> returns the current lock level. When the lock level is zero, a call to <a href="#update_screen">&quot;update_screen&quot;</a> will actually update the screen.</p>
 
-<p>See <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
+<p>See also: <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
 
 </dd>
 <dt id="get_video_mode"><i>get_video_mode</i></dt>
@@ -248,7 +248,7 @@
 
 <p><i>get_video_mode</i> returns the settings of the currently active video mode. The <i>row</i>, <i>col</i> fields indicate the dimensions of the current video mode, and <i>color</i> is true if the current video supports colors.</p>
 
-<p>See <a href="#set_video_mode">&quot;set_video_mode&quot;</a></p>
+<p>See also: <a href="#set_video_mode">&quot;set_video_mode&quot;</a></p>
 
 </dd>
 <dt id="init_video"><i>init_video</i></dt>
@@ -260,7 +260,7 @@
 
 <p>If the driver fails to initialize, the <a href="#error_code">&quot;error_code&quot;</a> attribute is set.</p>
 
-<p>See <i>done_video</i>.</p>
+<p>See also: <i>done_video</i>.</p>
 
 </dd>
 <dt id="lock_screen_update"><i>lock_screen_update</i></dt>
@@ -272,7 +272,22 @@
 
 <p>This function can be used to optimize screen updating: If a lot of writing on the screen needs to be done (by possibly unknown functions), calling <i>lock_screen_update</i> before the drawing, and <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a> after the drawing, followed by a <a href="#update_screen">&quot;update_screen&quot;</a> call, all writing will be shown on screen at once.</p>
 
-<p>See <a href="#update_screen">&quot;update_screen&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a></p>
+<p>See also: <a href="#update_screen">&quot;update_screen&quot;</a>, <a href="#unlock_screen_update">&quot;unlock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a></p>
+
+</dd>
+<dt id="set_cursor_type"><i>set_cursor_type</i></dt>
+<dd>
+
+<pre><code>  classmethod set_cursor_type(Int $type)</code></pre>
+
+<p><i>set_cursor_type</i> sets the cursor to the type specified in <i>$type</i>.</p>
+
+<pre><code>  CR_HIDDEN     Hide cursor
+  CR_UNDER_LINE Underline cursor
+  CR_BLOCK      Block cursor
+  CR_HALF_BLOCK Half block cursor</code></pre>
+
+<p>See: <a href="#set_cursor_pos">&quot;set_cursor_pos&quot;</a></p>
 
 </dd>
 <dt id="set_video_mode"><i>set_video_mode</i></dt>
@@ -292,7 +307,7 @@
 
 <p>To retrieve the current video mode, use the <a href="#get_video_mode">&quot;get_video_mode&quot;</a> procedure.</p>
 
-<p>See <a href="#get_video_mode">&quot;get_video_mode&quot;</a></p>
+<p>See also: <a href="#get_video_mode">&quot;get_video_mode&quot;</a></p>
 
 </dd>
 <dt id="unlock_screen_update"><i>unlock_screen_update</i></dt>
@@ -304,7 +319,7 @@
 
 <p>It is important to make sure that each call to <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a> is matched by exactly one call to <i>unlock_screen_update</i>.</p>
 
-<p>See <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
+<p>See also: <a href="#lock_screen_update">&quot;lock_screen_update&quot;</a>, <a href="#get_lock_screen_count">&quot;get_lock_screen_count&quot;</a>, <a href="#update_screen">&quot;update_screen&quot;</a></p>
 
 </dd>
 <dt id="update_screen"><i>update_screen</i></dt>
@@ -318,7 +333,7 @@
 
 <p>On platforms where mouse cursor visibility is not guaranteed to be preserved during screen updates this routine has to restore the mouse cursor after the update (usually by calling <i>hide_mouse</i> from module <i>Mouse</i> before the real update and <i>show_mouse</i> afterwards).</p>
 
-<p>See <a href="#clear_screen">&quot;clear_screen&quot;</a></p>
+<p>See also: <a href="#clear_screen">&quot;clear_screen&quot;</a></p>
 
 </dd>
 </dl>
