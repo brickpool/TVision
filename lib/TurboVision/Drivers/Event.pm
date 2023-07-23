@@ -52,7 +52,6 @@ our $AUTHORITY = 'github:brickpool';
 
 use Carp;
 use Devel::StrictMode;
-use PerlX::Assert;
 use Scalar::Util qw( refaddr );
 
 use TurboVision::Const qw( :bool );
@@ -338,7 +337,7 @@ I<what> attribute is checked and, if it fails, an exception is thrown.
   EXTENDED_TESTING
   RELEASE_TESTING
 
-See also: I<PerlX::Assert>
+See also: L<Devel::StrictMode>
 
 =end comment
 
@@ -456,9 +455,7 @@ Char code.
 
 =cut
 
-  method char_code(@) {
-		my ($value) = @_;
-
+  method char_code(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->key_code();
@@ -466,7 +463,7 @@ Char code.
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = $self->key_code();
       $v &= 0xff00;
       $v |= $value & 0x00ff;
@@ -485,9 +482,7 @@ Message I<byte> (unsigned integer 8-bit).
 
 =cut
 
-  method info_byte(@) {
-		my ($value) = @_;
-
+  method info_byte(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->info();
@@ -496,7 +491,7 @@ Message I<byte> (unsigned integer 8-bit).
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = $value & 0xff;
       $self->info( $v );
       return $v;
@@ -506,15 +501,13 @@ Message I<byte> (unsigned integer 8-bit).
 =item I<info_char>
 
   multi method info_char() : Str
-  multi method info_char(Int $value) : Str
+  multi method info_char(Str $value) : Str
 
 Message Perl string, which represents 1 character.
 
 =cut
 
-  method info_char(@) {
-		my ($value) = @_;
-
+  method info_char(Maybe[Str] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->info();
@@ -524,7 +517,7 @@ Message Perl string, which represents 1 character.
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Str $value };
+			confess unless defined $value;
       my $v = unpack('W', $value);
       $self->info( $v );
       $v = pack('W', $v);
@@ -541,9 +534,7 @@ Message I<integer> (signed integer 16-bit).
 
 =cut
 
-  method info_int(@) {
-		my ($value) = @_;
-
+  method info_int(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->info();
@@ -552,7 +543,7 @@ Message I<integer> (signed integer 16-bit).
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = unpack('v!', pack('v!', $value));
       $self->info( $v );
       return $v;
@@ -568,9 +559,7 @@ Message I<longint> (signed integer 32-bit).
 
 =cut
 
-  method info_long(@) {
-		my ($value) = @_;
-
+  method info_long(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->info();
@@ -579,7 +568,7 @@ Message I<longint> (signed integer 32-bit).
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = unpack('V!', pack('V!', $value));
       $self->info( $v );
       return $v;
@@ -589,21 +578,18 @@ Message I<longint> (signed integer 32-bit).
 =item I<info_ptr>
 
   multi method info_ptr() : Ref|Undef
-  multi method info_ptr(Ref $value) : Ref
+  multi method info_ptr(Ref|Undef $value) : Ref
 
 Message Reference.
 
 =cut
 
-  method info_ptr(@) {
-		my ($value) = @_;
-
+  method info_ptr(Ref|Undef $value=) {
     goto SET if @_;
     GET: {
       return $self->info() || undef;
     }
     SET: {
-			assert { @_ == 1 && ( !defined($value) || is_Ref($value) ) };
       $self->info( $value );
       return $value;
     }
@@ -618,9 +604,7 @@ Message I<word> (unsigned integer 16-bit).
 
 =cut
 
-  method info_word(@) {
-		my ($value) = @_;
-
+  method info_word(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->info();
@@ -629,7 +613,7 @@ Message I<word> (unsigned integer 16-bit).
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = unpack('v', pack('v', $value));
       $self->info( $v );
       return $v;
@@ -645,9 +629,7 @@ Scan code.
 
 =cut
 
-  method scan_code(@) {
-		my ($value) = @_;
-
+  method scan_code(Maybe[Int] $value=) {
     goto SET if @_;
     GET: {
       my $v = $self->key_code();
@@ -656,7 +638,7 @@ Scan code.
       return $v;
     }
     SET: {
-			assert { @_ == 1 && is_Int $value };
+			confess unless defined $value;
       my $v = $self->key_code();
       $v &= 0x00ff;
       $v |= $value << 8;
