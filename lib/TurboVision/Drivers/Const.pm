@@ -1071,7 +1071,7 @@ Invalid video mode.
 
 =cut
 
-  use constant ERR_VIO_NO_SUCH_MODE  => exists(&Errno::EFAULT) || 14;
+  use constant ERR_VIO_NO_SUCH_MODE   => exists(&Errno::EFAULT) || 14;
 
 =item I<ERR_VIO_NOT_SUPPORTED>
 
