@@ -65,7 +65,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use PerlX::Assert qw( assert );
+use Carp;
 
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Types qw(
@@ -118,15 +118,13 @@ I<a> is the point defining the top left corner of a rectangle on the screen.
     isa     => TPoint,
     default => sub { TPoint->new() },
   );
-  around a(@) {
-		my ($value) = @_;
-
+  around a(Maybe[TPoint] $value=) {
     goto SET if @_;
     GET: {
       return $self->$next();
     }
     SET: {
-			assert { @_ == 1 && is_TPoint $value };
+			confess unless defined $value;
       return $self->$next(
         TPoint->new(
           x => $value->x,
@@ -149,15 +147,13 @@ I<b> is the point defining the bottom right corner of a rectangle on the screen.
     isa     => TPoint,
     default => sub { TPoint->new() },
   );
-  around b(@) {
-		my ($value) = @_;
-
+  around b(Maybe[TPoint] $value=) {
     goto SET if @_;
     GET: {
       return $self->$next();
     }
     SET: {
-			assert { @_ == 1 && is_TPoint $value };
+			confess unless defined $value;
       return $self->$next(
         TPoint->new(
           x => $value->x,
