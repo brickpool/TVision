@@ -151,6 +151,7 @@ Nothing per default, but can export the following per request:
       MB_SCROLL_WHEEL_UP
   
     :smXXXX
+      SM_BW40
       SM_BW80
       SM_CO80
       SM_MONO
@@ -291,6 +292,7 @@ our %EXPORT_TAGS = (
   )],
 
   smXXXX => [qw(
+    SM_BW40
     SM_BW80
     SM_CO80
     SM_MONO
