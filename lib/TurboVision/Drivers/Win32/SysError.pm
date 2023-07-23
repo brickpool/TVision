@@ -105,7 +105,9 @@ our %EXPORT_TAGS = (
 
 =over
 
-=item private const C<< Int _MB_ICONERROR >>
+=item I<_MB_ICONERROR>
+
+  constant _MB_ICONERROR = < Int >;
 
 A stop-sign icon appears in the message box.
 
@@ -117,7 +119,9 @@ A stop-sign icon appears in the message box.
 
 =begin comment
 
-=item private const C<< Int _MB_RETRYCANCEL >>
+=item I<_MB_RETRYCANCEL>
+
+  constant _MB_RETRYCANCEL = < Int >;
 
 The message box contains two push buttons: Retry and Cancel.
 
@@ -129,7 +133,9 @@ The message box contains two push buttons: Retry and Cancel.
 
 =begin comment
 
-=item private const C<< Int _MB_SETFOREGROUND >>
+=item I<_MB_SETFOREGROUND>
+
+  constant _MB_SETFOREGROUND = < Int >;
 
 The message box becomes the foreground window.
 
@@ -141,7 +147,9 @@ The message box becomes the foreground window.
 
 =begin comment
 
-=item private const C<< Int _IDRETRY >>
+=item I<_IDRETRY>
+
+  constant _IDRETRY = < Int >;
 
 The Retry button was selected.
 
