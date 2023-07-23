@@ -165,7 +165,7 @@ Note: If the cursor is not visible, the routine returns 0x2000 (bit 5 of
     };
     my (undef, undef, $size, $visible) = $CONSOLE->Cursor();
     $size    //= 0;
-    $visible &&= $size;
+    $visible &&= $size > 0;
 
     my $cursor;
     if ( $visible ) {

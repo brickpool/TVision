@@ -152,7 +152,7 @@ See: L</set_video_mode>
 
 =cut
 
-  our $cursor_lines = 0;
+  our $cursor_lines = undef;
 
 =item I<$hi_res_screen>
 
@@ -176,7 +176,7 @@ See: L</$screen_mode>
 
 =cut
 
-  our $screen_buffer = {};
+  our $screen_buffer = [];
 
 =item I<$screen_height>
 
@@ -196,7 +196,7 @@ See: L</set_video_mode>
   our $screen_mode = < Int >;
 
 Contains the current video mode as determined by the I<smXXXX> constants
-passed to the I<set_video_mode> routine.
+passed to the L</set_video_mode> routine.
 
 See: L</set_video_mode>, I<smXXXX> constants
 
