@@ -28,6 +28,7 @@ qw(
 
 use Moose;
 use MooseX::Types::Moose qw( :all );
+use MooseX::AttributeShortcuts;
 use MooseX::HasDefaults::RO;
 use namespace::autoclean;
 
@@ -92,7 +93,12 @@ package TurboVision::Drivers::Win32::StdioCtl {
 
 =item I<in>
 
-  field in ( is => rwp, type => Object, predicate => '_has_input' );
+  field in (
+    is        => 'ro',
+    type      => Object,
+    writer    => '_input',
+    predicate => '_has_input',
+  );
 
 Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
 
@@ -107,7 +113,12 @@ Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
 
 =item I<out>
 
-  field out ( is => rwp, type => Object, predicate => '_has_output' );
+  field out (
+    is        => 'ro',
+    type      => Object,
+    writer    => '_output',
+    predicate => '_has_output',
+  );
 
 Console active output object.
 
@@ -124,7 +135,7 @@ Console active output object.
 
 =item I<_startup>
 
-  field _startup ( is => rw, type => Object, predicate => '_has_startup' );
+  has _startup ( is => rw, type => Object, predicate => 1 );
 
 Console startup output object.
 
@@ -135,7 +146,7 @@ Console startup output object.
   has '_startup' => (
     is        => 'rw',
     isa       => Object,
-    predicate => '_has_startup',
+    predicate => 1,
   );
 
 =begin comment
@@ -151,9 +162,9 @@ Console startup output object.
 =cut
 
   has '_owns_console' => (
-    is        => 'rw',
-    isa       => Bool,
-    default   => _FALSE,
+    is      => 'rw',
+    isa     => Bool,
+    default => _FALSE,
   );
 
 =back

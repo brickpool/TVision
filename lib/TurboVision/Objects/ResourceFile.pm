@@ -171,7 +171,7 @@ Points to the stream used by this I<TResourceFile> object.
 
 =item I<modified>
 
-  has modified ( is => rwp, type => Bool );
+  has modified ( is => rwp, type => Bool ) = !! 0;
 
 If the file has been modified, then this flag is set to true.
 
@@ -182,8 +182,8 @@ resource file.
 
   has 'modified' => (
     isa     => Bool,
-    default => _FALSE,
     writer  => '_modified',
+    default => _FALSE,
   );
 
 =begin comment

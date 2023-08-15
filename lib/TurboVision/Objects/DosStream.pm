@@ -115,7 +115,12 @@ package TurboVision::Objects::DosStream {
 
 =item I<handle>
 
-  param handle ( is => rwp, type => FileHandle, predicate => '_is_openhandle' );
+  param handle (
+    is        => rwp,
+    type      => FileHandle,
+    required  => 1,
+    predicate => '_is_openhandle',
+  );
 
 I<handle> contains the OS file handle used to access the file containing the
 stream.
@@ -133,7 +138,7 @@ stream.
 
 =item I<_stream_size>
 
-  has _stream_size ( is => rwp, type => Int, init_arg => 'stream_size' );
+  has _stream_size ( is => rw, type => Int, init_arg => 'stream_size' ) = 0;
 
 The size of the stream in bytes.
 

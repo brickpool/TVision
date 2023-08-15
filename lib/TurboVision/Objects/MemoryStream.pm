@@ -155,10 +155,10 @@ Memory block list.
 =cut
 
   has 'seg_list' => (
-    traits  => ['Array'],
     isa     => ArrayRef[Str],
     default => sub { [] },
     writer  => '_seg_list',
+    traits  => ['Array'],
     handles => {
       _clear_seg_list   => 'clear',
       _extend_seg_list  => 'push',

@@ -2198,33 +2198,33 @@ parameter.
     if ( ($self->state & _SF_VCVF) == _SF_VCVF ) {
       $p = $self;
       $cur->copy($self->cursor);
-  #     while true do
-  #      begin
-  #        if (cur.x<0) or (cur.x>=p^.size.x) or
-  #           (cur.y<0) or (cur.y>=p^.size.y) then
-  #          break;
-  #        inc(cur.X,p^.origin.X);
-  #        inc(cur.Y,p^.origin.Y);
-  #        p2:=p;
-  #        G:=p^.owner;
-  #        if G=Nil then { top view }
-  #         begin
-  #           Video->set_cursor_pos(cur.x,cur.y);
-  #           if (state and sfCursorIns)<>0 then
-  #             Video->set_cursor_type(crBlock)
-  #           else
-  #             Video->set_cursor_type(crUnderline);
-  #           exit;
-  #         end;
-  #        if (G^.state and sfVisible)=0 then
-  #         break;
-  #        p:=G^.Last;
-  #        if Check0 then
-  #         break;
-  #      end; { while }
+      while (1) {
+        last
+          if $cur->x < 0
+          || $cur->x >= $p->size->x
+          || $cur->y < 0
+          || $cur->y >= $p->size->y
+          ;
+        $cur += $p->origin;
+        $p2 = $p;
+        $g = $p->owner;
+        if ( !defined $g ) { # top view
+          Video->set_cursor_pos($cur->x, $cur->y);
+          Video->set_cursor_type(
+            $self->state & SF_CURSOR_INS
+            ? CR_BLOCK
+            : CR_UNDER_LINE
+          );
+          return;
+        }
+        last
+          if ($g->state & SF_VISIBLE) == 0;
+        $p = $g->last;
+        last
+          if $check0->();
+      } # while
     }
     Video->set_cursor_type(CR_HIDDEN);
-    carp "Method '_reset_cursor' is not implemented yet!";
     return;
   }
 

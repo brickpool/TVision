@@ -230,8 +230,8 @@ The size of the L</buffer> in bytes.
 =cut
 
   has 'buf_size' => (
-    isa       => Int,
-    default   => 0,
+    isa     => Int,
+    default => 0,
     writer  => '_buf_size',
   );
 
@@ -239,7 +239,7 @@ The size of the L</buffer> in bytes.
 
 =item I<_last_mode>
 
-  has _last_mode ( is => ro, type => Int, writer => '_last_mode' ) = -1;
+  field _last_mode ( is => ro, type => Int ) = -1;
 
 I<_last_mode> holds the L</read> or L</write> condition of the last buffer
 access, which helps speed up the L</flush> method.
