@@ -21,6 +21,7 @@ package TurboVision::Views::View;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
@@ -54,10 +55,7 @@ use List::Util qw( min max );
 use PerlX::Assert;
 use Try::Tiny;
 
-use TurboVision::Const qw(
-  :bool
-  :limits
-);
+use TurboVision::Const qw( :limits );
 use TurboVision::Drivers::Const qw(
   :crXXXX
   :evXXXX
@@ -595,7 +593,7 @@ See L</normal_cursor>
 =cut
 
   method block_cursor() {
-    $self->set_state(SF_CURSOR_INS, _TRUE);               # Set insert mode
+    $self->set_state(SF_CURSOR_INS, TRUE);               # Set insert mode
     return;
   }
 
@@ -843,7 +841,7 @@ view can be resized.
       }
     };
 
-    $self->set_state(SF_DRAGGING, _TRUE);
+    $self->set_state(SF_DRAGGING, TRUE);
     if ( $event->what == EV_MOUSE_DOWN ) {
       if ( $mode & DM_DRAG_MOVE ) {
         $p = $self->origin - $event->where;
@@ -903,7 +901,7 @@ view can be resized.
       $self->locate($save_bounds)
         if $event->key_code == KB_ESC;
     }
-    $self->set_state(SF_DRAGGING, _FALSE);
+    $self->set_state(SF_DRAGGING, FALSE);
     
     return;
   }
@@ -968,7 +966,7 @@ See L</draw>
       $self->lock_screen_update; # don't update the screen yet
       $self->draw;
       $self->unlock_screen_update;
-      $self->draw_screen_buf(_FALSE);
+      $self->draw_screen_buf(FALSE);
       $self->draw_cursor;
     }
     return;
@@ -1059,7 +1057,7 @@ If the view is completely hidden, then I<exposed> returns False.
       && $self->size->x > 0
       && $self->size->y > 0
     ) {
-      my $ok = _FALSE;
+      my $ok = FALSE;
       my $y = 0;
       while ( $y < $self->size->y and !$ok ) {
         $_static_var2->{y} = $y;
@@ -1068,7 +1066,7 @@ If the view is completely hidden, then I<exposed> returns False.
       }
       return $ok;
     }
-    return _FALSE;
+    return FALSE;
   }
 
 =item I<get_bounds>
@@ -1084,7 +1082,7 @@ The difference between Focus and Select is that Focus can fail.
 =cut
 
   method focus() {
-    my $result = _TRUE;                                   # Preset result
+    my $result = TRUE;                                   # Preset result
     if ( $self->state & (SF_SELECTED | SF_MODAL) == 0 ) { # Not modal/selected
       if ( $self->owner ) {                               # View has an owner
         WITH: for ( $self->owner ) {
@@ -1097,7 +1095,7 @@ The difference between Focus and Select is that Focus can fail.
               $self->select
             }
             else {
-              $result = _FALSE;                           # Then select us
+              $result = FALSE;                           # Then select us
             }
           }
         }
@@ -1432,7 +1430,7 @@ See L</show>
 =cut
 
   method hide() {
-    $self->set_state(SF_VISIBLE, _FALSE)                  # Hide the view
+    $self->set_state(SF_VISIBLE, FALSE)                  # Hide the view
       if $self->state & SF_VISIBLE;                       # View is visible
     return;
   }
@@ -1448,7 +1446,7 @@ See L</show_cursor>
 =cut
 
   method hide_cursor() {
-    $self->set_state(SF_CURSOR_VIS, _FALSE);              # Hide the cursor
+    $self->set_state(SF_CURSOR_VIS, FALSE);              # Hide the cursor
     return;
   }
 
@@ -1686,7 +1684,7 @@ See L</block_cursor>.
 =cut
 
   method normal_cursor() {
-    $self->set_state(SF_CURSOR_INS, _FALSE);
+    $self->set_state(SF_CURSOR_INS, FALSE);
     return;
   }
 
@@ -1976,7 +1974,7 @@ I<$a_state> are cleared.
         last;
       };
       $_ == SF_SHADOW && do {
-        $self->_draw_under_view(_TRUE, undef);
+        $self->_draw_under_view(TRUE, undef);
         last;
       };
       $_ == SF_FOCUSED && do {
@@ -2002,7 +2000,7 @@ See L</hide>
 =cut
 
   method show() {
-    $self->set_state(SF_VISIBLE, _TRUE)                   # Show the view
+    $self->set_state(SF_VISIBLE, TRUE)                   # Show the view
       if not $self->state & SF_VISIBLE;                   # View not visible
     return;
   }
@@ -2016,7 +2014,7 @@ Makes the screen cursor visible (the default condition is a hidden cursor).
 =cut
 
   method show_cursor() {
-    $self->set_state(SF_CURSOR_VIS, _TRUE);               # Show the cursor
+    $self->set_state(SF_CURSOR_VIS, TRUE);               # Show the cursor
     return;
   }
 
@@ -2134,7 +2132,7 @@ parameter.
 =cut
 
   method valid(Int $command) {
-    return _TRUE;                                         # Simply return true
+    return TRUE;                                         # Simply return true
   }
 
 =back

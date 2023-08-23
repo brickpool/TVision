@@ -8,7 +8,6 @@ TurboVision::Const - Private constants used by Turbo Vision
 
   use TurboVision::Const qw(
     _EMPTY_STRING
-    :bool
   );
   ...
 
@@ -49,10 +48,6 @@ Nothing per default, but can export the following per request:
   :all
     _EMPTY_STRING
     
-    :bool
-      _FALSE
-      _TRUE
-
     :limits
       _INT16_MIN
       _INT16_MAX
@@ -88,11 +83,6 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
-
-  bool => [qw(
-    _FALSE
-    _TRUE
-  )],
 
   limits => [qw(
     _INT16_MIN
@@ -160,35 +150,6 @@ An empty string C<q{}>.
 =cut
 
   use constant _EMPTY_STRING  => q{};
-
-=back
-
-=cut
-
-=head2 Boolean constants (I<:bool>)
-
-=over
-
-=item I<_FALSE>
-
-  constant _FALSE = < Bool >;
-
-
-False constant.
-
-=cut
-
-  use constant _FALSE => !! '';
-
-=item I<_TRUE>
-
-  constant _TRUE = < Bool >;
-
-True constant.
-
-=cut
-
-  use constant _TRUE  => !! 1;
 
 =back
 

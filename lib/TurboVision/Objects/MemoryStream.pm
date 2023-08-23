@@ -15,6 +15,7 @@ package TurboVision::Objects::MemoryStream;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory_inherit => {
     defaults    => 'method_strict',
@@ -55,7 +56,6 @@ use Carp;
 use Data::Alias qw( alias );
 use Try::Tiny;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Objects::Common qw( fail );
 use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::Stream;
@@ -446,10 +446,10 @@ Allocate or deallocate blocks in I<seg_list>.
 
     $a_limit = 0 if $a_limit < 0;                         # Negatives removed
     if ( $a_limit > _MAX_SEG_ARRAY_SIZE ) {
-      return _FALSE;                                      # To many blocks req
+      return FALSE;                                      # To many blocks req
     }
     elsif ( $a_limit == $blk_count ) {
-      return _TRUE;                                       # No change
+      return TRUE;                                       # No change
     }
     elsif ( $a_limit == 0 ) {
       $self->_clear_seg_list();                           # Clear the block list
@@ -466,7 +466,7 @@ Allocate or deallocate blocks in I<seg_list>.
     $blk_count = $a_limit;                                # Hold new count
     $mem_size = $blk_count * $blk_size;                   # Set memory size
 
-    return _TRUE;                                         # Successful
+    return TRUE;                                         # Successful
   }
 
 =back

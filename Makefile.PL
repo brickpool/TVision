@@ -15,6 +15,7 @@ WriteMakefile(
   },
   PREREQ_PM => {
     'Carp'                        => 1.17,
+    'constant::boolean'           => 0.02,
     'Contextual::Return'          => 0.004014,
     'Data::Alias'                 => 1.21,
     'Devel::StrictMode'           => 0.003,

@@ -34,6 +34,7 @@ package TurboVision::Objects::ResourceFile;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory_inherit => {
     defaults    => 'method_strict',
@@ -67,7 +68,6 @@ use Data::Alias qw( alias );
 use MooseX::Types::Common::String qw( SimpleStr );
 
 use TurboVision::Const qw(
-  :bool
   _EMPTY_STRING
   _INT32_T
   _SIZE_OF_UINT16
@@ -183,7 +183,7 @@ resource file.
   has 'modified' => (
     isa     => Bool,
     writer  => '_modified',
-    default => _FALSE,
+    default => FALSE,
   );
 
 =begin comment
@@ -270,7 +270,7 @@ that holds the resource file.
     my ($stream, $base_pos, $index_pos, $index);
     my ($found, $header);
     
-    $found = _FALSE;                                      # Preset false
+    $found = FALSE;                                      # Preset false
     $stream = $a_stream;                                  # Hold stream
     $base_pos = $stream->get_pos();                       # Get position
 
@@ -301,7 +301,7 @@ that holds the resource file.
                 . word( $header->{info_type} )->pack();
       if ( $magic eq _R_STREAM_MAGIC ) {
         # Found Resource
-        $found = _TRUE;
+        $found = TRUE;
       }
       elsif ( $magic eq _R_STREAM_BACK_LINK ) {
         # Found BackLink
@@ -422,7 +422,7 @@ See L</switch_to> for a method to reclaim the now unused space.
     my $i;
     if ( $index->search(\$key, $i) ) {
       $index->free( $index->at($i) );
-      $modified = _TRUE;
+      $modified = TRUE;
     }
     return;
   }
@@ -472,7 +472,7 @@ and then resets L</modified> to false.
       );
       $stream->flush();                                   # Flush the stream
     }
-    $modified = _FALSE;
+    $modified = FALSE;
     return;
   }
 
@@ -560,7 +560,7 @@ See: L</get>
       $stream->put($item);                                # Put item on stream
       $index_pos = $stream->get_pos() - $base_pos;        # Hold index position
       $p->{size} = $index_pos - $p->{posn};               # Calc size
-      $modified = _TRUE;                                  # Set modified flag
+      $modified = TRUE;                                  # Set modified flag
     }
     
     return;
@@ -616,7 +616,7 @@ See: L</delete>
     }
     $stream = $a_stream;                                  # Hold new stream
     $base_pos = $new_base_pos;                            # New base position
-    $modified = _TRUE;                                    # Set modified flag
+    $modified = TRUE;                                    # Set modified flag
     return;
   }
 

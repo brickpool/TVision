@@ -1,10 +1,11 @@
 use 5.014;
 use warnings;
-use Test::More tests => 64;
+use constant::boolean;
+
+use Test::More tests => 63;
 
 BEGIN {
   note 'use Objects, Drivers, Views';
-  use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
   use_ok 'TurboVision::Objects::Types', qw(
@@ -149,7 +150,7 @@ note 'Commands';
   isa_ok($cmds, TCommandSet->class);
 
   $view->get_commands($cmds);
-  $view->set_cmd_state([CM_ZOOM], _FALSE),
+  $view->set_cmd_state([CM_ZOOM], FALSE),
   ok(
     !$view->command_enabled(CM_ZOOM),
     'TView->set_cmd_state'

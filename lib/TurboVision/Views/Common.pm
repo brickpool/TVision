@@ -22,6 +22,7 @@ package TurboVision::Views::Common;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   func => {
     defaults    => 'function_strict',
@@ -42,7 +43,6 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Types qw( TPoint );
 use TurboVision::Views::CommandSet;
@@ -121,7 +121,7 @@ True if the command set has changed since being set to false.
 
 =cut
 
-  our $command_set_changed = _FALSE;
+  our $command_set_changed = FALSE;
 
 =item I<$cur_command_set>
 

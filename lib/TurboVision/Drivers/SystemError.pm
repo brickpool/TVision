@@ -15,6 +15,8 @@ package TurboVision::Drivers::SystemError;
 use 5.014;
 use warnings;
 
+use constant::boolean;
+
 # version '...'
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -26,10 +28,7 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :platform );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -206,7 +205,7 @@ You can clear it any time by resetting to <FALSE>.
 
 =cut
 
-  our $ctrl_break_hit = _FALSE;
+  our $ctrl_break_hit = FALSE;
 
 =item I<$save_ctrl_break>
 
@@ -220,7 +219,7 @@ See: L</init_sys_error>, L</done_sys_error>
 
 =cut
 
-  our $save_ctrl_break = _FALSE;
+  our $save_ctrl_break = FALSE;
 
 =item I<$sys_err_active>
 
@@ -230,7 +229,7 @@ If True, then the system error handler is available for use.
 
 =cut
 
-  our $sys_err_active = _FALSE;
+  our $sys_err_active = FALSE;
 
 =item I<$fail_sys_errors>
 
@@ -244,7 +243,7 @@ line.
 
 =cut
 
-  our $fail_sys_errors = _FALSE;
+  our $fail_sys_errors = FALSE;
 
 =back
 

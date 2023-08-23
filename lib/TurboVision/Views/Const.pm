@@ -368,7 +368,7 @@ TView's State field.
 
 Example usage:
 
-  $self->set_state( SF_CURSOR_INS, _TRUE );
+  $self->set_state( SF_CURSOR_INS, TRUE );
 
 where the first parameter is the state value to change, and the second parameter
 is True to enable the selected condition, or False to disable the selected

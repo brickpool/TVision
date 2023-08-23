@@ -1,14 +1,13 @@
 use 5.014;
 use warnings;
+use constant::boolean;
 
 BEGIN {
   print "1..0 # Skip win32 required\n" and exit unless $^O =~ /win32|cygwin/i;
   $| = 1;
 }
-
 use Test::More tests => 7;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :kbXXXX :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Drivers::EventManager qw( :kbd );
@@ -41,7 +40,7 @@ ok (
 note 'SystemError';
 #-----------------
 use constant ERR => 9;
-$fail_sys_errors = _TRUE;
+$fail_sys_errors = TRUE;
 my $ret = eval {
   Win32::SetLastError(ERR + 19);
   $sys_error_func->(ERR, 0);

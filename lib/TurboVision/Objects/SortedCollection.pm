@@ -37,6 +37,7 @@ package TurboVision::Objects::SortedCollection;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory_inherit => {
     defaults    => 'method_strict',
@@ -81,10 +82,7 @@ use Scalar::Util qw(
 );
 use Try::Tiny;
 
-use TurboVision::Const qw(
-  :bool
-  _UINT8_T
-);
+use TurboVision::Const qw( _UINT8_T );
 use TurboVision::Objects::Collection;
 use TurboVision::Objects::Common qw(
   abstract
@@ -156,7 +154,7 @@ before any other items having the same key.
   has 'duplicates' => (
     is      => 'rw',
     isa     => Bool,
-    default => _FALSE,
+    default => FALSE,
   );
 
 =back
@@ -339,7 +337,7 @@ resides.
     alias my $index = $_[-1];
     my ($retval, $low, $high, $i, $cmp);
 
-    $retval = _FALSE;                                     # Preset failure
+    $retval = FALSE;                                     # Preset failure
     $low = 0;                                             # Start count
     $high = $self->count - 1;                             # End count
     $index = 0;
@@ -359,7 +357,7 @@ resides.
       else {
         $high = $i - 1;                                   # Item to right
         if ($cmp == 0) {
-          $retval = _TRUE;                                # Result true
+          $retval = TRUE;                                # Result true
           $low = $i if !$self->duplicates;                # Force kick out
         }
       }

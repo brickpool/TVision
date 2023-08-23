@@ -21,6 +21,7 @@ package TurboVision::Drivers::Win32::EventQ;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   func => {
     defaults    => 'function_strict',
@@ -51,7 +52,6 @@ use POSIX qw(
 );
 use Win32::Console;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw(
   EVENT_Q_SIZE
   :evXXXX
@@ -492,7 +492,7 @@ Event manager variable for the previous state of double klick.
 
 =cut
 
-  our $_last_double = _FALSE;
+  our $_last_double = FALSE;
 
 =item I<$_last_where>
 
@@ -599,7 +599,7 @@ Saves the quick edit mode used by the mouse.
 
 =cut
 
-  my $_save_quick_mode = _FALSE;
+  my $_save_quick_mode = FALSE;
 
 =back
 
@@ -714,7 +714,7 @@ Returns true if successful.
 =cut
 
   func _set_key_event(HashRef $key_event, TEvent $event) {
-    return _FALSE
+    return FALSE
         if !_set_unicode_event($key_event, $event);
     
     _update_shift_state( $key_event );
@@ -849,7 +849,7 @@ Returns true if successful.
       y => $mouse_event->{mouse_position}->{y},
     );
 
-    my $double_click = _FALSE;
+    my $double_click = FALSE;
     if ( $button_mask != 0 && $_last_buttons == 0 ) {
       $double_click = not (
         $button_mask != $_down_buttons
@@ -879,7 +879,7 @@ Returns true if successful.
       $event->what( EV_MOUSE_MOVE );
     }
     elsif ( $button_mask == 0 ) {
-      return _FALSE;
+      return FALSE;
     }
     elsif ( $timer_ticks - $_auto_ticks >= $_auto_delay ) {
       $_auto_ticks = $timer_ticks;
@@ -897,7 +897,7 @@ Returns true if successful.
 
     _update_shift_state( $mouse_event );
 
-    return _TRUE;
+    return TRUE;
   }
 
 =begin comment
@@ -921,7 +921,7 @@ the next event.
     if ( ord(' ') <= $utf16[0] && $utf16[0] != 0x7f ) {
       if ( 0xd800 <= $utf16[0] && $utf16[0] <= 0xdbff ) {
         $surrogate = $utf16[0];
-        return _FALSE;
+        return FALSE;
       }
       else {
         if ( $surrogate ) {
@@ -945,7 +945,7 @@ the next event.
         $event->text( $ch );
       }
     }
-    return _TRUE;
+    return TRUE;
   }
 
 =item I<_store_event>
@@ -959,7 +959,7 @@ Returns true if successful.
 =cut
 
   func _store_event(TEvent $event) {
-    return _FALSE
+    return FALSE
         if $event->what == EV_NOTHING;
       
     warn('Event queue buffer overflow')
@@ -1020,7 +1020,7 @@ Returns true if successful.
             next EVENT
               if !( $key_event->{key_down} || $pasted_surrogate );
 
-            return _TRUE
+            return TRUE
                 if _set_key_event($key_event, $event)
                 && _store_event($event);
 
@@ -1039,7 +1039,7 @@ Returns true if successful.
               event_flags       => $event[5],
             };
 
-            return _TRUE
+            return TRUE
                 if _set_mouse_event($mouse_event, $event)
                 && _store_event($event);
                 
@@ -1055,7 +1055,7 @@ Returns true if successful.
               },
             };
 
-            return _TRUE
+            return TRUE
                 if my $_set_window_buffer_size_event = do {
                   $event->what( EV_COMMAND );
                   $event->command( _CM_SCREEN_CHANGED );
@@ -1065,7 +1065,7 @@ Returns true if successful.
                       y => $window_buffer_size_event->{size}->{y},
                     )
                   );
-                  _TRUE
+                  TRUE
                 }
                 && _store_event($event);
 
@@ -1080,7 +1080,7 @@ Returns true if successful.
       }
     }
 
-    return _FALSE;
+    return FALSE;
   }
 
 =begin comment
@@ -1110,10 +1110,10 @@ Returns true if successful.
     ) {{
       no warnings 'once';
       require TurboVision::Drivers::SystemError;
-      $TurboVision::Drivers::SystemError::ctrl_break_hit = _TRUE;
+      $TurboVision::Drivers::SystemError::ctrl_break_hit = TRUE;
     }}
 
-    return _TRUE;
+    return TRUE;
   }
 
 =begin comment
@@ -1167,7 +1167,7 @@ See also: I<get_shift_state>
       if $event->{event_type} == _KEY_EVENT
       && $event->{virtual_key_code} == _VK_INSERT;
 
-    return _TRUE;
+    return TRUE;
   }
 
 =back

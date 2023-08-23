@@ -26,6 +26,8 @@ package TurboVision::Drivers::ScreenManager;
 use 5.014;
 use warnings;
 
+use constant::boolean;
+
 # version '...'
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -37,10 +39,7 @@ our $AUTHORITY = 'github:brickpool';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :platform );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -134,7 +133,7 @@ B<Note>: This variable is for compatiblity only.
 
 =cut
 
-  our $check_snow = _FALSE;
+  our $check_snow = FALSE;
 
 =item I<$cursor_lines>
 
@@ -163,7 +162,7 @@ modes are not supported.
 
 =cut
 
-  our $hi_res_screen = _FALSE;
+  our $hi_res_screen = FALSE;
 
 =item I<$screen_buffer>
 

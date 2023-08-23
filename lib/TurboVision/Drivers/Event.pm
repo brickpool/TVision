@@ -30,6 +30,7 @@ package TurboVision::Drivers::Event;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters qw(
   method
 );
@@ -54,7 +55,6 @@ use Carp;
 use Devel::StrictMode;
 use Scalar::Util qw( refaddr );
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Types qw( TEvent );
 use TurboVision::Objects::Point;
@@ -233,7 +233,7 @@ Double click stat.
   has 'double' => (
     is      => 'rw',
     isa     => Bool,
-    default => _FALSE,
+    default => FALSE,
   );
 
 =item I<key_code>

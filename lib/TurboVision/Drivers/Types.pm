@@ -36,6 +36,7 @@ use namespace::autoclean;
 
 use Moose::Util::TypeConstraints;
 use MooseX::Types -declare => [qw(
+  MouseEventType
   TSysErrorFunc
   TVideoBuf
   TVideoCell
@@ -43,11 +44,18 @@ use MooseX::Types -declare => [qw(
 
   StdioCtl
   TEvent
+  THardwareInfo
   Video
+
+  TKeyboardDriver
+  TMouseDriver
+  TVideoDriver
+  TSystemDriver
 )];
 use MooseX::Types::Structured qw( Dict );
 
 use TurboVision::Const qw( :platform );
+use TurboVision::Objects::Types qw( TPoint );
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -58,6 +66,23 @@ use TurboVision::Const qw( :platform );
 =head2 Basic Types
 
 =over
+
+=item I<MouseEventType>
+
+  subtype MouseEventType : Dict[
+    buttons => Int, where => TPoint, event_flags => Int
+  ];
+
+The I<MouseEventType> is used internally for the hardware mouse driver.
+
+=cut
+
+subtype MouseEventType,
+  as Dict[
+    buttons     => Int,
+    where       => TPoint,
+    event_flags => Int,
+  ];
 
 =item I<TSysErrorFunc>
 
@@ -122,11 +147,12 @@ subtype TVideoMode,
 
 =head2 Object Types
 
-The Drivers type hierarchy looks like this
+The I<Drivers> type hierarchy looks like this
 
   Moose::Object
     StdioCtl
     TEvent
+    THardwareInfo
     Video
 
 =cut
@@ -145,8 +171,41 @@ class_type TEvent, {
   class => 'TurboVision::Drivers::Event'
 };
 
+class_type THardwareInfo, {
+  class => 'TurboVision::Drivers::HardwareInfo'
+};
+
 class_type Video, {
   class => 'TurboVision::Drivers::Video'
+};
+
+=back
+
+=cut
+
+=head2 Role Types
+
+API interface roles for the I<Drivers> module
+
+  Moose::Role
+    TKeyboardDriver
+    TMouseDriver
+    TVideoDriver
+    TSystemDriver
+
+=cut
+
+role_type TKeyboardDriver, {
+  role => 'TurboVision::Drivers::API::Keyboard'
+};
+role_type TMouseDriver, {
+  role => 'TurboVision::Drivers::API::Mouse'
+};
+role_type TVideoDriver, {
+  role => 'TurboVision::Drivers::API::Video'
+};
+role_type TSystemDriver, {
+  role => 'TurboVision::Drivers::API::System'
 };
 
 1;

@@ -20,6 +20,7 @@ package TurboVision::Objects::DosStream;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
@@ -63,7 +64,6 @@ use POSIX qw(
 );
 use Scalar::Util qw( openhandle );
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Objects::Common qw( fail );
 use TurboVision::Objects::Const qw( :stXXXX );
 use TurboVision::Objects::Stream;
@@ -413,15 +413,15 @@ Otherwise false is returned.
 =cut
   
   around _is_openhandle() {
-    return _FALSE
+    return FALSE
         if $self->status != ST_OK;
 
     if ( !$self->$next() || !openhandle $self->handle() ) {
       $self->error(ST_ERROR, EACCES);                     # File open error
-      return _FALSE;
+      return FALSE;
     }
 
-    return _TRUE;
+    return TRUE;
   }
 
 =back

@@ -1,12 +1,12 @@
 use 5.014;
 use warnings;
-use Test::More tests => 42;
-use Test::Exception;
 use Scalar::Util qw( refaddr );
+
+use Test::More tests => 41;
+use Test::Exception;
 
 BEGIN {
   note 'use Objects, Drivers, Views';
-  use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
   use_ok 'TurboVision::Objects::Types', qw(

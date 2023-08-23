@@ -1,12 +1,13 @@
 use 5.014;
 use warnings;
-use Test::More tests => 43;
-use Test::Exception;
+use constant::boolean;
 use Scalar::Util qw( refaddr );
+
+use Test::More tests => 42;
+use Test::Exception;
 
 BEGIN {
   note 'use Objects, Drivers, Views';
-  use_ok 'TurboVision::Const', qw( :bool );
   use_ok 'TurboVision::Objects::Point';
   use_ok 'TurboVision::Objects::Rect';
   use_ok 'TurboVision::Objects::Types', qw(
@@ -135,7 +136,7 @@ note 'State';
     'TView->get_state'
   );
 
-  $view->set_state(SF_VISIBLE, _FALSE);
+  $view->set_state(SF_VISIBLE, FALSE);
   ok(
     !$view->get_state(SF_VISIBLE),
     'TView->set_state'

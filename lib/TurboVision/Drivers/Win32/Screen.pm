@@ -21,6 +21,7 @@ package TurboVision::Drivers::Win32::Screen;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   func => {
     defaults    => 'function_strict',
@@ -45,7 +46,6 @@ use English qw( -no_match_vars );
 use PerlX::Assert;
 use Win32::Console;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::Const qw(
   :smXXXX
   :private
@@ -464,25 +464,25 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
       if ( $oldc <= $cols ) {
         # increasing both dimensions
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $cols-1, $rows-1 );
       }
       else {
         # shorten width, increasing height
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $oldr-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $cols-1, $oldr-1 );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $cols-1, $rows-1 );
       }
     }
     else {
       if ( $oldc <= $cols ) {
         # increasing width, shorten height
-        $CONSOLE->Window( _TRUE, 0, 0, $oldc-1, $rows-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $oldc-1, $rows-1 );
         $CONSOLE->Size( $cols, $rows );
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $cols-1, $rows-1 );
       }
       else {
         # shorten both dimensions
-        $CONSOLE->Window( _TRUE, 0, 0, $cols-1, $rows-1 );
+        $CONSOLE->Window( TRUE, 0, 0, $cols-1, $rows-1 );
         $CONSOLE->Size( $cols, $rows );
       }
     }

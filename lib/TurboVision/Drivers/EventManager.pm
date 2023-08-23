@@ -15,6 +15,8 @@ package TurboVision::Drivers::EventManager;
 use 5.014;
 use warnings;
 
+use constant::boolean;
+
 # version '...'
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -26,10 +28,7 @@ our $AUTHORITY = 'github:brickpool';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :platform );
 use TurboVision::Drivers::Const qw( :kbXXXX );
 use TurboVision::Objects::Point;
 use TurboVision::Objects::Types qw( TPoint );
@@ -184,7 +183,7 @@ event processing occurs.
 
 =cut
 
-  our $mouse_events = _FALSE;
+  our $mouse_events = FALSE;
 
 =item I<$mouse_int_flag>
 
@@ -205,7 +204,7 @@ reverse the I<MB_LEFT_BUTTON> and I<MB_RIGHT_BUTTON> flags.
 
 =cut
 
-  our $mouse_reverse = _FALSE;
+  our $mouse_reverse = FALSE;
 
 =item I<$mouse_where>
 

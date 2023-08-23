@@ -15,6 +15,7 @@ package TurboVision::Views::CommandSet;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   func => {
     defaults    => 'function_strict',
@@ -48,7 +49,6 @@ our $AUTHORITY = 'github:magiblot';
 use MooseX::StrictConstructor;
 use PerlX::Assert;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Views::Types qw( TCommandSet );
 
 # ------------------------------------------------------------------------
@@ -213,7 +213,7 @@ Returns false if the element is not in the command set, or true if it is.
 =cut
 
   method contains(Int $cmd) {
-    return _FALSE
+    return FALSE
         if $cmd < 0 || $cmd > 255;
     assert( exists $$self{_cmds} );
     return vec($self->{_cmds}, $cmd, 1) == 1

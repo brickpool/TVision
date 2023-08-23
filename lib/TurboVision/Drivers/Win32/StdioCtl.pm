@@ -15,6 +15,7 @@ package TurboVision::Drivers::Win32::StdioCtl;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
@@ -50,10 +51,7 @@ use Try::Tiny;
 use Win32::Console;
 use Win32API::File;
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :platform );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::Console;
 
@@ -164,7 +162,7 @@ Console startup output object.
   has '_owns_console' => (
     is      => 'rw',
     isa     => Bool,
-    default => _FALSE,
+    default => FALSE,
   );
 
 =back
@@ -252,11 +250,11 @@ I<new> or I<init>. It initializes the console.
     # 
 
     my $console;
-    my $have_console = _FALSE;
+    my $have_console = FALSE;
 
     $console = Win32::Console->new( STD_INPUT_HANDLE );
     if ( $console && $console->is_valid() ) {
-      $have_console = _TRUE;
+      $have_console = TRUE;
       if ( !$self->_has_input ) {
         $self->_input( $console );
       }
@@ -264,7 +262,7 @@ I<new> or I<init>. It initializes the console.
 
     $console = Win32::Console->new( STD_OUTPUT_HANDLE );
     if ( $console && $console->is_valid()  ) {
-      $have_console = _TRUE;
+      $have_console = TRUE;
       if ( !$self->_has_startup ) {
         $self->_startup( $console );
       }
@@ -272,7 +270,7 @@ I<new> or I<init>. It initializes the console.
 
     $console = Win32::Console->new( STD_ERROR_HANDLE );
     if ( $console && $console->is_valid() ) {
-      $have_console = _TRUE;
+      $have_console = TRUE;
       if ( !$self->_has_startup ) {
         $self->_startup( $console );
       }
@@ -281,7 +279,7 @@ I<new> or I<init>. It initializes the console.
     if ( !$have_console ) {
       Win32::Console::Free();
       Win32::Console::Alloc();
-      $self->_owns_console( _TRUE );
+      $self->_owns_console( TRUE );
     }
 
     if ( !$self->_has_input ) {
@@ -441,7 +439,7 @@ Gets the font size.
     $fontInfo->{nFont} = 0;
     $fontInfo->{dwFontSize}->{X} = 0;
     $fontInfo->{dwFontSize}->{Y} = 0;
-    if ( Win32::Console::_GetCurrentConsoleFont( $self->out->{handle}, _FALSE, $fontInfo ) ) {
+    if ( Win32::Console::_GetCurrentConsoleFont( $self->out->{handle}, FALSE, $fontInfo ) ) {
       return {
         x => $fontInfo->{dwFontSize}->{X},
         y => $fontInfo->{dwFontSize}->{Y},

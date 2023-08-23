@@ -21,6 +21,7 @@ package TurboVision::Drivers::Win32::SysError;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters {
   func => {
     defaults    => 'function_strict',
@@ -45,7 +46,6 @@ use Data::Alias qw( alias );
 use English qw( -no_match_vars );
 use Win32::Console;
 
-use TurboVision::Const qw( :bool );
 use TurboVision::Drivers::SystemError qw( :vars );
 use TurboVision::Drivers::Types qw( StdioCtl );
 use TurboVision::Drivers::Win32::StdioCtl;
@@ -222,7 +222,7 @@ information about the routine is described in the module I<SystemError>.
     $save_ctrl_break = !!( $mode & ENABLE_PROCESSED_INPUT );
     $CONSOLE->Mode( $mode & ~ENABLE_PROCESSED_INPUT );  # Report Ctrl+C and ...
                                                         # ... Shift+Arrow events
-    $sys_err_active = _TRUE;
+    $sys_err_active = TRUE;
 
     return;
   }
@@ -239,7 +239,7 @@ information about the routine is described in the module I<SystemError>.
   func done_sys_error() {
     return
         if not $sys_err_active;
-    $sys_err_active = _FALSE;
+    $sys_err_active = FALSE;
 
     my $CONSOLE = do {
       $_io //= StdioCtl->instance();

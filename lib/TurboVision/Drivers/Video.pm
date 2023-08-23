@@ -44,6 +44,7 @@ package TurboVision::Drivers::Video;
 use 5.014;
 use warnings;
 
+use constant::boolean;
 use Function::Parameters qw(
   classmethod
 );
@@ -70,10 +71,7 @@ use MooseX::ClassAttribute;
 use MooseX::StrictConstructor;
 use Try::Tiny;
 
-use TurboVision::Const qw(
-  :bool
-  :platform
-);
+use TurboVision::Const qw( :platform );
 use TurboVision::Drivers::Const qw(
   :smXXXX
   :crXXXX
@@ -215,13 +213,13 @@ Maximum screen buffer width.
 
 =item I<screen_color>
 
-  class_has screen_color ( is => ro, type => Bool ) = _TRUE;
+  class_has screen_color ( is => ro, type => Bool ) = TRUE;
 
 I<screen_color> indicates whether the current screen supports colors.
 
 =cut
 
-  my $screen_color = _TRUE;
+  my $screen_color = TRUE;
   classmethod screen_color() {
     return $screen_color;
   }
@@ -303,7 +301,7 @@ Is Video initialized.
 
 =cut
 
-  my $_is_initialized = _FALSE;
+  my $_is_initialized = FALSE;
 
 =back
 
@@ -377,7 +375,7 @@ to do so may leave the screen in an unusable state after the program exits.
       $class->error_code(0 - ERR_VIO_INIT);
       return;
     };
-    $_is_initialized = _FALSE;
+    $_is_initialized = FALSE;
     return;
   }
 
@@ -504,7 +502,7 @@ See also: I<done_video>.
       $class->error_code(0 - ERR_VIO_INIT);
       return;
     };
-    $_is_initialized = _TRUE;
+    $_is_initialized = TRUE;
     return;
   }
 
@@ -636,9 +634,9 @@ See also: L</get_video_mode>
     }
     catch {
       $class->error_code(0 - ERR_VIO_NO_SUCH_MODE);
-      return _FALSE;
+      return FALSE;
     };
-    return _TRUE;
+    return TRUE;
   }
 
 =item I<unlock_screen_update>
