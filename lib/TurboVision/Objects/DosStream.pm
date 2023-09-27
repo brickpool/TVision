@@ -158,7 +158,7 @@ The size of the stream in bytes.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TDosStream;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

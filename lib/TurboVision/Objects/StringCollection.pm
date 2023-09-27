@@ -139,7 +139,7 @@ Defining a registration record constant for I<TStringCollection>.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TStringCollection;
+  use constant FACTORY => __PACKAGE__;
 
   # ------------------------------------------------------------------------
   # TStringCollection ------------------------------------------------------

@@ -432,7 +432,7 @@ See: I<sfXXXX> constants, L</set_state>, L</get_state>
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TView;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

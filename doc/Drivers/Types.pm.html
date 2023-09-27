@@ -31,6 +31,7 @@
     <ul>
       <li><a href="#Basic-Types">Basic Types</a></li>
       <li><a href="#Object-Types">Object Types</a></li>
+      <li><a href="#Role-Types">Role Types</a></li>
     </ul>
   </li>
   <li><a href="#COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</a></li>
@@ -55,6 +56,16 @@
 
 <dl>
 
+<dt id="MouseEventType"><i>MouseEventType</i></dt>
+<dd>
+
+<pre><code>  subtype MouseEventType : Dict[
+    buttons =&gt; Int, where =&gt; TPoint, event_flags =&gt; Int
+  ];</code></pre>
+
+<p>The <i>MouseEventType</i> is used internally for the hardware mouse driver.</p>
+
+</dd>
 <dt id="TSysErrorFunc"><i>TSysErrorFunc</i></dt>
 <dd>
 
@@ -93,12 +104,25 @@
 
 <h2 id="Object-Types">Object Types</h2>
 
-<p>The Drivers type hierarchy looks like this</p>
+<p>The <i>Drivers</i> type hierarchy looks like this</p>
 
 <pre><code>  Moose::Object
-    StdioCtl
+    StdioCtl *)
     TEvent
-    Video</code></pre>
+    THardwareInfo
+    Video
+
+  *) Win32 only</code></pre>
+
+<h2 id="Role-Types">Role Types</h2>
+
+<p>API interface roles for the <i>Drivers</i> module</p>
+
+<pre><code>  Moose::Role
+    TKeyboardDriver
+    TMouseDriver
+    TVideoDriver
+    TSystemDriver</code></pre>
 
 <h1 id="COPYRIGHT-AND-LICENCE">COPYRIGHT AND LICENCE</h1>
 

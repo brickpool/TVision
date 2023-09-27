@@ -29,7 +29,6 @@ qw(
 
 use Moose;
 use MooseX::Types::Moose qw( :all );
-use MooseX::AttributeShortcuts;
 use MooseX::HasDefaults::RO;
 use namespace::autoclean;
 
@@ -144,7 +143,7 @@ Console startup output object.
   has '_startup' => (
     is        => 'rw',
     isa       => Object,
-    predicate => 1,
+    predicate => '_has_startup',
   );
 
 =begin comment
@@ -173,7 +172,7 @@ Console startup output object.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => StdioCtl;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 
@@ -463,6 +462,8 @@ Methods inherited from class L<Moose::Object>
 =cut
 
 }
+
+__PACKAGE__->meta->make_immutable;
 
 1;
 

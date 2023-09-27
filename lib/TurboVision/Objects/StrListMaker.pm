@@ -307,7 +307,7 @@ Hold all strings as a packed string of bytes.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TStrListMaker;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

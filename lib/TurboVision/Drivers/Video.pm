@@ -180,7 +180,7 @@ Error code returned by the last operation.
     }
     SET: {
       confess unless defined $value;
-			return $error_code = $value;
+      return $error_code = $value;
     }
   }
 

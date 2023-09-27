@@ -74,7 +74,7 @@ package TurboVision::Objects::Object {
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TObject;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

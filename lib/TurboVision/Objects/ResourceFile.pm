@@ -249,7 +249,7 @@ Index position.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TResourceFile;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

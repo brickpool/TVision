@@ -220,7 +220,7 @@ Index size.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TStringList;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

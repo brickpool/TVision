@@ -111,7 +111,7 @@ package TurboVision::Objects::ResourceCollection {
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TResourceCollection;
+  use constant FACTORY => __PACKAGE__;
 
   # ------------------------------------------------------------------------
   # TResourceCollection ----------------------------------------------------

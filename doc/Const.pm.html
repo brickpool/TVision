@@ -31,7 +31,6 @@
   <li><a href="#CONSTANTS">CONSTANTS</a>
     <ul>
       <li><a href="#Unclassified-constants">Unclassified constants</a></li>
-      <li><a href="#Boolean-constants-:bool">Boolean constants (:bool)</a></li>
       <li><a href="#Limit-value-constants-:limits">Limit value constants (:limits)</a></li>
       <li><a href="#Platform-dependent-constants-:platform">Platform dependent constants (:platform)</a></li>
       <li><a href="#Constants-to-define-the-size-:sizedef">Constants to define the size (:sizedef)</a></li>
@@ -52,7 +51,6 @@
 
 <pre><code>  use TurboVision::Const qw(
     _EMPTY_STRING
-    :bool
   );
   ...</code></pre>
 
@@ -63,10 +61,6 @@
 <pre><code>  :all
     _EMPTY_STRING
     
-    :bool
-      _FALSE
-      _TRUE
-
     :limits
       _INT16_MIN
       _INT16_MAX
@@ -107,28 +101,6 @@
 <pre><code>  constant _EMPTY_STRING = &lt; Str &gt;;</code></pre>
 
 <p>An empty string <code>q{}</code>.</p>
-
-</dd>
-</dl>
-
-<h2 id="Boolean-constants-:bool">Boolean constants (<i>:bool</i>)</h2>
-
-<dl>
-
-<dt id="FALSE"><i>_FALSE</i></dt>
-<dd>
-
-<pre><code>  constant _FALSE = &lt; Bool &gt;;</code></pre>
-
-<p>False constant.</p>
-
-</dd>
-<dt id="TRUE"><i>_TRUE</i></dt>
-<dd>
-
-<pre><code>  constant _TRUE = &lt; Bool &gt;;</code></pre>
-
-<p>True constant.</p>
 
 </dd>
 </dl>

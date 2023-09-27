@@ -167,7 +167,7 @@ Internal attribute to hold the bit vector string.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TCommandSet;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

@@ -361,7 +361,7 @@ Holds the current number of reserved elements for the collection.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TCollection;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

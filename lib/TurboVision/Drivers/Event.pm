@@ -317,7 +317,7 @@ Mouse position.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TEvent;
+  use constant FACTORY => __PACKAGE__;
 
 =begin comment
 
@@ -327,7 +327,7 @@ Mouse position.
 
 =item I<BUILD>
 
-  sub BUILD(Ref $args)
+  method BUILD(HashRef $args)
 
 If any of the following environment variables are true at compile time, the
 I<what> attribute is checked and, if it fails, an exception is thrown.
@@ -343,7 +343,7 @@ See also: L<Devel::StrictMode>
 
 =cut
 
-  method BUILD($args) {
+  method BUILD(HashRef $args) {
     return
         if not STRICT;
 
@@ -463,7 +463,7 @@ Char code.
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = $self->key_code();
       $v &= 0xff00;
       $v |= $value & 0x00ff;
@@ -491,7 +491,7 @@ Message I<byte> (unsigned integer 8-bit).
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = $value & 0xff;
       $self->info( $v );
       return $v;
@@ -517,7 +517,7 @@ Message Perl string, which represents 1 character.
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = unpack('W', $value);
       $self->info( $v );
       $v = pack('W', $v);
@@ -543,7 +543,7 @@ Message I<integer> (signed integer 16-bit).
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = unpack('v!', pack('v!', $value));
       $self->info( $v );
       return $v;
@@ -568,7 +568,7 @@ Message I<longint> (signed integer 32-bit).
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = unpack('V!', pack('V!', $value));
       $self->info( $v );
       return $v;
@@ -613,7 +613,7 @@ Message I<word> (unsigned integer 16-bit).
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = unpack('v', pack('v', $value));
       $self->info( $v );
       return $v;
@@ -638,7 +638,7 @@ Scan code.
       return $v;
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       my $v = $self->key_code();
       $v &= 0x00ff;
       $v |= $value << 8;
@@ -656,7 +656,7 @@ Overload stringify so we can write code like C<< print $ev >>.
 
 =cut
 
-	method _stringify(@) {
+  method _stringify(@) {
     my $format = <<'END_STRING';
 what : 0x%04x;
 key_code

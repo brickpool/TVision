@@ -262,7 +262,7 @@ access, which helps speed up the L</flush> method.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TBufStream;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

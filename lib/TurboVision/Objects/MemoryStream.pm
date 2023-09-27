@@ -221,7 +221,7 @@ Memory alloc size in bytes.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TMemoryStream;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

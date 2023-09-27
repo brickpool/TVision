@@ -68,7 +68,12 @@
 <dt id="in"><i>in</i></dt>
 <dd>
 
-<pre><code>  field in ( is =&gt; rwp, type =&gt; Object, predicate =&gt; &#39;_has_input&#39; );</code></pre>
+<pre><code>  field in (
+    is        =&gt; &#39;ro&#39;,
+    type      =&gt; Object,
+    writer    =&gt; &#39;_input&#39;,
+    predicate =&gt; &#39;_has_input&#39;,
+  );</code></pre>
 
 <p>Console input object (e.g <i>Win32::Console-&gt;new(STD_INPUT_HANDLE)</i>).</p>
 
@@ -76,7 +81,12 @@
 <dt id="out"><i>out</i></dt>
 <dd>
 
-<pre><code>  field out ( is =&gt; rwp, type =&gt; Object, predicate =&gt; &#39;_has_output&#39; );</code></pre>
+<pre><code>  field out (
+    is        =&gt; &#39;ro&#39;,
+    type      =&gt; Object,
+    writer    =&gt; &#39;_output&#39;,
+    predicate =&gt; &#39;_has_output&#39;,
+  );</code></pre>
 
 <p>Console active output object.</p>
 

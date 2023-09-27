@@ -165,7 +165,7 @@ before any other items having the same key.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TSortedCollection;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

@@ -4,9 +4,9 @@
 
 TurboVision::Drivers::API::Video - Video driver interface
 
-=head1 TVideoDriver
+=head1 DESCRIPTION
 
-Define an "interface-only" role for the Video driver.
+I<TVideoDriver> define an "interface-only" role for the Video driver.
 
   requires 'clear_screen';            # Clear the screen
   requires 'set_screen_mode';         # Set the video mode

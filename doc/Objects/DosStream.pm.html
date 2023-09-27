@@ -76,7 +76,12 @@
 <dt id="handle"><i>handle</i></dt>
 <dd>
 
-<pre><code>  param handle ( is =&gt; rwp, type =&gt; FileHandle, predicate =&gt; &#39;_is_openhandle&#39; );</code></pre>
+<pre><code>  param handle (
+    is        =&gt; rwp,
+    type      =&gt; FileHandle,
+    required  =&gt; 1,
+    predicate =&gt; &#39;_is_openhandle&#39;,
+  );</code></pre>
 
 <p><i>handle</i> contains the OS file handle used to access the file containing the stream.</p>
 

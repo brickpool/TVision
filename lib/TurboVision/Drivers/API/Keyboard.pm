@@ -4,9 +4,9 @@
 
 TurboVision::Drivers::API::Keyboard - Keyboard driver interface
 
-=head1 TKeyboardDriver
+=head1 DESCRIPTION
 
-Define an "interface-only" role for the Keyboard driver.
+I<TKeyboardDriver> define an "interface-only" role for the Keyboard driver.
 
   requires 'get_key_event';       # Get the next key event (non blocking)
   requires 'get_shift_state';     # Get the current shift state

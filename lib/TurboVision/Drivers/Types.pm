@@ -150,10 +150,12 @@ subtype TVideoMode,
 The I<Drivers> type hierarchy looks like this
 
   Moose::Object
-    StdioCtl
+    StdioCtl *)
     TEvent
     THardwareInfo
     Video
+
+  *) Win32 only
 
 =cut
 
@@ -198,12 +200,15 @@ API interface roles for the I<Drivers> module
 role_type TKeyboardDriver, {
   role => 'TurboVision::Drivers::API::Keyboard'
 };
+
 role_type TMouseDriver, {
   role => 'TurboVision::Drivers::API::Mouse'
 };
+
 role_type TVideoDriver, {
   role => 'TurboVision::Drivers::API::Video'
 };
+
 role_type TSystemDriver, {
   role => 'TurboVision::Drivers::API::System'
 };

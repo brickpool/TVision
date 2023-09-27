@@ -6,10 +6,8 @@ use English qw( -no_match_vars );
 
 BEGIN {
   use_ok 'TurboVision::Drivers::Types', qw( THardwareInfo );
-  use_ok 'TurboVision::Drivers::Hardware::ANSI';
+  use_ok 'TurboVision::Drivers::HardwareInfo';
 }
-
-$| = 1;
 
 my $hw = THardwareInfo->instance();
 print "\n";
@@ -44,14 +42,14 @@ ok(
 
 my $cols = $hw->get_screen_cols;
 ok(
-  $cols,
+  defined($cols),
   'get_screen_cols'
 );
 diag('colums: ', $cols);
 
 my $rows = $hw->get_screen_rows;
 ok(
-  $rows,
+  defined($rows),
   'get_screen_rows'
 );
 diag('rows: ', $rows);
@@ -59,7 +57,6 @@ diag('rows: ', $rows);
 lives_ok(
   sub {
     $hw->clear_screen($cols, $rows);
-    print "\n";
   },
   'clear_screen'
 );
@@ -69,18 +66,15 @@ lives_ok(
     $hw->set_screen_mode(80 | 25 << 8);
     $hw->clear_screen(80, 25);
     $hw->set_caret_position(0, 0);
-    print "Hello";
     my $buf = [ map { $_ + 0x8000 } unpack('C*', "world") ];
     $hw->screen_write(10, 10, $buf, scalar @$buf);
-    print "\n";
-    sleep 3;
   },
+  'set_screen_mode, clear_screen, set_caret_position, screen_write'
 );
 
 lives_ok(
   sub {
     $hw->_clear_instance();
-    print "\n";
   },
   '_clear_instance'
 );

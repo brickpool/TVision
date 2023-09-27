@@ -124,7 +124,7 @@ I<a> is the point defining the top left corner of a rectangle on the screen.
       return $self->$next();
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       return $self->$next(
         TPoint->new(
           x => $value->x,
@@ -153,7 +153,7 @@ I<b> is the point defining the bottom right corner of a rectangle on the screen.
       return $self->$next();
     }
     SET: {
-			confess unless defined $value;
+      confess unless defined $value;
       return $self->$next(
         TPoint->new(
           x => $value->x,
@@ -171,7 +171,7 @@ I<b> is the point defining the bottom right corner of a rectangle on the screen.
   # Constructors -----------------------------------------------------------
   # ------------------------------------------------------------------------
 
-  use constant FACTORY => TRect;
+  use constant FACTORY => __PACKAGE__;
 
 =head2 Constructors
 

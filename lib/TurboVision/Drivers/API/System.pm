@@ -4,9 +4,9 @@
 
 TurboVision::Drivers::API::System - System driver interface
 
-=head1 TSystemDriver
+=head1 DESCRIPTION
 
-Define an "interface-only" role for the System driver.
+I<TSystemDriver> define an "interface-only" role for the System driver.
 
   requires 'get_tick_count';          # Return tick counts
   requires 'get_platform';            # Return $^O

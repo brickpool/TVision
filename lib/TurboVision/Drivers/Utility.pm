@@ -479,7 +479,7 @@ I<< TView->write_buf >> and I<< TView->write_line >>.
 =cut
 
   func move_c_str(ArrayRef $dest, Str $str, @attrs) {
-    assert { $_ = @attrs == 2 };
+    assert { no warnings; @attrs == 2 };
     assert { is_Int $attrs[0] };
     assert { is_Int $attrs[1] };
   
@@ -516,7 +516,7 @@ I<< TView->write_line >>.
 =cut
 
   func move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) {
-    assert { $_ = length $c == 1 };
+    assert { no warnings; length $c == 1 };
 
     for (my $i = 0; $i < $count; $i++) {
       alias my $p = $dest->[$i];                      # Pointer to element

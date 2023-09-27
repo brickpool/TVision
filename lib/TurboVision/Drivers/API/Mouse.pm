@@ -4,9 +4,9 @@
 
 TurboVision::Drivers::API::Mouse - Mouse driver interface
 
-=head1 TMouseDriver 
+=head1 DESCRIPTION
 
-Define an "interface-only" role for the Mouse driver.
+I<TMouseDriver> define an "interface-only" role for the Mouse driver.
 
   requires 'cursor_off';          # Hide the mouse cursor
   requires 'cursor_on';           # Show the mouse cursor

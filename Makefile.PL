@@ -22,7 +22,6 @@ WriteMakefile(
     'Function::Parameters'        => 2.001003,
     'Import::Into'                => 1.002005,
     'Moose'                       => 2.1213,
-    'MooseX::AttributeShortcuts'  => 0.037,
     'MooseX::ClassAttribute'      => 0.29,
     'MooseX::HasDefaults::RO'     => 0.03,
     'MooseX::Singleton'           => 0.30,
@@ -38,7 +37,7 @@ WriteMakefile(
     'Devel::Refcount' => 0.10,
     'Test::Exception' => 0.43,
     'Test::More'      => 0.95,
-    'Win32::GuiTest'  => 1.64,
+    'Win32::GuiTest'  => 1.64,                # Win32
   },
   LICENSE     => 'lgpl_3_0',
   dist        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
