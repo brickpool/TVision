@@ -36,6 +36,9 @@ inc/
 /pm_to_blib
 /*.zip
 
+# Documents
+/doc/
+
 # Sources
 /lib/_*
 /src/
