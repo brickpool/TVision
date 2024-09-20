@@ -7,7 +7,7 @@
   TRUE
   FALSE
 
-= head2 Attributes
+=head2 Attributes
 
 Modules defaults to `is => ro`
 
