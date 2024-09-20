@@ -43,8 +43,15 @@ inc/
 /lib/_*
 /src/
 /t/_*
-/xt/
 
 # Komodo IDE
 *.komodoproject
 /.komodotools/
+
+# VS Code
+/.vscode/
+*.code-workspace
+
+# Devel
+/trial/
+test.bin
