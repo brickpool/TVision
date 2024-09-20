@@ -146,11 +146,11 @@ stream I<$s> and returns a hash reference of type I<TResourceItem>.
     my $read = sub {
       my $type = shift;
       SWITCH: for( $type ) {
-        /byte/ && do {
+        /byte/ and do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
         };
-        /longint/ && do {
+        /longint/ and do {
           $s->read(my $buf, longint->size);
           return longint( $buf )->unpack;
         };

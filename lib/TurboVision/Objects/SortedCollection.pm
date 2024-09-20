@@ -185,7 +185,7 @@ L</duplicates> attribute.
     my $read = sub {
       my $type = shift;
       SWITCH: for( $type ) {
-        /byte/ && do {
+        /byte/ and do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
         };

@@ -44,8 +44,8 @@ our $AUTHORITY = 'github:magiblot';
 
 use Data::Alias qw( alias );
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use Encode qw( decode );
-use PerlX::Assert;
 use POSIX qw(
   setlocale
   LC_ALL
@@ -304,7 +304,7 @@ Ctrl-Z is the last Ctrl+key.
 
 Addional L<Win32::Console> modes.
 
-See also: L<SetConsoleMode|https://learn.microsoft.com/en-us/windows/console/console-functions>
+B<See also>: L<SetConsoleMode|https://learn.microsoft.com/en-us/windows/console/console-functions>
 
 =end comment
 
@@ -1099,9 +1099,9 @@ Returns true if successful.
 =cut
 
   func _update_ctrl_break(HashRef $event) {
-    assert { exists $$event{event_type}        };
-    assert { exists $$event{char}              };
-    assert { exists $$event{control_key_state} };
+    assert ( exists $$event{event_type}        );
+    assert ( exists $$event{char}              );
+    assert ( exists $$event{control_key_state} );
     
     if (
        $event->{event_type} == _KEY_EVENT
@@ -1127,15 +1127,15 @@ level call at memory position C<0x40:0x17>).
 
 Returns true if successful.
 
-See also: I<get_shift_state>
+B<See also>: I<get_shift_state>
 
 =end comment
 
 =cut
 
   func _update_shift_state(HashRef $event) {
-    assert { exists $$event{event_type}        };
-    assert { exists $$event{control_key_state} };
+    assert ( exists $$event{event_type}        );
+    assert ( exists $$event{control_key_state} );
     
     $_shift_state &= KB_INS_STATE;                      # clear all excl. insert
 

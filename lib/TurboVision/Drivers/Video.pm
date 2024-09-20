@@ -92,7 +92,7 @@ use TurboVision::Drivers::Types qw(
 
 The working of the I<Video> module is simple: After calling L</init_video>, the
 ArrayRef L</video_buf> contains a representation of the video screen of size
-L</screen_width> * I</screen_height>, going from left to right and top to bottom
+L</screen_width> * L</screen_height>, going from left to right and top to bottom
 when walking the array elements:
 
 I<< video_buf->[0] >> contains the character and color code of the top-left
@@ -143,7 +143,7 @@ nested procedures that do a lot of screen writing.
 
 The I<Video> module also presents an interface for Turbo Vision screen drivers.
 
-Note: The I<Video> module should be used only together with the Turbo Vidion.
+B<Note>: The I<Video> module should be used only together with the Turbo Vidion.
 Doing not so will result in very strange behaviour, possibly program aborts.
 
 =cut
@@ -308,7 +308,7 @@ Is Video initialized.
 =cut
 
   # ------------------------------------------------------------------------
-  # TStreamRec -------------------------------------------------------------
+  # Video ------------------------------------------------------------------
   # ------------------------------------------------------------------------
   
 =head2 Class Methods
@@ -325,7 +325,7 @@ I<clear_screen> clears the entire screen, and calls L</update_screen> after
 that. This is done by writing spaces to all character cells of the video buffer
 in the default color (lightgray on black, color attribute C<0x07>).
 
-See: L</init_video>, L</update_screen>
+B<See>: L</init_video>, L</update_screen>
 
 =cut
 
@@ -337,11 +337,10 @@ See: L</init_video>, L</update_screen>
       return;
     };
     try {
-      TurboVision::Drivers::ScreenManager::clear_screen()
+      TurboVision::Drivers::ScreenManager::clear_screen();
     }
     catch {
       $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
-      return;
     };
     return;
   }
@@ -369,13 +368,12 @@ to do so may leave the screen in an unusable state after the program exits.
     return
         if not $_is_initialized;
     try {
-      TurboVision::Drivers::ScreenManager::done_video()
+      TurboVision::Drivers::ScreenManager::done_video();
+      $_is_initialized = FALSE;
     }
     catch {
       $class->error_code(0 - ERR_VIO_INIT);
-      return;
     };
-    $_is_initialized = FALSE;
     return;
   }
 
@@ -391,9 +389,9 @@ values:
   CR_BLOCK      Block cursor
   CR_HALF_BLOCK Half block cursor
 
-Note: that not all drivers support all types of cursors.
+B<Note>: that not all drivers support all types of cursors.
 
-See: L</set_cursor_type>
+B<See>: L</set_cursor_type>
 
 =cut
 
@@ -432,7 +430,7 @@ if( _TV_UNIX ){
 I<get_lock_screen_count> returns the current lock level. When the lock level is
 zero, a call to L</update_screen> will actually update the screen.
 
-See also: L</lock_screen_update>, L</unlock_screen_update>, L</update_screen> 
+B<See also>: L</lock_screen_update>, L</unlock_screen_update>, L</update_screen> 
 
 =cut
 
@@ -454,7 +452,7 @@ I<get_video_mode> returns the settings of the currently active video mode.
 The I<row>, I<col> fields indicate the dimensions of the current video mode, and
 I<color> is true if the current video supports colors.
 
-See also: L</set_video_mode>
+B<See also>: L</set_video_mode>
 
 =cut
 
@@ -486,7 +484,7 @@ L</screen_height> attributes. When this is done, the screen is cleared.
 
 If the driver fails to initialize, the L</error_code> attribute is set.
 
-See also: I<done_video>.
+B<See also>: I<done_video>.
 
 =cut
 
@@ -496,13 +494,12 @@ See also: I<done_video>.
     return
         if $_is_initialized;
     try {
-      TurboVision::Drivers::ScreenManager::init_video()
+      TurboVision::Drivers::ScreenManager::init_video();
+      $_is_initialized = TRUE;
     }
     catch {
       $class->error_code(0 - ERR_VIO_INIT);
-      return;
     };
-    $_is_initialized = TRUE;
     return;
   }
 
@@ -520,7 +517,7 @@ I<lock_screen_update> before the drawing, and L</unlock_screen_update> after the
 drawing, followed by a L</update_screen> call, all writing will be shown on
 screen at once.
 
-See also: L</update_screen>, L</unlock_screen_update>, L</get_lock_screen_count>
+B<See also>: L</update_screen>, L</unlock_screen_update>, L</get_lock_screen_count>
 
 =cut
 
@@ -546,7 +543,7 @@ I<set_cursor_type> sets the cursor to the type specified in I<$type>.
   CR_BLOCK      Block cursor
   CR_HALF_BLOCK Half block cursor
 
-See: L</set_cursor_pos>
+B<See>: L</set_cursor_pos>
 
 =cut
 
@@ -593,9 +590,9 @@ is true).
 
 The function returns True if the mode was set successfully, False otherwise.
 
-Note: The video mode may not always be set. E.g. a console on Linux or a telnet
-session cannot always set the mode. It is important to check the error value
-returned by this function if it was not successful.
+B<Note>: The video mode may not always be set. E.g. a console on Linux or a 
+telnet session cannot always set the mode. It is important to check the error 
+value returned by this function if it was not successful.
 
 The mode can be set when the video driver has not yet been initialized (i.e.
 before L</init_video> was called). In that case, the video mode will be stored,
@@ -605,13 +602,14 @@ clear the stored video mode.
 
 To retrieve the current video mode, use the L</get_video_mode> procedure.
 
-See also: L</get_video_mode>
+B<See also>: L</get_video_mode>
 
 =cut
 
   classmethod set_video_mode(TVideoMode $mode) {
     return
         if $class->error_code != ERR_OK;
+    my $success;
     try {
       confess 'Screen does not support colors'
         if $mode->{color} && !$class->screen_color;
@@ -631,12 +629,13 @@ See also: L</get_video_mode>
       else {
         $screen_mode = $resolution;
       }
+      $success = TRUE;
     }
     catch {
       $class->error_code(0 - ERR_VIO_NO_SUCH_MODE);
-      return FALSE;
+      $success = FALSE;
     };
-    return TRUE;
+    return $success;
   }
 
 =item I<unlock_screen_update>
@@ -652,7 +651,7 @@ screen performance in case a lot of writing is done.
 It is important to make sure that each call to L</lock_screen_update> is matched
 by exactly one call to I<unlock_screen_update>.
 
-See also: L</lock_screen_update>, L</get_lock_screen_count>, L</update_screen>
+B<See also>: L</lock_screen_update>, L</get_lock_screen_count>, L</update_screen>
 
 =cut
 
@@ -686,7 +685,7 @@ during screen updates this routine has to restore the mouse cursor after the
 update (usually by calling I<hide_mouse> from module I<Mouse> before the real
 update and I<show_mouse> afterwards).
 
-See also: L</clear_screen>
+B<See also>: L</clear_screen>
 
 =cut
 
@@ -703,7 +702,6 @@ See also: L</clear_screen>
     }
     catch {
       $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
-      return;
     };
     return;
   }

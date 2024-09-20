@@ -337,7 +337,7 @@ I<what> attribute is checked and, if it fails, an exception is thrown.
   EXTENDED_TESTING
   RELEASE_TESTING
 
-See also: L<Devel::StrictMode>
+B<See also>: L<Devel::StrictMode>
 
 =end comment
 

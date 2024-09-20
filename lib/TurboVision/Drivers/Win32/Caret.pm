@@ -152,7 +152,7 @@ This internal routine implements I<done_caret> for I<Windows>.
 Return the shape of the cursor, like interrupt
 L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
 
-Note: If the cursor is not visible, the routine returns 0x2000 (bit 5 of
+B<Note>: If the cursor is not visible, the routine returns 0x2000 (bit 5 of
 "Scan Row Start" is set).
 
 =cut

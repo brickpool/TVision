@@ -117,7 +117,7 @@ Here's an example using I<TDrawBuffer>:
   move_str($buffer, 'Financial Results for FY1991', get_color(1) );
   $self->write_line( 1, 3, 28, 1, $buffer );
 
-See: I<TView> methods I<write_buf> and I<write_line>.
+B<See>: I<TView> methods I<write_buf> and I<write_line>.
 
 =cut
 

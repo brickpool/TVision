@@ -45,7 +45,6 @@ use warnings;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
-    shift       => '$class',
     name        => 'required',
   },
 },

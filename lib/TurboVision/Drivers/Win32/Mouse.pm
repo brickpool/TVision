@@ -42,7 +42,8 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use PerlX::Assert;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use Win32::Console;
 
 use TurboVision::Drivers::Const qw( :evXXXX );
@@ -173,7 +174,7 @@ information about the routine is described in the module I<EventManager>.
 
     for (my $i = 0; $i < @_event_queue; $i++) {
       $event = $_event_queue[$i];
-      assert { is_TEvent $event };
+      assert ( is_TEvent $event );
 
       if ( $event->what & EV_MOUSE ) {
         splice(@_event_queue, $i, 1);
@@ -305,7 +306,7 @@ The Windows event mapping was taken from the framework
 L<A modern port of Turbo Vision 2.0|https://github.com/magiblot/tvision>, which
 is licensed under MIT licence
 
-See: L</hide_mouse>, L</show_mouse>
+B<See>: L</hide_mouse>, L</show_mouse>
 
 =over
 

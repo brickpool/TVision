@@ -36,7 +36,8 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use PerlX::Assert;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 
 use TurboVision::Drivers::Const qw( :private );
 
@@ -326,7 +327,7 @@ built in function I<sprintf>.
 
   func format_str($, Str $format, @params) {
     alias my $result = $_[-2 -scalar(@params)];
-    assert { is_Str $result };
+    assert ( is_Str $result );
 
     # convert '% [-] 000 X' to '% [-] X'
     $format =~ s/(%\-?)0{1,3}([sdcx])/$1$2/;
@@ -424,7 +425,7 @@ I<move_buf> copies I<$count> elements from I<$source> into the I<"low byte(s)">
 of the I<$dest> destination parameter, setting each I<"high byte(s)"> to the
 I<$attr> value (or leaving the attribute as is if I<$attr> equals zero).
 
-See: L</move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
+B<See>: L</move_char>, I<TDrawBuffer>, I<< TView->write_buf >> and
 I<< TView->write_line >>.
 
 =cut
@@ -473,15 +474,15 @@ You use I<move_c_str> like this:
 This sets the word 'is' to the attribute C<0x07> and the rest of the text to
 C<0x70>.
 
-See: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_str>,
+B<See>: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_str>,
 I<< TView->write_buf >> and I<< TView->write_line >>.
 
 =cut
 
   func move_c_str(ArrayRef $dest, Str $str, @attrs) {
-    assert { no warnings; @attrs == 2 };
-    assert { is_Int $attrs[0] };
-    assert { is_Int $attrs[1] };
+    assert ( @attrs == 2 );
+    assert ( is_Int $attrs[0] );
+    assert ( is_Int $attrs[1] );
   
     my $j = 0;                                        # Start position
     for ( my $i = 0; $i < length($str); $i++ ) {      # For each character
@@ -510,13 +511,13 @@ I<$count> number of times, into each I<"low byte(s)"> of the I<$dest> parameter
 (which should be a I<TDrawBuffer> type), and if I<$attr> is non-zero, copies
 I<$attr> to each I<"high byte(s)"> position in the array of elements.
 
-See: L</move_buf>, I<TDrawBuffer>, I<< TView->write_buf >> and
+B<See>: L</move_buf>, I<TDrawBuffer>, I<< TView->write_buf >> and
 I<< TView->write_line >>.
 
 =cut
 
   func move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) {
-    assert { no warnings; length $c == 1 };
+    assert ( length $c == 1 );
 
     for (my $i = 0; $i < $count; $i++) {
       alias my $p = $dest->[$i];                      # Pointer to element
@@ -534,7 +535,7 @@ I<move_str> copies the I<$str> string parameter to the I<$dest> (a
 I<TDrawBuffer> array) and sets each character's attributes to the video
 attribute contained in I<$attr>.
 
-See: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_c_str>,
+B<See>: I<TDrawBuffer>, L</move_char>, L</move_buf>, L</move_c_str>,
 I<< TView->write_buf >> and I<< TView->write_line >>.
 
 =cut

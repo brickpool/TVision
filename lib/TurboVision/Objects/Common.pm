@@ -382,7 +382,7 @@ B<Note>: Modern systems are not segmented and the addresses are always linear.
 This utility routine is only for compatiblity. Please use Perl's routine
 I<refaddr> instead to get the internal memory address of a referenced value.
 
-See: I<refaddr> from L<Scalar::Util>
+B<See>: I<refaddr> from L<Scalar::Util>
 
 =cut
 
@@ -491,7 +491,7 @@ object type, call I<abstract> in those methods that must be overridden in
 descendant types. This ensures that any attempt to use instances of the abstract
 object type will fail.
 
-See: I<confess> from L<Carp>
+B<See>: I<confess> from L<Carp>
 
 =cut
 
@@ -509,7 +509,7 @@ Weaken the string reference I<$s>.
 
 B<Note>: This utility routine is for compatiblity only.
 
-See: I<weaken> from L<Scalar::Util>
+B<See>: I<weaken> from L<Scalar::Util>
 
 =cut
 
@@ -537,7 +537,7 @@ This means that calling I<fail> inside I<new> (also applies to I<init> and
 I<load> in this library) raise an exception or returns false (C<undef>) when
 used in a boolean context.
 
-See: I<FAIL> from L<Contextual::Return>
+B<See>: I<FAIL> from L<Contextual::Return>
 
 =cut
 

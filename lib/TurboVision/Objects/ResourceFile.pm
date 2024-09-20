@@ -483,7 +483,7 @@ and then resets L</modified> to false.
 Uses I<$key> as an index into the resource and returns a pointer to the object
 that it references, or C<undef> if the I<$key> is not in the file.
 
-See: L</put>
+B<See>: L</put>
 
 =cut
 
@@ -527,7 +527,7 @@ I<$i>'th index position.
 Stores the object pointed to by I<$item> into the resource file, using the
 specified I<$key>.
 
-See: L</get>
+B<See>: L</get>
 
 =cut
 
@@ -576,7 +576,7 @@ by I<$a_stream>.
 If I<$pack> is true, I<switch_to> will not copy objects marked as deleted,
 thereby compressing the resulting resource file.
 
-See: L</delete>
+B<See>: L</delete>
 
 =cut
 

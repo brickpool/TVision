@@ -22,7 +22,6 @@ use Function::Parameters {
   },
   factory => {
     defaults    => 'classmethod_strict',
-    shift       => '$class',
     name        => 'required',
   },
 },
@@ -46,8 +45,9 @@ our $AUTHORITY = 'github:magiblot';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use MooseX::StrictConstructor;
-use PerlX::Assert;
 
 use TurboVision::Views::Types qw( TCommandSet );
 
@@ -328,7 +328,8 @@ C<< $tc2 = $tc1; $tc2 += CM_QUIT; >> without affecting C<$tc1>.
 =item operator C<->
 
   func _difference(TCommandSet $tc1, TCommandSet $tc2, Bool $swap) : TCommandSet
-  func _difference(TCommandSet $tc1, ArrayRef[Int] $tc2, Bool $swap) : TCommandSet
+  func _difference(TCommandSet $tc1, ArrayRef[Int] $tc2, 
+    Bool $swap) : TCommandSet
 
 This method calculates the difference of I<$tc1> and I<$tc2> and returns the
 result as a new commend set so that we can write code like
@@ -357,7 +358,7 @@ C<< $cmds = $tc1 - $tc2 >>.
 Overload equal comparison C<==> so that we can write code like
 C<< $tc1 == $tc2 >>.
 
-See: L</_not_equal>
+B<See>: L</_not_equal>
 
 =cut
 
@@ -377,7 +378,7 @@ See: L</_not_equal>
 Exclude an element from the set, so that we can write code like
 C<< $cmds -= $cmd >>.
 
-See: L</disable_cmd>
+B<See>: L</disable_cmd>
 
 =cut
 
@@ -399,7 +400,7 @@ See: L</disable_cmd>
 Include an element in the set, so that we can write code like
 C<< $cmds += $cmd >>.
 
-See: L</enable_cmd>
+B<See>: L</enable_cmd>
 
 =cut
 
@@ -421,7 +422,7 @@ This sub routine calculates the intersection of I<$tc1> and I<$tc2> and returns
 the result as a new commend set so that we can write code like
 C<< $cmds = $tc1 * $tc2 >>.
 
-See: L</_union>
+B<See>: L</_union>
 
 =cut
 
@@ -462,7 +463,7 @@ otherwise.
 Overload not equal comparison C<!=> so that we can write code like
 C<< $tc1 != $tc2 >>.
 
-See: L</_equal>
+B<See>: L</_equal>
 
 =cut
 
@@ -483,7 +484,7 @@ See: L</_equal>
 This method calculates the union of I<$tc1> and I<$tc2> and returns the result
 as a new commend set so that we can write code like C<< $cmds = $tc1 + $tc2 >>.
 
-See: L</_intersection>, L</_include>
+B<See>: L</_intersection>, L</_include>
 
 =cut
 

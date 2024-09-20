@@ -143,11 +143,11 @@ Contains the height of the video cursor encoded such that the high 4 bits
 contains the top scan line and the low 4 bits contain the bottom scan
 line.
 
-See: I<< TView->show_cursor >>, I<< TView->hide_cursor >>,
+B<See>: I<< TView->show_cursor >>, I<< TView->hide_cursor >>,
 I<< TView->normal_cursor >> (to set cursor shape to an underline),
 I<< TView->block_cursor >> (to set cursor to a solid block).
 
-See: L</set_video_mode>
+B<See>: L</set_video_mode>
 
 =cut
 
@@ -171,7 +171,7 @@ modes are not supported.
 This internal reference is initialized by L</init_video> and keeps track of the
 location of the video screen buffer.
 
-See: L</$screen_mode>
+B<See>: L</$screen_mode>
 
 =cut
 
@@ -184,7 +184,7 @@ See: L</$screen_mode>
 Holds the current height of the screen, in lines. For example, C<25>, C<43> or
 C<50> would be typical values.
 
-See: L</set_video_mode>
+B<See>: L</set_video_mode>
 
 =cut
 
@@ -197,7 +197,7 @@ See: L</set_video_mode>
 Contains the current video mode as determined by the I<smXXXX> constants
 passed to the L</set_video_mode> routine.
 
-See: L</set_video_mode>, I<smXXXX> constants
+B<See>: L</set_video_mode>, I<smXXXX> constants
 
 =cut
 
@@ -221,7 +221,7 @@ example, 80).
 This internal variable stores the existing screen mode before Turbo Vision
 switches to a new screen mode.
 
-See: L</$screen_mode>
+B<See>: L</$screen_mode>
 
 =cut
 
@@ -333,7 +333,7 @@ parameter value, to change the screen color or screen size.
 The method I<set_screen_mode> properly handles resetting of the application
 palettes, repositioning the mouse pointer and so on.
 
-See: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
+B<See>: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
 
 =cut
 

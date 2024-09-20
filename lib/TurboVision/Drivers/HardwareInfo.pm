@@ -164,7 +164,7 @@ C<0x40:0x6C>.
 The name of the operating system under which this copy of Perl was built, as
 determined during the configuration process.
 
-See also: I<$^O>
+B<See also>: I<$^O>
 
 =cut
 

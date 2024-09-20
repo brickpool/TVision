@@ -233,7 +233,7 @@ held down.
 A clock tick is 1/18.2 seconds, so the default value of 8/18.2 is set at
 approximately 1/2 second.
 
-See: I<evXXXX> constants, L</$double_delay>
+B<See>: I<evXXXX> constants, L</$double_delay>
 
 B<Note>: The value is not used in Windows.
 
@@ -314,7 +314,7 @@ If no keys have been pressed, I<< $event->what >> is set to I<EV_NOTHING>.
 
 This is an internal procedure called by I<< TProgram->get_event >>.
 
-See: I<evXXXX> constants
+B<See>: I<evXXXX> constants
 
 =cut
 
@@ -419,7 +419,7 @@ Call L</hide_mouse> to hide the mouse cursor and simultaneously increment a
 The routine I<show_mouse> decrements the counter, and when it reaches zero,
 makes the mouse cursor visible again on the screen.
 
-See: L</hide_mouse>
+B<See>: L</hide_mouse>
 
 =cut
 

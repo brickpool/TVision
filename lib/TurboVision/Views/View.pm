@@ -25,7 +25,6 @@ use constant::boolean;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
-    shift       => '$class',
     name        => 'required',
   },
 },
@@ -51,8 +50,9 @@ our $AUTHORITY = 'github:fpc';
 
 use Carp;
 use Data::Alias qw( alias );
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use List::Util qw( min max );
-use PerlX::Assert;
 use Try::Tiny;
 
 use TurboVision::Const qw( :limits );
@@ -414,7 +414,7 @@ Contains the size of the view.
 The I<state> bits retain information about many view options, including the
 cursor shape, if the cursor is visible or if the view is selected.
 
-See: I<sfXXXX> constants, L</set_state>, L</get_state>
+B<See>: I<sfXXXX> constants, L</set_state>, L</get_state>
 
 =cut
 
@@ -475,15 +475,15 @@ Creates and reads a view from stream I<$s>.
     my $read = sub {
       my $type = shift;
       SWITCH: for( $type ) {
-        /byte/ && do {
+        /byte/ and do {
           $s->read(my $buf, byte->size);
           return byte( $buf )->unpack;
         };
-        /integer/ && do {
+        /integer/ and do {
           $s->read(my $buf, integer->size);
           return integer( $buf )->unpack;
         };
-        /word/ && do {
+        /word/ and do {
           $s->read(my $buf, word->size);
           return word( $buf )->unpack;
         };
@@ -699,7 +699,7 @@ other views can determine who it was that process the event.
 
 =cut
 
-  method clear_event($)  {
+  method clear_event($) {
     alias my $event = $_[-1];
     confess 'Invalid argument $event'
       if not is_TEvent $event;
@@ -767,7 +767,8 @@ See L</enable_commands>
 
 =item I<drag_view>
 
-  method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, TPoint $max_size)
+  method drag_view(TEvent $event, Int $mode, TRect $limits, TPoint $min_size, 
+    TPoint $max_size)
 
 I<drag_view> handles redrawing the view while it is being dragged across the
 string.
@@ -1406,7 +1407,7 @@ See I<evXXXX> constants, I<cmXXXX> constants
       if not is_TEvent $event;
 
     if ( $event->what == EV_MOUSE_DOWN ) {                # Mouse down event
-      if ( !($self->state & (SF_SELECTED | SF_DISABLED))  # Not selected/disabled
+      if ( !($self->state & (SF_SELECTED | SF_DISABLED))  # Not select/disabled
         && ($self->options & OF_SELECTABLE)               # View is selectable
       ) {
         if ( !$self->focus                                # Not view with focus
@@ -1430,7 +1431,7 @@ See L</show>
 =cut
 
   method hide() {
-    $self->set_state(SF_VISIBLE, FALSE)                  # Hide the view
+    $self->set_state(SF_VISIBLE, FALSE)                   # Hide the view
       if $self->state & SF_VISIBLE;                       # View is visible
     return;
   }
@@ -1750,7 +1751,7 @@ I<put_in_front_of> moves this view to be placed directly in front of I<$target>.
   method put_in_front_of(TView|Undef $target) {
           my $p;
           my $last_view;
-    assert { exists $$self{state} };
+    assert ( exists $$self{state} );
     alias my $state = $self->{state};
           my $owner = $self->owner;
 
@@ -1954,7 +1955,7 @@ I<$a_state> are cleared.
         if not defined $self->owner;
     
     SWITCH: for ( $a_state ) {
-      $_ == SF_VISIBLE && do {
+      $_ == SF_VISIBLE and do {
         $self->set_state(SF_EXPOSED, $enable)
           if $self->owner->state & SF_EXPOSED;
         if ( $enable ) {
@@ -1969,15 +1970,15 @@ I<$a_state> are cleared.
       };
       $_ == SF_CURSOR_VIS
         ||
-      $_ == SF_CURSOR_INS && do {
+      $_ == SF_CURSOR_INS and do {
         $self->_draw_cursor;
         last;
       };
-      $_ == SF_SHADOW && do {
+      $_ == SF_SHADOW and do {
         $self->_draw_under_view(TRUE, undef);
         last;
       };
-      $_ == SF_FOCUSED && do {
+      $_ == SF_FOCUSED and do {
         $self->_reset_cursor;
         my $command = $enable ? CM_RECEIVED_FOCUS : CM_RELEASED_FOCUS;
         message($self->owner, EV_BROADCAST, $command, $self);

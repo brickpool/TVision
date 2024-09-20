@@ -120,7 +120,6 @@ use warnings;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
-    shift       => '$class',
     name        => 'required',
   },
   factory_inherit => {
@@ -375,7 +374,7 @@ The constructor I<init> creates a new collection with initially allocated array
 for the number of elements specified by I<$a_limit>, and the ability to
 dynamically increase the size of the collection in L</delta> increments.
 
-See: I<MAX_COLLECTION_SIZE>
+B<See>: I<MAX_COLLECTION_SIZE>
 
 =cut
 
@@ -402,7 +401,7 @@ individual item in the collection.
     my $read = sub {
       my $type = shift;
       SWITCH: for( $type ) {
-        /word/ && do {
+        /word/ and do {
           $s->read(my $buf, word->size);
           return word( $buf )->unpack;
         };
@@ -595,7 +594,7 @@ Deletes all items from the collection.
 All collection errors result in a call to I<error>, with error information
 passed in I<$code> and I<$info>.
 
-See: I<coXXXX> constants.
+B<See>: I<coXXXX> constants.
 
 =cut
 

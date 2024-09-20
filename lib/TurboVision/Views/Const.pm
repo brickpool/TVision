@@ -379,7 +379,7 @@ Turbo Vision.
 
 You can, however, read and test the values in I<< TView->state >> directly.
 
-See: I<< TView->block_cursor >>, I<< TView->exposed >>, I<< TView->hide >>,
+B<See>: I<< TView->block_cursor >>, I<< TView->exposed >>, I<< TView->hide >>,
 I<< TView->hide_cursor >>, I<< TView->normal_cursor >>, I<< TView->set_state >>,
 I<< TView->show >>, I<< TView->show_cursor >>.
 
@@ -641,7 +641,7 @@ If you set the I<OF_BUFFERED> option, be sure to call the I<TGroup> method's
 Lock and Unlock to prevent copying of the screen image to the display until all
 of the subview's have drawn themselves.
 
-See also: I<get_buf_mem>, I<free_mem>
+B<See also>: I<get_buf_mem>, I<free_mem>
 
 =cut
 
@@ -660,7 +660,7 @@ position in the Options field.
 When disabled, the view will not move on the screen, even if other views become
 tiled or cascaded.
 
-See also: I<< TDeskTop->cascade >>, I<< TDeskTop->tile >>.
+B<See also>: I<< TDeskTop->cascade >>, I<< TDeskTop->tile >>.
 
 =cut
 
@@ -1070,7 +1070,7 @@ Scroll bar accepts keyboard commands.
 
 =head2 TWindow flags (I<:wfXXXX>)
 
-See: I<TWindow>, I<< TWindog->flags >>
+B<See>: I<TWindow>, I<< TWindog->flags >>
 
 =over
 

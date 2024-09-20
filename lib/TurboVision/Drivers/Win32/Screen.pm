@@ -42,8 +42,9 @@ our $AUTHORITY = 'github:fpc';
 # Used Modules -----------------------------------------------------------
 # ------------------------------------------------------------------------
 
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use English qw( -no_match_vars );
-use PerlX::Assert;
 use Win32::Console;
 
 use TurboVision::Drivers::Const qw(
@@ -305,7 +306,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
 
   func _ctr_cols() {
     $_io //= StdioCtl->instance();
-    assert { is_Object( $_io ) };
+    assert ( is_Object $_io );
 
     my $width;
     $width = $_io->get_size->{x} // 0;
@@ -327,7 +328,7 @@ This routine is in addition to the modified I<_get_crt_mode> routine.
 
   func _ctr_rows() {
     $_io //= StdioCtl->instance();
-    assert { is_Object( $_io ) };
+    assert ( is_Object $_io );
 
     my $height;
     $height = $_io->get_size->{y} // 0;
@@ -441,7 +442,7 @@ Set CRT data areas.
 
 Set CRT mode to value in I<$mode>.
 
-See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
+B<See>: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
 =cut
 
@@ -501,7 +502,7 @@ See: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
 Enable or disable the Window resize frame.
 
-See: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192>
+B<See>: L<Disable Window Resizing Win32|https://stackoverflow.com/a/27037192>
 and L<Change Win32 Window Style|https://stackoverflow.com/a/50083595>
 
 =end comment
@@ -556,7 +557,7 @@ __END__
 
 Adjustment of the window dimensions to the screen buffer or vice versa.
 
-See: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
+B<See>: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
 
 =over
 

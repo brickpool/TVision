@@ -327,7 +327,7 @@ __END__
 The Windows event mapping was taken from the framework
 "A modern port of Turbo Vision 2.0", which is licensed under MIT licence
 
-See: I<init_sys_error>, I<done_sys_error>
+B<See>: I<init_sys_error>, I<done_sys_error>
 
 =over
 

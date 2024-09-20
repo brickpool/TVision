@@ -119,7 +119,7 @@ second part of I<$sys_color_attr>, C<0x4f>, white on red text.
 The first part, C<0x4e>, is used for highlighting command keys, such as Enter or
 Esc.
 
-See: L</system_error>, L</$sys_mono_attr>.
+B<See>: L</system_error>, L</$sys_mono_attr>.
 
 =cut
 
@@ -167,7 +167,7 @@ Table of System Error Codes
 B<Note>: I<$error_code> corresponds to the system error codes 19 to 34 of MS-DOS
 or Windows (I<$^E> or I<$EXTENDED_OS_ERROR>).
 
-See: L</$sys_color_attr>, L</$sys_err_active>, L</$sys_error_func>,
+B<See>: L</$sys_color_attr>, L</$sys_err_active>, L</$sys_error_func>,
 L</$sys_mono_attr>, L</system_error>, I<TSysErrorFunc>, L</init_sys_error>.
 
 =cut
@@ -188,7 +188,7 @@ and other device type errors.
 
 See L</$sys_color_attr> for more information about the attribute values.
 
-See: L</system_error>, L<$sys_color_attr>.
+B<See>: L</system_error>, L<$sys_color_attr>.
 
 =cut
 
@@ -215,7 +215,7 @@ This internal variable is set to the state of the OS Ctrl-break checking at
 program initialization; at program termination, OS's Ctrl-break trapping is
 restored to the value saved in I<$save_ctrl_break>.
 
-See: L</init_sys_error>, L</done_sys_error>
+B<See>: L</init_sys_error>, L</done_sys_error>
 
 =cut
 
@@ -314,7 +314,7 @@ L</$sys_error_func> for details on the parameters and their values.
 L</system_error> returns 0 if the user requests that the operation be retried,
 and 1 if the user elects to cancel the operation.
 
-See: L</$sys_error_func>
+B<See>: L</$sys_error_func>
 
 =cut
 

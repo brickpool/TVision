@@ -42,7 +42,8 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Data::Alias qw( alias );
-use PerlX::Assert;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 
 use TurboVision::Drivers::Const qw( :evXXXX );
 use TurboVision::Drivers::Event;
@@ -117,7 +118,7 @@ information about the routine is described in the I<EventManager> module.
 
     for (my $i = 0; $i < @_event_queue; $i++) {
       $event = $_event_queue[$i];
-      assert { is_TEvent $event };
+      assert ( is_TEvent $event );
 
       if ( $event->what & EV_KEYBOARD ) {
         splice(@_event_queue, $i, 1);

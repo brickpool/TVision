@@ -25,7 +25,6 @@ use warnings;
 use Function::Parameters {
   factory => {
     defaults    => 'classmethod_strict',
-    shift       => '$class',
     name        => 'required',
   },
 },
@@ -240,11 +239,11 @@ strings.
     my $read = sub {
       my $type = shift;
       SWITCH: for( $type ) {
-        /longint/ && do {
+        /longint/ and do {
           $s->read(my $buf, longint->size);
           return longint( $buf )->unpack;
         };
-        /word/ && do {
+        /word/ and do {
           $s->read(my $buf, word->size);
           return word( $buf )->unpack;
         };

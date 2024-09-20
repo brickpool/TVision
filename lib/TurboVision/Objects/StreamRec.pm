@@ -126,7 +126,7 @@ Class load code name to the I<load> constructor.
 
 =item I<next>
 
-  has next ( is => ro, type => TStreamRec, predicate => 'has_next' );
+  has next ( is => rwp, type => TStreamRec, predicate => 'has_next' );
 
 I<next> is a reference to the next I<TStreamRec>. You do not need to initialize
 this value.
