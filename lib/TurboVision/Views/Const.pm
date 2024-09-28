@@ -165,6 +165,8 @@ Nothing per default, but can export the following per request:
       
       CM_LIST_ITEM_SELECTED
 
+      CM_CURSOR_CHANGED
+
     :color
       CFrame
       CScrollBar
@@ -308,6 +310,8 @@ our %EXPORT_TAGS = (
     CM_SELECT_WINDOW_NUM
     
     CM_LIST_ITEM_SELECTED
+
+    CM_CURSOR_CHANGED
   )],
 
   color => [qw(
@@ -1272,7 +1276,7 @@ Black on gray color scheme.
     CM_DEFAULT => 14,
   };
 
-=item Standard messages
+=item TView standard messages
 
   Constant                Value
   CM_RECEIVED_FOCUS       50
@@ -1300,7 +1304,7 @@ Black on gray color scheme.
     CM_SCROLL_BAR_CLICKED => 54,
   };
 
-=item TWindow select messages
+=item TWindow messages
 
   Constant              Value
   CM_SELECT_WINDOW_NUM  55
@@ -1311,7 +1315,7 @@ Black on gray color scheme.
     CM_SELECT_WINDOW_NUM => 55,
   };
 
-=item TWindow select messages
+=item TListViewer messages
 
   Constant              Value
   CM_LIST_ITEM_SELECTED 56
@@ -1320,6 +1324,17 @@ Black on gray color scheme.
 
   use constant {
     CM_LIST_ITEM_SELECTED => 56,
+  };
+
+=item Additional messages
+
+  Constant            Value
+  CM_CURSOR_CHANGED   700
+
+=cut
+
+  use constant {
+    CM_CURSOR_CHANGED => 700,
   };
 
 =back
@@ -1529,7 +1544,7 @@ __END__
 
 =item *
 
-2023 by J. Schneider L<https://github.com/brickpool/>
+2023-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

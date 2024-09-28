@@ -433,8 +433,8 @@ I<< TView->write_line >>.
   func move_buf(ArrayRef $dest, ArrayRef $source, Int $attr, Int $count) {
     for (my $i = 0; $i < $count; $i++) {
       alias my $p = $dest->[$i];                      # Pointer to element
-      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
-      $p->{lo} = $source->[$i]->{lo};                 # Copy source data
+      $p = ( $attr ? $attr << 8: $p ) & 0xff00;       # Copy attribute
+      $p += $source->[$i] & 0xff;                     # Copy source data
     }
     return;
   }
@@ -489,8 +489,8 @@ I<< TView->write_buf >> and I<< TView->write_line >>.
       if ( substr($str, $i, 1) ne '~' ) {             # Not tilde character
         alias my $p = $dest->[$j];                    # Pointer to element
         if ( $attrs[1] != 0 ) {
-          $p->{hi} = $attrs[1];                       # Copy attribute
-          $p->{lo} = substr($str, $i, 1);             # Copy string char
+          $p = ( $attrs[1] << 8 ) & 0xff00;           # Copy attribute
+          $p += ord( substr($str, $i, 1) ) & 0xff;    # Copy string char
           $j++;                                       # Next position
         }
       }
@@ -517,12 +517,13 @@ I<< TView->write_line >>.
 =cut
 
   func move_char(ArrayRef $dest, Str $c, Int $attr, Int $count) {
+    use bytes;
     assert ( length $c == 1 );
 
     for (my $i = 0; $i < $count; $i++) {
       alias my $p = $dest->[$i];                      # Pointer to element
-      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
-      $p->{lo} = $c;                                  # Copy character 
+      $p = ( $attr ? $attr << 8 : $p ) & 0xff00;      # Copy attribute
+      $p += ord($c) & 0xff;                           # Copy source data
     }
     return;
   }
@@ -541,10 +542,11 @@ I<< TView->write_buf >> and I<< TView->write_line >>.
 =cut
 
   func move_str(ArrayRef $dest, Str $str, Int $attr) {
+    use bytes;
     for (my $i = 0; $i < length($str); $i++) {
       alias my $p = $dest->[$i];                      # Pointer to element
-      $p->{hi} = $attr if $attr != 0;                 # Copy attribute
-      $p->{lo} = substr($str, $i, 1);                 # Copy string char
+      $p = ( $attr ? $attr << 8 : $p ) & 0xff00;      # Copy attribute
+      $p += ord( substr($str, $i, 1) ) & 0xff;        # Copy string char
     }
     return;
   }
@@ -604,7 +606,7 @@ __END__
 
 =item *
 
-2021-2023 by J. Schneider L<https://github.com/brickpool/>
+2021-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

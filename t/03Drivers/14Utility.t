@@ -106,15 +106,15 @@ is (
 
 my $a_buffer = [];
 move_c_str( $a_buffer, 'This ~is~ some text.', 0x07, 0x70 );
-my $str = join('', map { $_->{lo} } @{ $a_buffer } );
+my $str = join('', map { chr($_ & 0xff) } @{ $a_buffer } );
 ok (
   length($str) == 18
     &&
-  $a_buffer->[4]->{hi} == 0x70
+  ($a_buffer->[4] >> 8) == 0x70
     &&
-  $a_buffer->[6]->{hi} == 0x07
+  ($a_buffer->[6] >> 8) == 0x07
     &&
-  $a_buffer->[7]->{hi} == 0x70
+  ($a_buffer->[7] >> 8) == 0x70
   ,
   'move_c_str'
 );
@@ -122,39 +122,39 @@ ok (
 my $src = $a_buffer;
 my $dest = [];
 move_buf($dest, $src, 0x77, 5);
-$str = join('', map { $_->{lo} } @{ $dest } );
+$str = join('', map { chr($_ & 0xff) } @{ $dest } );
 ok (
   length($str) == 5
     &&
-  $dest->[4]->{lo} eq $src->[4]->{lo}
+  ($dest->[4] & 0xff) == ($src->[4] & 0xff)
     &&
-  $dest->[4]->{hi} == 0x77
+  ($dest->[4] >> 8) == 0x77
   ,
   'move_buf'
 );
 
 $dest = [];
 move_char($dest, '#', 0x07, 5);
-$str = join('', map { $_->{lo} } @{ $dest } );
+$str = join('', map { chr($_ & 0xff) } @{ $dest } );
 ok (
   length($str) == 5
     &&
-  $dest->[4]->{lo} eq '#'
+  ($dest->[4] & 0xff) eq ord '#'
     &&
-  $dest->[4]->{hi} == 0x07
+  ($dest->[4] >> 8) == 0x07
   ,
   'move_char'
 );
 
 $dest = [];
 move_str($dest, 'String', 0x70);
-$str = join('', map { $_->{lo} } @{ $dest } );
+$str = join('', map { chr($_ & 0xff) } @{ $dest } );
 ok (
   length($str) == 6
     &&
-  $dest->[0]->{lo} eq 'S'
+  ($dest->[0] & 0xff) == ord 'S'
     &&
-  $dest->[0]->{hi} == 0x70
+  ($dest->[0] >> 8) == 0x70
   ,
   'move_str'
 );

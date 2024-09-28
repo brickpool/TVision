@@ -1061,7 +1061,9 @@ Video driver initialization error.
 
 =cut
 
-  use constant ERR_VIO_INIT           => exists(&Errno::ENODEV) || 19;
+  use constant ERR_VIO_INIT           => exists(&Errno::ENODEV) 
+                                        ? Errno::ENODEV 
+                                        : 19;
 
 =item I<ERR_VIO_NO_SUCH_MODE>
 
@@ -1071,7 +1073,9 @@ Invalid video mode.
 
 =cut
 
-  use constant ERR_VIO_NO_SUCH_MODE   => exists(&Errno::EFAULT) || 14;
+  use constant ERR_VIO_NO_SUCH_MODE   => exists(&Errno::EFAULT) 
+                                        ? Errno::EFAULT 
+                                        : 14;
 
 =item I<ERR_VIO_NOT_SUPPORTED>
 
@@ -1081,7 +1085,9 @@ Unsupported video function.
 
 =cut
 
-  use constant ERR_VIO_NOT_SUPPORTED  => exists(&Errno::ENOTSUP) || 48;
+  use constant ERR_VIO_NOT_SUPPORTED  => exists(&Errno::ENOTSUP) 
+                                        ? Errno::ENOTSUP 
+                                        : 129;
 
 =back
 
@@ -1378,7 +1384,7 @@ __END__
 
 =item *
 
-2021-2022 by J. Schneider L<https://github.com/brickpool/>
+2021-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

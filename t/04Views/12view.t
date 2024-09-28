@@ -3,7 +3,7 @@ use warnings;
 use constant::boolean;
 use Scalar::Util qw( refaddr );
 
-use Test::More tests => 42;
+use Test::More tests => 43;
 use Test::Exception;
 
 BEGIN {
@@ -17,6 +17,7 @@ BEGIN {
   use_ok 'TurboVision::Drivers::Const', qw( :evXXXX );
   use_ok 'TurboVision::Drivers::Event';
   use_ok 'TurboVision::Drivers::Types', qw( TEvent );
+  use_ok 'TurboVision::Views::Common', qw( $error_attr );
   use_ok 'TurboVision::Views::Const', qw(
     :cmXXXX
     :hcXXXX
@@ -222,7 +223,7 @@ note 'Color';
 
   is(
     $view->get_color(0),
-    TView->_ERROR_ATTR, # 0xcf
+    $error_attr, # 0xcf
     'TView->get_color'
   );
 }

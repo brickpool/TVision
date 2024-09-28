@@ -53,6 +53,7 @@ our $AUTHORITY = 'github:brickpool';
 
 use Carp;
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use Scalar::Util qw( refaddr );
 
 use TurboVision::Drivers::Const qw( :evXXXX );
@@ -463,7 +464,7 @@ Char code.
       return $v;
     }
     SET: {
-      confess unless defined $value;
+      assert ( defined $value );
       my $v = $self->key_code();
       $v &= 0xff00;
       $v |= $value & 0x00ff;
@@ -491,7 +492,7 @@ Message I<byte> (unsigned integer 8-bit).
       return $v;
     }
     SET: {
-      confess unless defined $value;
+      assert ( defined $value );
       my $v = $value & 0xff;
       $self->info( $v );
       return $v;

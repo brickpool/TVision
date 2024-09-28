@@ -99,7 +99,7 @@ coerce 'Bit::Vector::Str',
 
 =item I<TDrawBuffer>
 
-  subtype TDrawBuffer : ArrayRef[Ref];
+  subtype TDrawBuffer : ArrayRef[Int];
 
 I<TDrawBuffer> is used to create temporary storage areas for a line of text to
 be written to the screen where the low byte of each word contains the character
@@ -122,7 +122,7 @@ B<See>: I<TView> methods I<write_buf> and I<write_line>.
 =cut
 
 subtype TDrawBuffer,
-  as ArrayRef[Ref];
+  as ArrayRef[Int];
 
 =item I<TFixupList>
 
@@ -151,6 +151,18 @@ on.
 subtype TPalette,
   as Str;
 
+=item I<TScrollChars>
+
+  subtype TScrollChars : Str;
+
+This is an internal type used inside I<TScrollBar> to store the characters used
+to draw a I<TScrollBar> object on the display.
+
+=cut
+
+subtype TScrollChars,
+  as Str;
+
 =item I<TTitleStr>
 
   subtype TTitleStr : Str;
@@ -159,7 +171,7 @@ Defines a type used by I<TWindow> for window title strings.
 
 =cut
 
-subtype TScrollChars,
+subtype TTitleStr,
   as Str;
 
 =item I<TVideoBuf>
@@ -170,18 +182,6 @@ This defines the internal type used in video buffer declarations in I<TGroup>.
 
 Video buffers are used to store screen images in cache memory (see
 I<get_buf_mem>) for rapid screen update.
-
-=cut
-
-subtype TTitleStr,
-  as Str;
-
-=item I<TScrollChars>
-
-  subtype TScrollChars : Str;
-
-This is an internal type used inside I<TScrollBar> to store the characters used
-to draw a I<TScrollBar> object on the display.
 
 =cut
 
@@ -280,7 +280,7 @@ __END__
 
 =item *
 
-2023 by J. Schneider L<https://github.com/brickpool/>
+2023-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

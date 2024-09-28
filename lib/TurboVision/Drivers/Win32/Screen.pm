@@ -45,6 +45,7 @@ our $AUTHORITY = 'github:fpc';
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on': 'off';
 use English qw( -no_match_vars );
+use List::Util qw( min max );
 use Win32::Console;
 
 use TurboVision::Drivers::Const qw(
@@ -90,6 +91,7 @@ Nothing per default, but can export the following per request:
       _get_crt_mode
       _set_crt_data
       _set_crt_mode
+      _sys_update_screen
 
 =cut
 
@@ -115,6 +117,7 @@ our %EXPORT_TAGS = (
     _get_crt_mode
     _set_crt_data
     _set_crt_mode
+    _sys_update_screen
   )],
 
 );
@@ -168,6 +171,23 @@ before Turbo Vision switches to a new screen mode.
 =cut
 
   my $_startup_console_mode;
+
+=item I<$front_buffer>
+
+  my $front_buffer = < ArrayRef[Int] >;
+
+Front buffer: what is being shown on screen (the last frame).
+
+Basically: the front buffer is displayed on screen and we draw to 
+I<$screen_buffer> (the back buffer), then we copy I<$screen_buffer> to the 
+I<$front_buffer> when we're done drawing (so the content of the 
+I<$screen_buffer> is shown). 
+
+=end comment
+
+=cut
+
+  my $front_buffer = [];
 
 =begin comment
 
@@ -432,7 +452,9 @@ Set CRT data areas.
     $hi_res_screen = $screen_width > 25;                # Set hires variable
                                                         # Set CGA snow
     $check_snow    = !( $screen_mode == SM_MONO || $hi_res_screen );
-    $screen_buffer = {};                                # Init screen buffer
+                                                        # Init screen buffer
+    @$screen_buffer = ( 0x0720 ) x ( $screen_width * $screen_height );
+    @$front_buffer = @$screen_buffer;
     return;
   }
 
@@ -442,7 +464,8 @@ Set CRT data areas.
 
 Set CRT mode to value in I<$mode>.
 
-B<See>: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
+B<See>: 
+L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
 =cut
 
@@ -491,6 +514,86 @@ B<See>: L<Set console window size on Windows|https://stackoverflow.com/a/2591684
     $screen_width  = $cols if $cols;
     $screen_height = $rows if $rows;
 
+    return;
+  }
+
+=item I<_set_window_resizing>
+
+  func _sys_update_screen(Bool $force)
+
+Force specifies whether the whole screen has to be redrawn, or (if target
+platform supports it) its parts only.
+
+=cut
+
+  func _sys_update_screen(Bool $force) {
+    my $back_buffer = $screen_buffer;
+    my $dirty;
+    if ( $force ) {
+      $dirty = TRUE;
+    }
+    else {
+      if ( eval { require List::MoreUtils } 
+        && exists(&List::MoreUtils::pairwise)
+      ) {
+        $dirty = scalar(
+          List::MoreUtils::pairwise { ($a, $b) } @$back_buffer, @$front_buffer
+        ) > 0;
+      }
+      elsif ( eval { require List::Compare } 
+        && exists(&List::Compare::get_intersection)
+      ) {
+        $dirty = scalar(List::Compare->new('-u', 
+          $back_buffer, $front_buffer)->get_intersection()
+        ) > 0;
+      }
+      else {
+        # no optimized version, reverting to Perl
+        if ( @$back_buffer != @$front_buffer ) {
+          $dirty = FALSE;
+        }
+        else {
+          $dirty = TRUE;
+          my $size = @$back_buffer;
+          foreach ( my $i = 0 ; $i < $size ; $i++ ) {
+            if ( $back_buffer->[$i] != $front_buffer->[$i] ) {
+              $dirty = FALSE;
+              last;
+            }
+          }
+        } #/ else [ if ( @$back_buffer != @$front_buffer ) ]
+      }
+    }
+
+    if ( $dirty ) {
+      my $buffer = '';
+      my $x2 = $force ? $screen_width - 1 : 0;
+      my $y2 = $force ? $screen_height - 1 : 0; 
+      my $offset = 0;
+      for my $row ( 0 .. $screen_height - 1 ) {
+        for my $col ( 0 .. $screen_width - 1 ) {
+          if ( $back_buffer->[$offset] != $front_buffer->[$offset] ) {
+            $x2 = max( $x2, $col );
+            $y2 = max( $y2, $row );
+          }
+          my $char = $back_buffer->[$offset] & 0xff;
+          my $attr = $back_buffer->[$offset] >> 8 & 0xff;
+          $buffer .= pack( 'SS', $char, $attr );
+          $offset++;
+        } #/ for my $col ( 0 .. $screen_width - 1)
+      } #/ for my $row ( 0 .. $screen_height - 1)
+      q/*
+      warn("x2: $x2\n");
+      warn("y2: $y2\n");
+      */ if 0;
+      my $CONSOLE = do {
+        $_io //= StdioCtl->instance();
+        $_io->out();
+      };
+      $CONSOLE->WriteRect($buffer, 0, 0, $x2, $y2);
+
+      @$front_buffer = @$back_buffer;
+    } #/ if ( $dirty )
     return;
   }
 
@@ -579,4 +682,6 @@ B<See>: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
 
 =head1 SEE ALSO
 
-L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>
+L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>, 
+L<video.pp|https://github.com/ultibohub/FPC/blob/3a6be9bc116ee0b22011b6a7234a78b455df2e15/source/packages/rtl-console/src/win/video.pp>
+

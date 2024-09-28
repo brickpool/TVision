@@ -1,6 +1,6 @@
 use 5.014;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use TurboVision::Drivers::Event;
 use TurboVision::Drivers::Types qw( TEvent );
@@ -68,5 +68,18 @@ ok(
   length($ev) > 100,
   'TEvent->stringify'
 );
+
+subtest 'EV_BROADCAST' => sub {
+  plan tests => 3;   
+  my $obj = bless {};
+  for ( $ev = TEvent->new() ) {
+    $_->what( EV_BROADCAST );
+    $_->command( 700 );
+    $_->info_ptr( $obj );
+  }
+  is( $ev->what, EV_BROADCAST, 'TEvent->what' );
+  is( $ev->command, 700, 'TEvent->command' );
+  is( $ev->info_ptr, $obj, , 'TEvent->info_ptr' );
+};
 
 done_testing;
