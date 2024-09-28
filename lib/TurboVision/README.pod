@@ -9,9 +9,9 @@
 
 =head2 Attributes
 
-Modules defaults to `is => ro`
+Modules defaults to C<< is => ro >>
 
-  #init_arg => "foo",  accessor => "foo"
+  # init_arg => "foo", accessor => "foo"
   has foo ( is => rw );
 
   # init_arg => "foo", reader => "foo"
@@ -32,7 +32,7 @@ Modules defaults to `is => ro`
   # 'field' synonym for has but defaults to 'init_arg => undef'
   field foo ( builder => 1 );
   
-  # 'has name!' is a shorthand for the longer:
+  # 'has name!' is a shorthand for the longer
   has name ( required => 1 );
   
   # has name ( is => rw, default => "Anonymous" ) can be written as

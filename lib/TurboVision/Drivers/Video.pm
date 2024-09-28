@@ -7,11 +7,11 @@ TurboVision::Drivers::Video - Video handling module for Turbo Vision
 =head1 SYNOPSIS
 
   package VideoUtil;
-
+  
   use TurboVision::Drivers::Video;
   use TurboVision::Drivers::Types qw( Video );
   use Exporter qw( import );
-
+  
   our @EXPORT_OK = qw(
     text_out
   );
@@ -45,9 +45,7 @@ use 5.014;
 use warnings;
 
 use constant::boolean;
-use Function::Parameters qw(
-  classmethod
-);
+use Function::Parameters qw( classmethod );
 
 use Moose;
 use MooseX::Types::Moose qw( :all );
@@ -66,10 +64,10 @@ our $AUTHORITY = 'github:fpc';
 # ------------------------------------------------------------------------
 
 use Carp;
-use Data::Alias qw( alias );
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on': 'off';
 use MooseX::ClassAttribute;
 use MooseX::StrictConstructor;
-use Try::Tiny;
 
 use TurboVision::Const qw( :platform );
 use TurboVision::Drivers::Const qw(
@@ -77,7 +75,13 @@ use TurboVision::Drivers::Const qw(
   :crXXXX
   :errXXXX
 );
-use TurboVision::Drivers::ScreenManager qw( :vars );
+use TurboVision::Drivers::ScreenManager qw( 
+  $screen_buffer
+  $screen_height
+  $screen_mode
+  $screen_width
+  $startup_mode
+);
 use TurboVision::Drivers::Types qw(
   TVideoBuf
   TVideoMode
@@ -179,7 +183,7 @@ Error code returned by the last operation.
       return $error_code;
     }
     SET: {
-      confess unless defined $value;
+      assert ( defined $value );
       return $error_code = $value;
     }
   }
@@ -195,6 +199,8 @@ which are not. Each set bit corresponds to a cursorline being shown.
 
   my $cursor_lines;
   classmethod cursor_lines() {
+    return $class->get_cursor_type()
+        if not defined $cursor_lines;
     return $cursor_lines;
   }
 
@@ -213,15 +219,17 @@ Maximum screen buffer width.
 
 =item I<screen_color>
 
-  class_has screen_color ( is => ro, type => Bool ) = TRUE;
+  class_has screen_color ( is => ro, type => Bool ) = FALSE;
 
 I<screen_color> indicates whether the current screen supports colors.
 
 =cut
 
-  my $screen_color = TRUE;
+  # our $startup_mode
   classmethod screen_color() {
-    return $screen_color;
+    return $startup_mode != 0xffff 
+        && $startup_mode != SM_BW40 
+        && $startup_mode != SM_BW80;
   }
 
 =item I<screen_height>
@@ -234,7 +242,7 @@ Current screen height.
 
   # our $screen_height
   classmethod screen_height() {
-    return $screen_height // 0;
+    return $screen_height || 0;
   }
 
 =item I<screen_width>
@@ -247,16 +255,16 @@ Current screen width.
 
   # our $screen_width
   classmethod screen_width() {
-    return $screen_width // 0;
+    return $screen_width || 0;
   }
 
 =item I<video_buf>
 
   class_has video_buf ( is => ro, type => TVideoBuf ) = [];
 
-I<video_buf> forms the heart of the I<Video> module: This attribute represents
-the physical screen. Writing to this array and calling L</update_screen> will
-write the actual characters to the screen.
+The field I<video_buf> forms the heart of the I<Video> module: This attribute 
+represents the physical screen. Writing to this array and calling 
+L</update_screen> will write the actual characters to the screen.
 
 =item I<video_buf_size>
 
@@ -268,6 +276,7 @@ Current size of the video buffer pointed to by I<video_buf>.
 
   class_has 'video_buf' => (
     traits  => ['Array'],
+    is      => 'ro',
     isa     => TVideoBuf,
     default => sub { $screen_buffer },
     handles => {
@@ -288,20 +297,16 @@ Screen lock update count.
 =cut
 
   my $_lock_level = 0;
-
-=begin comment
-
-=item I<$_is_initialized>
-
-  class_has $_is_initialized ( is => private, type => Bool ) = !!0;
-
-Is Video initialized.
-
-=end comment
-
-=cut
-
-  my $_is_initialized = FALSE;
+  classmethod _lock_level(Maybe[Int] $value=) { 
+    goto SET if @_;
+    GET: {
+      return $_lock_level;
+    }
+    SET: {
+      assert ( defined $value );
+      return $_lock_level = $value;
+    }
+  }
 
 =back
 
@@ -332,15 +337,15 @@ B<See>: L</init_video>, L</update_screen>
   classmethod clear_screen() {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code(ERR_VIO_INIT);
       return;
     };
-    try {
+    eval {
       TurboVision::Drivers::ScreenManager::clear_screen();
-    }
-    catch {
-      $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
+    };
+    if ( $@ ) {
+      $class->error_code(ERR_VIO_NOT_SUPPORTED);
     };
     return;
   }
@@ -366,13 +371,12 @@ to do so may leave the screen in an unusable state after the program exits.
     return
         if $class->error_code != ERR_OK;
     return
-        if not $_is_initialized;
-    try {
+        if $startup_mode == 0xffff;
+    eval {
       TurboVision::Drivers::ScreenManager::done_video();
-      $_is_initialized = FALSE;
-    }
-    catch {
-      $class->error_code(0 - ERR_VIO_INIT);
+    };
+    if ( $@ ) {
+      $class->error_code(ERR_VIO_INIT);
     };
     return;
   }
@@ -396,10 +400,12 @@ B<See>: L</set_cursor_type>
 =cut
 
   classmethod get_cursor_type() {
-    if ( $class->error_code() == ERR_OK ) {
-      if ( $_is_initialized ) {
+    if ( $class->error_code == ERR_OK ) {
+      if ( $startup_mode != 0xffff ) {
 
 if( _TV_UNIX ){
+
+        ...;
 
 }elsif( _WIN32 ){
 
@@ -413,11 +419,11 @@ if( _TV_UNIX ){
           && $cursor_lines != CR_BLOCK
           && $cursor_lines != CR_HALF_BLOCK
         ) {
-          $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
+          $class->error_code(ERR_VIO_NOT_SUPPORTED);
         }
       }
       else {
-        $class->error_code(0 - ERR_VIO_INIT);
+        $class->error_code(ERR_VIO_INIT);
       }
     }
     return $cursor_lines;
@@ -437,9 +443,8 @@ B<See also>: L</lock_screen_update>, L</unlock_screen_update>, L</update_screen>
   classmethod get_lock_screen_count() {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
-      return undef;
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code(ERR_VIO_INIT);
     };
     return $_lock_level;
   }
@@ -456,19 +461,15 @@ B<See also>: L</set_video_mode>
 
 =cut
 
-  classmethod get_video_mode($) {
-    alias my $mode = $_[-1];
-    confess 'Invalid argument $var'
-      if not is_TVideoMode $mode;
-
+  classmethod get_video_mode(TVideoMode $mode) {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code( ERR_VIO_INIT );
       return;
-    };
-    $mode->{row} = $class->screen_height;
-    $mode->{col} = $class->screen_width;
+    }
+    $mode->{col}   = $class->screen_width;
+    $mode->{row}   = $class->screen_height;
     $mode->{color} = $class->screen_color;
     return;
   }
@@ -492,13 +493,12 @@ B<See also>: I<done_video>.
     return
         if $class->error_code != ERR_OK;
     return
-        if $_is_initialized;
-    try {
+        if $startup_mode != 0xffff;
+    eval {
       TurboVision::Drivers::ScreenManager::init_video();
-      $_is_initialized = TRUE;
-    }
-    catch {
-      $class->error_code(0 - ERR_VIO_INIT);
+    };
+    if ( $@ ) {
+      $class->error_code(ERR_VIO_INIT);
     };
     return;
   }
@@ -524,8 +524,8 @@ B<See also>: L</update_screen>, L</unlock_screen_update>, L</get_lock_screen_cou
   classmethod lock_screen_update() {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code(ERR_VIO_INIT);
       return;
     }
     $_lock_level++;
@@ -548,8 +548,8 @@ B<See>: L</set_cursor_pos>
 =cut
 
   classmethod set_cursor_type(Int $type) {
-    if ( $class->error_code() == ERR_OK ) {
-      if ( $_is_initialized ) {
+    if ( $class->error_code == ERR_OK ) {
+      if ( $startup_mode != 0xffff ) {
         if ( $type == CR_HIDDEN
           || $type == CR_UNDER_LINE
           || $type == CR_BLOCK
@@ -559,23 +559,25 @@ B<See>: L</set_cursor_pos>
 
 if( _TV_UNIX ){
 
+          ...;
+
 }elsif( _WIN32 ){
 
-        require TurboVision::Drivers::Win32::Caret;
-        TurboVision::Drivers::Win32::Caret::set_caret_size($cursor_lines);
+          require TurboVision::Drivers::Win32::Caret;
+          TurboVision::Drivers::Win32::Caret::set_caret_size($cursor_lines);
 
 }#endif _TV_UNIX
 
         }
         else {
-          $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
+          $class->error_code(ERR_VIO_NOT_SUPPORTED);
         }
       }
       else {
-        $class->error_code(0 - ERR_VIO_INIT);
+        $class->error_code(ERR_VIO_INIT);
       }
     }
-    return $cursor_lines;
+    return;
   }
 
 =item I<set_video_mode>
@@ -610,7 +612,7 @@ B<See also>: L</get_video_mode>
     return
         if $class->error_code != ERR_OK;
     my $success;
-    try {
+    eval {
       confess 'Screen does not support colors'
         if $mode->{color} && !$class->screen_color;
 
@@ -623,16 +625,16 @@ B<See also>: L</get_video_mode>
         $resolution = SM_BW80 if $resolution == 0x5019;   # VGA, 16 gray, 80x25
       }
       
-      if ( $_is_initialized ) {
+      if ( $startup_mode != 0xffff ) {
         TurboVision::Drivers::ScreenManager::set_video_mode($resolution);
       }
       else {
         $screen_mode = $resolution;
       }
       $success = TRUE;
-    }
-    catch {
-      $class->error_code(0 - ERR_VIO_NO_SUCH_MODE);
+    };
+    if ( $@ ) {
+      $class->error_code(ERR_VIO_NO_SUCH_MODE);
       $success = FALSE;
     };
     return $success;
@@ -658,8 +660,8 @@ B<See also>: L</lock_screen_update>, L</get_lock_screen_count>, L</update_screen
   classmethod unlock_screen_update() {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code(ERR_VIO_INIT);
       return;
     }
     $_lock_level--
@@ -672,9 +674,9 @@ B<See also>: L</lock_screen_update>, L</get_lock_screen_count>, L</update_screen
   classmethod update_screen(Bool $force)
 
 I<update_screen> synchronizes the actual screen with the contents of the
-L</video_buf> internal buffer. The parameter Force specifies whether the whole
-screen has to be redrawn (I<$force> = True) or only parts that have changed
-since the last update of the screen.
+L</video_buf> internal buffer. The parameter I<$force> specifies whether the 
+whole screen has to be redrawn (I<$force> = True) or only parts that have 
+changed since the last update of the screen.
 
 The current contents of L</video_buf> are examined to see what locations on the
 screen need to be updated. On slow terminals (e.g. a Linux telnet session) this
@@ -692,16 +694,28 @@ B<See also>: L</clear_screen>
   classmethod update_screen(Bool $force) {
     return
         if $class->error_code != ERR_OK;
-    if ( !$_is_initialized ) {
-      $class->error_code(0 - ERR_VIO_INIT);
+    if ( $startup_mode == 0xffff ) {
+      $class->error_code(ERR_VIO_INIT);
       return;
     }
     $class->error_code(ERR_OK);
-    try {
-      confess 'Not implemented';
-    }
-    catch {
-      $class->error_code(0 - ERR_VIO_NOT_SUPPORTED);
+    eval {
+
+if( _TV_UNIX ){
+
+      ...;
+
+}elsif( _WIN32 ){
+
+      require TurboVision::Drivers::Win32::Screen;
+      TurboVision::Drivers::Win32::Screen::_sys_update_screen($force);
+
+}#endif _TV_UNIX
+
+    };
+    if ( $@ ) {
+      warn($@);
+      $class->error_code(ERR_VIO_NOT_SUPPORTED);
     };
     return;
   }
@@ -763,10 +777,12 @@ __END__
 
 =item *
 
-2023 by J. Schneider L<https://github.com/brickpool/>
+2023-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
 =head1 SEE ALSO
 
+L<video.inc|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-console/src/inc/video.inc>, 
+L<videoh.inc|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-console/src/inc/videoh.inc>, 
 L<video.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/rtl-console/src/win/video.pp>

@@ -166,7 +166,7 @@ modes are not supported.
 
 =item I<$screen_buffer>
 
-  our $screen_buffer = < Ref >;
+  our $screen_buffer = < ArrayRef >;
 
 This internal reference is initialized by L</init_video> and keeps track of the
 location of the video screen buffer.
@@ -252,6 +252,8 @@ no need to use this routine.
   sub clear_screen {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
@@ -272,6 +274,8 @@ and terminates Turbo Vision's video support.
 
   sub done_video {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -298,6 +302,8 @@ L</$cursor_lines>.
 
   sub init_video {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -340,6 +346,8 @@ B<See>: I<< TProgram->set_screen_mode >>, I<smXXXX> constants
   sub set_video_mode {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Screen;
@@ -359,6 +367,8 @@ if( _TV_UNIX ){
 
 INIT {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 

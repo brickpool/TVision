@@ -45,6 +45,7 @@ our $AUTHORITY = 'github:fpc';
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on': 'off';
 use English qw( -no_match_vars );
+use List::Util qw( min max );
 use Win32::Console;
 
 use TurboVision::Drivers::Const qw(
@@ -90,6 +91,7 @@ Nothing per default, but can export the following per request:
       _get_crt_mode
       _set_crt_data
       _set_crt_mode
+      _sys_update_screen
 
 =cut
 
@@ -115,6 +117,7 @@ our %EXPORT_TAGS = (
     _get_crt_mode
     _set_crt_data
     _set_crt_mode
+    _sys_update_screen
   )],
 
 );
@@ -168,6 +171,23 @@ before Turbo Vision switches to a new screen mode.
 =cut
 
   my $_startup_console_mode;
+
+=item I<$front_buffer>
+
+  my $front_buffer = < ArrayRef[Int] >;
+
+Front buffer: what is being shown on screen (the last frame).
+
+Basically: the front buffer is displayed on screen and we draw to 
+I<$screen_buffer> (the back buffer), then we copy I<$screen_buffer> to the 
+I<$front_buffer> when we're done drawing (so the content of the 
+I<$screen_buffer> is shown). 
+
+=end comment
+
+=cut
+
+  my $front_buffer = [];
 
 =begin comment
 
@@ -432,7 +452,9 @@ Set CRT data areas.
     $hi_res_screen = $screen_width > 25;                # Set hires variable
                                                         # Set CGA snow
     $check_snow    = !( $screen_mode == SM_MONO || $hi_res_screen );
-    $screen_buffer = {};                                # Init screen buffer
+                                                        # Init screen buffer
+    @$screen_buffer = ( 0x0720 ) x ( $screen_width * $screen_height );
+    @$front_buffer = @$screen_buffer;
     return;
   }
 
@@ -442,7 +464,8 @@ Set CRT data areas.
 
 Set CRT mode to value in I<$mode>.
 
-B<See>: L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
+B<See>: 
+L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
 
 =cut
 
@@ -491,6 +514,96 @@ B<See>: L<Set console window size on Windows|https://stackoverflow.com/a/2591684
     $screen_width  = $cols if $cols;
     $screen_height = $rows if $rows;
 
+    return;
+  }
+
+=item I<_set_window_resizing>
+
+  func _sys_update_screen(Bool $force)
+
+This subroutine synchronizes the Windows Console Screen with the contents of the
+internal buffer (I<$screen_buffer>).
+
+The parameter I<$force> specifies whether the entire screen is to be redrawn or 
+just a section of it (bounding box of lines).
+
+=cut
+
+  func _sys_update_screen(Bool $force) {
+    my $back_buffer = $screen_buffer;                     # Alias for the buffer
+    my $update = $force;                                  # Preset var $update
+    unless ( $force ) {                                   # Check for updating
+      if ( @$back_buffer != @$front_buffer ) {            # Not equal in size
+        $force = $update = TRUE;
+      }
+      elsif ( eval { require List::MoreUtils }            # use List::MoreUtils
+        && exists( &List::MoreUtils::pairwise ) )
+      {
+        $update = scalar(
+          List::MoreUtils::pairwise { ( $a, $b ) }
+          @$back_buffer, @$front_buffer
+        ) > 0;
+      }
+      elsif ( eval { require List::Compare }              # use List::Compare
+        && exists( &List::Compare::get_intersection ) )
+      {
+        $update = scalar( 
+          List::Compare->new( '-u', 
+          $back_buffer, $front_buffer
+        )->get_intersection() ) > 0;
+      }
+      else {                                              # No optimized version
+        my $size = @$back_buffer;
+        for ( my $i = 0; $i < $size; $i++ ) {
+          if ( $back_buffer->[$i] != $front_buffer->[$i] ) {
+            $update = TRUE;
+            last;
+          }
+        }
+      } #/ else [ if ( @$back_buffer != ...)]
+    } #/ else [ unless ( $force ) ]
+
+    if ( $update ) {                                      # Update required?
+      my $buffer = '';                                    # Win API buffer
+      my $offset = 0;                                     # Backbuf cell counter
+      my $x1 = $force ? 0                  : $screen_width - 1;
+      my $y1 = $force ? 0                  : $screen_height - 1;
+      my $x2 = $force ? $screen_width - 1  : 0;
+      my $y2 = $force ? $screen_height - 1 : 0;
+      for my $row ( 0 .. $screen_height - 1 ) {           # Go through each line
+        my $line = '';                                    # Start w/ empty line
+        for my $col ( 0 .. $screen_width - 1 ) {          # Each Cell in a line
+          my $attr = $back_buffer->[$offset] >> 8 & 0xff;
+          my $char = $back_buffer->[$offset] & 0xff;
+          $line .= pack( 'SS', $char, $attr );            # Convert to Win API
+          unless ( $force ) {                             # No calc when force
+            if ( $back_buffer->[$offset] != $front_buffer->[$offset] ) {
+              # Update the bounding box of the array
+              $x1 = min( $x1, $col );
+              $y1 = min( $y1, $row );
+              $x2 = max( $x2, $col );
+              $y2 = max( $y2, $row );
+            }
+          }
+          $offset++;                                      # Next cell in backbuf
+        }
+        $buffer .= $line                                  # Add row if necessary
+          if $y1 <= $y2;
+      } #/ for my $row ( 0 .. $screen_height - 1)
+      q/*
+      warn("x1: $x1\n");
+      warn("y1: $y1\n");
+      warn("x2: $x2\n");
+      warn("y2: $y2\n");
+      */ if 0;
+      my $CONSOLE = do {
+        $_io //= StdioCtl->instance();
+        $_io->out();
+      };
+      $CONSOLE->WriteRect($buffer, 0, $y1, $screen_width - 1, $y2);
+
+      @$front_buffer = @$back_buffer;                     # Copy back to front
+    } #/ if ( $update )
     return;
   }
 
@@ -579,4 +692,6 @@ B<See>: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
 
 =head1 SEE ALSO
 
-L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>
+L<drivers.pas|https://github.com/fpc/FPCSource/blob/bdc826cc18a03a833735853c0c91268c992e8592/packages/fv/src/drivers.pas>, 
+L<video.pp|https://github.com/ultibohub/FPC/blob/3a6be9bc116ee0b22011b6a7234a78b455df2e15/source/packages/rtl-console/src/win/video.pp>
+

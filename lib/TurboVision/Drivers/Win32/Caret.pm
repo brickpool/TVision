@@ -114,11 +114,11 @@ our %EXPORT_TAGS = (
 
 STD ioctl object I<< StdioCtl->instance() >>
 
-=end comment
-
 =cut
 
   my $_io;
+
+=back
 
 =end comment
 
@@ -150,9 +150,9 @@ This internal routine implements I<done_caret> for I<Windows>.
   func get_caret_size() : Int
 
 Return the shape of the cursor, like interrupt
-L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 03h does.
+L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function C<03h> does.
 
-B<Note>: If the cursor is not visible, the routine returns 0x2000 (bit 5 of
+B<Note>: If the cursor is not visible, the routine returns C<0x2000> (bit 5 of
 "Scan Row Start" is set).
 
 =cut
@@ -209,7 +209,7 @@ This internal routine implements I<init_caret> for I<Windows>.
 If the cursor is hidden (bit 5 of "Scan Row Start" in L</get_caret_size> is
 set), the routine returns false, otherwise true ("cursor shown").
 
-See <L/get_caret_size>
+B<See>: L</get_caret_size>
 
 =cut
   func is_caret_visible() {
@@ -227,7 +227,7 @@ See <L/get_caret_size>
   func set_caret_position(Int $x, Int $y)
 
 Set the cursor position, as interrupt
-L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 02h do.
+L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function C<02h> do.
 
 =cut
 
@@ -247,7 +247,7 @@ L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 02h do.
   func set_caret_size(Int $cursor)
 
 Set the shape of the cursor, as interrupt
-L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function 01h do.
+L<int 10h|https://en.wikipedia.org/wiki/INT_10H> function C<01h> do.
 
 =cut
 
@@ -325,7 +325,7 @@ __END__
 
 =item *
 
-2023 by J. Schneider L<https://github.com/brickpool/>
+2023-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 

@@ -55,3 +55,6 @@ inc/
 # Devel
 /trial/
 test.bin
+
+# perltidy
+.perltidyrc

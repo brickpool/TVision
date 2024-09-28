@@ -273,6 +273,8 @@ L</done_sys_error> routine.
   sub init_sys_error {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::SysError;
@@ -294,6 +296,8 @@ I<Ctrl-C>, I<Ctrl-Break> and I<Critical-Error>, to their original settings.
 
   sub done_sys_error {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -320,6 +324,8 @@ B<See>: L</$sys_error_func>
 
   sub system_error {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 

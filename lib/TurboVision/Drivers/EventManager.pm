@@ -268,6 +268,8 @@ terminated by calling its corresponding L</done_events> procedure.
   sub init_events {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::EventQ;
@@ -290,6 +292,8 @@ I<done_events> disables the mouse event handler and hides the mouse.
 
   sub done_events {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -321,6 +325,8 @@ B<See>: I<evXXXX> constants
   sub get_key_event {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Keyboard;
@@ -341,6 +347,8 @@ value contains a combination of the I<kbXXXX> constants for shift states.
 
   sub get_shift_state {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -370,6 +378,8 @@ If no mouse events have occurred, I<< $event->what >> is set to I<EV_NOTHING>.
   sub get_mouse_event {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Mouse;
@@ -397,6 +407,8 @@ always be the same number of each.
 
   sub hide_mouse {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 
@@ -426,6 +438,8 @@ B<See>: L</hide_mouse>
   sub show_mouse {
 if( _TV_UNIX ){
 
+    ...;
+
 }elsif( _WIN32 ){
 
     require TurboVision::Drivers::Win32::Mouse;
@@ -445,6 +459,8 @@ if( _TV_UNIX ){
 
 INIT {
 if( _TV_UNIX ){
+
+    ...;
 
 }elsif( _WIN32 ){
 

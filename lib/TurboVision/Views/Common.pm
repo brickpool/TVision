@@ -62,6 +62,8 @@ Nothing per default, but can export the following per request:
     :vars
       $command_set_changed
       $cur_command_set
+      $error_attr
+      $shadow_attr
       $shadow_size
 
     private:
@@ -81,6 +83,8 @@ our %EXPORT_TAGS = (
   vars => [qw(
     $command_set_changed
     $cur_command_set
+    $error_attr
+    $shadow_attr
     $shadow_size
   )],
 
@@ -136,6 +140,27 @@ window are active.
 
   our $cur_command_set = TCommandSet->new( cmds => pack( 'b*', 1 x 256 ) )
     - [CM_ZOOM, CM_CLOSE, CM_RESIZE, CM_NEXT, CM_PREV];   # All active but these
+
+
+=item I<$error_attr>
+
+  our $error_attr = < Int >;
+
+Error colours.
+
+=cut
+
+  our $error_attr = 0xcf;
+
+=item I<$shadow_attr>
+
+  our $shadow_attr = < Int >;
+
+Shadow attribute.
+
+=cut
+
+  our $shadow_attr =  0x08;
 
 =item I<$shadow_size>
 
@@ -261,7 +286,7 @@ __END__
 
 =item *
 
-2023 by J. Schneider L<https://github.com/brickpool/>
+2023-2024 by J. Schneider L<https://github.com/brickpool/>
 
 =back
 
