@@ -44,7 +44,6 @@ use MooseX::Types -declare => [qw(
 
   StdioCtl
   TEvent
-  THardwareInfo
   Video
 
   TKeyboardDriver
@@ -152,7 +151,6 @@ The I<Drivers> type hierarchy looks like this
   Moose::Object
     StdioCtl *)
     TEvent
-    THardwareInfo
     Video
 
   *) Win32 only
@@ -173,10 +171,6 @@ class_type StdioCtl, {
 
 class_type TEvent, {
   class => 'TurboVision::Drivers::Event'
-};
-
-class_type THardwareInfo, {
-  class => 'TurboVision::Drivers::HardwareInfo'
 };
 
 class_type Video, {
