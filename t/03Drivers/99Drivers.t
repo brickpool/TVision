@@ -3,9 +3,9 @@ use warnings;
 
 use Test::More tests => 6;
 
-require_ok 'TurboVision::Drivers';
-
-use TurboVision::Drivers;
+BEGIN {
+  use_ok 'TurboVision::Drivers';
+}
 
 #------------------
 note 'random check';

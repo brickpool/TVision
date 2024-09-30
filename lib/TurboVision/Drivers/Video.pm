@@ -262,15 +262,15 @@ Current screen width.
 
   class_has video_buf ( is => ro, type => TVideoBuf ) = [];
 
-The field I<video_buf> forms the heart of the I<Video> module: This attribute 
-represents the physical screen. Writing to this array and calling 
+The field I<video_buf> forms the heart of the I<Video> module: This class 
+attribute represents the physical screen. Writing to this array and calling 
 L</update_screen> will write the actual characters to the screen.
 
 =item I<video_buf_size>
 
   class_has video_buf_size ( is => ro, type => Int ) = 0;
 
-Current size of the video buffer pointed to by I<video_buf>.
+Current size (couunt of cells) of the video buffer pointed to by I<video_buf>.
 
 =cut
 
@@ -517,7 +517,8 @@ I<lock_screen_update> before the drawing, and L</unlock_screen_update> after the
 drawing, followed by a L</update_screen> call, all writing will be shown on
 screen at once.
 
-B<See also>: L</update_screen>, L</unlock_screen_update>, L</get_lock_screen_count>
+B<See also>: L</update_screen>, L</unlock_screen_update>, 
+L</get_lock_screen_count>
 
 =cut
 
@@ -653,7 +654,8 @@ screen performance in case a lot of writing is done.
 It is important to make sure that each call to L</lock_screen_update> is matched
 by exactly one call to I<unlock_screen_update>.
 
-B<See also>: L</lock_screen_update>, L</get_lock_screen_count>, L</update_screen>
+B<See also>: L</lock_screen_update>, L</get_lock_screen_count>, 
+L</update_screen>
 
 =cut
 
@@ -714,7 +716,6 @@ if( _TV_UNIX ){
 
     };
     if ( $@ ) {
-      warn($@);
       $class->error_code(ERR_VIO_NOT_SUPPORTED);
     };
     return;

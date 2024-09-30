@@ -64,7 +64,7 @@ subtest 'Video->set_cursor_type' => sub {
 
 subtest 'Video->update_screen' => sub {
   no strict 'subs';
-  plan tests => 3;
+  plan tests => 5;
   my $w = Video->screen_width;
   my $buf = Video->video_buf;
   ok( $w && $buf );
@@ -74,6 +74,8 @@ subtest 'Video->update_screen' => sub {
   $buf->[3 + 3 * $w] = (0x20 << 8) + ord('A');
   $buf->[4 + 3 * $w] = (0x20 << 8) + ord('B');
   $buf->[5 + 3 * $w] = (0x20 << 8) + ord('C');
+  lives_ok { Video->update_screen(0) };
+  is( Video->error_code, 0 );
   lives_ok { Video->update_screen(1) };
   is( Video->error_code, 0 );
 };

@@ -66,6 +66,9 @@ Nothing per default, but can export the following per request:
       $shadow_attr
       $shadow_size
 
+    :subs
+      register_views
+
     private:
       $_fixup_list
       $_owner_group
@@ -86,6 +89,10 @@ our %EXPORT_TAGS = (
     $error_attr
     $shadow_attr
     $shadow_size
+  )],
+
+  subs => [qw(
+    register_views
   )],
 
   private => [qw(
@@ -210,28 +217,31 @@ Top focused view.
 # Subroutines ------------------------------------------------------------
 # ------------------------------------------------------------------------
 
-=begin comment
-
 =head2 Subroutines
 
 =over
 
-=item public static C<< get_mouse_event(TEvent $event) >>
+=item I<register_views>
 
-...
+  func register_views()
 
-=end comment
+Calls I<register_type> for each of the class types defined in the I<Views>
+module: I<TView>, I<TFrame>, I<TScrollBar>, I<TScroller>, I<TListViewer>, 
+I<TGroup>, I<Window>.
 
 =cut
 
-  #func get_mouse_event($) {
-  #}
+  func register_views() {
+    require TurboVision::Views::View;
+    require TurboVision::Views::Group;
 
-=begin comment
+    TStreamRec->register_type(TView->RView);              # Register views
+    TStreamRec->register_type(TGroup->RGroup);            # Register group
+    
+    return;
+  }
 
 =back
-
-=end comment
 
 =cut
 

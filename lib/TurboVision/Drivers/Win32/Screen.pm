@@ -176,12 +176,14 @@ before Turbo Vision switches to a new screen mode.
 
   my $front_buffer = < ArrayRef[Int] >;
 
-Front buffer: what is being shown on screen (the last frame).
+Front buffer, defined as what is displayed on the screen (the last frame).
 
-Basically: the front buffer is displayed on screen and we draw to 
-I<$screen_buffer> (the back buffer), then we copy I<$screen_buffer> to the 
-I<$front_buffer> when we're done drawing (so the content of the 
-I<$screen_buffer> is shown). 
+Basically, the front buffer is currently displayed on the screen and we draw in 
+I<$screen_buffer> (the back buffer). When we have finished drawing, the content 
+of I<$screen_buffer> can be displayed by determining the difference between the 
+buffers.  If the output of the content of I<$screen_buffer> on the screen is 
+completed, we copy I<$screen_buffer> (the current frame) into the 
+I<$front_buffer> (the last frame).
 
 =end comment
 
@@ -517,11 +519,11 @@ L<Set console window size on Windows|https://stackoverflow.com/a/25916844>
     return;
   }
 
-=item I<_set_window_resizing>
+=item I<_sys_update_screen>
 
   func _sys_update_screen(Bool $force)
 
-This subroutine synchronizes the Windows Console Screen with the contents of the
+This subroutine synchronizes the Windows console screen with the content of the 
 internal buffer (I<$screen_buffer>).
 
 The parameter I<$force> specifies whether the entire screen is to be redrawn or 
@@ -530,80 +532,106 @@ just a section of it (bounding box of lines).
 =cut
 
   func _sys_update_screen(Bool $force) {
-    my $back_buffer = $screen_buffer;                     # Alias for the buffer
-    my $update = $force;                                  # Preset var $update
+    # Has an update been requested or 
+    # has the content of the buffer been changed?
+    my $back_buffer = $screen_buffer;                     # Current frame
+    my $update = $force;                                  # Preset var update
+    my $cell = 0;                                         # Buffer cell counter
     unless ( $force ) {                                   # Check for updating
-      if ( @$back_buffer != @$front_buffer ) {            # Not equal in size
+      if ( @$back_buffer != @$front_buffer ) {            # Equal in size?
         $force = $update = TRUE;
       }
-      elsif ( eval { require List::MoreUtils }            # use List::MoreUtils
-        && exists( &List::MoreUtils::pairwise ) )
-      {
-        $update = scalar(
-          List::MoreUtils::pairwise { ( $a, $b ) }
-          @$back_buffer, @$front_buffer
+      elsif ( eval { require List::MoreUtils }            # Exists pairwise from
+        && exists( &List::MoreUtils::pairwise )           # ..List::MoreUtils?
+      ) {
+        $update = scalar(                                 # Check differences..
+          List::MoreUtils::pairwise { ( $a, $b ) }        # ..between 
+          @$back_buffer, @$front_buffer                   # ..the frames
         ) > 0;
       }
-      elsif ( eval { require List::Compare }              # use List::Compare
-        && exists( &List::Compare::get_intersection ) )
-      {
-        $update = scalar( 
-          List::Compare->new( '-u', 
-          $back_buffer, $front_buffer
+      elsif ( eval { require List::Compare }              # Exists List::Compare
+        && exists( &List::Compare::get_intersection )     # ..get_intersection?
+      ) {
+        $update = scalar(                                 # Check differences..
+          List::Compare->new( '-u',                       # ..(w/o sort) between
+          $back_buffer, $front_buffer                     # ..the frames
         )->get_intersection() ) > 0;
       }
       else {                                              # No optimized version
         my $size = @$back_buffer;
-        for ( my $i = 0; $i < $size; $i++ ) {
-          if ( $back_buffer->[$i] != $front_buffer->[$i] ) {
-            $update = TRUE;
-            last;
+        for ( $cell = 0; $cell < $size; $cell++ ) {       # Go through all cells
+          if ( $back_buffer->[$cell] != $front_buffer->[$cell] ) {
+            $update = TRUE;                               # Differences exist,
+            last;                                         # ..stop here
           }
         }
       } #/ else [ if ( @$back_buffer != ...)]
     } #/ else [ unless ( $force ) ]
 
-    if ( $update ) {                                      # Update required?
-      my $buffer = '';                                    # Win API buffer
-      my $offset = 0;                                     # Backbuf cell counter
-      my $x1 = $force ? 0                  : $screen_width - 1;
-      my $y1 = $force ? 0                  : $screen_height - 1;
-      my $x2 = $force ? $screen_width - 1  : 0;
-      my $y2 = $force ? $screen_height - 1 : 0;
-      for my $row ( 0 .. $screen_height - 1 ) {           # Go through each line
-        my $line = '';                                    # Start w/ empty line
-        for my $col ( 0 .. $screen_width - 1 ) {          # Each Cell in a line
-          my $attr = $back_buffer->[$offset] >> 8 & 0xff;
-          my $char = $back_buffer->[$offset] & 0xff;
-          $line .= pack( 'SS', $char, $attr );            # Convert to Win API
-          unless ( $force ) {                             # No calc when force
-            if ( $back_buffer->[$offset] != $front_buffer->[$offset] ) {
-              # Update the bounding box of the array
-              $x1 = min( $x1, $col );
-              $y1 = min( $y1, $row );
-              $x2 = max( $x2, $col );
-              $y2 = max( $y2, $row );
-            }
-          }
-          $offset++;                                      # Next cell in backbuf
-        }
-        $buffer .= $line                                  # Add row if necessary
-          if $y1 <= $y2;
-      } #/ for my $row ( 0 .. $screen_height - 1)
-      q/*
-      warn("x1: $x1\n");
-      warn("y1: $y1\n");
-      warn("x2: $x2\n");
-      warn("y2: $y2\n");
-      */ if 0;
-      my $CONSOLE = do {
-        $_io //= StdioCtl->instance();
-        $_io->out();
-      };
-      $CONSOLE->WriteRect($buffer, 0, $y1, $screen_width - 1, $y2);
+    return                                                # No update required
+      unless $update;
 
-      @$front_buffer = @$back_buffer;                     # Copy back to front
-    } #/ if ( $update )
+    # Preset bounding box of the buffer
+    my $x1 = $screen_width - 1;
+    my $y1 = $screen_height - 1;
+    my $x2 = 0;
+    my $y2 = 0;
+
+    # Define starting conditions
+    my @rows = ();
+    my $first = 0;                                        # Set initial line
+    if ( $cell ) {                                        # Update initial line?
+      my $row = int( $cell / $screen_width );             # Determine dirty row
+      my $col = $cell % $screen_width;                    # ..and col
+      $first = $row;                                      # Set new initial line
+      $cell -= $col;                                      # Update cell counter
+      @rows = (undef) x $row;                             # Assign hidden rows
+    }
+
+    for my $row ( $first .. $screen_height - 1 ) {        # Go through each line
+      my $line = '';                                      # Start w/ empty line
+      for my $col ( 0 .. $screen_width - 1 ) {            # Each cell in the row
+        $line .=  pack  (                                 # Convert to CHAR_INFO
+          'SS' => unpack(                                 # ..UNIT16: attr, char
+          'CC' => pack  (                                 # ..UINT8: attr, char
+          'S'  => $back_buffer->[$cell]                   # ..UINT16: cell
+        )));                                              # Read this bottom up!
+        unless ( $force ) {                               # No tests when force
+          if ( $back_buffer->[$cell] != $front_buffer->[$cell] ) {
+            # Update the bounding box of the buffer
+            $x1 = min( $x1, $col );
+            $y1 = min( $y1, $row );
+            $x2 = max( $x2, $col );
+            $y2 = max( $y2, $row );
+          }
+        }
+        $cell++;                                          # Next cell in buffer
+      }
+      push @rows, $line;                                  # Add line to rows
+    } #/ for my $row ( $first ...)
+    if ( $force ) {                                       # Update bounding box?
+      # Grow bounding box of the buffer to max dimension
+      $x1 = 0;
+      $y1 = 0;
+      $x2 = $screen_width - 1;
+      $y2 = $screen_height - 1;
+    }
+    q/*
+    warn("x1: $x1\n");
+    warn("y1: $y1\n");
+    warn("x2: $x2\n");
+    warn("y2: $y2\n");
+    */ if 0;
+
+    # WriteConsoleOutput(...)
+    my $CONSOLE = do {                                    # Get console out
+      $_io //= StdioCtl->instance();
+      $_io->out();
+    };
+    my $buf = join '' => @rows[$y1 .. $y2];               # Generate Win API buf
+    $CONSOLE->WriteRect($buf, 0, $y1, $screen_width - 1, $y2);
+
+    @$front_buffer = @$back_buffer;                       # Update last frame
     return;
   }
 
@@ -668,13 +696,18 @@ __END__
 
 =head1 CONTRIBUTOR
 
-Adjustment of the window dimensions to the screen buffer or vice versa.
-
-B<See>: I<_ctr_cols>, I<_ctr_rows>, I<_set_crt_mode>
-
 =over
 
 =item *
+
+Synchronizes Windows Console Screen (see L<_sys_update_screen>).
+
+1999-2000 by Florian Klaempfl E<lt>fnklaemp@cip.ft.uni-erlangen.deE<gt>
+
+=item *
+
+Adjustment of the window dimensions to the screen buffer or vice versa (see 
+L<_ctr_cols>, L<_ctr_rows> and L<_set_crt_mode>).
 
 1996-2000 by Savochenko Roman Oleksijovich E<lt>rom_as@oscada.orgE<gt>
 

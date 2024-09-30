@@ -1,10 +1,11 @@
 use 5.014;
 use warnings;
+
 use Test::More import => [qw( !fail )];   # don't import fail() from Test::More
 
-require_ok 'TurboVision::Objects';
-
-use TurboVision::Objects;
+BEGIN {
+  use_ok 'TurboVision::Objects';
+}
 
 isa_ok(
   TPoint->new(x => 1, y => 2),

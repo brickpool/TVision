@@ -282,10 +282,10 @@ note 'Write';
   lives_ok { $view->write_buf(0, 0, 2, 2, $screen_buffer) } 
     'TView->write_buf & TView->_do_write_view_*';
 
-  lives_ok { $view->write_char(0, 0, 'A', 0x70, 2) } 
+  lives_ok { $view->write_char(0, 0, 'A', 0x27, 2) } 
     'TView->write_char';
 
-  my $buf = [];
+  my $buf = [ 0x2020, 0x2020 ];
   lives_ok { $view->write_line(0, 1, 2, 1, $buf) } 
     'TView->write_line';
 

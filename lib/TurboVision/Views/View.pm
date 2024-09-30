@@ -871,7 +871,7 @@ view can be resized.
           $_ == KB_CTRL_RIGHT and $change->(  8,  0 );
           $_ == KB_HOME       and $update->( $limits->a->x,         $p->y );
           $_ == KB_END        and $update->( $limits->b->x - $s->x, $p->y );
-          $_ == KB_PG_UP      and $update->( $p->x, $limits->a->y );
+          $_ == KB_PG_UP      and $update->( $p->x, $limits->a->y         );
           $_ == KB_PG_DN      and $update->( $p->x, $limits->b->y - $s->y );
         } #/ SWITCH: for ( $event->key_code ...)
         $self->move_grow($p, $s);
@@ -2473,24 +2473,24 @@ Perl.
           if not $owner->state & SF_VISIBLE;
 
         $p = $owner->last;
-        my $res = 0;
-        while ( $res == 0 ) {
+        my $result = 0;
+        while ( $result == 0 ) {
           $p = $p->next;
           if ( $p == $p2 ) {
-            $p = $p->owner;
-            $res = 1;                                     # run completed
+            $p      = $p->owner;
+            $result = 1;                                  # run completed
           }
           elsif ( $p->state & SF_VISIBLE
             && $cur->x >= $p->origin->x
             && $cur->x < $p->size->x + $p->origin->x
             && $cur->y >= $p->origin->y
-            && $cur->y < $p->size->y + $p->origin->y
-          ) {
-            $res = 2;                                     # cursor is covered
+            && $cur->y < $p->size->y + $p->origin->y )
+          {
+            $result = 2;                                  # cursor is covered
           }
-        } #/ while ( $res == 0 )
+        } #/ while ( !$result )
         last 
-          if $res == 2;
+          if $result == 2;
       } #/ while ( 1 )
     }
     Video->set_cursor_type(CR_HIDDEN);                    # no cursor, please.

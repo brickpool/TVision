@@ -39,6 +39,7 @@ use Import::Into;
 use TurboVision::Views::Common;
 use TurboVision::Views::Const;
 use TurboVision::Views::Types;
+use TurboVision::Views::View;
 
 =head1 DESCRIPTION
 
@@ -52,6 +53,7 @@ The following is the equivalent notation that is imported here:
   use TurboVision::Views::Common qw( :all );
   use TurboVision::Views::Const qw( :all );
   use TurboVision::Views::Types qw( :all );
+  use TurboVision::Views::View qw( :all );
 
 =cut
 
@@ -65,6 +67,7 @@ sub import {
   TurboVision::Views::Common->import::into($target, qw( :all ));
   TurboVision::Views::Const->import::into($target, qw( :all ));
   TurboVision::Views::Types->import::into($target, qw( :all ));
+  TurboVision::Views::View->import::into($target, qw( :all ));
 }
 
 sub unimport {
@@ -72,6 +75,7 @@ sub unimport {
   TurboVision::Views::Common->unimport::out_of($caller);
   TurboVision::Views::Const->unimport::out_of($caller);
   TurboVision::Views::Types->unimport::out_of($caller);
+  TurboVision::Views::View->unimport::out_of($caller);
 }
 
 1;

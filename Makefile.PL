@@ -15,6 +15,7 @@ WriteMakefile(
     'ExtUtils::MakeMaker' => 6.64,
   },
   PREREQ_PM => {
+    'Bit::Vector::Str'          => 7.4,
     'Carp'                      => 1.17,
     'constant::boolean'         => 0.02,
     'Contextual::Return'        => 0.004014,
@@ -34,12 +35,16 @@ WriteMakefile(
     'List::Util'                => 0,
     'Scalar::Util'              => 0,
     'Try::Tiny'                 => 0.22,
+    'Win32'                     => 0,
+    'Win32API::File'            => 0.1101,
+    'Win32::API'                => 0.84,
+    'Win32::Console'            => '0.10',
   },
   TEST_REQUIRES => {
     'Devel::Refcount' => 0.10,
     'Test::Exception' => 0.43,
     'Test::More'      => 0.95,
-    'Win32::GuiTest'  => 1.64,                # Win32
+    'Win32::GuiTest'  => 1.64,
   },
   LICENSE     => 'lgpl_3_0',
   dist        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
