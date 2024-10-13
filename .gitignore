@@ -53,7 +53,9 @@ inc/
 *.code-workspace
 
 # Devel
-/trial/
+/trial/_*
+/trial/*.pl
+/trial/rt*.t
 test.bin
 
 # perltidy
