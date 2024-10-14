@@ -89,12 +89,7 @@ package TurboVision::Drivers::Win32::StdioCtl {
 
 =item I<in>
 
-  field in (
-    is        => 'ro',
-    type      => Object,
-    writer    => '_input',
-    predicate => '_has_input',
-  );
+  field in ( is => rwp, type => Object, predicate => 1 );
 
 Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
 
@@ -109,12 +104,7 @@ Console input object (e.g I<< Win32::Console->new(STD_INPUT_HANDLE) >>).
 
 =item I<out>
 
-  field out (
-    is        => 'ro',
-    type      => Object,
-    writer    => '_output',
-    predicate => '_has_output',
-  );
+  field out ( is => rwp, type => Object, predicate => 1 );
 
 Console active output object.
 
@@ -179,7 +169,7 @@ Console startup output object.
 
 =item I<instance>
 
-  factory $class->instance() : StdioCtl
+  factory instance() : StdioCtl
 
 This constructor instantiates an object instance if none exists, otherwise it
 returns an existing instance.

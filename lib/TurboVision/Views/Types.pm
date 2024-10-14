@@ -45,6 +45,9 @@ use MooseX::Types -declare => [qw(
   TTitleStr
   TVideoBuf
 
+  Phase
+  SelectMode
+
   TView
   TFrame
   TScrollBar
@@ -53,6 +56,11 @@ use MooseX::Types -declare => [qw(
   TGroup
   TWindow
 )];
+
+use TurboVision::Views::Const qw(
+  :phXXXX
+  :smXXXX
+);
 
 # ------------------------------------------------------------------------
 # Exports ----------------------------------------------------------------
@@ -190,7 +198,38 @@ subtype TVideoBuf,
 
 =back
 
+=head2 Enum Types
+
+=item I<Phase>
+
+  subtype Phase : Int;
+
+Defines the data type used for storing phases for the I<phase> field in 
+I<TGroup>.
+
 =cut
+
+subtype Phase,
+  as Int,
+  where { $_ >= PH_FOCUSED && $_ <= PH_POST_PROCESS },
+  message { "($_) is not a valid phase. Valid values are PH_FOCUSED, ".
+    "PH_PRE_PROCESS and PH_POST_PROCESS." };
+
+=item I<SelectMode>
+
+  subtype SelectMode : Int;
+
+An internal value used by Turbo Vision.
+
+=cut
+
+subtype SelectMode,
+  as Int,
+  where { $_ >= NORMAL_SELECT && $_ <= LEAVE_SELECT },
+  message { "($_) is not a select mode. Valid values are NORMAL_SELECT, ".
+    "ENTER_SELECT and LEAVE_SELECT." };
+
+=back
 
 =head2 Object Types
 

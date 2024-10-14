@@ -175,8 +175,8 @@ Internal attribute to hold the bit vector string.
 
 =item I<init>
 
-  factory $class->init() : TCommandSet
-  factory $class->init(ArrayRef[Int] $tc) : TCommandSet
+  factory init() : TCommandSet
+  factory init(ArrayRef[Int] $tc) : TCommandSet
 
 Calls the I<new> constructor, but uses a simple non-hash based passing of
 commands.

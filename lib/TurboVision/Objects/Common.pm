@@ -568,7 +568,7 @@ B<Note>: This utility routine is for compatiblity only.
   func register_objects()
 
 Calls I<register_type> for each of the class types defined in the I<Objects>
-module: I<TCollection>, I<TStringCollection>
+module: I<TCollection>, I<TStringCollection>.
 
 =cut
 

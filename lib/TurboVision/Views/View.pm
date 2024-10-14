@@ -186,7 +186,7 @@ I<TView> is registered with I<< TStreamRec->register_type(RView) >>.
 
   use constant RView => TStreamRec->new(
     obj_type  => 1,                                       # Register id = 1
-    vmt_link  => __PACKAGE__,                             # Alt style VMT link
+    vmt_link  => __PACKAGE__,                             # Object link
     load      => 'load',                                  # Object load method
     store     => 'store',                                 # Object store method
   );
@@ -336,7 +336,8 @@ I<help_ctx> will have a default of I<HC_NO_CONTEXT>.
 
   field next ( is => rwp, type => TView|Undef );
 
-I<next> maintains a circular list pointing to the next view, in Z-order.
+The I<next> field contains a circular list that references the next view in 
+Z-order.
 
 =cut
 
@@ -377,17 +378,17 @@ Describes the upper left corner of the view.
 
 =item I<owner>
 
-  field owner ( is => rwp, type => TGroup|Undef ) = undef;
+  field owner ( is => rwp, type => TGroup, weak_ref => 1 );
 
 Points to the I<TGroup> that owns this view.
 
 =cut
 
   has 'owner' => (
-    isa       => TGroup|Undef,
+    isa       => TGroup,
     init_arg  => undef,
     writer    => '_owner',
-    default   => undef,
+    weak_ref  => 1,
   );
 
 =item I<size>
@@ -461,7 +462,7 @@ L</options>, L</event_mask>, L</grow_mode> and L</drag_mode>.
 
 =item I<load>
 
-  factory $class->load(TStream $s)
+  factory load(TStream $s)
 
 Creates and reads a view from stream I<$s>.
 
@@ -1658,20 +1659,22 @@ B<See>: L</block_cursor>.
 
 =item I<prev>
 
-  method prev() : TView
+  method prev() : TView|Undef
 
-I<prev> returns a reference to the previous view, in sequence, in the owner's
-list of views, and cycles back to the beginning of the list if it has reached
-the end.
+The method I<prev> returns a reference to the previous view, in sequence, in the
+owner's list of views, and cycles back to the beginning of the list if it has 
+reached the end.
 
 =cut
 
   method prev() {
-    my $res = $self;
-    while( $res && $res->next != $self ) {
-      $res = $res->next;
+    my $result = $self;
+    my $np = $self->next;
+    while ( $np && $np->next != $self ) {
+      $result = $np->next;
+      $np = $np->next;
     }
-    return $res;
+    return $result;
   }
 
 =item I<prev_view>
@@ -1716,9 +1719,7 @@ I<put_in_front_of> moves this view to be placed directly in front of I<$target>.
 =cut
 
   method put_in_front_of(TView|Undef $target) {
-    assert ( exists $$self{state} );
-    alias my $state = $self->{state};
-          my $owner = $self->owner;
+    my $owner = $self->owner;
 
     if ( $owner                                           # Check validity
       && $target != $self
@@ -1739,13 +1740,13 @@ I<put_in_front_of> moves this view to be placed directly in front of I<$target>.
           $last_view = $target                            # Last view is target
             if not defined $p
         }
-        $state &= ~SF_VISIBLE;                            # Temp stop drawing
+		    $self->_state( $self->state & ~SF_VISIBLE );      # Temp stop drawing
         $self->_draw_hide($last_view)
           if $last_view == $target;
         $owner->lock();
         $owner->remove_view($self);                       # Remove from list
         $owner->insert_view($self, $target);              # Insert into list
-        $state |= SF_VISIBLE;                             # Allow drawing again
+		    $self->_state( $self->state | SF_VISIBLE );       # Allow drawing again
         $self->_draw_show($last_view)
           if $last_view != $target;
         if( $self->options & OF_SELECTABLE ) {            # View is selectable
@@ -2162,11 +2163,15 @@ From within a I<< TView->draw >> method, I<write_line> outputs I<$buf> (which is
 an ArrayRef of Int; see I<TDrawBuffer>), starting at the view's coordinates 
 (I<$x,$y>), and copies I<$w> bytes from I<$buf>.  
 
-B<Important>! I<$w> should be exactly equal to the number of characters to copy 
-from I<$buf>.  If larger than the contents of the string represented in I<$buf>,
-then I<write_line> will copy data beyond the end of I<$buf> and undef data will 
-appear at those locations.  If I<$h> is more than C<1>, then I<write_line> 
-displays the contents of I<$buf> on each of the succeeding lines.
+B<Important>: I<$w> should be exactly equal to the number of characters to copy 
+from I<$buf>.
+
+If larger than the contents of the string represented in I<$buf>, then 
+I<write_line> will copy data beyond the end of I<$buf> and undef data will 
+appear at those locations.  
+
+If I<$h> is more than C<1>, then I<write_line> displays the contents of I<$buf> 
+on each of the succeeding lines.
 
 =cut
 
@@ -2186,9 +2191,10 @@ displays the contents of I<$buf> on each of the succeeding lines.
   method write_str(Int $x, Int $y, Str $str, Int $color)
 
 The method I<write_str> is probably the most commonly used method for performing 
-output within L</draw> methods.  Use I<write_str> to output the string I<$str> 
-to the screen, starting at (I<$x,$y>) and having the color index specified by 
-I<$color>.
+output within L</draw> methods.
+
+Use I<write_str> to output the string I<$str> to the screen, starting at 
+(I<$x,$y>) and having the color index specified by I<$color>.
 
 =cut
 

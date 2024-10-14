@@ -47,6 +47,16 @@ Nothing per default, but can export the following per request:
   :all
     MAX_VIEW_WIDTH
     
+    :phXXXX
+      PH_FOCUSED
+      PH_PRE_PROCESS
+      PH_POST_PROCESS
+
+    :smXXXX => [qw(
+      NORMAL_SELECT
+      ENTER_SELECT
+      LEAVE_SELECT
+
     :sfXXXX
       SF_VISIBLE
       SF_CURSOR_VIS
@@ -184,6 +194,18 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
+  phXXXX => [qw(
+    PH_FOCUSED
+    PH_PRE_PROCESS
+    PH_POST_PROCESS
+  )],
+
+  smXXXX => [qw(
+    NORMAL_SELECT
+    ENTER_SELECT
+    LEAVE_SELECT
+  )],
+
   sfXXXX => [qw(
     SF_VISIBLE
     SF_CURSOR_VIS
@@ -317,11 +339,11 @@ our %EXPORT_TAGS = (
   color => [qw(
     CFrame
     CScrollBar
-    CSCROLLER
-    CLISTVIEWER
-    CBLUEWINDOW
-    CCYANWINDOW
-    CGRAYWINDOW
+    CScroller
+    CListViewer
+    CBlueWindow
+    CCyanWindow
+    CGrayWindow
   )],
   
 );
@@ -364,6 +386,85 @@ Determines the maximum width of a view.
 =cut
 
   use constant MAX_VIEW_WIDTH => 255;
+
+=head2 TGroup Phase Enum constants (I<:phXXXX>)
+
+=over
+
+=item I<PH_FOCUSED>
+
+  constant PH_FOCUSED = < Int >;
+
+Process phase: I<TGroup> sets the I<phase> field to I<PH_FOCUSED> and passes the
+event to the I<handle_event> method of the currently selected subview. 
+
+=cut
+
+  use constant PH_FOCUSED       => 0;
+
+=item I<PH_PRE_PROCESS>
+
+  constant PH_PRE_PROCESS = < Int >;
+
+Pre-Processing phase: I<TGroup> sets the I<phase> field to I<PH_PRE_PROCESS> and 
+passes the event to the I<handle_event> method of all subviews for which the 
+L</OF_PRE_PROCESS> flag has been set. 
+
+=cut
+
+  use constant PH_PRE_PROCESS   => 1;
+
+=item I<PH_POST_PROCESS>
+
+  constant PH_POST_PROCESS = < Int >;
+
+Pre-Processing phase: I<TGroup> sets the I<phase> field to I<PH_POST_PROCESS> 
+and passes the event to the I<handle_event> method of all subviews for which the
+L</OF_POST_PROCESS> flag has been set. 
+
+=cut
+
+  use constant PH_POST_PROCESS  => 2;
+
+=back
+
+=head2 TGroup SelectMode Enum constants (I<:smXXXX>)
+
+An internal enum used by Turbo Vision.
+
+=over
+
+=item I<NORMAL_SELECT>
+
+  constant NORMAL_SELECT = < Int >;
+
+Normal selection
+
+=cut
+
+  use constant NORMAL_SELECT  => 0;
+
+=item I<ENTER_SELECT>
+
+  constant ENTER_SELECT = < Int >;
+
+Enter selection.
+
+=cut
+
+  use constant ENTER_SELECT   => 1;
+
+=item I<LEAVE_SELECT>
+
+  constant LEAVE_SELECT = < Int >;
+
+Leave selection.
+
+=cut
+
+  use constant LEAVE_SELECT   => 2;
+
+=back
 
 =head2 TView State Flag constants (I<:sfXXXX>)
 
