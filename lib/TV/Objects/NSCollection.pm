@@ -36,10 +36,8 @@ our @EXPORT = qw(
 use Errno qw( EFAULT EINVAL );
 use Hash::Util::FieldHash qw( id );
 
-use TV::Objects::Const qw(
-  CC_NOT_FOUND 
-  MAX_COLLECTION_SIZE
-);
+use TV::Const qw( MAX_COLLECTION_SIZE );
+use TV::Objects::Const qw( CC_NOT_FOUND );
 use TV::Objects::Object;
 
 sub TNSCollection() { __PACKAGE__ }
@@ -48,12 +46,12 @@ sub TNSCollection() { __PACKAGE__ }
 our %REF;
 {
   no warnings 'once';
-  *TNSCollection::REF = \%REF;
+  TNSCollection->{REF} = \%REF;
 }
 
 use parent TObject;
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = bless {
     count        => 0,
@@ -92,14 +90,14 @@ sub shutDown {    # void ($shift)
   return;
 } #/ sub shutDown
 
-sub at {    # $item ($self, $index)
+sub at {    # $item ($index)
   my ( $self, $index ) = @_;
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0 || $index >= $self->{count};
   return $REF{ $self->{items}->[$index] };
 }
 
-sub atRemove {    # void ($self, $index)
+sub atRemove {    # void ($index)
   my ( $self, $index ) = @_;
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0 || $index >= $self->{count};
@@ -108,7 +106,7 @@ sub atRemove {    # void ($self, $index)
   return;
 }
 
-sub atFree {    # void ($self, $index)
+sub atFree {    # void ($index)
   my ( $self, $index ) = @_;
   my $item = $self->at( $index );
   $self->atRemove( $index );
@@ -116,7 +114,7 @@ sub atFree {    # void ($self, $index)
   return;
 }
 
-sub atInsert {    # void ($self, $index, $item)
+sub atInsert {    # void ($index, $item)
   my ( $self, $index, $item ) = @_;
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0;
@@ -131,7 +129,7 @@ sub atInsert {    # void ($self, $index, $item)
   return;
 }
 
-sub atPut {    # void ($self, $index, $item)
+sub atPut {    # void ($index, $item)
   my ( $self, $index, $item ) = @_;
   $self->error(EINVAL, "Index out of bounds")
     if $index >= $self->{count};
@@ -142,7 +140,7 @@ sub atPut {    # void ($self, $index, $item)
   return;
 }
 
-sub remove {    # void ($self, $item)
+sub remove {    # void ($item)
   my ( $self, $item ) = @_;
   $self->atRemove( $self->indexOf( $item ) );
   return;
@@ -155,7 +153,7 @@ sub removeAll {    # void ($self)
   return;
 }
 
-sub free {    # void ($self, $item)
+sub free {    # void ($item)
   my ( $self, $item ) = @_;
   $self->remove( $item );
   $self->$freeItem( $item );
@@ -170,7 +168,7 @@ sub freeAll {    # void ($self)
   return;
 }
 
-sub indexOf {    # $index ($self, $item)
+sub indexOf {    # $index ($item)
   my ( $self, $item ) = @_;
   for my $i ( 0 .. $self->{count} - 1 ) {
     my $id = id($item) || 0;
@@ -180,20 +178,20 @@ sub indexOf {    # $index ($self, $item)
   return CC_NOT_FOUND;
 }
 
-sub insert {    # $index ($self, $item)
+sub insert {    # $index ($item)
   my ( $self, $item ) = @_;
   my $loc = $self->{count};
   $self->atInsert( $self->{count}, $item );
   return $loc;
 }
 
-sub error {    # void ($self, \&code, $info)
+sub error {    # void (\&code, $info)
   require Carp;
   my ( $self, $code, $info ) = @_;
   Carp::croak sprintf("Error code: %d, Info: %s\n", $code, $info);
 }
 
-sub firstThat {    # $item|undef ($self, \&test, $arg)
+sub firstThat {    # $item|undef (\&test, $arg)
   my ( $self, $test, $arg ) = @_;
   my $that;
   for my $i ( 0 .. $self->{count} - 1 ) {
@@ -203,7 +201,7 @@ sub firstThat {    # $item|undef ($self, \&test, $arg)
   return undef;
 }
 
-sub lastThat {    # $item|undef ($self, \&test, $arg)
+sub lastThat {    # $item|undef (\&test, $arg)
   my ( $self, $test, $arg ) = @_;
   my $that;
   for my $i ( reverse 0 .. $self->{count} - 1 ) {
@@ -213,7 +211,7 @@ sub lastThat {    # $item|undef ($self, \&test, $arg)
   return undef;
 }
 
-sub forEach {    # void ($self, \&action, $arg)
+sub forEach {    # void (\&action, $arg)
   my ( $self, $action, $arg ) = @_;
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $REF{ $self->{items}->[$i] };
@@ -241,7 +239,7 @@ sub pack {    # void ($self)
   return;
 }
 
-sub setLimit {    # void ($self, $aLimit)
+sub setLimit {    # void ($aLimit)
   my ( $self, $aLimit ) = @_;
   $aLimit = $self->{count} if $aLimit < $self->{count};
   $aLimit = MAX_COLLECTION_SIZE if $aLimit > MAX_COLLECTION_SIZE;

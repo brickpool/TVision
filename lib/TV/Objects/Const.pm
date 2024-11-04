@@ -1,19 +1,9 @@
-=pod
-
-=head1 DESCRIPTION
-
-The calculation of C<MAX_COLLECTION_SIZE> uses the size of a pointer to 
-determine the maximum number of elements in the collection. 
-
-=cut
-
 package TV::Objects::Const;
 
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
   CC_NOT_FOUND
-  MAX_COLLECTION_SIZE
 );
 
 our %EXPORT_TAGS = (
@@ -34,10 +24,6 @@ our %EXPORT_TAGS = (
 
 use constant {
   CC_NOT_FOUND => -1
-};
-
-use constant {
-  MAX_COLLECTION_SIZE => int( ( ( 2**32 - 1 ) - 16 ) / length( pack('P', 0) ) ),
 };
 
 1

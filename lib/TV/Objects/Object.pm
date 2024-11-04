@@ -18,7 +18,7 @@ our @EXPORT = qw(
 
 sub TObject() { __PACKAGE__ }
 
-sub new {    # $obj ($class)
+sub new {    # $obj ()
   my $class = shift;
   my $self  = bless {}, $class;
   return $self;

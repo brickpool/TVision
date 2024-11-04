@@ -22,7 +22,7 @@ use Sentinel;
 
 sub TPoint() { __PACKAGE__ }
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = {
     x => $args{x} // 0,
@@ -60,14 +60,14 @@ sub not_equal {    # $bool ($one, $two)
   return !equal( $one, $two );
 }
 
-sub add_assign {    # $self ($self, $adder)
+sub add_assign {    # $self ($adder)
   my ( $self, $adder ) = @_;
   $self->{x} += $adder->{x};
   $self->{y} += $adder->{y};
   return $self;
 }
 
-sub subtract_assign {    # $self ($self, $subber)
+sub subtract_assign {    # $self ($subber)
   my ( $self, $subber ) = @_;
   $self->{x} -= $subber->{x};
   $self->{y} -= $subber->{y};
@@ -83,7 +83,7 @@ use overload
   '-=' => \&subtract_assign,
   fallback => 1;
 
-sub x :lvalue {    # $x ($self, | $value)
+sub x :lvalue {    # $x (| $value)
   my $self = shift;
   if ( defined $_[0] ) {
     return $self->{x} = $_[0];
@@ -93,7 +93,7 @@ sub x :lvalue {    # $x ($self, | $value)
     set => sub { $self->{x} = $_[0] };
 }
 
-sub y :lvalue {    # $y ($self, | $value)
+sub y :lvalue {    # $y (| $value)
   my $self = shift;
   if ( defined $_[0] ) {
     return $self->{y} = $_[0];

@@ -47,7 +47,7 @@ sub TRect() { __PACKAGE__ }
 #
 # If no or any other number of arguments are provided, it initializes points 
 # I<a> and I<b> with new I<TPoint> objects with default values.
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = bless {}, $class;
   if ( keys(%args) == 4 ) {
@@ -77,7 +77,7 @@ sub clone {    # $p ($self)
   return $clone;
 }
 
-sub move {    # void ($self, $aDX, $aDY)
+sub move {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
   $self->{a}{x} += $aDX;
   $self->{a}{y} += $aDY;
@@ -86,7 +86,7 @@ sub move {    # void ($self, $aDX, $aDY)
   return;
 }
 
-sub grow {    # void ($self, $aDX, $aDY)
+sub grow {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
   $self->{a}{x} -= $aDX;
   $self->{a}{y} -= $aDY;
@@ -95,7 +95,7 @@ sub grow {    # void ($self, $aDX, $aDY)
   return;
 }
 
-sub intersect {    # void ($self, $r)
+sub intersect {    # void ($r)
   my ( $self, $r ) = @_;
   $self->{a}{x} = max( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = max( $self->{a}{y}, $r->{a}{y} );
@@ -104,7 +104,7 @@ sub intersect {    # void ($self, $r)
   return;
 }
 
-sub Union {    # void ($self, $r)
+sub Union {    # void ($r)
   my ( $self, $r ) = @_;
   $self->{a}{x} = min( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = min( $self->{a}{y}, $r->{a}{y} );
@@ -113,7 +113,7 @@ sub Union {    # void ($self, $r)
   return;
 }
 
-sub contains {    # $bool ($self, $p)
+sub contains {    # $bool ($p)
   my ( $self, $p ) = @_;
   return
        $p->{x} >= $self->{a}{x}
@@ -122,7 +122,7 @@ sub contains {    # $bool ($self, $p)
     && $p->{y} <  $self->{b}{y};
 }
 
-sub equal {    # $bool ($self, $r)
+sub equal {    # $bool ($r)
   my ( $self, $r ) = @_;
   return
        $self->{a}{x} == $r->{a}{x}
@@ -131,7 +131,7 @@ sub equal {    # $bool ($self, $r)
     && $self->{b}{y} == $r->{b}{y};
 }
 
-sub not_equal {    # $bool ($self, $r)
+sub not_equal {    # $bool ($r)
   my ( $self, $r ) = @_;
   return !$self->equal( $r );
 }
@@ -147,7 +147,7 @@ use overload
   '!=' => \&not_equal,
   fallback => 1;
 
-sub a :lvalue {    # $p ($self, | $value)
+sub a :lvalue {    # $p (| $value)
   my $self = shift;
   if ( defined $_[0] ) {
     return $self->{a} = $_[0];
@@ -157,7 +157,7 @@ sub a :lvalue {    # $p ($self, | $value)
     set => sub { $self->{a} = $_[0] };
 }
 
-sub b :lvalue {    # $p ($self, | $value)
+sub b :lvalue {    # $p (| $value)
   my $self = shift;
   if ( defined $_[0] ) {
     return $self->{b} = $_[0];

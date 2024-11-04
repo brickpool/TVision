@@ -38,13 +38,13 @@ use Carp;
 use TV::Objects::Const qw( CC_NOT_FOUND );
 use TV::Objects::NSCollection;
 
-my $REF = \%TNSCollection::REF;
-
 sub TNSSortedCollection() { __PACKAGE__ }
+
+my $REF = TNSCollection->{REF};
 
 use parent TNSCollection;
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = $class->SUPER::new( %args );
   $self->{duplicates} = !!0;
@@ -53,7 +53,7 @@ sub new {    # $obj ($class, %args)
   return $self;
 }
 
-sub search {    # $bool ($self, $key, \$index)
+sub search {    # $bool ($key, \$index)
   my ( $self, $key, $index_ref ) = @_;
   my $l   = 0;
   my $h   = $self->{count} - 1;
@@ -77,7 +77,7 @@ sub search {    # $bool ($self, $key, \$index)
   return $res;
 } #/ sub search
 
-sub indexOf {    # $index ($self, $item)
+sub indexOf {    # $index ($item)
   my ( $self, $item ) = @_;
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) ) {
@@ -93,7 +93,7 @@ sub indexOf {    # $index ($self, $item)
   }
 } #/ sub indexOf
 
-sub insert {    # $index ($self, $item)
+sub insert {    # $index ($item)
   my ( $self, $item ) = @_;
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) || $self->{duplicates} ) {
@@ -102,12 +102,12 @@ sub insert {    # $index ($self, $item)
   return $i;
 }
 
-sub keyOf {    # $key ($self, $item)
+sub keyOf {    # $key ($item)
   my ( $self, $item ) = @_;
   return $item;
 }
 
-sub compare {    # $cmd ($self, $key1, $key2)
+sub compare {    # $cmd ($key1, $key2)
   return 0;
 }
 
