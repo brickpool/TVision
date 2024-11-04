@@ -1,33 +1,15 @@
-=pod
-
-=head1 DECRIPTION
-
-In this test plan, we use L<Test::More> to check the values of the selected 
-constants. The tests ensure that the constants have the expected values. The 
-results of the tests are compared with the expected values and the tests issue 
-corresponding messages.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 16;
 
 BEGIN {
   use_ok 'TV::Drivers::Const', qw( 
-    EVENT_Q_SIZE
-    MAX_FIND_STR_LEN
-    MAX_REPLACE_STR_LEN
     :evXXXX
     :mbXXXX
     :meXXXX
   );
 }
-
-is( EVENT_Q_SIZE,        16, 'EVENT_Q_SIZE is 16' );
-is( MAX_FIND_STR_LEN,    80, 'MAX_FIND_STR_LEN is 80' );
-is( MAX_REPLACE_STR_LEN, 80, 'MAX_REPLACE_STR_LEN is 80' );
 
 is( EV_MOUSE_DOWN,   0x0001, 'EV_MOUSE_DOWN is 0x0001' );
 is( EV_MOUSE_UP,     0x0002, 'EV_MOUSE_UP is 0x0002' );

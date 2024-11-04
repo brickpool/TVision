@@ -31,6 +31,8 @@ our @EXPORT = qw(
   TSystemError
 );
 
+use Data::Alias;
+
 use TV::Drivers::HardwareInfo;
 
 sub TSystemError() { __PACKAGE__ }
@@ -40,8 +42,8 @@ our $ctrlBreakHit  = !!0;
 our $saveCtrlBreak = !!0;
 {
   no warnings 'once';
-  *TSystemError::ctrlBreakHit  = \$ctrlBreakHit;
-  *TSystemError::saveCtrlBreak = \$saveCtrlBreak;
+  alias TSystemError->{ctrlBreakHit}  = $ctrlBreakHit;
+  alias TSystemError->{saveCtrlBreak} = $saveCtrlBreak;
 }
 
 INIT: {

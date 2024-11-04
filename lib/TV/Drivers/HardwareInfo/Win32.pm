@@ -8,6 +8,7 @@ our @EXPORT_OK = qw(
   THardwareInfo
 );
 
+use Data::Alias;
 use Devel::StrictMode;
 use English qw( -no_match_vars );
 use Win32;
@@ -108,15 +109,15 @@ our @crInfo        = ();
 our @sbInfo        = ();
 {
   no warnings 'once';
-  *THardwareInfo::insertState   = \$insertState;
-  *THardwareInfo::platform      = \$platform;
-  *THardwareInfo::consoleHandle = \@consoleHandle;
-  *THardwareInfo::ownsConsole   = \$ownsConsole;
-  *THardwareInfo::consoleMode   = \$consoleMode;
-  *THardwareInfo::pendingEvent  = \$pendingEvent;
-  *THardwareInfo::irBuffer      = \@irBuffer;
-  *THardwareInfo::crInfo        = \@crInfo;
-  *THardwareInfo::sbInfo        = \@sbInfo;
+  alias THardwareInfo->{insertState}   = $insertState;
+  alias THardwareInfo->{platform}      = $platform;
+  alias THardwareInfo->{consoleHandle} = @consoleHandle;
+  alias THardwareInfo->{ownsConsole}   = $ownsConsole;
+  alias THardwareInfo->{consoleMode}   = $consoleMode;
+  alias THardwareInfo->{pendingEvent}  = $pendingEvent;
+  alias THardwareInfo->{irBuffer}      = @irBuffer;
+  alias THardwareInfo->{crInfo}        = @crInfo;
+  alias THardwareInfo->{sbInfo}        = @sbInfo;
 }
 
 my @ShiftCvt = (

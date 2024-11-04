@@ -15,9 +15,9 @@ ok( $error, 'TSystemError exists' );
 can_ok( $error, 'resume' );
 can_ok( $error, 'suspend' );
 
-# Test variables
-ok( defined( $TSystemError::ctrlBreakHit ),  'ctrlBreakHit is defined' );
-ok( defined( $TSystemError::saveCtrlBreak ), 'saveCtrlBreak is defined' );
+# Test global variables
+ok( defined( TSystemError->{ctrlBreakHit} ),  'ctrlBreakHit is defined' );
+ok( defined( TSystemError->{saveCtrlBreak} ), 'saveCtrlBreak is defined' );
 
 # Test methods
 lives_ok { $error->resume() } 'resume() does not die';

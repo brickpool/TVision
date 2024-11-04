@@ -27,6 +27,7 @@ our @EXPORT = qw(
   THWMouse
 );
 
+use Data::Alias;
 use Devel::StrictMode;
 
 use TV::Drivers::HardwareInfo;
@@ -39,9 +40,9 @@ our $handlerInstalled = !!0;
 our $noMouse          = !!0;
 {
   no warnings 'once';
-  *THWMouse::buttonCount      = \$buttonCount;
-  *THWMouse::handlerInstalled = \$handlerInstalled;
-  *THWMouse::noMouse          = \$noMouse;
+  alias THWMouse->{buttonCount}      = $buttonCount;
+  alias THWMouse->{handlerInstalled} = $handlerInstalled;
+  alias THWMouse->{noMouse}          = $noMouse;
 }
 
 INIT: {

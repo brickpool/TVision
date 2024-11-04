@@ -11,7 +11,7 @@ class.
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Test::Exception;
 
 # Mocking 'THardwareInfo', 'TMouse', and 'TScreen' for testing purposes
@@ -81,8 +81,8 @@ BEGIN {
   sub TScreen ()   { __PACKAGE__ }
   our $screenWidth = 80;
   our $screenHeight = 25;
-  *TScreen::screenWidth = \$screenWidth;
-  *TScreen::screenHeight = \$screenHeight;
+  TScreen->{screenWidth} = $screenWidth;
+  TScreen->{screenHeight} = $screenHeight;
   $INC{"TV/Drivers/Screen.pm"} = 1;
 } #/ BEGIN
 
@@ -125,5 +125,9 @@ is( $event->{what}, EV_MOUSE_DOWN, 'Mouse down event handled correctly' );
 
 $event_queue->getMouseEvent( $event = TEvent->new() );
 is( $event->{what}, EV_MOUSE_MOVE, 'Mouse move event handled correctly' );
+
+# Test some global variables
+is TEventQueue->{doubleDelay}, 8, 'TEventQueue->{doubleDelay} is set correctly';
+isa_ok TEventQueue->{lastMouse}, 'MouseEventType';
 
 done_testing;

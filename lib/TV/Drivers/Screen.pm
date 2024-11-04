@@ -8,6 +8,8 @@ our @EXPORT = qw(
   TScreen
 );
 
+use Data::Alias;
+
 use TV::Drivers::Const qw( :smXXXX );
 use TV::Drivers::Display;
 use TV::Drivers::HardwareInfo;
@@ -29,16 +31,16 @@ our $cursorLines    = 0;
 our $clearOnSuspend = !!1;
 {
   no warnings 'once';
-  *TScreen::startupMode    = \$startupMode;
-  *TScreen::startupCursor  = \$startupCursor;
-  *TScreen::screenMode     = \$screenMode;
-  *TScreen::screenWidth    = \$screenWidth;
-  *TScreen::screenHeight   = \$screenHeight;
-  *TScreen::hiResScreen    = \$hiResScreen;
-  *TScreen::checkSnow      = \$checkSnow;
-  *TScreen::screenBuffer   = \$screenBuffer;
-  *TScreen::cursorLines    = \$cursorLines;
-  *TScreen::clearOnSuspend = \$clearOnSuspend;
+  alias TScreen->{startupMode}    = $startupMode;
+  alias TScreen->{startupCursor}  = $startupCursor;
+  alias TScreen->{screenMode}     = $screenMode;
+  alias TScreen->{screenWidth}    = $screenWidth;
+  alias TScreen->{screenHeight}   = $screenHeight;
+  alias TScreen->{hiResScreen}    = $hiResScreen;
+  alias TScreen->{checkSnow}      = $checkSnow;
+  alias TScreen->{screenBuffer}   = $screenBuffer;
+  alias TScreen->{cursorLines}    = $cursorLines;
+  alias TScreen->{clearOnSuspend} = $clearOnSuspend;
 }
 
 INIT: {

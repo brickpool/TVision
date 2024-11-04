@@ -25,7 +25,6 @@ use TV::Drivers::Const qw(
   KB_CTRL_INS
   KB_SHIFT_INS
 );
-
 use TV::Drivers::HardwareInfo;
 
 # The following code section represents the 'MouseEventType' structure used for 
@@ -37,10 +36,9 @@ package MouseEventType {
   use Devel::StrictMode;
   use TV::Objects::Point;
 
-  sub new {    # $obj ($class, %args)
+  sub new {    # $obj (%args)
     no warnings 'uninitialized';
-    my ( $proto, %args ) = @_;
-    my $class = ref $proto || $proto;
+    my ( $class, %args ) = @_;
     my $self = {
       eventFlags      => 0+ $args{eventFlags},
       controlKeyState => 0+ $args{controlKeyState},
@@ -67,7 +65,7 @@ package MouseEventType {
     return $self;
   } #/ sub MouseEventType::new
 
-  sub clone {    # $obj ($self)
+  sub clone {    # $obj ()
     my $self = shift;
     my $clone = { %$self };
     $clone->{where} = $self->{where}->clone();
@@ -106,7 +104,7 @@ package CharScanType {
 
   use parent 'Tie::Hash';
 
-  sub new {    # $obj ($class, %args)
+  sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
     tie %$self, $class;
@@ -162,7 +160,7 @@ package KeyDownEvent {
 
   use parent 'Tie::Hash';
 
-  sub new {    # $obj ($class, %args)
+  sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
     tie %$self, $class;
@@ -248,7 +246,7 @@ package MessageEvent {
 
   use parent 'Tie::Hash';
 
-  sub new {    # $obj ($class, %args)
+  sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
     tie %$self, $class;
@@ -324,7 +322,7 @@ lock_hash( %FIELDS );
 
 use parent 'Tie::Hash';
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   no warnings 'uninitialized';
   my ( $class, %args ) = @_;
   my $self = bless {}, $class;
@@ -369,8 +367,7 @@ sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
 
 sub getMouseEvent {    # void ($self)
   require TV::Drivers::EventQueue;
-  my ( $TEventQueue ) = @TV::Drivers::EventQueue::ISA;
-  $TEventQueue->getMouseEvent( $_[0] );
+  TV::Drivers::EventQueue->getMouseEvent( $_[0] );
   return;
 }
 

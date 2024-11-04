@@ -35,7 +35,7 @@ SKIP: {
   skip 'No mouse available', 3 unless THardwareInfo->getButtonCount();
   ok( THWMouse->present(),       'THWMouse is present' );
   ok( TMouse->present(),         'TMouse is present' );
-  ok( $TEventQueue::mouseEvents, 'TEventQueue use mouse events' );
+  ok( TEventQueue->{mouseEvents}, 'TEventQueue use mouse events' );
 }
 
 done_testing;
