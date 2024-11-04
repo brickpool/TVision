@@ -7,7 +7,7 @@ TV::Views::Palette - defines the class TPalette
 =head1 DESCRIPTION
 
 In this Perl module the class I<TPalette> is created and the constructor I<new> 
-and I<clone> as the methods I<assign> and I<get_data> are implemented to emulate 
+and I<clone> as the methods I<assign> and I<at> are implemented to emulate 
 the functionality of the Borland C++ code. 
 
 =cut
@@ -26,7 +26,7 @@ require bytes;
 
 sub TPalette() { __PACKAGE__ }
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $data = "\0";
   if ( $args{data} && $args{size} ) {
@@ -47,15 +47,15 @@ sub clone {    # $clone ($self)
   return bless \$data, ref $self;
 }
 
-sub assign {    # $self ($self, $tp)
+sub assign {    # $self ($tp)
   my ( $self, $tp ) = @_;
   $$self = $$tp;
   return $self;
 }
 
-sub get_data {    # $byte ($self, $indef)
+sub at {    # $byte ($indef)
   my ( $self, $index ) = @_;
-  return bytes::substr( $$self, $index, 1 );
+  return ord bytes::substr( $$self, $index, 1 );
 }
 
 use overload

@@ -12,16 +12,12 @@ corresponding messages.
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 24;
 
 BEGIN {
-  use_ok 'TV::Views::Const', qw( 
-    MAX_VIEW_WIDTH 
-    :cmXXXX
-  );
+  use_ok 'TV::Views::Const', qw( :cmXXXX );
 }
 
-is( MAX_VIEW_WIDTH, 132, 'MAX_VIEW_WIDTH is 132' );
 is( CM_VALID,       0,   'CM_VALID is 0' );
 is( CM_QUIT,        1,   'CM_QUIT is 1' );
 is( CM_ERROR,       2,   'CM_ERROR is 2' );

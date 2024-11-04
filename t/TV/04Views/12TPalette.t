@@ -5,7 +5,7 @@
 In these test cases, the I<TPalette> class is tested in various ways:
 
   1. Initializing an object with 'data' and 'size'.
-  2. Retrieving data using the 'get_data' method and '@{}' operator.
+  2. Retrieving data using the 'at' method and '@{}' operator.
   3. Copying an object using 'copy_from' argument.
   4. In these test cases, the 'assign' method is tested
 
@@ -22,14 +22,14 @@ BEGIN {
 
 my $data = sub {
   my $res = '';
-  for my $i ( 1 .. ord( $_[0]->get_data(0) ) ) {
-    $res .= $_[0]->get_data( $i );
+  for my $i ( 1 .. $_[0]->at(0) ) {
+    $res .= chr( $_[0]->at( $i ) );
   }
   return $res;
 };
 
 my $size = sub {
-  return ord $_[0]->get_data(0);
+  return $_[0]->at(0);
 };
 
 # Test 1: Object initialization with data and size
@@ -41,9 +41,9 @@ $palette = TPalette->new( data => 'xy', size => 3 );
 is( $palette->$data(), "xy\0", 'Data(2) initialized correctly' );
 is( $palette->$size(), 3,      'Size initialized correctly' );
 
-# Test 2: Data retrieval with get_data
-is( $palette->get_data( 1 ), 'x',        'Data retrieved correctly' );
-is( $palette->[2],           ord( 'y' ), '[] operator retrieved correctly' );
+# Test 2: Data retrieval with at
+is( $palette->at( 1 ), ord( 'x' ), 'Data retrieved correctly' );
+is( $palette->[2],     ord( 'y' ), '[] operator retrieved correctly' );
 
 # Test 3: Copying an object
 $palette = TPalette->new( data => 'abc', size => 3 );

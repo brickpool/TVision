@@ -16,11 +16,22 @@ use warnings;
 
 use Exporter 'import';
 
-our @EXPORT_OK = qw(
-  MAX_VIEW_WIDTH
-);
+our @EXPORT_OK = ();
 
 our %EXPORT_TAGS = (
+
+  phXXXX => [qw(
+    PH_FOCUSED
+    PH_PREPROCESS
+    PH_POSTPROCESS
+  )],
+
+  smXXXX => [qw(
+    NORMAL_SELECT
+    ENTER_SELECT
+    LEAVE_SELECT
+  )],
+
   cmXXXX => [qw(
     CM_VALID 
     CM_QUIT 
@@ -171,8 +182,18 @@ use TV::Drivers::Const qw(
   EV_COMMAND
 );
 
+# Constants for phaseType
 use constant {
-  MAX_VIEW_WIDTH      => 132,
+  PH_FOCUSED     => 0,
+  PH_PREPROCESS  => 1,
+  PH_POSTPROCESS => 2,
+};
+
+# Constants for selectMode
+use constant {
+  NORMAL_SELECT => 0,
+  ENTER_SELECT  => 1,
+  LEAVE_SELECT  => 2,
 };
 
 use constant {

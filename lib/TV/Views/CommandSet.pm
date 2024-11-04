@@ -26,31 +26,31 @@ my $mask = sub {    # $int ( $cmd )
   return 1 << ( $_[0] % 8 );
 };
 
-my $disable_cmd = sub {    # void ($self, $cmd)
+my $disable_cmd = sub {    # void ($cmd)
   my ( $self, $cmd ) = @_;
   $self->[ $loc->( $cmd ) ] &= ~$mask->( $cmd );
   return;
 };
 
-my $enable_cmd = sub {    # void ($self, $cmd)
+my $enable_cmd = sub {    # void ($cmd)
   my ( $self, $cmd ) = @_;
   $self->[ $loc->( $cmd ) ] |= $mask->( $cmd );
   return;
 };
 
-my $disable_cmd_set = sub {    # void ($self, $tc)
+my $disable_cmd_set = sub {    # void ($tc)
   my ( $self, $tc ) = @_;
   $self->[$_] &= ~$tc->[$_] for 0 .. 31;
   return;
 };
 
-my $enable_cmd_set = sub {    # void ($self, $tc)
+my $enable_cmd_set = sub {    # void ($tc)
   my ( $self, $tc ) = @_;
   $self->[$_] |= $tc->[$_] for 0 .. 31;
   return;
 };
 
-sub new {    # $obj ($class, %args)
+sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = bless [ ( 0 ) x 32 ], $class;
   @$self = @{ $args{copy_from} }
@@ -64,18 +64,18 @@ sub clone {    # $clone ($self)
   return bless [ @data ], ref $self;
 }
 
-sub has {    # $bool ($self, $cmd)
+sub has {    # $bool ($cmd)
   my ( $self, $cmd ) = @_;
   return ( $self->[ $loc->( $cmd ) ] & $mask->( $cmd ) ) != 0;
 }
 
-sub disableCmd {    # void ($self, $cmd|$tc)
+sub disableCmd {    # void ($cmd|$tc)
   ref $_[1]
     ? goto &$disable_cmd_set
     : goto &$disable_cmd;
 }
 
-sub enableCmd {    # void ($self, $cmd|$tc)
+sub enableCmd {    # void ($cmd|$tc)
   ref $_[1]
     ? goto &$enable_cmd_set
     : goto &$enable_cmd;
@@ -124,13 +124,13 @@ sub exclude {    # void ( $self, $cmd|$tc )
   goto &disableCmd;
 }
 
-sub intersect_assign {    # $bool ($self, $tc)
+sub intersect_assign {    # $bool ($tc)
   my ( $self, $tc ) = @_;
   $self->[$_] &= $tc->[$_] for 0 .. 31;
   return $self;
 }
 
-sub union_assign {    # $bool ($self, $tc)
+sub union_assign {    # $bool ($tc)
   my ( $self, $tc ) = @_;
   $self->[$_] |= $tc->[$_] for 0 .. 31;
   return $self;
