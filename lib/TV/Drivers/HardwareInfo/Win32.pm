@@ -183,8 +183,10 @@ INIT: {
 
   # The following content was taken from the framework
   # "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
+  #
   # Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
-  # https://github.com/magiblot/tvision/blob/e9a9dda457bc5b79f55236b89ae7241ed81ec0e7/source/platform/conctl.cpp#L168
+  #
+  # I<conctl.cpp>
   {
     my $console;
     my $have_console = 0;
