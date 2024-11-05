@@ -36,8 +36,6 @@ use TV::Drivers::Const qw(
 );
 use TV::Drivers::DrawBuffer;
 use TV::Drivers::Event;
-use TV::Drivers::HardwareInfo;
-use TV::Drivers::Screen;
 use TV::Views::Const qw(
   :cmXXXX
   :dmXXXX
@@ -50,6 +48,10 @@ use TV::Views::Const qw(
 );
 use TV::Views::CommandSet;
 use TV::Views::Palette;
+
+require TV::Views::View::Cursor;
+require TV::Views::View::Exposed;
+require TV::Views::View::Write;
 
 sub TView() { __PACKAGE__ }
 
@@ -92,9 +94,10 @@ our $curCommandSet = $initCommands->();
 
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
+  return unless ref $args{bounds};
   my $self = bless {
-    owner     => undef,
-    next      => undef,
+    owner     => 0,
+    next      => 0,
     options   => 0,
     state     => SF_VISIBLE,
     growMode  => 0,
@@ -132,8 +135,8 @@ sub sizeLimits {    # void ($min, $max)
 sub getBounds {    # $rect ()
   my $self = shift;
   return TRect->new(
-    a => $self->{origin},
-    b => $self->{origin} + $self->{size},
+    p1 => $self->{origin},
+    p2 => $self->{origin} + $self->{size},
   );
 }
 
@@ -167,6 +170,7 @@ sub mouseInView {    # $bool ($mouse)
 sub containsMouse {    # $bool ($event)
   my ( $self, $event ) = @_;
   return ( $self->{state} & SF_VISIBLE )
+    && $event->{mouse}
     && $self->mouseInView( $event->{mouse}{where} );
 }
 
@@ -490,97 +494,10 @@ sub drawView {    # void ()
   return;
 }
 
-# The L</exposed> method is a port of the assembler code of I<tvexposd.asm>.
-#
-# The following code base was originally written by Jörn Sierwald in C++ and 
-# ported now to Perl.
-
-my $staticVars2 = {
-  target  => undef,
-  offset  => 0,
-  y       => 0,
-};
-my ( $exposedRec1, $exposedRec2 );
-
-$exposedRec1 = sub {    # $bool ($self, $x1, $x2, $p)
-  my ( $self, $x1, $x2, $p ) = @_;
-  while ( 1 ) {
-    $p = $p->{next};
-    return $self->$exposedRec2( $x1, $x2, $p->owner() )    # run completed
-      if $p == $staticVars2->{target};
-
-    next                                                   # no overlapping
-      if !( $p->{state} & SF_VISIBLE )
-      && $staticVars2->{y} < $p->{origin}{y};
-
-    if ( $staticVars2->{y} < $p->{origin}{y} + $p->{size}{y} ) {
-
-      # overlapping possible
-      if ( $x1 < $p->{origin}{x} ) {    # starts left of view
-        next                           # left complete
-          if $x2 <= $p->{origin}{x};
-        if ( $x2 > $p->{origin}{x} + $p->{size}{x} ) {
-          return !!1
-            if $self->$exposedRec1( $x1, $p->{origin}{x}, $p );
-          $x1 = $p->{origin}{x} + $p->{size}{x};
-        }
-        else {
-          $x2 = $p->{origin}{x};
-        }
-      } #/ if ( $x1 < $p->{origin...})
-      else {
-        $x1 = max( $x1, $p->{origin}{x} + $p->{size}{x} );
-        return !!0    # completely hidden
-          if $x1 >= $x2;
-      }
-    } #/ if ( $staticVars2->{y}...)
-  } #/ while ( 1 )
-}; #/ $exposedRec1 = sub
-
-$exposedRec2 = sub {    # $bool ($self, $x1, $x2, $p)
-  my ( $self, $x1, $x2, $p ) = @_;
-  return !!0
-    unless $p->{state} & SF_VISIBLE;
-
-  my $owner = $p->owner();
-  return !!1
-    if !$owner || $owner->{buffer};
-
-  my $savedStatics = {%$staticVars2};
-
-  $staticVars2->{y} += $p->{origin}{y};
-  $x1               += $p->{origin}{x};
-  $x2               += $p->{origin}{x};
-  $staticVars2->{target} = $p;
-
-  my $exposed = !!0;
-  if ( $staticVars2->{y} >= $owner->{clip}{a}{y}
-    && $staticVars2->{y} <  $owner->{clip}{b}{y} 
-  ) {
-    $x1 = max( $x1, $owner->{clip}{a}{x} );
-    $x2 = min( $x2, $owner->{clip}{b}{x} );
-    if ( $x1 < $x2 ) {
-      $exposed = $self->$exposedRec1( $x1, $x2, $owner->{last} );
-    }
-  }
-
-  $staticVars2 = {%$savedStatics};
-  return $exposed;
-}; #/ $exposedRec2 = sub
-
 sub exposed {    # $bool ()
   my $self = shift;
-  return !!0
-    if !( $self->{state} & SF_EXPOSED )
-    || $self->{size}{x} <= 0
-    || $self->{size}{y} <= 0;
-  for ( my $y = 0 ; $y < $self->{size}{y} ; $y++ ) {
-    $staticVars2->{y} = $y;
-    return !!1
-      if $self->$exposedRec2( 0, $self->{size}{x}, $self );
-  }
-  return !!0;
-} #/ sub exposed
+  return TV::Views::View::Exposed::L0( $self );
+}
 
 sub focus {    # $bool ()
   my $self   = shift;
@@ -673,67 +590,11 @@ sub normalCursor {    # void ()
   return;
 }
 
-# The L</resetCursor> method is a port of the assembler code of I<tvcursor.asm>.
-#
-# The following code base was originally written by Jörn Sierwald in C++ and 
-# ported now to Perl.
-
 sub resetCursor {    # void ()
-  my ( $self ) = @_;
-
-  if ( ( $self->{state} & ( SF_VISIBLE | SF_CURSOR_VIS | SF_FOCUSED ) ) ==
-    ( SF_VISIBLE | SF_CURSOR_VIS | SF_FOCUSED ) 
-  ) {
-    my ( $p2, $g );
-    my $p   = $self;
-    my $cur = $self->{cursor};
-
-    while ( 1 ) {
-      last
-        unless $cur->{x} >= 0
-        && $cur->{x} < $p->{size}->{x}
-        && $cur->{y} >= 0
-        && $cur->{y} < $p->{size}->{y};
-      $cur->{x} += $p->{origin}->{x};
-      $cur->{y} += $p->{origin}->{y};
-      $p2 = $p;
-      $g  = $p->owner();
-
-      if ( !$g ) {
-        # Cursor is visible, so set it's position
-        THardwareInfo->setCaretPosition( $cur->{x}, $cur->{y} );
-        # Determine cursor size
-        my $size = TScreen->{cursorLines};
-        $size = 100 
-          if $self->{state} & SF_CURSOR_INS;
-        THardwareInfo->setCursorType( $size );
-        return;
-      }
-
-      last 
-        unless $g->{state} & SF_VISIBLE;
-      $p = $g->{last};
-
-      while ( 1 ) {
-        $p = $p->{next};
-        if ( $p eq $p2 ) {    # all checked
-          $p = $p->owner();
-          next;
-        }
-        last                  # Cursor is hidden
-          if ( $p->{state} & SF_VISIBLE )
-          && $cur->{x} >= $p->{origin}->{x}
-          && $cur->{x} < $p->{size}->{x} + $p->{origin}->{x}
-          && $cur->{y} >= $p->{origin}->{y}
-          && $cur->{y} < $p->{size}->{y} + $p->{origin}->{y};
-      } #/ while ( 1 )
-    } #/ while ( 1 )
-  } #/ if ( ( $self->{state} ...))
-
-  # Cursor is not visible if we get here
-  THardwareInfo->setCursorType( 0 );
+  my $self = shift;
+  TV::Views::View::Cursor::resetCursor( $self );
   return;
-} #/ sub resetCursor
+}
 
 sub setCursor {    # void ($x, $y)
   my ( $self, $x, $y ) = @_;
@@ -1079,14 +940,18 @@ sub putInFrontOf {    # void ($target)
       while ( $p && $p != $self ) {
         $p = $p->nextView();
       }
-      $lastView = $target if !$p;
+      $lastView = $target
+        if !$p;
       $self->{state} &= ~SF_VISIBLE;
-      $self->drawHide( $lastView ) if $lastView == $target;
+      $self->drawHide( $lastView )
+        if $lastView == $target;
       $self->owner()->removeView( $self );
       $self->owner()->insertView( $self, $target );
       $self->{state} |= SF_VISIBLE;
-      $self->drawShow( $lastView )   if $lastView != $target;
-      $self->owner()->resetCurrent() if $self->{options} & OF_SELECTABLE;
+      $self->drawShow( $lastView )
+        if $lastView != $target;
+      $self->owner()->resetCurrent()
+        if $self->{options} & OF_SELECTABLE;
     } #/ else [ if ( !( $self->{state}...))]
   } #/ if ( $self->owner() &&...)
   return;
@@ -1104,213 +969,54 @@ sub TopView {    # $view ()
   return $p;
 } #/ sub TopView
 
-# The L</writeBuf>, L</writeChar>, L</writeLine> and L</writeStr> methods are a 
-# port of the assembler code of I<tvwrite.asm>.
-#
-# The following code base was originally written by Jörn Sierwald in C++ and 
-# ported now to Perl.
-
-my $staticVars1 = [];
-my ( $writeViewRec1, $writeViewRec2 );
-
-$writeViewRec1 = sub {    # void ($x1, $x2, $p, $shadowCounter)
-  my ( $self, $x1, $x2, $p, $shadowCounter ) = @_;
-  while ( 1 ) {
-    $p = $p->next();
-    if ( $p == $staticVars2->{target} ) {    # run completed
-      # write it!
-      my $owner = $p->owner();
-      if ( $owner->{buffer} ) {
-        my $n   = $x2 - $x1;
-        my $dst = $owner->{size}{x} * $staticVars2->{y} + $x1;
-        my $src = $x1 - $staticVars2->{offset};
-
-        if ( $shadowCounter == 0 ) {
-
-          # writes a row of data to the screen
-          splice(
-            @{ $owner->{buffer} }, $dst, $n,
-            $staticVars1->[ $src .. $n ]
-          );
-        }
-        else {    # paint shadow attr
-          while ( $n-- ) {
-            my $cell = ( $staticVars1->[ $src++ ] & 0xff ) 
-                     | ( $shadowAttr << 8 );
-
-            # writes a character on the screen
-            $owner->{buffer}->[ $dst++ ] = $cell;
-          }
-        }
-      } #/ if ( $owner->{buffer} )
-      $self->$writeViewRec2( $x1, $x2, $owner, $shadowCounter )
-        if !$owner->{lockFlag};
-      return;
-    } #/ if ( $p eq $staticVars2...)
-
-    next    # no overlapping
-      if !( $p->{state} & SF_VISIBLE )
-      || $staticVars2->{y} < $p->{origin}{y};
-
-    # overlapping possible
-    if ( $staticVars2->{y} < $p->{origin}{y} + $p->{size}{y} ) {
-      if ( $x1 < $p->{origin}{x} ) {    # starts left of view
-        next                             # left complete
-          if $x2 <= $p->{origin}{x};
-        $self->$writeViewRec1( $x1, $p->{origin}{x}, $p, $shadowCounter );
-        $x1 = $p->{origin}{x};
-      }
-      my $bx = $p->{origin}{x} + $p->{size}{x};
-
-      return    # completely covered
-        if $x2 <= $bx;
-
-      $x1 = max( $x1, $bx );
-      $bx += $shadowSize->{x};
-
-      # could possibly be in the shade
-      next      # 1st row has no shade
-        if !( $p->{state} & SF_SHADOW )
-        || $staticVars2->{y} < $p->{origin}{y} + $shadowSize->{y};
-      next      # right complete
-        if $x1 >= $bx;
-      $shadowCounter++;
-      next      # everything in the shade
-        if $x2 <= $bx;
-
-      # split shadow part, right next to it
-      $self->$writeViewRec1( $x1, $bx, $p, $shadowCounter );
-      $x1 = $bx;
-      $shadowCounter--;
-      next;
-    } #/ if ( $staticVars2->{y}...)
-    next    # too far down
-      if !( $p->{state} & SF_SHADOW )
-      || $staticVars2->{y} >=
-        $p->{origin}{y} + $p->{size}{y} + $shadowSize->{y};
-    my $bx = $p->{origin}{x} + $shadowSize->{x};    # in the y-shadow?
-    if ( $x1 < $bx ) {
-      next                                           # left complete
-        if $x2 <= $bx;
-      $self->$writeViewRec1( $x1, $bx, $p, $shadowCounter );
-      $x1 = $bx;
-    }
-    $bx += $p->{size}{x};
-    next
-      if $x1 >= $bx;
-    $shadowCounter++;
-    next    # everything in the shade
-      if $x2 <= $bx;
-
-    # split shadow part, right next to it
-    $self->$writeViewRec1( $x1, $bx, $p, $shadowCounter );
-    $x1 = $bx;
-    $shadowCounter--;
-  } #/ while ( 1 )
-}; #/ $writeViewRec1 = sub
-
-$writeViewRec2 = sub {
-  my ( $self, $x1, $x2, $p, $shadowCounter ) = @_;
-  my $owner = $p->owner();
-  return
-    if !( $p->{state} & SF_VISIBLE )
-    || !$owner;
-
-  my $savedStatics = {%$staticVars2};
-
-  $staticVars2->{y}      += $p->{origin}{y};
-  $x1                    += $p->{origin}{x};
-  $x2                    += $p->{origin}{x};
-  $staticVars2->{offset} += $p->{origin}{x};
-  $staticVars2->{target} = $p;
-
-  if ( $staticVars2->{y} < $owner->{clip}{a}{y}
-    || $staticVars2->{y} >= $owner->{clip}{b}{y}
-  ) {
-    $staticVars2 = {%$savedStatics};
-    return;
-  }
-  $x1 = max( $x1, $owner->{clip}{a}{x} );
-  $x2 = min( $x2, $owner->{clip}{b}{x} );
-  if ( $x1 >= $x2 ) {
-    $staticVars2 = {%$savedStatics};
-    return;
-  }
-
-  $self->$writeViewRec1( $x1, $x2, $owner->last(), $shadowCounter );
-  $staticVars2 = {%$savedStatics};
-  return;
-}; #/ sub
-
-my $writeView = sub {
-  my ($self, $x1, $x2, $y, $buf) = @_;
-  return 
-    if $y < 0 || $y >= $self->{size}{y};
-  $x1 = 0 
-    if $x1 < 0;
-  $x2 = $self->{size}{x} if $x2 > $self->{size}{x};
-  return 
-    if $x1 >= $x2;
-  $staticVars2->{offset} = $x1;
-  $staticVars1 = $buf;
-  $staticVars2->{y} = $y;
-  $self->$writeViewRec2($x1, $x2, $self, 0);
+my $writeView = sub {    # void ($x, $y, $count, $b)
+  my ( $self, $x, $y, $count, $b ) = @_;
+  TV::Views::View::Write::L0( $self, $x, $y, $count, $b );
   return;
 };
 
 sub writeBuf {    # void ($x, $y, $w, $h, $b)
-  no warnings 'uninitialized';
   my ( $self, $x, $y, $w, $h, $b ) = @_;
-  for ( my $i = 0 ; $i < $h ; $i++ ) {
-    $self->$writeView( $x, $x + $w, $y + $i, \ splice( @$b, $w * $i ) );
+  while ( $h-- > 0 ) {
+    $self->$writeView( $x, $y++, $w, $b );
+    $b = alias [ @$b[ $w .. $#$b ] ];
   }
   return;
 }
 
+my $setCell = sub {
+  my ( $c, $color ) = @_;
+  return ( ( $color & 0xff ) << 8 ) | $c & 0xff;
+};
+
 sub writeChar {    # void ($x, $y, $c, $color, $count)
   my ( $self, $x, $y, $c, $color, $count ) = @_;
-  my $b      = [];
-  my $myChar = ( $self->mapColor( $color ) << 8 ) + ( ord( $c ) & 0xff );
-  my $count2 = $count;
-  $x = 0
-    if $x < 0;
-  return
-    if $x + $count > MAX_VIEW_WIDTH;
-  my $p = 0;
-  while ( $count-- ) {
-    $b->[ $p++ ] = $myChar;
+  if ( $count > 0 ) {
+    my $cell = $setCell->( $c, $color );
+    my $buf  = [ ( $cell ) x $count ];
+    $self->$writeView( $x, $y, $count, $buf );
   }
-  $self->$writeView( $x, $x + $count2, $y, $b );
   return;
-} #/ sub writeChar
+}
 
 sub writeLine {    # void ($x, $y, $w, $h, $b)
   my ( $self, $x, $y, $w, $h, $b ) = @_;
-  return
-    if $h == 0;
-  for ( my $i = 0 ; $i < $h ; $i++ ) {
-    $self->$writeView( $x, $x + $w, $y + $i, $b );
+  while ( $h-- > 0 ) {
+    $self->$writeView( $x, $y++, $w, $b );
   }
   return;
 }
 
 sub writeStr {    # void ($x, $y, $str, $color)
   my ( $self, $x, $y, $str, $color ) = @_;
-  return
-    unless $str;
-  my $l = length( $str );
-  return
-    if $l == 0;
-  $l = MAX_VIEW_WIDTH
-    if $l > MAX_VIEW_WIDTH;
-  my $l2      = $l;
-  my $myColor = $self->mapColor( $color ) << 8;
-  my $b       = [];
-  my $p       = 0;
-  while ( $l-- ) {
-    $b->[$p++] = $myColor + ( ord( substr( $str, $p, 1 ) ) & 0xff );
+  if ( $str ) {
+    my $length = length( $str );
+    if ( $length > 0 ) {
+      my $attr = mapColor( $color );
+      my $buf  = [ map { $setCell->( $_, $attr ) } split //, $str ];
+      $self->$writeView( $x, $y, $length, $buf );
+    }
   }
-  $self->$writeView( $x, $x + $l2, $y, $b );
   return;
 } #/ sub writeStr
 
