@@ -25,8 +25,8 @@ sub TPoint() { __PACKAGE__ }
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   my $self = {
-    x => $args{x} // 0,
-    y => $args{y} // 0,
+    x => $args{x} || 0,
+    y => $args{y} || 0,
   };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
@@ -46,8 +46,9 @@ sub add {    # $p ($one, $two)
 }
 
 sub subtract {    # $p ($one, $two)
-  my ( $one, $two ) = @_;
-  return TPoint->new( x => $one->{x} - $two->{x}, y => $two->{y} - $two->{y} );
+  my ( $one, $two, $swap ) = @_;
+  ( $one, $two ) = ( $two, $one ) if $swap;
+  return TPoint->new( x => $one->{x} - $two->{x}, y => $one->{y} - $two->{y} );
 }
 
 sub equal {    # $bool ($one, $two)

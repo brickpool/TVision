@@ -58,10 +58,8 @@ sub new {    # $obj (%args)
     $self->{a} = $args{p1};
     $self->{b} = $args{p2};
   }
-  else {
-    $self->{a} = TPoint->new();
-    $self->{b} = TPoint->new();
-  }
+  $self->{a} ||= TPoint->new();
+  $self->{b} ||= TPoint->new();
   Hash::Util::lock_keys( %$self ) if STRICT;
   return $self;
 } #/ sub new
