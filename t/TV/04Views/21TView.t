@@ -12,7 +12,7 @@ I<getHelpCtx> and I<valid>.
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 BEGIN {
   use_ok 'TV::Const', qw( INT_MAX );
@@ -29,13 +29,11 @@ BEGIN {
   use_ok 'TV::Views::View';
 }
 
+my $bounds = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
+isa_ok( $bounds, TRect );
+
 # Test the creation of a new TView object
 subtest 'new object creation' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   isa_ok( $view,           TView );
   isa_ok( $view->{size},   TPoint );
@@ -64,11 +62,6 @@ subtest 'sizeLimits method' => sub {
 
 # Test the getBounds method
 subtest 'getBounds method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   my $rect = $view->getBounds();
   isa_ok( $rect, TRect );
@@ -80,11 +73,6 @@ subtest 'getBounds method' => sub {
 
 # Test the getExtent method
 subtest 'getExtent method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   my $rect = $view->getExtent();
   isa_ok( $rect, TRect );
@@ -96,11 +84,6 @@ subtest 'getExtent method' => sub {
 
 # Test the getClipRect method
 subtest 'getClipRect method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   my $clip = $view->getClipRect();
   isa_ok( $clip, TRect );
@@ -112,11 +95,6 @@ subtest 'getClipRect method' => sub {
 
 # Test the mouseInView method
 subtest 'mouseInView method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view  = TView->new( bounds => $bounds );
   my $mouse = TPoint->new( x => 5, y => 5 );
   ok( $view->mouseInView( $mouse ), 'mouse is in view' );
@@ -126,11 +104,6 @@ subtest 'mouseInView method' => sub {
 
 # Test the containsMouse method
 subtest 'containsMouse method' => sub {
-	my $bounds = TRect->new(
-		p1 => TPoint->new( x => 0,  y => 0 ),
-		p2 => TPoint->new( x => 10, y => 10 )
-	);
-	isa_ok( $bounds, TRect );
 	my $view  = TView->new( bounds => $bounds );
 	my $event = TEvent->new( what => EV_MOUSE,
 		mouse => { where => TPoint->new( x => 5, y => 5 ) } );
@@ -142,17 +115,8 @@ subtest 'containsMouse method' => sub {
 
 # Test the locate method
 subtest 'locate method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view       = TView->new( bounds => $bounds );
-  my $new_bounds = TRect->new(
-    p1 => TPoint->new( x => 5,  y => 5 ),
-    p2 => TPoint->new( x => 15, y => 15 )
-  );
-  isa_ok( $new_bounds, TRect );
+  my $new_bounds = TRect->new( ax => 5, ay => 5, bx => 15, by => 15 );
   $view->locate( $new_bounds );
   my $rect = $view->getBounds();
   is( $rect->{a}{x}, 5,  'rect.a.x is set correctly after locate' );
@@ -163,33 +127,21 @@ subtest 'locate method' => sub {
 
 # Test the calcBounds method
 subtest 'calcBounds method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
   my $view  = TView->new( bounds => $bounds );
-  my $owner = TView->new( bounds => TRect->new(
-    ax => 0, ay => 0, bx => 20, by => 20,
-  ) );
+  my $new_bounds = TRect->new( ax => 0, ay => 0, bx => 20, by => 20 );
+  my $owner = TView->new( bounds => $new_bounds );
   $view->owner( $owner );
   $view->{growMode} = GF_GROW_ALL;
   my $delta = TPoint->new( x => 5, y => 5 );
-  $view->calcBounds( $bounds, $delta );
-  is( $bounds->{b}{x}, 15, 'bounds.b.x is set correctly after calcBounds' );
-  is( $bounds->{b}{y}, 15, 'bounds.b.y is set correctly after calcBounds' );
+  $view->calcBounds( $new_bounds, $delta );
+  is( $new_bounds->{b}{x}, 15, 'bounds.b.x is set correctly after calcBounds' );
+  is( $new_bounds->{b}{y}, 15, 'bounds.b.y is set correctly after calcBounds' );
 };
 
 # Test the changeBounds method
 subtest 'changeBounds method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
   my $view       = TView->new( bounds => $bounds );
-  my $new_bounds = TRect->new(
-    p1 => TPoint->new( x => 5,  y => 5 ),
-    p2 => TPoint->new( x => 15, y => 15 )
-  );
+  my $new_bounds = TRect->new( ax => 5, ay => 5, bx => 15, by => 15 );
   $view->changeBounds( $new_bounds );
   my $rect = $view->getBounds();
   is( $rect->{a}{x}, 5,  'rect.a.x is set correctly after changeBounds' );
@@ -200,11 +152,6 @@ subtest 'changeBounds method' => sub {
 
 # Test the growTo method
 subtest 'growTo method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   $view->growTo( 15, 15 );
   my $rect = $view->getBounds();
@@ -214,11 +161,6 @@ subtest 'growTo method' => sub {
 
 # Test the moveTo method
 subtest 'moveTo method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   $view->moveTo( 5, 5 );
   my $rect = $view->getBounds();
@@ -230,16 +172,8 @@ subtest 'moveTo method' => sub {
 
 # Test the setBounds method
 subtest 'setBounds method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view       = TView->new( bounds => $bounds );
-  my $new_bounds = TRect->new(
-    p1 => TPoint->new( x => 5,  y => 5 ),
-    p2 => TPoint->new( x => 15, y => 15 )
-  );
+  my $new_bounds = TRect->new( ax => 5, ay => 5, bx => 15, by => 15 );
   isa_ok( $new_bounds, TRect );
   $view->setBounds( $new_bounds );
   my $rect = $view->getBounds();
@@ -251,11 +185,6 @@ subtest 'setBounds method' => sub {
 
 # Test the getHelpCtx method
 subtest 'getHelpCtx method' => sub {
-  my $bounds = TRect->new(
-    p1 => TPoint->new( x => 0,  y => 0 ),
-    p2 => TPoint->new( x => 10, y => 10 )
-  );
-  isa_ok( $bounds, TRect );
   my $view = TView->new( bounds => $bounds );
   is( $view->getHelpCtx(), HC_NO_CONTEXT, 'helpCtx is set correctly' );
   $view->{state} |= SF_DRAGGING;
@@ -265,9 +194,7 @@ subtest 'getHelpCtx method' => sub {
 
 # Test the valid method
 subtest 'valid method' => sub {
-  my $view = TView->new( bounds => TRect->new(
-    ax => 0, ay => 0, bx => 10, by => 10,
-  ) );
+  my $view = TView->new( bounds => $bounds );
   ok( $view->valid( 0 ), 'valid method returns true' );
 };
 

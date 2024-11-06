@@ -18,7 +18,7 @@ is( $buffer->[0], 0x1f00, 'putAttribute sets the attribute correctly' );
 
 # Test putChar method
 can_ok( $buffer, 'putChar' );
-$buffer->putChar( 0, ord( 'A' ) );
+$buffer->putChar( 0, 'A' );
 is( $buffer->[0], 0x1f41, 'putChar sets the character correctly' );
 
 # Test moveBuf method
@@ -33,7 +33,7 @@ is_deeply(
 
 # Test moveChar method
 can_ok( $buffer, 'moveChar' );
-$buffer->moveChar( 0, ord( 'B' ), 0x2f, 5 );
+$buffer->moveChar( 0, 'B', 0x2f, 5 );
 is_deeply(
   [ @$buffer[ 0 .. 4 ] ], 
   [ map { 0x2f42 } 0 .. 4 ],

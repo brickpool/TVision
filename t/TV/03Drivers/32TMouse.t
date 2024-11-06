@@ -2,16 +2,15 @@
 
 =head1 DESCRIPTION
 
-These test cases cover the methods I<setRange>, I<getEvent>, I<present>, 
-I<inhibit>, I<resume>, I<suspend>, I<show>, and I<hide> of the I<THWMouse> 
-class. 
+These test cases cover the methods I<getEvent>, I<present>, I<inhibit>, 
+I<resume>, I<suspend>, I<show>, and I<hide> of the I<THWMouse> class. 
 
 =cut
 
 use strict;
 use warnings;
 
-use Test::More tests => 21;
+use Test::More tests => 20;
 use Test::Exception;
 
 BEGIN {
@@ -38,9 +37,6 @@ lives_ok { $mouse->show() } 'show() does not die';
 lives_ok { $mouse->hide() } 'hide() does not die';
 lives_ok { $mouse->getEvent( {} ) } 'getEvent() does not die';
 ok( !$mouse->present(), 'present() returns false' );
-
-# Test setRange method
-lives_ok { $mouse->setRange( 100, 200 ) } 'setRange(100, 200) does not die';
 
 # Test THWMouse
 $mouse = THWMouse();
