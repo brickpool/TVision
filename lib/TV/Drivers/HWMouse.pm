@@ -29,6 +29,7 @@ our @EXPORT = qw(
 
 use Data::Alias;
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 
 use TV::Drivers::HardwareInfo;
 
@@ -54,23 +55,30 @@ END {
 }
 
 sub show {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   THardwareInfo->cursorOn();
   return;
 }
 
 sub hide {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   THardwareInfo->cursorOff();
   return;
 }
 
 sub setRange {    # void ($class, $rx, $ry)
   my ( $class, $rx, $ry ) = @_;
-  warn 'Unimplemented' if STRICT;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $rx );
+  assert ( looks_like_number $ry );
+  ... if STRICT;
   return;
 }
 
 sub getEvent {    # void ($class, \%me)
   my ( $class, $me ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $me );
   $me->{buttons}  = 0;
   $me->{where}{x} = 0;
   $me->{where}{y} = 0;
@@ -79,24 +87,28 @@ sub getEvent {    # void ($class, \%me)
 }
 
 sub present {    # $bool ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $buttonCount != 0;
 }
 
 sub suspend {    # void ($class)
-  my ( $class ) = @_;
+  my $class = shift;
+  assert ( $class and !ref $class );
   $class->hide();
   $buttonCount = !!0;
   return;
 }
 
 sub resume {    # void ($class)
-  my ( $class ) = @_;
+  my $class = shift;
+  assert ( $class and !ref $class );
   $buttonCount = THardwareInfo->getButtonCount();
   $class->show();
   return;
 }
 
 sub inhibit {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   $noMouse = !!1;
   return;
 }

@@ -33,7 +33,12 @@ our @EXPORT = qw(
   TNSSortedCollection
 );
 
-use Carp;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
+use Scalar::Util qw(
+  blessed
+  readonly
+);
 
 use TV::Objects::Const qw( CC_NOT_FOUND );
 use TV::Objects::NSCollection;
@@ -46,15 +51,17 @@ use parent TNSCollection;
 
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = $class->SUPER::new( %args );
   $self->{duplicates} = !!0;
-  $self->{delta}      = $args{delta} // 0;
-  $self->setLimit( $args{limit} ) if defined $args{limit};
   return $self;
 }
 
-sub search {    # $bool ($key, \$index)
+sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 3 );
+  assert ( ref $index_ref and !readonly $$index_ref );
   my $l   = 0;
   my $h   = $self->{count} - 1;
   my $res = !!0;
@@ -77,8 +84,10 @@ sub search {    # $bool ($key, \$index)
   return $res;
 } #/ sub search
 
-sub indexOf {    # $index ($item)
+sub indexOf {    # $index ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) ) {
     return CC_NOT_FOUND;
@@ -93,8 +102,10 @@ sub indexOf {    # $index ($item)
   }
 } #/ sub indexOf
 
-sub insert {    # $index ($item)
+sub insert {    # $index ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) || $self->{duplicates} ) {
     $self->atInsert( $i, $item );
@@ -102,12 +113,16 @@ sub insert {    # $index ($item)
   return $i;
 }
 
-sub keyOf {    # $key ($item)
+sub keyOf {    # $key ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   return $item;
 }
 
 sub compare {    # $cmd ($key1, $key2)
+  assert ( blessed shift );
+  assert ( @_ == 3 );
   return 0;
 }
 

@@ -10,7 +10,13 @@ our @EXPORT_OK = qw(
 
 use Data::Alias;
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 use English qw( -no_match_vars );
+use Scalar::Util qw(
+  blessed 
+  looks_like_number
+  readonly
+);
 use Win32;
 use Win32::Console;
 use Win32::Console::PatchForRT33513;
@@ -166,9 +172,9 @@ my @AltCvt = (
 );
 
 my $isValid = sub {    # $bool ($self)
-	my ( $self ) = @_;
-	return undef unless ref( $self );
-	return !!$self->Mode();
+  my ( $self ) = @_;
+  return undef unless ref( $self );
+  return !!$self->Mode();
 };
 
 INIT: {
@@ -277,19 +283,23 @@ END {
 }
 
 sub getTickCount {    # $ticks ($class)
+  assert ( $_[0] and !ref $_[0] );
   # To change units from ms to clock ticks.
   #   X ms * 1s/1000ms * 18.2ticks/s = X/55 ticks, roughly.
   return int( Win32::GetTickCount() / 55 );
 }
 
 sub getPlatform {    # $osname ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $platform;
 }
 
 # Caret functions.
 
-sub setCaretSize {
+sub setCaretSize {    # void ($class, $size)
   my ( $class, $size ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $size );
   @crInfo = $consoleHandle[cnOutput]->Cursor();
   if ( $size == 0 ) {
     $crInfo[bVisible] = 0;
@@ -304,31 +314,39 @@ sub setCaretSize {
 } #/ sub setCaretSize
 
 sub getCaretSize {  # $size ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $crInfo[dwSize];
 }
 
 sub setCaretPosition { # void ($class, $x, $y)
   my ( $class, $x, $y ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $x );
+  assert ( looks_like_number $y );
   $consoleHandle[cnOutput]->Cursor($x, $y);
   return;
 }
 
 sub isCaretVisible {  # $visible ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $crInfo[bVisible];
 }
 
 # Screen functions.
 
 sub getScreenRows { # $rows ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $sbInfo[dwSizeY];
 }
 
 sub getScreenCols { # $cols ($class)
+  assert ( $_[0] and !ref $_[0] );
   return $sbInfo[dwSizeX];
 }
 
 sub getScreenMode {    # $mode ($class)
   my $class = shift;
+  assert ( $class and !ref $class );
   my $mode  = 0;
   if ( $platform eq 'Windows' ) {
     $mode = SM_CO80;    # B/W, mono not supported if running on Windows
@@ -341,6 +359,8 @@ sub getScreenMode {    # $mode ($class)
 
 sub setScreenMode {    # void ($class, $mode)
   my ( $class, $mode ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $mode );
   my %newSize = ( X => 80, Y => 25 );
   my %rect    = ( Left => 0, Top => 0, Right => 79, Bottom => 24 );
 
@@ -372,12 +392,31 @@ sub setScreenMode {    # void ($class, $mode)
 
 sub clearScreen {    # void ($class, $w, $h);
   my ( $class, $w, $h ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $w );
+  assert ( looks_like_number $h );
   $consoleHandle[cnOutput]->FillAttr( 0x07, $w * $h, 0, 0 );
   $consoleHandle[cnOutput]->FillChar( ' ', $w * $h, 0, 0 );
   return;
 }
 
+sub screenWrite {    # void ($class, $x, $y, $buf, $len)
+  my ( $class, $x, $y, $buf, $len ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $x );
+  assert ( looks_like_number $y );
+  assert ( ref $buf );
+  assert ( looks_like_number $len );
+  my %to = ( Left => $x, Top => $y, Right => $x + $len - 1, Bottom => $y );
+
+  $consoleHandle[cnOutput]->WriteRect( 
+    pack( 'S*', @$buf ), @to{qw(Left Top Right Bottom)} 
+  );
+  return;
+}
+
 sub allocateScreenBuffer {    # \@buffer ($class)
+  assert ( $_[0] and !ref $_[0] );
   my $x = $sbInfo[dwSizeX];
   my $y = $sbInfo[dwSizeY];
 
@@ -389,13 +428,16 @@ sub allocateScreenBuffer {    # \@buffer ($class)
 }
 
 sub freeScreenBuffer {  #  void ($class, \@buffer)
-  $_[1] = [] if ref $_[1] eq 'ARRAY';
+  assert ( $_[0] and !ref $_[0] );
+  assert ( ref $_[1] and !readonly @{$_[1]} );
+  $_[1] = [];
   return;
 }
 
 # Mouse functions.
 
 sub getButtonCount {    # $num ($class)
+  assert ( $_[0] and !ref $_[0] );
   require Win32Native;
   my $num = 0;
   Win32Native::GetNumberOfConsoleMouseButtons( $num );
@@ -403,11 +445,13 @@ sub getButtonCount {    # $num ($class)
 }
 
 sub cursorOn {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   $consoleHandle[cnInput]->Mode( $consoleMode | ENABLE_MOUSE_INPUT );
   return;
 }
 
 sub cursorOff {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   $consoleHandle[cnInput]->Mode( $consoleMode & ~ENABLE_MOUSE_INPUT );
   return;
 }
@@ -415,12 +459,15 @@ sub cursorOff {    # void ($class)
 # Event functions.
 
 sub clearPendingEvent {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   $pendingEvent = 0;
   return;
 }
 
 sub getMouseEvent {    # $bool ($class, $event)
   my ( $class, $event ) = @_;
+  assert ( $class and !ref $class );
+  assert ( blessed $event );
   if ( !$pendingEvent ) {
     $pendingEvent = $consoleHandle[cnInput]->GetEvents();
     if ( $pendingEvent ) {
@@ -443,6 +490,8 @@ sub getMouseEvent {    # $bool ($class, $event)
 
 sub getKeyEvent {    # $bool ($class, $event)
   my ( $class, $event ) = @_;
+  assert ( $class and !ref $class );
+  assert ( blessed $event );
   if ( !$pendingEvent ) {
     $pendingEvent = $consoleHandle[cnInput]->GetEvents();
     if ( $pendingEvent ) {
@@ -511,6 +560,8 @@ sub getKeyEvent {    # $bool ($class, $event)
 
 sub setCtrlBrkHandler { # $success ($class, $install)
   my ( $class, $install ) = @_;
+  assert ( $class and !ref $class );
+  assert ( !defined $install or !ref $install );
   return $consoleHandle[cnInput]->Mode(
     $install 
       ? $consoleMode & ~ENABLE_PROCESSED_INPUT 
@@ -519,6 +570,8 @@ sub setCtrlBrkHandler { # $success ($class, $install)
 }
 
 sub setCritErrorHandler {  # $bool ($class, $install)
+  assert ( $_[0] and !ref $_[0] );
+  assert ( !defined $_[1] or !ref $_[1] );
   # Handled by Windows
   return !!1;
 }

@@ -32,6 +32,8 @@ our @EXPORT = qw(
 );
 
 use Data::Alias;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 
 use TV::Drivers::HardwareInfo;
 
@@ -55,13 +57,13 @@ END {
 }
 
 sub resume {    # void ($class)
-  my ( $class ) = @_;
+  assert ( $_[0] and !ref $_[0] );
   THardwareInfo->setCtrlBrkHandler( !!1 );
   return;
 }
 
 sub suspend {    # void ($class)
-  my ( $class ) = @_;
+  assert ( $_[0] and !ref $_[0] );
   THardwareInfo->setCtrlBrkHandler( !!0 );
   return;
 }

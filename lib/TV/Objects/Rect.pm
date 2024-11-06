@@ -31,7 +31,12 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 use if STRICT => 'Hash::Util';
+use Scalar::Util qw( 
+  blessed 
+  looks_like_number
+);
 use Sentinel;
 
 sub TRect() { __PACKAGE__ }
@@ -49,14 +54,15 @@ sub TRect() { __PACKAGE__ }
 # I<a> and I<b> with new I<TPoint> objects with default values.
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = bless {}, $class;
   if ( keys(%args) == 4 ) {
     $self->{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
     $self->{b} = TPoint->new( x => $args{bx}, y => $args{by} );
   }
   elsif ( keys(%args) == 2 ) {
-    $self->{a} = $args{p1};
-    $self->{b} = $args{p2};
+    $self->{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
+    $self->{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
   }
   $self->{a} ||= TPoint->new();
   $self->{b} ||= TPoint->new();
@@ -66,6 +72,7 @@ sub new {    # $obj (%args)
 
 sub clone {    # $p ($self)
   my $self = shift;
+  assert ( blessed $self );
   my $clone = {
     a => $self->{a}->clone(),
     b => $self->{b}->clone(),
@@ -77,6 +84,9 @@ sub clone {    # $p ($self)
 
 sub move {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $aDX );
+  assert ( looks_like_number $aDY );
   $self->{a}{x} += $aDX;
   $self->{a}{y} += $aDY;
   $self->{b}{x} += $aDX;
@@ -86,6 +96,9 @@ sub move {    # void ($aDX, $aDY)
 
 sub grow {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $aDX );
+  assert ( looks_like_number $aDY );
   $self->{a}{x} -= $aDX;
   $self->{a}{y} -= $aDY;
   $self->{b}{x} += $aDX;
@@ -95,6 +108,8 @@ sub grow {    # void ($aDX, $aDY)
 
 sub intersect {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $r );
   $self->{a}{x} = max( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = max( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = min( $self->{b}{x}, $r->{b}{x} );
@@ -104,6 +119,8 @@ sub intersect {    # void ($r)
 
 sub Union {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $r );
   $self->{a}{x} = min( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = min( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = max( $self->{b}{x}, $r->{b}{x} );
@@ -113,6 +130,8 @@ sub Union {    # void ($r)
 
 sub contains {    # $bool ($p)
   my ( $self, $p ) = @_;
+  assert ( blessed $self );
+  assert ( ref $p );
   return
        $p->{x} >= $self->{a}{x}
     && $p->{x} <  $self->{b}{x}
@@ -122,6 +141,8 @@ sub contains {    # $bool ($p)
 
 sub equal {    # $bool ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $r );
   return
        $self->{a}{x} == $r->{a}{x}
     && $self->{a}{y} == $r->{a}{y}
@@ -131,11 +152,14 @@ sub equal {    # $bool ($r)
 
 sub not_equal {    # $bool ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $r );
   return !$self->equal( $r );
 }
 
 sub isEmpty {    # $bool ($self)
-  my ( $self ) = @_;
+  my $self = shift;
+  assert ( blessed $self );
   return $self->{a}{x} >= $self->{b}{x} 
       || $self->{a}{y} >= $self->{b}{y};
 }
@@ -147,22 +171,26 @@ use overload
 
 sub a :lvalue {    # $p (| $value)
   my $self = shift;
+  assert ( blessed $self );
   if ( defined $_[0] ) {
-    return $self->{a} = $_[0];
+    assert ( blessed $_[0] );
+    return $self->{a} = $_[0]->clone();
   }
   sentinel
     get => sub { return $self->{a} },
-    set => sub { $self->{a} = $_[0] };
+    set => sub { assert ( blessed $_[0] ); $self->{a} = $_[0]->clone() };
 }
 
 sub b :lvalue {    # $p (| $value)
   my $self = shift;
+  assert ( blessed $self );
   if ( defined $_[0] ) {
-    return $self->{b} = $_[0];
+    assert ( blessed $_[0] );
+    return $self->{b} = $_[0]->clone();
   }
   sentinel
     get => sub { return $self->{b} },
-    set => sub { $self->{b} = $_[0] };
+    set => sub { assert ( blessed $_[0] ); $self->{b} = $_[0]->clone() };
 }
 
 1

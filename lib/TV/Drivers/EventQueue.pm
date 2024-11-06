@@ -9,6 +9,8 @@ our @EXPORT = qw(
 );
 
 use Data::Alias;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 
 use TV::Drivers::Const qw( 
   :evXXXX 
@@ -61,6 +63,7 @@ END {
 }
 
 sub resume {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   if ( !$mouse->present() ) {
     $mouse->resume();
   }
@@ -74,11 +77,14 @@ sub resume {    # void ($class)
   THardwareInfo->clearPendingEvent();
 
   $mouseEvents = !!1;
-  TMouse->setRange( TScreen->{screenWidth} - 1, TScreen->{screenHeight} - 1 );
+  eval {
+    TMouse->setRange( TScreen->{screenWidth} - 1, TScreen->{screenHeight} - 1 )
+  };
   return;
 } #/ sub resume
 
 sub suspend {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   $mouse->suspend();
   return;
 }
@@ -87,6 +93,8 @@ my $ticks = 0;
 
 my $getMouseState = sub {    # $bool ($class, $ev)
   my ( $class, $ev ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $ev );
   $ev->{what} = EV_NOTHING;
 
   return !!0 unless THardwareInfo->getMouseEvent( $curMouse );
@@ -103,6 +111,8 @@ my $getMouseState = sub {    # $bool ($class, $ev)
 
 sub getMouseEvent {    # void ($class, $ev)
   my ( $class, $ev ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $ev );
   if ( $mouseEvents ) {
     if ( !$class->$getMouseState( $ev ) ) {
       return;

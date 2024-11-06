@@ -17,16 +17,23 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 use if STRICT => 'Hash::Util';
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
 use Sentinel;
 
 sub TPoint() { __PACKAGE__ }
 
 sub new {    # $obj (%args)
+  no warnings 'uninitialized';
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = {
-    x => $args{x} || 0,
-    y => $args{y} || 0,
+    x => 0+$args{x},
+    y => 0+$args{y},
   };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
@@ -35,6 +42,7 @@ sub new {    # $obj (%args)
 
 sub clone {    # $p ($self)
   my $self = shift;
+  assert ( blessed $self );
   my $clone = bless { %$self }, ref $self;
   Hash::Util::lock_keys( %$clone ) if STRICT;
   return $clone;
@@ -42,27 +50,38 @@ sub clone {    # $p ($self)
 
 sub add {    # $p ($one, $two)
   my ( $one, $two ) = @_;
+  assert ( ref $one );
+  assert ( ref $two );
   return TPoint->new( x => $one->{x} + $two->{x}, y => $one->{y} + $two->{y} );
 }
 
 sub subtract {    # $p ($one, $two)
   my ( $one, $two, $swap ) = @_;
+  assert ( ref $one );
+  assert ( ref $two );
+  assert ( !defined $swap or !ref $swap );
   ( $one, $two ) = ( $two, $one ) if $swap;
   return TPoint->new( x => $one->{x} - $two->{x}, y => $one->{y} - $two->{y} );
 }
 
 sub equal {    # $bool ($one, $two)
   my ( $one, $two ) = @_;
+  assert ( ref $one );
+  assert ( ref $two );
   return $one->{x} == $two->{x} && $one->{y} == $two->{y};
 }
 
 sub not_equal {    # $bool ($one, $two)
   my ( $one, $two ) = @_;
+  assert ( ref $one );
+  assert ( ref $two );
   return !equal( $one, $two );
 }
 
 sub add_assign {    # $self ($adder)
   my ( $self, $adder ) = @_;
+  assert ( blessed $self );
+  assert ( ref $adder );
   $self->{x} += $adder->{x};
   $self->{y} += $adder->{y};
   return $self;
@@ -70,6 +89,8 @@ sub add_assign {    # $self ($adder)
 
 sub subtract_assign {    # $self ($subber)
   my ( $self, $subber ) = @_;
+  assert ( blessed $self );
+  assert ( ref $subber );
   $self->{x} -= $subber->{x};
   $self->{y} -= $subber->{y};
   return $self;
@@ -86,22 +107,26 @@ use overload
 
 sub x :lvalue {    # $x (| $value)
   my $self = shift;
+  assert ( blessed $self );
   if ( defined $_[0] ) {
+    assert ( looks_like_number $_[0] );
     return $self->{x} = $_[0];
   }
   sentinel
     get => sub { return $self->{x} },
-    set => sub { $self->{x} = $_[0] };
+    set => sub { assert ( looks_like_number $_[0] ); $self->{x} = $_[0] };
 }
 
 sub y :lvalue {    # $y (| $value)
   my $self = shift;
+  assert ( blessed $self );
   if ( defined $_[0] ) {
+    assert ( looks_like_number $_[0] );
     return $self->{y} = $_[0];
   }
   sentinel
     get => sub { return $self->{y} },
-    set => sub { $self->{y} = $_[0] };
+    set => sub { assert ( looks_like_number $_[0] ); $self->{y} = $_[0] };
 }
 
 1

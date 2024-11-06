@@ -33,8 +33,15 @@ our @EXPORT = qw(
   TNSCollection
 );
 
+use Carp ();
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 use Errno qw( EFAULT EINVAL );
 use Hash::Util::FieldHash qw( id );
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
 
 use TV::Const qw( MAX_COLLECTION_SIZE );
 use TV::Objects::Const qw( CC_NOT_FOUND );
@@ -52,12 +59,14 @@ our %REF;
 use parent TObject;
 
 sub new {    # $obj (%args)
+  no warnings 'uninitialized';
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = bless {
     count        => 0,
     items        => [],
-    limit        => $args{limit} // 0,
-    delta        => $args{delta} // 0,
+    limit        => 0+$args{limit},
+    delta        => 0+$args{delta},
     shouldDelete => !!1,
   }, $class;
   $self->setLimit( $args{limit} ) if defined $args{limit};
@@ -66,6 +75,7 @@ sub new {    # $obj (%args)
 
 sub DESTROY {    # void ($shift)
   my $self = shift;
+  assert ( blessed $self );
   $self->shutDown();
   return;
 }
@@ -79,6 +89,7 @@ my $freeItem = sub {
 
 sub shutDown {    # void ($shift)
   my $self = shift;
+  assert ( blessed $self );
   if ( $self->{shouldDelete} ) {
     $self->freeAll();
   }
@@ -92,6 +103,8 @@ sub shutDown {    # void ($shift)
 
 sub at {    # $item ($index)
   my ( $self, $index ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0 || $index >= $self->{count};
   return $REF{ $self->{items}->[$index] };
@@ -99,6 +112,8 @@ sub at {    # $item ($index)
 
 sub atRemove {    # void ($index)
   my ( $self, $index ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0 || $index >= $self->{count};
   $self->{count}--;
@@ -108,14 +123,19 @@ sub atRemove {    # void ($index)
 
 sub atFree {    # void ($index)
   my ( $self, $index ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
   my $item = $self->at( $index );
   $self->atRemove( $index );
   $self->$freeItem( $item );
   return;
 }
 
-sub atInsert {    # void ($index, $item)
+sub atInsert {    # void ($index, $item|undef)
   my ( $self, $index, $item ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
+  assert ( @_ == 3 );
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0;
   $self->setLimit( $self->{count} + $self->{delta} )
@@ -129,8 +149,11 @@ sub atInsert {    # void ($index, $item)
   return;
 }
 
-sub atPut {    # void ($index, $item)
+sub atPut {    # void ($index, $item|undef)
   my ( $self, $index, $item ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
+  assert ( @_ == 3 );
   $self->error(EINVAL, "Index out of bounds")
     if $index >= $self->{count};
 
@@ -142,12 +165,15 @@ sub atPut {    # void ($index, $item)
 
 sub remove {    # void ($item)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   $self->atRemove( $self->indexOf( $item ) );
   return;
 }
 
 sub removeAll {    # void ($self)
   my $self = shift;
+  assert ( blessed $self );
   $self->{count} = 0;
   $self->{items} = [];
   return;
@@ -155,6 +181,8 @@ sub removeAll {    # void ($self)
 
 sub free {    # void ($item)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   $self->remove( $item );
   $self->$freeItem( $item );
   return;
@@ -162,14 +190,17 @@ sub free {    # void ($item)
 
 sub freeAll {    # void ($self)
   my $self = shift;
+  assert ( blessed $self );
   $self->$freeItem( $self->at( $_ ) ) 
     for 0 .. $self->{count} - 1;
   $self->{count} = 0;
   return;
 }
 
-sub indexOf {    # $index ($item)
+sub indexOf {    # $index ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   for my $i ( 0 .. $self->{count} - 1 ) {
     my $id = id($item) || 0;
     return $i if $self->{items}->[$i] eq $id;
@@ -178,21 +209,28 @@ sub indexOf {    # $index ($item)
   return CC_NOT_FOUND;
 }
 
-sub insert {    # $index ($item)
+sub insert {    # $index ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( blessed $self );
+  assert ( @_ == 2 );
   my $loc = $self->{count};
   $self->atInsert( $self->{count}, $item );
   return $loc;
 }
 
-sub error {    # void (\&code, $info)
-  require Carp;
+sub error {    # void ($code, $info)
   my ( $self, $code, $info ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $code );
+  assert ( defined $info and !ref $info );
   Carp::croak sprintf("Error code: %d, Info: %s\n", $code, $info);
 }
 
-sub firstThat {    # $item|undef (\&test, $arg)
+sub firstThat {    # $item|undef (\&test, $arg|undef)
   my ( $self, $test, $arg ) = @_;
+  assert ( blessed $self );
+  assert ( ref $test );
+  assert ( @_ == 3 );
   my $that;
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $REF{ $self->{items}->[$i] };
@@ -201,8 +239,11 @@ sub firstThat {    # $item|undef (\&test, $arg)
   return undef;
 }
 
-sub lastThat {    # $item|undef (\&test, $arg)
+sub lastThat {    # $item|undef (\&test, $arg|undef)
   my ( $self, $test, $arg ) = @_;
+  assert ( blessed $self );
+  assert ( ref $test );
+  assert ( @_ == 3 );
   my $that;
   for my $i ( reverse 0 .. $self->{count} - 1 ) {
     local $_ = $REF{ $self->{items}->[$i] };
@@ -211,8 +252,11 @@ sub lastThat {    # $item|undef (\&test, $arg)
   return undef;
 }
 
-sub forEach {    # void (\&action, $arg)
+sub forEach {    # void (\&action, $arg|undef)
   my ( $self, $action, $arg ) = @_;
+  assert ( blessed $self );
+  assert ( ref $action );
+  assert ( @_ == 3 );
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $REF{ $self->{items}->[$i] };
     $action->( $_, $arg );
@@ -222,6 +266,7 @@ sub forEach {    # void (\&action, $arg)
 
 sub pack {    # void ($self)
   my $self  = shift;
+  assert ( blessed $self );
   my $count = 0;
   for my $i ( 0 .. $self->{count} - 1 ) {
     if ( $REF{ $self->{items}->[$i] } ) {
@@ -241,6 +286,8 @@ sub pack {    # void ($self)
 
 sub setLimit {    # void ($aLimit)
   my ( $self, $aLimit ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $aLimit );
   $aLimit = $self->{count} if $aLimit < $self->{count};
   $aLimit = MAX_COLLECTION_SIZE if $aLimit > MAX_COLLECTION_SIZE;
   if ( $aLimit != $self->{limit} ) {

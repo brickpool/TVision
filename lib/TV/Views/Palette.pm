@@ -23,11 +23,18 @@ our @EXPORT = qw(
 );
 
 require bytes;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
 
 sub TPalette() { __PACKAGE__ }
 
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $data = "\0";
   if ( $args{data} && $args{size} ) {
     my $d   = $args{data} . '';
@@ -42,19 +49,24 @@ sub new {    # $obj (%args)
 } #/ sub new
 
 sub clone {    # $clone ($self)
-  my ( $self ) = @_;
+  my $self = shift;
+  assert ( blessed $self );
   my $data = $$self;
   return bless \$data, ref $self;
 }
 
 sub assign {    # $self ($tp)
   my ( $self, $tp ) = @_;
+  assert ( blessed $self );
+  assert ( ref $tp );
   $$self = $$tp;
   return $self;
 }
 
-sub at {    # $byte ($indef)
+sub at {    # $byte ($index)
   my ( $self, $index ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $index );
   return ord bytes::substr( $$self, $index, 1 );
 }
 

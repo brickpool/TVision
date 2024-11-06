@@ -9,7 +9,9 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
 use Hash::Util qw( lock_hash );
+use Scalar::Util qw( blessed );
 use Tie::Hash;
 
 use TV::Drivers::Const qw( 
@@ -34,11 +36,15 @@ package MouseEventType {
   use warnings;
 
   use Devel::StrictMode;
+  use Devel::Assert STRICT ? 'on' : 'off';
+  use if STRICT => 'Hash::Util';
+  use Scalar::Util qw( blessed );
   use TV::Objects::Point;
 
   sub new {    # $obj (%args)
     no warnings 'uninitialized';
     my ( $class, %args ) = @_;
+    assert ( $class and !ref $class );
     my $self = {
       eventFlags      => 0+ $args{eventFlags},
       controlKeyState => 0+ $args{controlKeyState},
@@ -67,6 +73,7 @@ package MouseEventType {
 
   sub clone {    # $obj ()
     my $self = shift;
+    assert ( blessed $self );
     my $clone = { %$self };
     $clone->{where} = $self->{where}->clone();
     bless $clone, ref $self;
@@ -83,6 +90,8 @@ package CharScanType {
   use strict;
   use warnings;
 
+  use Devel::StrictMode;
+  use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
   use Tie::Hash;
 
@@ -106,6 +115,7 @@ package CharScanType {
 
   sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
+    assert ( $class and !ref $class );
     my $self = bless {}, $class;
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
@@ -133,6 +143,8 @@ package KeyDownEvent {
   use strict;
   use warnings;
 
+  use Devel::StrictMode;
+  use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
   use Tie::Hash;
 
@@ -162,6 +174,7 @@ package KeyDownEvent {
 
   sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
+    assert ( $class and !ref $class );
     my $self = bless {}, $class;
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
@@ -189,9 +202,11 @@ package MessageEvent {
   use strict;
   use warnings;
 
-  use Scalar::Util qw( refaddr );
+  use Devel::StrictMode;
+  use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
   use Hash::Util::FieldHash qw( register id_2obj );
+  use Scalar::Util qw( refaddr );
   use Tie::Hash;
 
   our %FIELDS = (
@@ -248,6 +263,7 @@ package MessageEvent {
 
   sub new {    # $obj (%args)
     my ( $class, %args ) = @_;
+    assert ( $class and !ref $class );
     my $self = bless {}, $class;
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
@@ -325,6 +341,7 @@ use parent 'Tie::Hash';
 sub new {    # $obj (%args)
   no warnings 'uninitialized';
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = bless {}, $class;
   tie %$self, $class;
   my $this = tied %$self;
@@ -366,12 +383,14 @@ sub CLEAR    { %FIELDS = () }             # raise an exception
 sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
 
 sub getMouseEvent {    # void ($self)
+  assert ( blessed $_[0] );
   require TV::Drivers::EventQueue;
   TV::Drivers::EventQueue->getMouseEvent( $_[0] );
   return;
 }
 
 sub getKeyEvent {    # void ($self)
+  assert ( blessed $_[0] );
   if ( THardwareInfo->getKeyEvent( $_[0] ) ) {
     my $self = shift;
 

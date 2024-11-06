@@ -8,6 +8,13 @@ our @EXPORT = qw(
   TCommandSet
 );
 
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
+
 use TV::Views::Const qw(
   CM_ZOOM
   CM_CLOSE
@@ -19,11 +26,11 @@ use TV::Views::Const qw(
 sub TCommandSet() { __PACKAGE__ }
 
 my $loc = sub {    # $int ( $cmd )
-  return int( $_[0] / 8 );
+  int( $_[0] / 8 );
 };
 
 my $mask = sub {    # $int ( $cmd )
-  return 1 << ( $_[0] % 8 );
+  1 << ( $_[0] % 8 );
 };
 
 my $disable_cmd = sub {    # void ($cmd)
@@ -52,6 +59,7 @@ my $enable_cmd_set = sub {    # void ($tc)
 
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
   my $self = bless [ ( 0 ) x 32 ], $class;
   @$self = @{ $args{copy_from} }
     if exists $args{copy_from};
@@ -59,30 +67,38 @@ sub new {    # $obj (%args)
 } #/ sub new
 
 sub clone {    # $clone ($self)
-  my ( $self ) = @_;
+  my $self = shift;
+  assert ( blessed $self );
   my @data = @$self;
   return bless [ @data ], ref $self;
 }
 
 sub has {    # $bool ($cmd)
   my ( $self, $cmd ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $cmd );
   return ( $self->[ $loc->( $cmd ) ] & $mask->( $cmd ) ) != 0;
 }
 
 sub disableCmd {    # void ($cmd|$tc)
+  assert ( blessed $_[0] );
+  assert ( ref $_[1] or looks_like_number $_[1] );
   ref $_[1]
     ? goto &$disable_cmd_set
     : goto &$disable_cmd;
 }
 
 sub enableCmd {    # void ($cmd|$tc)
+  assert ( blessed $_[0] );
+  assert ( ref $_[1] or looks_like_number $_[1] );
   ref $_[1]
     ? goto &$enable_cmd_set
     : goto &$enable_cmd;
 }
 
 sub isEmpty {    # $bool ($self)
-  my ( $self ) = @_;
+  my $self = shift;
+  assert ( blessed $self );
   for ( 0 .. 31 ) {
     return !!0 if $self->[$_] != 0;
   }
@@ -91,6 +107,8 @@ sub isEmpty {    # $bool ($self)
 
 sub intersect {    # $tc ($tc1, $tc2)
   my ( $tc1, $tc2 ) = @_;
+  assert ( blessed $tc1 );
+  assert ( blessed $tc2 );
   my $temp = $tc1->clone();
   $temp->intersect_assign( $tc2 );
   return $temp;
@@ -98,6 +116,8 @@ sub intersect {    # $tc ($tc1, $tc2)
 
 sub union {    # $tc ($tc1, $tc2)
   my ( $tc1, $tc2 ) = @_;
+  assert ( blessed $tc1 );
+  assert ( blessed $tc2 );
   my $temp = $tc1->clone();
   $temp->union_assign( $tc2 );
   return $temp;
@@ -105,6 +125,8 @@ sub union {    # $tc ($tc1, $tc2)
 
 sub equal {    # $bool ($tc1, $tc2)
   my ( $tc1, $tc2 ) = @_;
+  assert ( blessed $tc1 );
+  assert ( blessed $tc2 );
   for ( 0 .. 31 ) {
     return !!0 if $tc1->[$_] != $tc2->[$_];
   }
@@ -113,6 +135,8 @@ sub equal {    # $bool ($tc1, $tc2)
 
 sub not_equal {    # $bool ($tc1, $tc2)
   my ( $tc1, $tc2 ) = @_;
+  assert ( blessed $tc1 );
+  assert ( blessed $tc2 );
   return !equal( $tc1, $tc2 );
 }
 
@@ -126,12 +150,16 @@ sub exclude {    # void ( $self, $cmd|$tc )
 
 sub intersect_assign {    # $bool ($tc)
   my ( $self, $tc ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $tc );
   $self->[$_] &= $tc->[$_] for 0 .. 31;
   return $self;
 }
 
 sub union_assign {    # $bool ($tc)
   my ( $self, $tc ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $tc );
   $self->[$_] |= $tc->[$_] for 0 .. 31;
   return $self;
 }

@@ -9,6 +9,9 @@ our @EXPORT = qw(
 );
 
 use Data::Alias;
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
+use Scalar::Util qw( looks_like_number );
 
 use TV::Drivers::Const qw( :smXXXX );
 use TV::Drivers::Display;
@@ -59,6 +62,7 @@ sub END {
 
 sub resume {    # void ($class)
   my $class = shift;
+  assert ( $class and !ref $class );
   $startupMode   = $class->getCrtMode();
   $startupCursor = $class->getCursorType();
   if ( $screenMode != $startupMode ) {
@@ -70,6 +74,7 @@ sub resume {    # void ($class)
 
 sub suspend {    # void ($class)
   my $class = shift;
+  assert ( $class and !ref $class );
   if ( $startupMode != $class->getCrtMode() ) {
     $class->setCrtMode( $startupMode );
   }
@@ -82,6 +87,8 @@ sub suspend {    # void ($class)
 
 sub fixCrtMode {    # $mode ($class, $mode)
   my ( $class, $mode ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $mode );
   if ( THardwareInfo->getPlatform() eq 'Windows' ) {
     $mode = ( $mode & SM_FONT_8X8 ) ? SM_CO80 | SM_FONT_8X8 : SM_CO80;
     return $mode;
@@ -94,6 +101,7 @@ sub fixCrtMode {    # $mode ($class, $mode)
 
 sub setCrtData {    # void ($class)
   my $class = shift;
+  assert ( $class and !ref $class );
   $screenMode   = $class->getCrtMode();
   $screenWidth  = $class->getCols();
   $screenHeight = $class->getRows();
@@ -105,11 +113,14 @@ sub setCrtData {    # void ($class)
 } #/ sub setCrtData
 
 sub clearScreen {    # void ($class)
+  assert ( $_[0] and !ref $_[0] );
   TDisplay->clearScreen( $screenWidth, $screenHeight );
 }
 
 sub setVideoMode {    # void ($class, $mode)
   my ( $class, $mode ) = @_;
+  assert ( $class and !ref $class );
+  assert ( looks_like_number $mode );
   $class->setCrtMode( $class->fixCrtMode( $mode ) );
   $class->setCrtData();
   if ( TMouse->present() ) {
