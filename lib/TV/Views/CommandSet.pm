@@ -26,7 +26,7 @@ use TV::Views::Const qw(
 sub TCommandSet() { __PACKAGE__ }
 
 my $loc = sub {    # $int ( $cmd )
-  int( $_[0] / 8 );
+  int( $_[0] / 8 ) % 32;
 };
 
 my $mask = sub {    # $int ( $cmd )
@@ -141,14 +141,20 @@ sub not_equal {    # $bool ($tc1, $tc2)
 }
 
 sub include {    # void ( $self, $cmd|$tc )
-  goto &enableCmd;
+  my $self = shift;
+  assert ( blessed $self );
+  $self->enableCmd(@_); 
+  return $self;
 }
 
 sub exclude {    # void ( $self, $cmd|$tc )
-  goto &disableCmd;
+  my $self = shift;
+  assert ( blessed $self );
+  $self->disableCmd(@_);
+  return $self;
 }
 
-sub intersect_assign {    # $bool ($tc)
+sub intersect_assign {    # $self ($tc)
   my ( $self, $tc ) = @_;
   assert ( blessed $self );
   assert ( blessed $tc );
@@ -156,7 +162,7 @@ sub intersect_assign {    # $bool ($tc)
   return $self;
 }
 
-sub union_assign {    # $bool ($tc)
+sub union_assign {    # $self ($tc)
   my ( $self, $tc ) = @_;
   assert ( blessed $self );
   assert ( blessed $tc );

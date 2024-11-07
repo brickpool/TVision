@@ -33,6 +33,7 @@ use TV::Const qw(
   MAX_VIEW_WIDTH
 );
 use TV::Util qw( message );
+use TV::Objects::Object;
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Drivers::Const qw(
@@ -59,6 +60,8 @@ require TV::Views::View::Exposed;
 require TV::Views::View::Write;
 
 sub TView() { __PACKAGE__ }
+
+use parent TObject;
 
 our %REF = ();
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
@@ -764,6 +767,7 @@ sub enableCommands {    # void ($commands)
   assert ( blessed $commands );
   $commandSetChanged ||= ( $curCommandSet & $commands ) != $commands;
   $curCommandSet += $commands;
+  assert ( blessed $curCommandSet );
   return;
 }
 
@@ -838,7 +842,7 @@ sub getColor {    # $int ($color)
     $colorPair = $self->mapColor( $colorPair ) << 8;
   }
 
-  $colorPair |= $self->mapColor( $color & 0xFF );
+  $colorPair |= $self->mapColor( $color & 0xff );
 
   return $colorPair;
 } #/ sub getColor
@@ -998,25 +1002,32 @@ sub makeLocal {    # $point ($source)
   return $temp;
 } #/ sub makeLocal
 
-sub nextView {    # $view ()
+sub nextView {    # $view|undef ()
   no warnings 'uninitialized';
   my $self = shift;
   assert ( blessed $self );
-  return $self == $self->owner()->last() ? undef : $self->next();
+  return $self->next()
+    if $self->owner() 
+    && $self != $self->owner()->last();
+  return undef;
 }
 
-sub prevView {    # $view ()
-  no warnings 'uninitialized';
-  my $self = shift;
-  return $self == $self->owner()->first() ? undef : $self->prev();
-}
-
-sub prev {    # $view ()
+sub prevView {    # $view|undef ()
   no warnings 'uninitialized';
   my $self = shift;
   assert ( blessed $self );
-  my $res  = $self;
-  while ( $res->next() != $self ) {
+  return $self->prev()
+    if $self->owner() 
+    && $self != $self->owner()->first();
+  return undef;
+}
+
+sub prev {    # $view|undef ()
+  no warnings 'uninitialized';
+  my $self = shift;
+  assert ( blessed $self );
+  my $res = $self;
+  while ( $res && $res->next() != $self ) {
     $res = $res->next();
   }
   return $res;
@@ -1038,15 +1049,16 @@ sub next {    # $view (| $view)
 sub makeFirst {    # $void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->putInFrontOf($self->owner()->first());
+  $self->putInFrontOf( $self->owner()->first() ) 
+    if $self->owner();
   return;
 }
 
-sub putInFrontOf {    # void ($target)
+sub putInFrontOf {    # void ($target|undef)
   no warnings 'uninitialized';
   my ( $self, $target ) = @_;
   assert ( blessed $self );
-  assert ( blessed $target );
+  assert ( @_ == 2 );
 
   if ( $self->owner()
     && $target != $self
@@ -1159,7 +1171,7 @@ sub writeStr {    # void ($x, $y, $str, $color)
   if ( $str ) {
     my $length = length( $str );
     if ( $length > 0 ) {
-      my $attr = mapColor( $color );
+      my $attr = $self->mapColor( $color );
       my $buf  = [ ( 0 ) x MAX_VIEW_WIDTH ];
       my $i    = 0;
       foreach my $c ( split //, $str ) {
