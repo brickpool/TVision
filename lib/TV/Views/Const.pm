@@ -22,8 +22,8 @@ our %EXPORT_TAGS = (
 
   phXXXX => [qw(
     PH_FOCUSED
-    PH_PREPROCESS
-    PH_POSTPROCESS
+    PH_PRE_PROCESS
+    PH_POST_PROCESS
   )],
 
   smXXXX => [qw(
@@ -184,9 +184,9 @@ use TV::Drivers::Const qw(
 
 # Constants for phaseType
 use constant {
-  PH_FOCUSED     => 0,
-  PH_PREPROCESS  => 1,
-  PH_POSTPROCESS => 2,
+  PH_FOCUSED      => 0,
+  PH_PRE_PROCESS  => 1,
+  PH_POST_PROCESS => 2,
 };
 
 # Constants for selectMode

@@ -562,6 +562,7 @@ sub setCtrlBrkHandler { # $success ($class, $install)
   my ( $class, $install ) = @_;
   assert ( $class and !ref $class );
   assert ( !defined $install or !ref $install );
+  assert ( @_ == 2 );
   return $consoleHandle[cnInput]->Mode(
     $install 
       ? $consoleMode & ~ENABLE_PROCESSED_INPUT 
@@ -572,6 +573,7 @@ sub setCtrlBrkHandler { # $success ($class, $install)
 sub setCritErrorHandler {  # $bool ($class, $install)
   assert ( $_[0] and !ref $_[0] );
   assert ( !defined $_[1] or !ref $_[1] );
+  assert ( @_ == 2 );
   # Handled by Windows
   return !!1;
 }

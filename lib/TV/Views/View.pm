@@ -20,12 +20,12 @@ our @EXPORT = qw(
 use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Hash::Util::FieldHash qw( id );
 use List::Util qw( min max );
 use Scalar::Util qw( 
   blessed 
   looks_like_number
   readonly
+  weaken
 );
 
 use TV::Const qw(
@@ -69,7 +69,6 @@ our $shadowAttr        = 0x08;
 our $showMarkers       = !!0;
 our $errorAttr         = 0xcf;
 our $commandSetChanged = !!0;
-our $TheTopView;
 {
   no warnings 'once';
   TView->{REF}                     = \%REF;
@@ -78,8 +77,9 @@ our $TheTopView;
   alias TView->{showMarkers}       = $showMarkers;
   alias TView->{errorAttr}         = $errorAttr;
   alias TView->{commandSetChanged} = $commandSetChanged;
-  alias TView->{TheTopView}        = $TheTopView;
 }
+
+alias my $TheTopView = $TV::Views::Group::TheTopView;
 
 my $initCommands = sub {
   my $temp = TCommandSet->new();
@@ -118,14 +118,14 @@ sub new {    # $obj (%args)
     cursor    => TPoint->new(), # $cursor->{x} = $cursor->{y} = 0;
   }, $class;
   $self->setBounds( $args{bounds} );
-  $REF{ id $self } = $self;
+  weaken( $REF{ 0+ $self } = $self );
   return $self;
 } #/ sub new
 
 sub DESTROY { # void ()
-  my $id = id shift;
-  assert ( looks_like_number $id );
-  delete $REF{$id};
+  my $self = shift;
+  assert ( blessed $self );
+  delete $REF{ 0+ $self };
   return;
 }
 
@@ -489,7 +489,7 @@ sub setBounds {    # void ($bounds)
   return;
 }
 
-sub getHelpCtx {  # $int ()
+sub getHelpCtx {    # $int ()
   my $self = shift;
   assert ( blessed $self );
   if ( $self->{state} & SF_DRAGGING ) {
@@ -549,7 +549,7 @@ sub exposed {    # $bool ()
 }
 
 sub focus {    # $bool ()
-  my $self   = shift;
+  my $self = shift;
   assert ( blessed $self );
   my $result = !!1;
 
@@ -811,6 +811,7 @@ sub setCmdState {    # void ($commands, $enable)
   assert ( $class );
   assert ( blessed $commands );
   assert ( !defined $enable or !ref $enable );
+  assert ( @_ == 3 );
   $enable
     ? $class->enableCommands( $commands )
     : $class->disableCommands( $commands );
@@ -905,6 +906,7 @@ sub setState {    # void ($aState, $enable)
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
+  assert ( @_ == 3 );
 
   if ( $enable ) {
     $self->{state} |= $aState;
@@ -1033,18 +1035,25 @@ sub prev {    # $view|undef ()
   return $res;
 }
 
-sub next {    # $view (| $view)
+sub next {    # $view (|$view|undef)
   my $self = shift;
   assert ( blessed $self );
   if ( @_ ) {
-    my $view = shift;
-    assert ( blessed $view );
-    my $id = id $view;
-    $self->{next} = $id;
-    $REF{ $id } = $view;
-  }
+    if ( defined( my $view = shift ) ) {
+      assert ( blessed $view );
+      my $id = 0+ $view;
+      weaken( $REF{$id} = $view )
+        if !$REF{$id};
+      $self->{next} = $id;
+    }
+    elsif ( my $id = $self->{next} ) {
+      delete( $REF{$id} )
+        if $REF{$id};
+      $self->{next} = 0;
+    }
+  } #/ if ( @_ )
   return $REF{ $self->{next} };
-}
+} #/ sub next
 
 sub makeFirst {    # $void ()
   my $self = shift;
@@ -1184,18 +1193,25 @@ sub writeStr {    # void ($x, $y, $str, $color)
   return;
 } #/ sub writeStr
 
-sub owner {    # $group (| $group)
+sub owner {    # $group (|$group|undef)
   my $self = shift;
   assert ( blessed $self );
   if ( @_ ) {
-    my $group = shift;
-    assert ( blessed $group );
-    my $id = id $group;
-    $self->{owner} = $id;
-    $REF{ $id } = $group;
-  }
+    if ( defined( my $group = shift ) ) {
+      assert ( blessed $group );
+      my $id = 0+ $group;
+      weaken( $REF{$id} = $group )
+        if !$REF{$id};
+      $self->{owner} = $id;
+    }
+    elsif ( my $id = $self->{owner} ) {
+      delete( $REF{$id} )
+        if $REF{$id};
+      $self->{owner} = 0;
+    }
+  } #/ if ( @_ )
   return $REF{ $self->{owner} };
-}
+} #/ sub owner
 
 sub shutDown {    # void ()
   my $self = shift;
