@@ -38,6 +38,7 @@ use TV::Views::Const qw(
   :sfXXXX
   :smXXXX
 );
+use TV::Views::CommandSet;
 use TV::Views::View;
 
 sub TGroup() { __PACKAGE__ }
@@ -169,7 +170,7 @@ sub awaken {    # void ()
   return;
 }
 
-sub insertView {    # void ($self, $p, $Target)
+sub insertView {    # void ($self, $p, $Target|undef)
   my ( $self, $p, $Target ) = @_;
   assert ( blessed $self );
   assert ( blessed $p );
@@ -191,6 +192,7 @@ sub insertView {    # void ($self, $p, $Target)
     }
     $self->last( $p );
   } #/ else [ if ( $Target ) ]
+  return;
 } #/ sub insertView
 
 sub remove {    # void ($p)
@@ -338,7 +340,7 @@ sub insert {    # void ($p)
   return;
 }
 
-sub insertBefore {    # void ($self, $p, $Target)
+sub insertBefore {    # void ($self, $p, $Target|undef)
   no warnings 'uninitialized';
   my ( $self, $p, $Target ) = @_;
   assert ( blessed $self );
@@ -561,12 +563,13 @@ sub handleEvent { # void ($event)
   return;
 } #/ sub handleEvent
 
-sub drawSubViews {    # void ($p, $bottom)
+sub drawSubViews {    # void ($p|undef, $bottom|undef)
   no warnings 'uninitialized';
   my ( $self, $p, $bottom ) = @_;
   assert ( blessed $self );
-  assert ( blessed $p );
-  assert ( blessed $bottom );
+  assert ( !defined $p or blessed $p );
+  assert ( !defined $p or blessed $bottom );
+  assert ( @_ == 3 );
   while ( $p != $bottom ) {
     $p->drawView();
     $p = $p->nextView();

@@ -60,6 +60,7 @@ require TV::Views::View::Exposed;
 require TV::Views::View::Write;
 
 sub TView() { __PACKAGE__ }
+sub name() { 'TView' }
 
 use parent TObject;
 
@@ -579,19 +580,21 @@ sub hideCursor {    # void ()
   return;
 }
 
-sub drawHide {    # void ($lastView)
+sub drawHide {    # void ($lastView|undef)
   my ( $self, $lastView ) = @_;
   assert ( blessed $self );
-  assert ( blessed $lastView );
+  assert ( !defined $lastView or blessed $lastView );
+  assert ( @_ == 2 );
   $self->drawCursor();
-  $self->drawUnderView( $self->{state} & SF_SHADOW, $lastView );
+  $self->drawUnderView( ($self->{state} & SF_SHADOW) != 0, $lastView );
   return;
 }
 
-sub drawShow {    # void ($lastView)
+sub drawShow {    # void ($lastView|undef)
   my ( $self, $lastView ) = @_;
   assert ( blessed $self );
-  assert ( blessed $lastView );
+  assert ( !defined $lastView or blessed $lastView );
+  assert ( @_ == 2 );
   $self->drawView();
   if ( $self->{state} & SF_SHADOW ) {
     $self->drawUnderView( !!1, $lastView );
@@ -599,22 +602,24 @@ sub drawShow {    # void ($lastView)
   return;
 }
 
-sub drawUnderRect {    # void ($r, $lastView)
+sub drawUnderRect {    # void ($r, $lastView|undef)
   my ( $self, $r, $lastView ) = @_;
   assert ( blessed $self );
   assert ( blessed $r );
-  assert ( blessed $lastView );
+  assert ( !defined $lastView or blessed $lastView );
+  assert ( @_ == 3 );
   $self->owner()->{clip}->intersect( $r );
   $self->owner()->drawSubViews( $self->nextView(), $lastView );
   $self->owner()->{clip} = $self->owner()->getExtent();
   return;
 }
 
-sub drawUnderView {    # void ($doShadow, $lastView)
+sub drawUnderView {    # void ($doShadow, $lastView|undef)
   my ( $self, $doShadow, $lastView ) = @_;
   assert ( blessed $self );
   assert ( !defined $doShadow or !ref $doShadow );
-  assert ( blessed $lastView );
+  assert ( !defined $lastView or blessed $lastView );
+  assert ( @_ == 3 );
   my $r = $self->getBounds();
   if ( $doShadow ) {
     $r->{b} += $shadowSize;
