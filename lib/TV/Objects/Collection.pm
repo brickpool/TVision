@@ -13,6 +13,6 @@ use TV::Objects::NSCollection;
 sub TCollection() { __PACKAGE__ }
 sub name() { 'TCollection' };
 
-use parent TNSCollection;
+use base TNSCollection;
 
 1

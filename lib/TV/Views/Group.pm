@@ -22,7 +22,6 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
   blessed
   looks_like_number
-  weaken
 );
 
 use TV::Drivers::Const qw(
@@ -44,8 +43,10 @@ use TV::Views::View;
 sub TGroup() { __PACKAGE__ }
 sub name() { 'TGroup' }
 
-use parent TView;
+use base TView;
 
+# predeclare global variables
+alias our %VIEWS = %TV::Views::View;
 our $TheTopView;
 our $ownerGroup;
 {
@@ -54,9 +55,24 @@ our $ownerGroup;
   alias TGroup->{ownerGroup} = $ownerGroup;
 }
 
-alias my %REF = %TV::Views::View;
+# predeclare attributes
+use fields qw(
+  last
+  phase
+  current
+  buffer
+  lockFlag
+  endState
+  clip
+);
 
-# private:
+# use own accessors
+use subs qw(
+  last
+  current
+);
+
+# predeclare private methods
 my (
   $invalid,
   $focusView,
@@ -64,26 +80,42 @@ my (
   $findNext,
 );
 
-sub new {    # $obj (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
+my $lock_value = sub {
+  Internals::SvREADONLY( $_[0] => 1 )
+    if exists &Internals::SvREADONLY;
+};
+
+my $unlock_value = sub {
+  Internals::SvREADONLY( $_[0] => 0 )
+    if exists &Internals::SvREADONLY;
+};
+
+sub BUILD {    # void (%args)
+  my ( $self, %args ) = @_;
+  assert ( blessed $self );
   assert ( ref $args{bounds} );
-  my $self = $class->SUPER::new( %args );
-  $self->{last}     = 0;
-  $self->{phase}    = PH_FOCUSED;
-  $self->{current}  = 0;
-  $self->{buffer}   = undef;
-  $self->{lockFlag} = 0;
-  $self->{endState} = 0;
+  my %default = (
+    last      => 0,
+    phase     => PH_FOCUSED,
+    current   => 0,
+    buffer    => undef,
+    lockFlag  => 0,
+    endState  => 0,
+    eventMask => 0xffff,
+  );
+  @$self{ keys %default } = values %default;
   $self->{options} |= OF_SELECTABLE | OF_BUFFERED;
-  $self->{clip}      = $self->getExtent();
-  $self->{eventMask} = 0xffff;
-  return bless $self, $class;
-} #/ sub new
+  $self->{clip} = $self->getExtent();
+  $lock_value->( $self->{last} )    if STRICT;
+  $lock_value->( $self->{current} ) if STRICT;
+  return;
+} #/ sub BUILD
 
 sub DESTROY {    # void ()
   my $self = shift;
   assert ( blessed $self );
+  $unlock_value->( $self->{last} )    if STRICT;
+  $unlock_value->( $self->{current} ) if STRICT;
   $self->shutDown();
   return;
 }
@@ -363,23 +395,18 @@ sub insertBefore {    # void ($self, $p, $Target|undef)
 } #/ sub insertBefore
 
 sub current {    # $view|undef (|$view|undef)
-  my $self = shift;
+  no warnings 'uninitialized';
+  my ( $self, $view ) = @_;
   assert ( blessed $self );
-  if ( @_ ) {
-    if ( defined( my $view = shift ) ) {
-      assert ( blessed $view );
-      my $id = 0+ $view;
-      weaken( $REF{$id} = $view )
-        if !$REF{$id};
-      $self->{current} = $id;
-    }
-    elsif ( my $id = $self->{current} ) {
-      delete( $REF{$id} )
-        if $REF{$id};
-      $self->{current} = 0;
-    }
-  } #/ if ( @_ )
-  return $REF{ $self->{current} };
+  assert ( !defined $view or blessed $view );
+  if ( @_ == 2 ) {
+    my $id = 0+ $view;
+    $VIEWS{$id} ||= $view;
+    $unlock_value->( $self->{current} ) if STRICT;
+    $self->{current} = $id;
+    $lock_value->( $self->{current} ) if STRICT;
+  }
+  return $VIEWS{ $self->{current} };
 } #/ sub current
 
 sub at {    # $view|undef ($index)
@@ -775,23 +802,18 @@ sub getBuffer {    # void ()
 } #/ sub getBuffer
 
 sub last {    # $view (|$view|undef)
-  my $self = shift;
+  no warnings 'uninitialized';
+  my ( $self, $view ) = @_;
   assert ( blessed $self );
-  if ( @_ ) {
-    if ( defined( my $view = shift ) ) {
-      assert ( blessed $view );
-      my $id = 0+ $view;
-      weaken( $REF{$id} = $view )
-        if !$REF{$id};
-      $self->{last} = $id;
-    }
-    elsif ( my $id = $self->{last} ) {
-      delete( $REF{$id} )
-        if $REF{$id};
-      $self->{last} = 0;
-    }
-  } #/ if ( @_ )
-  return $REF{ $self->{last} };
+  assert ( !defined $view or blessed $view );
+  if ( @_ == 2 ) {
+    my $id = 0+ $view;
+    $VIEWS{$id} ||= $view;
+    $unlock_value->( $self->{last} ) if STRICT;
+    $self->{last} = $id;
+    $lock_value->( $self->{last} ) if STRICT;
+  }
+  return $VIEWS{ $self->{last} };
 } #/ sub last
 
 $invalid = sub {    # $bool ($p, $command)
@@ -835,5 +857,7 @@ $findNext = sub {
   } #/ if ( $p )
   return $result;
 }; #/ sub findNext
+
+__PACKAGE__->mk_accessors();
 
 1

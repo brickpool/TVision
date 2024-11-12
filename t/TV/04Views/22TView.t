@@ -24,13 +24,14 @@ BEGIN {
 BEGIN {
   package MyOwner;
   use TV::Objects::Rect;
-  use TV::Views::View;
-  use parent TView;
+  require TV::Views::View;
+  use parent 'TV::Views::View';
+  use fields qw( clip );
 
-  sub new { 
-    my $self = shift->SUPER::new(@_);
+  sub BUILD { 
+    my $self = shift;
     $self->{clip} = TRect->new();
-    return $self;
+    return;
   }
   sub drawSubViews { }
   sub last         { undef }

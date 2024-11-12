@@ -23,17 +23,36 @@ use Scalar::Util qw(
   blessed
   looks_like_number
 );
-use Sentinel;
 
 sub TPoint() { __PACKAGE__ }
+
+my @ATTRIBUTES = qw( x y );
+
+for my $attr ( @ATTRIBUTES ) {
+  my $getset = sub {
+    my $self = shift;
+    assert( blessed $self );
+    if ( @_ ) {
+      my $value = shift;
+      assert( looks_like_number $value );
+      $self->{$attr} = $value;
+    }
+    return $self->{$attr};
+  }; #/ $getset = sub
+
+  {
+    no strict 'refs';
+    *{$attr} = $getset;
+  }
+} #/ for my $attr ( @ATTRIBUTES)
 
 sub new {    # $obj (%args)
   no warnings 'uninitialized';
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   my $self = {
-    x => 0+$args{x},
-    y => 0+$args{y},
+    x => 0+ $args{x},
+    y => 0+ $args{y},
   };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
@@ -104,29 +123,5 @@ use overload
   '+=' => \&add_assign,
   '-=' => \&subtract_assign,
   fallback => 1;
-
-sub x :lvalue {    # $x (| $value)
-  my $self = shift;
-  assert ( blessed $self );
-  if ( defined $_[0] ) {
-    assert ( looks_like_number $_[0] );
-    return $self->{x} = $_[0];
-  }
-  sentinel
-    get => sub { return $self->{x} },
-    set => sub { assert ( looks_like_number $_[0] ); $self->{x} = $_[0] };
-}
-
-sub y :lvalue {    # $y (| $value)
-  my $self = shift;
-  assert ( blessed $self );
-  if ( defined $_[0] ) {
-    assert ( looks_like_number $_[0] );
-    return $self->{y} = $_[0];
-  }
-  sentinel
-    get => sub { return $self->{y} },
-    set => sub { assert ( looks_like_number $_[0] ); $self->{y} = $_[0] };
-}
 
 1

@@ -23,8 +23,8 @@ BEGIN {
 # Mocking TGroup for testing purposes
 BEGIN {
   package MyGroup;
-  use TV::Views::Group;
-  use parent TGroup;
+  require TV::Views::Group;
+  use parent 'TV::Views::Group';
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }
@@ -54,9 +54,8 @@ my $view = TView->new( bounds => $bounds );
 is( $group->execView( $view ), CM_CANCEL, 'execView returns correct value' );
 
 # Test execute method
-$group = TGroup->new( bounds => $bounds );
+$group = MyGroup->new( bounds => $bounds );
 can_ok( $group, 'execute' );
-bless $group, 'MyGroup';
 is( $group->execute(), 100, 'execute returns correct value' );
 
 # Test awaken method

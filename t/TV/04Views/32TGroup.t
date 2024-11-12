@@ -25,8 +25,8 @@ BEGIN {
 # Mocking TGroup for testing purposes
 BEGIN {
   package MyGroup;
-  use TV::Views::Group;
-  use parent TGroup;
+  require TV::Views::Group;
+  use parent 'TV::Views::Group';
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }

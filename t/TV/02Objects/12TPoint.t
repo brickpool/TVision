@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 8;
 
 BEGIN {
   use_ok 'TV::Objects::Point';
@@ -35,9 +35,3 @@ is($point1->x, 15, "TPoint->x sets and gets x correctly");
 # Test y accessor
 $point1->y(20);
 is($point1->y, 20, "TPoint->y sets and gets y correctly");
-
-# Test lvalue accessors
-$point1->x = 5;
-$point1->y = 10;
-is( $point1->x, 5,  "TPoint x set via lvalue accessor" );
-is( $point1->y, 10, "TPoint y set via lvalue accessor" );

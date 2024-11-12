@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 29;
 
 BEGIN {
   use_ok 'TV::Objects::Point';
@@ -23,28 +23,28 @@ ok( $rect1->contains( TPoint->new( x => 5, y => 5 ) ),
 ok( !$rect1->isEmpty(), "Rect1 is not empty" );
 
 $rect1->move( 2, 3 );
-is( $rect1->a->x, 2,  "Rect1 moved to (2,3): a.x" );
-is( $rect1->a->y, 3,  "Rect1 moved to (2,3): a.y" );
-is( $rect1->b->x, 12, "Rect1 moved to (2,3): b.x" );
-is( $rect1->b->y, 13, "Rect1 moved to (2,3): b.y" );
+is( $rect1->a->x(), 2,  "Rect1 moved to (2,3): a.x" );
+is( $rect1->a->y(), 3,  "Rect1 moved to (2,3): a.y" );
+is( $rect1->b->x(), 12, "Rect1 moved to (2,3): b.x" );
+is( $rect1->b->y(), 13, "Rect1 moved to (2,3): b.y" );
 
 $rect1->grow( 1, 1 );
-is( $rect1->a->x, 1,  "Rect1 grown by (1,1): a.x" );
-is( $rect1->a->y, 2,  "Rect1 grown by (1,1): a.y" );
-is( $rect1->b->x, 13, "Rect1 grown by (1,1): b.x" );
-is( $rect1->b->y, 14, "Rect1 grown by (1,1): b.y" );
+is( $rect1->a->x(), 1,  "Rect1 grown by (1,1): a.x" );
+is( $rect1->a->y(), 2,  "Rect1 grown by (1,1): a.y" );
+is( $rect1->b->x(), 13, "Rect1 grown by (1,1): b.x" );
+is( $rect1->b->y(), 14, "Rect1 grown by (1,1): b.y" );
 
 $rect1->intersect( $rect2 );
-is( $rect1->a->x, 5,  "Rect1 intersected with Rect2: a.x" );
-is( $rect1->a->y, 5,  "Rect1 intersected with Rect2: a.y" );
-is( $rect1->b->x, 13, "Rect1 intersected with Rect2: b.x" );
-is( $rect1->b->y, 14, "Rect1 intersected with Rect2: b.y" );
+is( $rect1->a->x(), 5,  "Rect1 intersected with Rect2: a.x" );
+is( $rect1->a->y(), 5,  "Rect1 intersected with Rect2: a.y" );
+is( $rect1->b->x(), 13, "Rect1 intersected with Rect2: b.x" );
+is( $rect1->b->y(), 14, "Rect1 intersected with Rect2: b.y" );
 
 $rect1->Union( $rect2 );
-is( $rect1->a->x, 5,  "Rect1 union with Rect2: a.x" );
-is( $rect1->a->y, 5,  "Rect1 union with Rect2: a.y" );
-is( $rect1->b->x, 15, "Rect1 union with Rect2: b.x" );
-is( $rect1->b->y, 15, "Rect1 union with Rect2: b.y" );
+is( $rect1->a->x(), 5,  "Rect1 union with Rect2: a.x" );
+is( $rect1->a->y(), 5,  "Rect1 union with Rect2: a.y" );
+is( $rect1->b->x(), 15, "Rect1 union with Rect2: b.x" );
+is( $rect1->b->y(), 15, "Rect1 union with Rect2: b.y" );
 
 # Test overloaded operators
 ok( $rect1 == $rect2, "Rect1 is equal to Rect2" );
@@ -53,19 +53,11 @@ ok( $rect1 != TRect->new( ax => 0, ay => 0, bx => 10, by => 10 ),
 
 # Test a accessor
 $rect1->a( $p1 );
-cmp_ok( $rect1->a, '==', $p1, "Rect1 a sets and gets correctly" );
+cmp_ok( $rect1->a(), '==', $p1, "Rect1 a sets and gets correctly" );
 
 # Test b accessor
 $rect1->b( $p2 );
-cmp_ok( $rect1->b, '==', $p2, "Rect1 b sets and gets correctly" );
-
-# Test lvalue accessors
-$rect1->a = TPoint->new( x => 0,  y => 0 );
-$rect1->b = TPoint->new( x => 10, y => 10 );
-is( $rect1->a->x, 0,  "Rect1 a.x set via lvalue accessor" );
-is( $rect1->a->y, 0,  "Rect1 a.y set via lvalue accessor" );
-is( $rect1->b->x, 10, "Rect1 b.x set via lvalue accessor" );
-is( $rect1->b->y, 10, "Rect1 b.y set via lvalue accessor" );
+cmp_ok( $rect1->b(), '==', $p2, "Rect1 b sets and gets correctly" );
 
 # Test the clone method
 subtest 'clone method' => sub {
@@ -74,10 +66,10 @@ subtest 'clone method' => sub {
   isa_ok($clone, TRect);
   isa_ok($clone->{a}, TPoint);
   isa_ok($clone->{b}, TPoint);
-  is($clone->{a}->{x}, 1, 'a.x is cloned correctly');
-  is($clone->{a}->{y}, 2, 'a.y is cloned correctly');
-  is($clone->{b}->{x}, 3, 'b.x is cloned correctly');
-  is($clone->{b}->{y}, 4, 'b.y is cloned correctly');
+  is($clone->{a}{x}, 1, 'a.x is cloned correctly');
+  is($clone->{a}{y}, 2, 'a.y is cloned correctly');
+  is($clone->{b}{x}, 3, 'b.x is cloned correctly');
+  is($clone->{b}{y}, 4, 'b.y is cloned correctly');
   isnt($rect, $clone, 'clone is a different object');
   is_deeply($rect, $clone, 'clone has the same data as the original');
 };

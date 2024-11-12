@@ -32,14 +32,32 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use if STRICT => 'Hash::Util';
 use Scalar::Util qw( 
   blessed 
   looks_like_number
 );
-use Sentinel;
 
 sub TRect() { __PACKAGE__ }
+
+my @ATTRIBUTES = qw( a b );
+
+for my $attr ( @ATTRIBUTES ) {
+  my $getset = sub {
+    my $self = shift;
+    assert( blessed $self );
+    if ( @_ ) {
+      my $value = shift;
+      assert( blessed $value );
+      $self->{$attr} = $value->clone();
+    }
+    return $self->{$attr};
+  }; #/ $getset = sub
+
+  {
+    no strict 'refs';
+    *{$attr} = $getset;
+  }
+} #/ for my $attr ( @ATTRIBUTES)
 
 # This method creates a new I<TRect> object. It accepts a variable number of 
 # arguments:
@@ -56,11 +74,11 @@ sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   my $self = bless {}, $class;
-  if ( keys(%args) == 4 ) {
+  if ( keys( %args ) == 4 ) {
     $self->{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
     $self->{b} = TPoint->new( x => $args{bx}, y => $args{by} );
   }
-  elsif ( keys(%args) == 2 ) {
+  elsif ( keys( %args ) == 2 ) {
     $self->{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
     $self->{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
   }
@@ -168,29 +186,5 @@ use overload
   '==' => \&equal,
   '!=' => \&not_equal,
   fallback => 1;
-
-sub a :lvalue {    # $p (| $value)
-  my $self = shift;
-  assert ( blessed $self );
-  if ( defined $_[0] ) {
-    assert ( blessed $_[0] );
-    return $self->{a} = $_[0]->clone();
-  }
-  sentinel
-    get => sub { return $self->{a} },
-    set => sub { assert ( blessed $_[0] ); $self->{a} = $_[0]->clone() };
-}
-
-sub b :lvalue {    # $p (| $value)
-  my $self = shift;
-  assert ( blessed $self );
-  if ( defined $_[0] ) {
-    assert ( blessed $_[0] );
-    return $self->{b} = $_[0]->clone();
-  }
-  sentinel
-    get => sub { return $self->{b} },
-    set => sub { assert ( blessed $_[0] ); $self->{b} = $_[0]->clone() };
-}
 
 1

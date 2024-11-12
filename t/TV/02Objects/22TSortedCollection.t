@@ -15,7 +15,7 @@ output corresponding messages.
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 
 BEGIN {
   use_ok "TV::Objects::SortedCollection";
@@ -28,10 +28,14 @@ BEGIN {
   use parent 'TV::Objects::SortedCollection';
 
   sub compare {
+    no warnings 'uninitialized';
     my ( $self, $key1, $key2 ) = @_;
-    return $key1 cmp $key2;
+    return "$key1" cmp "$key2";
   }
+  $INC{"MockSortedCollection.pm"} = 1;
 }
+
+use_ok 'MockSortedCollection';
 
 # Test new method
 my $sorted_collection = MockSortedCollection->new( limit => 10, delta => 5 );

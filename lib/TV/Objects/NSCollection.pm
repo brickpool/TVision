@@ -49,29 +49,47 @@ use TV::Objects::Object;
 
 sub TNSCollection() { __PACKAGE__ }
 
-# predeclare global variable names
-our %REF;
+use base TObject;
+
+# predeclare global variable
+our %ITEMS = ();
 {
   no warnings 'once';
-  TNSCollection->{REF} = \%REF;
+  TNSCollection->{ITEMS} = \%ITEMS;
 }
 
-use parent TObject;
+# predeclare attributes
+use fields qw(
+  items
+  count
+  limit
+  delta
+  shouldDelete
+);
 
-sub new {    # $obj (%args)
-  no warnings 'uninitialized';
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  my $self = bless {
-    count        => 0,
+# predeclare private methods
+my (
+  $freeItem,
+);
+
+sub BUILD {    # void (%args)
+  my ( $self, %args ) = @_;
+  assert( blessed $self );
+  my %default = (
     items        => [],
-    limit        => 0+$args{limit},
-    delta        => 0+$args{delta},
+    count        => 0,
+    limit        => 0,
+    delta        => 0,
     shouldDelete => !!1,
-  }, $class;
-  $self->setLimit( $args{limit} ) if defined $args{limit};
-  return $self;
-} #/ sub new
+  );
+  @$self{ keys %default } = values %default;
+  if ( keys( %args ) == 2 ) {
+    no warnings 'uninitialized';
+    $self->{delta} = 0+ $args{delta};
+    $self->setLimit( 0+ $args{limit} );
+  }
+  return;
+} #/ sub BUILD
 
 sub DESTROY {    # void ($shift)
   my $self = shift;
@@ -79,13 +97,6 @@ sub DESTROY {    # void ($shift)
   $self->shutDown();
   return;
 }
-
-my $freeItem = sub {
-  my ( $self, $item ) = @_;
-  my $id = id($item) || 0;
-  delete $REF{ $id } if $id;
-  return;
-};
 
 sub shutDown {    # void ($shift)
   my $self = shift;
@@ -107,7 +118,7 @@ sub at {    # $item ($index)
   assert ( looks_like_number $index );
   $self->error(EINVAL, "Index out of bounds")
     if $index < 0 || $index >= $self->{count};
-  return $REF{ $self->{items}->[$index] };
+  return $ITEMS{ $self->{items}->[$index] };
 }
 
 sub atRemove {    # void ($index)
@@ -142,7 +153,7 @@ sub atInsert {    # void ($index, $item|undef)
     if $self->{count} == $self->{limit};
 
   my $id = id($item) || 0;
-  $REF{ $id } = $item;
+  $ITEMS{ $id } = $item;
   $self->{count}++;
 
   splice( @{ $self->{items} }, $index, 0, $id );
@@ -158,7 +169,7 @@ sub atPut {    # void ($index, $item|undef)
     if $index >= $self->{count};
 
   my $id = id($item) || 0;
-  $REF{ $id } = $item;
+  $ITEMS{ $id } = $item;
   $self->{items}->[$index] = $id;
   return;
 }
@@ -233,7 +244,7 @@ sub firstThat {    # $item|undef (\&test, $arg|undef)
   assert ( @_ == 3 );
   my $that;
   for my $i ( 0 .. $self->{count} - 1 ) {
-    local $_ = $REF{ $self->{items}->[$i] };
+    local $_ = $ITEMS{ $self->{items}->[$i] };
     return $_ if $test->( $_, $arg );
   }
   return undef;
@@ -246,7 +257,7 @@ sub lastThat {    # $item|undef (\&test, $arg|undef)
   assert ( @_ == 3 );
   my $that;
   for my $i ( reverse 0 .. $self->{count} - 1 ) {
-    local $_ = $REF{ $self->{items}->[$i] };
+    local $_ = $ITEMS{ $self->{items}->[$i] };
     return $_ if $test->( $_, $arg );
   }
   return undef;
@@ -258,7 +269,7 @@ sub forEach {    # void (\&action, $arg|undef)
   assert ( ref $action );
   assert ( @_ == 3 );
   for my $i ( 0 .. $self->{count} - 1 ) {
-    local $_ = $REF{ $self->{items}->[$i] };
+    local $_ = $ITEMS{ $self->{items}->[$i] };
     $action->( $_, $arg );
   }
   return;
@@ -269,7 +280,7 @@ sub pack {    # void ($self)
   assert ( blessed $self );
   my $count = 0;
   for my $i ( 0 .. $self->{count} - 1 ) {
-    if ( $REF{ $self->{items}->[$i] } ) {
+    if ( $ITEMS{ $self->{items}->[$i] } ) {
       $count++;
     }
     else {
@@ -302,5 +313,14 @@ sub setLimit {    # void ($aLimit)
   }
   return;
 } #/ sub setLimit
+
+$freeItem = sub {
+  my ( $self, $item ) = @_;
+  my $id = id($item) || 0;
+  delete $ITEMS{ $id } if $id;
+  return;
+};
+
+__PACKAGE__->mk_accessors();
 
 1

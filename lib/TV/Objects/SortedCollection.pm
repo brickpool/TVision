@@ -13,7 +13,7 @@ use TV::Objects::NSSortedCollection;
 sub TSortedCollection() { __PACKAGE__ }
 sub name() { 'TSortedCollection' };
 
-use parent TNSSortedCollection;
+use base TNSSortedCollection;
 
 sub compare {    # $cmp ($self, $key1, $key2)
   return 0;

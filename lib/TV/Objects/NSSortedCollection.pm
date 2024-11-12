@@ -33,6 +33,7 @@ our @EXPORT = qw(
   TNSSortedCollection
 );
 
+use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
@@ -45,16 +46,20 @@ use TV::Objects::NSCollection;
 
 sub TNSSortedCollection() { __PACKAGE__ }
 
-my $REF = TNSCollection->{REF};
+use base TNSCollection;
 
-use parent TNSCollection;
+alias our %ITEMS = %TV::Objects::NSCollection::ITEMS;
 
-sub new {    # $obj (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  my $self = $class->SUPER::new( %args );
+# predeclare attributes
+use fields  qw(
+  duplicates
+);
+
+sub BUILD {    # void (%args)
+  my $self = shift;
+  assert ( blessed $self );
   $self->{duplicates} = !!0;
-  return $self;
+  return;
 }
 
 sub search {    # $bool ($key|undef, \$index)
@@ -66,8 +71,8 @@ sub search {    # $bool ($key|undef, \$index)
   my $h   = $self->{count} - 1;
   my $res = !!0;
   while ( $l <= $h ) {
-    my $i = int( ( $l + $h ) / 2 );
-    my $item = $REF->{ $self->{items}->[$i] };
+    my $i = ( $l + $h ) >> 1;
+    my $item = $ITEMS{ $self->{items}->[$i] };
     my $c = $self->compare( $self->keyOf( $item ), $key );
     if ( $c < 0 ) {
       $l = $i + 1;
@@ -94,7 +99,7 @@ sub indexOf {    # $index ($item|undef)
   }
   else {
     if ( $self->{duplicates} ) {
-      while ( $i < $self->{count} && $item ne $REF->{ $self->{items}->[$i] } ) {
+      while ( $i < $self->{count} && $item ne $ITEMS{ $self->{items}->[$i] } ) {
         $i++;
       }
     }
@@ -125,5 +130,7 @@ sub compare {    # $cmd ($key1, $key2)
   assert ( @_ == 3 );
   return 0;
 }
+
+__PACKAGE__->mk_accessors();
 
 1

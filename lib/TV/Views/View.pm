@@ -25,7 +25,6 @@ use Scalar::Util qw(
   blessed 
   looks_like_number
   readonly
-  weaken
 );
 
 use TV::Const qw(
@@ -62,9 +61,10 @@ require TV::Views::View::Write;
 sub TView() { __PACKAGE__ }
 sub name() { 'TView' }
 
-use parent TObject;
+use base TObject;
 
-our %REF = ();
+# predeclare global variables
+our %VIEWS             = ( 0 => undef );
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
 our $shadowAttr        = 0x08;
 our $showMarkers       = !!0;
@@ -72,7 +72,6 @@ our $errorAttr         = 0xcf;
 our $commandSetChanged = !!0;
 {
   no warnings 'once';
-  TView->{REF}                     = \%REF;
   alias TView->{shadowSize}        = $shadowSize;
   alias TView->{shadowAttr}        = $shadowAttr;
   alias TView->{showMarkers}       = $showMarkers;
@@ -101,11 +100,49 @@ our $curCommandSet = $initCommands->();
   alias TView->{curCommandSet} = $curCommandSet;
 }
 
-sub new {    # $obj (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  assert ( ref $args{bounds} );
-  my $self = bless {
+# predeclare attributes
+use fields qw(
+  owner
+  next
+  options
+  state
+  growMode
+  dragMode
+  helpCtx
+  eventMask
+  size
+  origin
+  cursor
+);
+
+# use own accessors
+use subs qw(
+  owner
+  next
+);
+
+# predeclare private methods
+my (
+  $moveGrow,
+  $change,
+  $writeView,
+);
+
+my $lock_value = sub {
+  Internals::SvREADONLY( $_[0] => 1 )
+    if exists &Internals::SvREADONLY;
+};
+
+my $unlock_value = sub {
+  Internals::SvREADONLY( $_[0] => 0 )
+    if exists &Internals::SvREADONLY;
+};
+
+sub BUILD {    # void (%args)
+  my ( $self, %args ) = @_;
+  assert( blessed $self );
+  assert( ref $args{bounds} );
+  my %default = (
     owner     => 0,
     next      => 0,
     options   => 0,
@@ -117,16 +154,19 @@ sub new {    # $obj (%args)
     size      => TPoint->new(),
     origin    => TPoint->new(),
     cursor    => TPoint->new(), # $cursor->{x} = $cursor->{y} = 0;
-  }, $class;
+  );
+  @$self{ keys %default } = values %default;
+  $lock_value->( $self->{owner} ) if STRICT;
+  $lock_value->( $self->{next} )  if STRICT;
   $self->setBounds( $args{bounds} );
-  weaken( $REF{ 0+ $self } = $self );
-  return $self;
-} #/ sub new
+  return;
+} #/ sub BUILD
 
-sub DESTROY { # void ()
+sub DESTROY {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  delete $REF{ 0+ $self };
+  $unlock_value->( $self->{owner} ) if STRICT;
+  $unlock_value->( $self->{next} )  if STRICT;
   return;
 }
 
@@ -224,57 +264,6 @@ sub locate {    # void ($bounds)
   } #/ if ( $bounds != $r )
   return;
 } #/ sub locate
-
-my $moveGrow = sub {
-  my ( $self, $p, $s, $limits, $minSize, $maxSize, $mode ) = @_;
-
-  $p = $p->clone();
-  $s = $s->clone();
-
-  $s->{x} = min( max( $s->{x}, $minSize->{x} ), $maxSize->{x} );
-  $s->{y} = min( max( $s->{y}, $minSize->{y} ), $maxSize->{y} );
-  $p->{x} = min(
-    max( $p->{x}, $limits->{a}{x} - $s->{x} + 1 ),
-    $limits->{b}{x} - 1
-  );
-  $p->{y} = min(
-    max( $p->{y}, $limits->{a}{y} - $s->{y} + 1 ),
-    $limits->{b}{y} - 1
-  );
-
-  if ( $mode & DM_LIMIT_LO_X ) {
-    $p->{x} = max( $p->{x}, $limits->{a}{x} );
-  }
-  if ( $mode & DM_LIMIT_LO_Y ) {
-    $p->{y} = max( $p->{y}, $limits->{a}{y} );
-  }
-  if ( $mode & DM_LIMIT_HI_X ) {
-    $p->{x} = min( $p->{x}, $limits->{b}{x} - $s->{x} );
-  }
-  if ( $mode & DM_LIMIT_HI_Y ) {
-    $p->{y} = min( $p->{y}, $limits->{b}{y} - $s->{y} );
-  }
-
-  my $r = TRect->new(
-    ax => $p->{x},
-    ay => $p->{y},
-    bx => $p->{x} + $s->{x},
-    by => $p->{y} + $s->{y},
-  );
-  $self->locate( $r );
-  return;
-}; #/ $moveGrow = sub
-
-my $change = sub {    # void ($mode, $delta, $p, $s, $ctrlState)
-  my ( $self, $mode, $delta, $p, $s, $ctrlState ) = @_;
-  if ( ( $mode & DM_DRAG_MOVE ) && !( $ctrlState & !KB_SHIFT ) ) {
-    $p += $delta;
-  }
-  elsif ( ( $mode & DM_DRAG_GROW ) && ( $ctrlState & KB_SHIFT ) ) {
-    $s += $delta;
-  }
-  return;
-}; #/ sub
 
 my ( $goLeft, $goRight, $goUp, $goDown, $goCtrlLeft, $goCtrlRight );
 
@@ -1041,23 +1030,18 @@ sub prev {    # $view|undef ()
 }
 
 sub next {    # $view (|$view|undef)
-  my $self = shift;
+  no warnings 'uninitialized';
+  my ( $self, $view ) = @_;
   assert ( blessed $self );
-  if ( @_ ) {
-    if ( defined( my $view = shift ) ) {
-      assert ( blessed $view );
-      my $id = 0+ $view;
-      weaken( $REF{$id} = $view )
-        if !$REF{$id};
-      $self->{next} = $id;
-    }
-    elsif ( my $id = $self->{next} ) {
-      delete( $REF{$id} )
-        if $REF{$id};
-      $self->{next} = 0;
-    }
-  } #/ if ( @_ )
-  return $REF{ $self->{next} };
+  assert ( !defined $view or blessed $view );
+  if ( @_ == 2 ) {
+    my $id = 0+ $view;
+    $VIEWS{$id} ||= $view;
+    $unlock_value->( $self->{next} ) if STRICT;
+    $self->{next} = $id;
+    $lock_value->( $self->{next} ) if STRICT;
+  }
+  return $VIEWS{ $self->{next} };
 } #/ sub next
 
 sub makeFirst {    # $void ()
@@ -1118,12 +1102,6 @@ sub TopView {    # $view ()
   }
   return $p;
 } #/ sub TopView
-
-my $writeView = sub {    # void ($x, $y, $count, $b)
-  my ( $self, $x, $y, $count, $b ) = @_;
-  TV::Views::View::Write::L0( $self, $x, $y, $count, $b );
-  return;
-};
 
 sub writeBuf {    # void ($x, $y, $w, $h, $b)
   my ( $self, $x, $y, $w, $h, $b ) = @_;
@@ -1199,23 +1177,18 @@ sub writeStr {    # void ($x, $y, $str, $color)
 } #/ sub writeStr
 
 sub owner {    # $group (|$group|undef)
-  my $self = shift;
+  no warnings 'uninitialized';
+  my ( $self, $group ) = @_;
   assert ( blessed $self );
-  if ( @_ ) {
-    if ( defined( my $group = shift ) ) {
-      assert ( blessed $group );
-      my $id = 0+ $group;
-      weaken( $REF{$id} = $group )
-        if !$REF{$id};
-      $self->{owner} = $id;
-    }
-    elsif ( my $id = $self->{owner} ) {
-      delete( $REF{$id} )
-        if $REF{$id};
-      $self->{owner} = 0;
-    }
-  } #/ if ( @_ )
-  return $REF{ $self->{owner} };
+  assert ( !defined $group or blessed $group );
+  if ( @_ == 2 ) {
+    my $id = 0+ $group;
+    $VIEWS{$id} = $group;
+    $unlock_value->( $self->{owner} ) if STRICT;
+    $self->{owner} = $id;
+    $lock_value->( $self->{owner} ) if STRICT;
+  }
+  return $VIEWS{ $self->{owner} };
 } #/ sub owner
 
 sub shutDown {    # void ()
@@ -1228,5 +1201,64 @@ sub shutDown {    # void ()
   $self->SUPER::shutDown();
   return;
 }
+
+$moveGrow = sub {
+  my ( $self, $p, $s, $limits, $minSize, $maxSize, $mode ) = @_;
+
+  $p = $p->clone();
+  $s = $s->clone();
+
+  $s->{x} = min( max( $s->{x}, $minSize->{x} ), $maxSize->{x} );
+  $s->{y} = min( max( $s->{y}, $minSize->{y} ), $maxSize->{y} );
+  $p->{x} = min(
+    max( $p->{x}, $limits->{a}{x} - $s->{x} + 1 ),
+    $limits->{b}{x} - 1
+  );
+  $p->{y} = min(
+    max( $p->{y}, $limits->{a}{y} - $s->{y} + 1 ),
+    $limits->{b}{y} - 1
+  );
+
+  if ( $mode & DM_LIMIT_LO_X ) {
+    $p->{x} = max( $p->{x}, $limits->{a}{x} );
+  }
+  if ( $mode & DM_LIMIT_LO_Y ) {
+    $p->{y} = max( $p->{y}, $limits->{a}{y} );
+  }
+  if ( $mode & DM_LIMIT_HI_X ) {
+    $p->{x} = min( $p->{x}, $limits->{b}{x} - $s->{x} );
+  }
+  if ( $mode & DM_LIMIT_HI_Y ) {
+    $p->{y} = min( $p->{y}, $limits->{b}{y} - $s->{y} );
+  }
+
+  my $r = TRect->new(
+    ax => $p->{x},
+    ay => $p->{y},
+    bx => $p->{x} + $s->{x},
+    by => $p->{y} + $s->{y},
+  );
+  $self->locate( $r );
+  return;
+}; #/ $moveGrow = sub
+
+$change = sub {    # void ($mode, $delta, $p, $s, $ctrlState)
+  my ( $self, $mode, $delta, $p, $s, $ctrlState ) = @_;
+  if ( ( $mode & DM_DRAG_MOVE ) && !( $ctrlState & !KB_SHIFT ) ) {
+    $p += $delta;
+  }
+  elsif ( ( $mode & DM_DRAG_GROW ) && ( $ctrlState & KB_SHIFT ) ) {
+    $s += $delta;
+  }
+  return;
+}; #/ sub
+
+$writeView = sub {    # void ($x, $y, $count, $b)
+  my ( $self, $x, $y, $count, $b ) = @_;
+  TV::Views::View::Write::L0( $self, $x, $y, $count, $b );
+  return;
+};
+
+__PACKAGE__->mk_accessors();
 
 1
