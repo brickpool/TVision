@@ -999,7 +999,7 @@ sub makeLocal {    # $point ($source)
 } #/ sub makeLocal
 
 sub nextView {    # $view|undef ()
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
   return $self->next()
@@ -1009,7 +1009,7 @@ sub nextView {    # $view|undef ()
 }
 
 sub prevView {    # $view|undef ()
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
   return $self->prev()
@@ -1019,7 +1019,7 @@ sub prevView {    # $view|undef ()
 }
 
 sub prev {    # $view|undef ()
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
   my $res = $self;
@@ -1030,7 +1030,7 @@ sub prev {    # $view|undef ()
 }
 
 sub next {    # $view (|$view|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
@@ -1053,7 +1053,7 @@ sub makeFirst {    # $void ()
 }
 
 sub putInFrontOf {    # void ($target|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $target ) = @_;
   assert ( blessed $self );
   assert ( @_ == 2 );
@@ -1177,7 +1177,7 @@ sub writeStr {    # void ($x, $y, $str, $color)
 } #/ sub writeStr
 
 sub owner {    # $group (|$group|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $group ) = @_;
   assert ( blessed $self );
   assert ( !defined $group or blessed $group );

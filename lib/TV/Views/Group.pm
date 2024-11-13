@@ -22,8 +22,10 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
   blessed
   looks_like_number
+  weaken
 );
 
+use TV::Objects::Point;
 use TV::Drivers::Const qw(
   :evXXXX
 );
@@ -127,14 +129,15 @@ sub shutDown {    # void ()
   if ( $p ) {
     do {
       $p->hide();
-      $p = $p->prev();
+      weaken( $p = $p->prev() );
     } while ( $p && $p != $self->last() );
 
-    do {
-      my $T = $p->prev();
+    while ( $p && $self->last() ) {
+      weaken( my $T = $p->prev() );
+      delete $VIEWS{ 0+ $p };
       $self->destroy( $p );
-      $p = $T;
-    } while ( $self->last() );
+      weaken( $p = $T ); 
+    }
   } #/ if ( $p )
   $self->freeBuffer();
   $self->current( undef );
@@ -253,13 +256,13 @@ sub remove {    # void ($p)
 # I<tgrmv.cpp>
 {
   sub removeView {    # void ($p)
-    no warnings 'uninitialized';
+    no warnings qw( uninitialized numeric );
     my ( $self, $p ) = @_;
     assert ( blessed $self );
     assert ( blessed $p );
     if ( $self->last() ) {
       my $s = $self->last();
-      while ( 0+ $s->next() != $p ) {
+      while ( $s->next() != $p ) {
         return
           if $s->next() == $self->last();
         $s = $s->next();
@@ -282,7 +285,7 @@ sub resetCurrent {    # void ()
 }
 
 sub setCurrent {    # void ($p, $mode)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $p, $mode ) = @_;
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
@@ -317,7 +320,7 @@ sub selectNext {    # void ($forwards)
 } #/ sub selectNext
 
 sub firstThat {    # $view|undef (\&func, $args|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
   assert ( blessed $self );
   assert ( ref $func );
@@ -344,20 +347,20 @@ sub focusNext {    # $bool ($forwards)
 }
 
 sub forEach {    # void (\&func, $args|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
   assert ( blessed $self );
   assert ( ref $func );
   assert ( @_ == 3 );
-  my $term = $self->last();
-  my $temp = $term;
+  my $term = my $temp = $self->last();
   return 
     unless $temp;
 
-  my $next = $temp->next();
+  weaken( $term );
+  weaken( my $next = $temp->next() );
   do {
-    $temp = $next;
-    $next = $temp->next();
+    weaken( $temp = $next );
+    weaken( $next = $temp->next() );
     $func->( $temp, $args );
   } while ( $temp != $term );
   return;
@@ -373,7 +376,7 @@ sub insert {    # void ($p)
 }
 
 sub insertBefore {    # void ($self, $p, $Target|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $p, $Target ) = @_;
   assert ( blessed $self );
   assert ( blessed $p );
@@ -395,7 +398,7 @@ sub insertBefore {    # void ($self, $p, $Target|undef)
 } #/ sub insertBefore
 
 sub current {    # $view|undef (|$view|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
@@ -421,7 +424,7 @@ sub at {    # $view|undef ($index)
 } #/ sub at
 
 sub firstMatch {    # $view|undef ($aState, $aOptions)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $aState, $aOptions ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $aState );
@@ -441,7 +444,7 @@ sub firstMatch {    # $view|undef ($aState, $aOptions)
 } #/ sub firstMatch
 
 sub indexOf {    # $int ($p)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $p ) = @_;
   assert ( blessed $self );
   assert ( blessed $p );
@@ -591,11 +594,11 @@ sub handleEvent { # void ($event)
 } #/ sub handleEvent
 
 sub drawSubViews {    # void ($p|undef, $bottom|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $p, $bottom ) = @_;
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
-  assert ( !defined $p or blessed $bottom );
+  assert ( !defined $bottom or blessed $bottom );
   assert ( @_ == 3 );
   while ( $p != $bottom ) {
     $p->drawView();
@@ -678,6 +681,7 @@ sub setData {    # void (\@rec)
       $v = $v->prev();
     } while ( $v != $self->last() );
   }
+  return;
 } #/ sub setData
 
 sub draw {    # void ()
@@ -802,7 +806,7 @@ sub getBuffer {    # void ()
 } #/ sub getBuffer
 
 sub last {    # $view (|$view|undef)
-  no warnings 'uninitialized';
+  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
