@@ -48,7 +48,6 @@ sub name() { 'TGroup' }
 use base TView;
 
 # predeclare global variables
-alias our %VIEWS = %TV::Views::View;
 our $TheTopView;
 our $ownerGroup;
 {
@@ -97,9 +96,9 @@ sub BUILD {    # void (%args)
   assert ( blessed $self );
   assert ( ref $args{bounds} );
   my %default = (
-    last      => 0,
+    last      => undef,
     phase     => PH_FOCUSED,
-    current   => 0,
+    current   => undef,
     buffer    => undef,
     lockFlag  => 0,
     endState  => 0,
@@ -127,6 +126,7 @@ sub shutDown {    # void ()
   assert ( blessed $self );
   my $p = $self->last();
   if ( $p ) {
+    weaken $p;
     do {
       $p->hide();
       weaken( $p = $p->prev() );
@@ -134,7 +134,6 @@ sub shutDown {    # void ()
 
     while ( $p && $self->last() ) {
       weaken( my $T = $p->prev() );
-      delete $VIEWS{ 0+ $p };
       $self->destroy( $p );
       weaken( $p = $T ); 
     }
@@ -248,33 +247,31 @@ sub remove {    # void ($p)
   return;
 } #/ sub remove
 
-# The following content was taken from the framework
+# The following subroutine was taken from the framework
 # "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
 #
 # Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
 #
 # I<tgrmv.cpp>
-{
-  sub removeView {    # void ($p)
-    no warnings qw( uninitialized numeric );
-    my ( $self, $p ) = @_;
-    assert ( blessed $self );
-    assert ( blessed $p );
-    if ( $self->last() ) {
-      my $s = $self->last();
-      while ( $s->next() != $p ) {
-        return
-          if $s->next() == $self->last();
-        $s = $s->next();
-      }
-      $s->next( $p->next );
-      if ( $p == $self->last() ) {
-        $self->last( $p == $p->next() ? undef : $s );
-      }
-    } #/ if ( $self->last() )
-    return;
-  } #/ sub removeView
-}
+sub removeView {    # void ($p)
+  no warnings qw( uninitialized numeric );
+  my ( $self, $p ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $p );
+  if ( $self->last() ) {
+    my $s = $self->last();
+    while ( $s->next() != $p ) {
+      return
+        if $s->next() == $self->last();
+      $s = $s->next();
+    }
+    $s->next( $p->next );
+    if ( $p == $self->last() ) {
+      $self->last( $p == $p->next() ? undef : $s );
+    }
+  } #/ if ( $self->last() )
+  return;
+} #/ sub removeView
 
 sub resetCurrent {    # void ()
   my $self = shift;
@@ -352,11 +349,11 @@ sub forEach {    # void (\&func, $args|undef)
   assert ( blessed $self );
   assert ( ref $func );
   assert ( @_ == 3 );
-  my $term = my $temp = $self->last();
+  weaken( my $term = $self->last() );
+  weaken( my $temp = $self->last() );
   return 
     unless $temp;
 
-  weaken( $term );
   weaken( my $next = $temp->next() );
   do {
     weaken( $temp = $next );
@@ -398,18 +395,16 @@ sub insertBefore {    # void ($self, $p, $Target|undef)
 } #/ sub insertBefore
 
 sub current {    # $view|undef (|$view|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {
-    my $id = 0+ $view;
-    $VIEWS{$id} ||= $view;
     $unlock_value->( $self->{current} ) if STRICT;
-    $self->{current} = $id;
+    weaken $self->{current}
+      if $self->{current} = $view;
     $lock_value->( $self->{current} ) if STRICT;
   }
-  return $VIEWS{ $self->{current} };
+  return $self->{current};
 } #/ sub current
 
 sub at {    # $view|undef ($index)
@@ -806,18 +801,16 @@ sub getBuffer {    # void ()
 } #/ sub getBuffer
 
 sub last {    # $view (|$view|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {
-    my $id = 0+ $view;
-    $VIEWS{$id} ||= $view;
     $unlock_value->( $self->{last} ) if STRICT;
-    $self->{last} = $id;
+    weaken $self->{last} 
+      if $self->{last} = $view;
     $lock_value->( $self->{last} ) if STRICT;
   }
-  return $VIEWS{ $self->{last} };
+  return $self->{last};
 } #/ sub last
 
 $invalid = sub {    # $bool ($p, $command)

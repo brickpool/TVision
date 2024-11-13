@@ -23,6 +23,9 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
 use Scalar::Util qw( 
   blessed 
+  weaken
+  unweaken
+  isweak
   looks_like_number
   readonly
 );
@@ -64,7 +67,6 @@ sub name() { 'TView' }
 use base TObject;
 
 # predeclare global variables
-our %VIEWS             = ( 0 => undef );
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
 our $shadowAttr        = 0x08;
 our $showMarkers       = !!0;
@@ -143,8 +145,8 @@ sub BUILD {    # void (%args)
   assert( blessed $self );
   assert( ref $args{bounds} );
   my %default = (
-    owner     => 0,
-    next      => 0,
+    owner     => undef,
+    next      => undef,
     options   => 0,
     state     => SF_VISIBLE,
     growMode  => 0,
@@ -1029,19 +1031,56 @@ sub prev {    # $view|undef ()
   return $res;
 }
 
+my $strongCyclicRef = sub {
+  my $self = shift;
+  my $p = $self;
+  while ( $p->{next} && $p->{next} != $self ) {
+    if ( isweak $p->{next} ) {
+      $unlock_value->( $p->{next} ) if STRICT;
+      # warn sprintf("unweaken %d", $p->{next});
+      unweaken $p->{next};
+      $lock_value->( $p->{next} ) if STRICT;
+      last;
+    }
+    $p = $p->{next};
+  }
+  return;
+};
+
+my $weakenCyclicRef = sub {
+  my $self = shift;
+  my %seen;
+  my $p = $self;
+  while ( $p->{next} && $p->{next} != $self ) {
+    if ( $seen{ 0+ $p->{next} }++ ) {
+      $unlock_value->( $p->{next} ) if STRICT;
+      # warn sprintf("weaken %d", $p->{next});
+      weaken $p->{next};
+      $lock_value->( $p->{next} ) if STRICT;
+      last;
+    }
+    $p = $p->{next};
+  }
+  return;
+};
+
 sub next {    # $view (|$view|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {
-    my $id = 0+ $view;
-    $VIEWS{$id} ||= $view;
     $unlock_value->( $self->{next} ) if STRICT;
-    $self->{next} = $id;
+    if ( $view ) {
+      $self->$strongCyclicRef();
+      $self->{next} = $view;
+      $self->$weakenCyclicRef();
+    } 
+    else {
+      $self->{next} = undef;
+    }
     $lock_value->( $self->{next} ) if STRICT;
   }
-  return $VIEWS{ $self->{next} };
+  return $self->{next};
 } #/ sub next
 
 sub makeFirst {    # $void ()
@@ -1177,18 +1216,16 @@ sub writeStr {    # void ($x, $y, $str, $color)
 } #/ sub writeStr
 
 sub owner {    # $group (|$group|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $group ) = @_;
   assert ( blessed $self );
   assert ( !defined $group or blessed $group );
   if ( @_ == 2 ) {
-    my $id = 0+ $group;
-    $VIEWS{$id} = $group;
     $unlock_value->( $self->{owner} ) if STRICT;
-    $self->{owner} = $id;
+    weaken $self->{owner}
+      if $self->{owner} = $group;
     $lock_value->( $self->{owner} ) if STRICT;
   }
-  return $VIEWS{ $self->{owner} };
+  return $self->{owner};
 } #/ sub owner
 
 sub shutDown {    # void ()
