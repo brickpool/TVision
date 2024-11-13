@@ -116,7 +116,7 @@ sub at {    # $item ($index)
   my ( $self, $index ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $index );
-  $self->error(EINVAL, "Index out of bounds")
+  $self->error( EINVAL, "Index out of bounds" )
     if $index < 0 || $index >= $self->{count};
   return $ITEMS{ $self->{items}->[$index] };
 }
@@ -125,7 +125,7 @@ sub atRemove {    # void ($index)
   my ( $self, $index ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $index );
-  $self->error(EINVAL, "Index out of bounds")
+  $self->error( EINVAL, "Index out of bounds" )
     if $index < 0 || $index >= $self->{count};
   $self->{count}--;
   splice( @{ $self->{items} }, $index, 1 );
@@ -147,7 +147,7 @@ sub atInsert {    # void ($index, $item|undef)
   assert ( blessed $self );
   assert ( looks_like_number $index );
   assert ( @_ == 3 );
-  $self->error(EINVAL, "Index out of bounds")
+  $self->error( EINVAL, "Index out of bounds" )
     if $index < 0;
   $self->setLimit( $self->{count} + $self->{delta} )
     if $self->{count} == $self->{limit};
@@ -165,7 +165,7 @@ sub atPut {    # void ($index, $item|undef)
   assert ( blessed $self );
   assert ( looks_like_number $index );
   assert ( @_ == 3 );
-  $self->error(EINVAL, "Index out of bounds")
+  $self->error( EINVAL, "Index out of bounds" )
     if $index >= $self->{count};
 
   my $id = id($item) || 0;
@@ -216,7 +216,7 @@ sub indexOf {    # $index ($item|undef)
     my $id = id($item) || 0;
     return $i if $self->{items}->[$i] eq $id;
   }
-  $self->error(EFAULT, "Item not found");
+  $self->error( EFAULT, "Item not found" );
   return CC_NOT_FOUND;
 }
 
