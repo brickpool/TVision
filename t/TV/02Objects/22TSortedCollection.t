@@ -25,7 +25,7 @@ BEGIN {
 {
   package MockSortedCollection;
   require TV::Objects::SortedCollection;
-  use parent 'TV::Objects::SortedCollection';
+  use base 'TV::Objects::SortedCollection';
 
   sub compare {
     no warnings 'uninitialized';

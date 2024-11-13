@@ -5,7 +5,7 @@
 The following test cases of class I<TGroup> cover the methods I<insertView>, 
 I<remove>, I<removeView>, I<resetCurrent>, I<setCurrent>, I<selectNext>, 
 I<firstThat>, I<focusNext>, I<forEach>, I<insert>, I<insertBefore>, I<current>, 
-I<at>, I<firstMatch> and I<indexOf>.
+I<at>, I<firstMatch>, I<indexOf> and I<first>.
 
 =cut
 
@@ -26,7 +26,7 @@ BEGIN {
 BEGIN {
   package MyGroup;
   require TV::Views::Group;
-  use parent 'TV::Views::Group';
+  use base 'TV::Views::Group';
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }
@@ -124,8 +124,8 @@ can_ok( $group, 'firstMatch' );
 is( $group->firstMatch( 0, 0 ), $group->last(), 
   'firstMatch returns the correct view' );
 
-# Test indexOf method
-can_ok( $group, 'indexOf' );
+# Test indexOf and first method
+can_ok( $group, 'indexOf', 'first' );
 is( $group->indexOf( $group->first() ), 1,
   'indexOf returns the correct index' );
 

@@ -25,7 +25,7 @@ BEGIN {
   package MyOwner;
   use TV::Objects::Rect;
   require TV::Views::View;
-  use parent 'TV::Views::View';
+  use base 'TV::Views::View';
   use fields qw( clip );
 
   sub BUILD { 

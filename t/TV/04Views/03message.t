@@ -13,7 +13,7 @@ BEGIN {
 BEGIN {
   package MyTView;
   require TV::Views::View;
-  use parent 'TV::Views::View';
+  use base 'TV::Views::View';
 
   my $toggle = 1;
   sub handleEvent {

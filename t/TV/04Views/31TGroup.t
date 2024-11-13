@@ -24,7 +24,7 @@ BEGIN {
 BEGIN {
   package MyGroup;
   require TV::Views::Group;
-  use parent 'TV::Views::Group';
+  use base 'TV::Views::Group';
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }

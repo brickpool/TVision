@@ -27,7 +27,7 @@ BEGIN {
 BEGIN {
   package MyOwner;
   require TV::Views::View;
-  use parent 'TV::Views::View';
+  use base 'TV::Views::View';
   my $toggle = 1;
   sub getEvent { 
     $toggle = 1 - $toggle; 
