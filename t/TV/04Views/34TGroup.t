@@ -32,9 +32,6 @@ isa_ok( $bounds, TRect, 'Object is of class TRect' );
 my $event = TEvent->new();
 isa_ok( $event, TEvent, 'Object is of class TEvent' );
 
-# my $view = MyView->new( bounds => $bounds );
-# isa_ok( $view, TView, 'Object is of class TView' );
-
 my $group = TGroup->new( bounds => $bounds );
 isa_ok( $group, TGroup, 'Object is of class TGroup' );
 
