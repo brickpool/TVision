@@ -61,7 +61,7 @@ $event = MessageEvent->new( infoWord => 42 );
 is( $event->{infoInt}, 42, 'infoInt field is set correctly' );
 $event->{infoInt} = 84;
 is( $event->{infoInt}, 84, 'infoInt field is updated correctly' );
-is( $event->{infoPtr}, undef, 'infoPtr field is fetched correctly' );
+is( $event->{infoPtr}, 84, 'infoPtr field is fetched correctly' );
 
 # Test infoByte field
 $event = MessageEvent->new( infoByte => 0x12 );

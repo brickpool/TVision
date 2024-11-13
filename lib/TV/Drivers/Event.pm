@@ -11,7 +11,10 @@ our @EXPORT = qw(
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Hash::Util qw( lock_hash );
-use Scalar::Util qw( blessed );
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
 use Tie::Hash;
 
 use TV::Drivers::Const qw( 
@@ -205,8 +208,6 @@ package MessageEvent {
   use Devel::StrictMode;
   use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
-  use Hash::Util::FieldHash qw( register id_2obj );
-  use Scalar::Util qw( refaddr );
   use Tie::Hash;
 
   our %FIELDS = (
@@ -217,44 +218,41 @@ package MessageEvent {
       $this->[0];
     },
     infoPtr => sub {
-      no warnings 'uninitialized';
-      my ( $this, $ref ) = @_;
+      my ( $this, $info ) = @_;
       if ( @_ > 1 ) {
-        my $id = refaddr $ref;
-        register( $ref ) if $id;
-        $this->[1] = 0+$id;
+        $this->[1] = $info;
       }
-      id_2obj $this->[1];
-    },
-    infoLong => sub {
-      no warnings 'uninitialized';
-      my ( $this, $info ) = @_;
-      $this->[1] = $info & 0xffff_ffff if @_ > 1;
-      $this->[1] & 0xffff_ffff;
-    },
-    infoWord => sub {
-      no warnings 'uninitialized';
-      my ( $this, $info ) = @_;
-      $this->[1] = $info & 0xffff if @_ > 1;
-      $this->[1] & 0xffff;
-    },
-    infoInt => sub {
-      no warnings 'uninitialized';
-      my ( $this, $info ) = @_;
-      $this->[1] = 0+$info if @_ > 1;
       $this->[1];
     },
-    infoByte => sub {
-      no warnings 'uninitialized';
+    infoLong => sub {
+      no warnings qw( uninitialized numeric );
       my ( $this, $info ) = @_;
-      $this->[1] = $info & 0xff if @_ > 1;
-      $this->[1] & 0xff;
+      $this->[1] = 0+$info & 0xffff_ffff if @_ > 1;
+      0+$this->[1] & 0xffff_ffff;
+    },
+    infoWord => sub {
+      no warnings qw( uninitialized numeric );
+      my ( $this, $info ) = @_;
+      $this->[1] = 0+$info & 0xffff if @_ > 1;
+      0+$this->[1] & 0xffff;
+    },
+    infoInt => sub {
+      no warnings qw( uninitialized numeric );
+      my ( $this, $info ) = @_;
+      $this->[1] = 0+$info if @_ > 1;
+      0+$this->[1];
+    },
+    infoByte => sub {
+      no warnings qw( uninitialized numeric );
+      my ( $this, $info ) = @_;
+      $this->[1] = 0+$info & 0xff if @_ > 1;
+      0+$this->[1] & 0xff;
     },
     infoChar => sub {
-      no warnings 'uninitialized';
+      no warnings qw( uninitialized numeric );
       my ( $this, $info ) = @_;
       $this->[1] = ord $_[1] if @_ > 1;
-      chr $this->[1];
+      chr( 0+$this->[1] );
     },
   );
   lock_hash( %FIELDS );
@@ -291,19 +289,17 @@ our %FIELDS = (
   what => sub {
     my ( $this, $what ) = @_;
     if ( @_ > 1 ) {
+      assert ( looks_like_number $what );
       no warnings 'uninitialized';
       $what += EV_NOTHING;
       my $type = ref $this->[1];
-      if ( $what == EV_NOTHING && $type ) {
-        @$this = ( EV_NOTHING, undef );
-      }
-      elsif ( ( $what & EV_MOUSE ) && $type ne 'MouseEventType' ) {
+      if ( ( $what & EV_MOUSE ) && $type !~ /mouse/i ) {
         @$this = ( $what, MouseEventType->new() );
       }
-      elsif ( ( $what & EV_KEYBOARD ) && $type ne 'KeyDownEvent' ) {
+      elsif ( ( $what & EV_KEYBOARD ) && $type !~ /keyDown/i ) {
         @$this = ( $what, KeyDownEvent->new() );
       }
-      elsif ( ( $what & EV_MESSAGE ) && $type ne 'MessageEvent' ) {
+      elsif ( ( $what & EV_MESSAGE ) && $type !~ /message/i ) {
         @$this = ( $what, MessageEvent->new() );
       }
       else {
@@ -313,21 +309,18 @@ our %FIELDS = (
     $this->[0];
   },
   mouse => sub {
-    no warnings 'uninitialized';
     my ( $this, $mouse ) = @_;
     $this->[1] = $mouse if @_ > 1;
     my $type = ref $this->[1];
     $type =~ /mouse/i ? $this->[1] : undef;
   },
   keyDown => sub {
-    no warnings 'uninitialized';
     my ( $this, $keyDown ) = @_;
     $this->[1] = $keyDown if @_ > 1;
     my $type = ref $this->[1];
     $type =~ /keyDown/i ? $this->[1] : undef;
   },
   message => sub {
-    no warnings 'uninitialized';
     my ( $this, $message ) = @_;
     $this->[1] = $message if @_ > 1;
     my $type = ref $this->[1];
@@ -345,6 +338,7 @@ sub new {    # $obj (%args)
   my $self = bless {}, $class;
   tie %$self, $class;
   my $this = tied %$self;
+  assert ( !exists $args{what} or looks_like_number $args{what} );
   if ( $args{what} & EV_MOUSE ) {
     $this->[0] = $args{what},
     $this->[1] = MouseEventType->new(
