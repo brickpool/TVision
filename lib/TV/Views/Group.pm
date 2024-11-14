@@ -23,6 +23,7 @@ use Scalar::Util qw(
   blessed
   looks_like_number
   weaken
+  isweak
 );
 
 use TV::Objects::Point;
@@ -69,7 +70,6 @@ use fields qw(
 
 # use own accessors
 use subs qw(
-  last
   current
 );
 
@@ -107,7 +107,6 @@ sub BUILD {    # void (%args)
   @$self{ keys %default } = values %default;
   $self->{options} |= OF_SELECTABLE | OF_BUFFERED;
   $self->{clip} = $self->getExtent();
-  $lock_value->( $self->{last} )    if STRICT;
   $lock_value->( $self->{current} ) if STRICT;
   return;
 } #/ sub BUILD
@@ -115,7 +114,6 @@ sub BUILD {    # void (%args)
 sub DESTROY {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $unlock_value->( $self->{last} )    if STRICT;
   $unlock_value->( $self->{current} ) if STRICT;
   $self->shutDown();
   return;
@@ -124,15 +122,15 @@ sub DESTROY {    # void ()
 sub shutDown {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  my $p = $self->last();
+  my $p = $self->{last};
   if ( $p ) {
     weaken $p;
     do {
       $p->hide();
       weaken( $p = $p->prev() );
-    } while ( $p && $p != $self->last() );
+    } while ( $p && $p != $self->{last} );
 
-    while ( $p && $self->last() ) {
+    while ( $p && $self->{last} ) {
       weaken( my $T = $p->prev() );
       $self->destroy( $p );
       weaken( $p = $T ); 
@@ -153,7 +151,7 @@ sub execView {    # $int ()
     unless $p;
 
   my $saveOptions  = $p->{options};
-  my $saveOwner    = $p->owner();
+  my $saveOwner    = $p->{owner};
   my $saveTopView  = $TheTopView;
   my $saveCurrent  = $self->current();
   my $saveCommands = TCommandSet->new();
@@ -213,19 +211,27 @@ sub insertView {    # void ($self, $p, $Target|undef)
   $p->owner( $self );
   if ( $Target ) {
     $Target = $Target->prev();
-    $p->next( $Target->next() );
+    $p->next( $Target->{next} );
     $Target->next( $p );
   }
   else {
-    if ( !$self->last() ) {
+    if ( !$self->{last} ) {
       $p->next( $p );
     }
     else {
-      $p->next( $self->last()->next() );
-      $self->last()->next( $p );
+      $p->next( $self->{last}{next} );
+      $self->{last}->next( $p );
     }
-    $self->last( $p );
+    $self->{last} = $p;
   } #/ else [ if ( $Target ) ]
+  # Note: The $p->{next} field should refer to $p, 
+  # but this could generate a cyclical reference.
+  $p = $self->{last}->prev();
+  if ( !isweak $p->{next} ) {
+    $unlock_value->( $p->{next} ) if STRICT;
+    weaken $p->{next};
+    $lock_value->( $p->{next} ) if STRICT;
+  }
   return;
 } #/ sub insertView
 
@@ -258,18 +264,27 @@ sub removeView {    # void ($p)
   my ( $self, $p ) = @_;
   assert ( blessed $self );
   assert ( blessed $p );
-  if ( $self->last() ) {
-    my $s = $self->last();
-    while ( $s->next() != $p ) {
+  if ( $self->{last} ) {
+    my $s = $self->{last};
+    while ( $s->{next} != $p ) {
       return
-        if $s->next() == $self->last();
-      $s = $s->next();
+        if $s->{next} == $self->{last};
+      $s = $s->{next};
     }
     $s->next( $p->next );
-    if ( $p == $self->last() ) {
-      $self->last( $p == $p->next() ? undef : $s );
+    if ( $p == $self->{last} ) {
+      $self->{last} = $p == $p->{next} ? undef : $s;
     }
-  } #/ if ( $self->last() )
+    # Note: The $p->{next} field should refer to $p, 
+    # but this could generate a cyclical reference.
+    $p = $self->{last}->prev() 
+      if $p != $p->{next};
+    if ( !isweak $p->{next} ) {
+      $unlock_value->( $p->{next} ) if STRICT;
+      weaken $p->{next};
+      $lock_value->( $p->{next} ) if STRICT;
+    }
+  } #/ if ( $self->{last} )
   return;
 } #/ sub removeView
 
@@ -322,15 +337,15 @@ sub firstThat {    # $view|undef (\&func, $args|undef)
   assert ( blessed $self );
   assert ( ref $func );
   assert ( @_ == 3 );
-  my $temp = $self->last();
+  my $temp = $self->{last};
   return undef
     unless $temp;
 
   do {
-    $temp = $temp->next();
+    $temp = $temp->{next};
     return $temp
       if $func->( $temp, $args );
-  } while ( $temp != $self->last() );
+  } while ( $temp != $self->{last} );
   return undef;
 } #/ sub firstThat
 
@@ -349,15 +364,15 @@ sub forEach {    # void (\&func, $args|undef)
   assert ( blessed $self );
   assert ( ref $func );
   assert ( @_ == 3 );
-  weaken( my $term = $self->last() );
-  weaken( my $temp = $self->last() );
+  weaken( my $term = $self->{last} );
+  weaken( my $temp = $self->{last} );
   return 
     unless $temp;
 
-  weaken( my $next = $temp->next() );
+  weaken( my $next = $temp->{next} );
   do {
     weaken( $temp = $next );
-    weaken( $next = $temp->next() );
+    weaken( $next = $temp->{next} );
     $func->( $temp, $args );
   } while ( $temp != $term );
   return;
@@ -379,7 +394,7 @@ sub insertBefore {    # void ($self, $p, $Target|undef)
   assert ( blessed $p );
   assert ( !defined $Target or blessed $Target );
   assert ( @_ == 3 );
-  if ( $p && !$p->owner() && ( !$Target || $Target->owner() == $self ) ) {
+  if ( $p && !$p->{owner} && ( !$Target || $Target->{owner} == $self ) ) {
     $p->{origin}{x} = ( $self->{size}{x} - $p->{size}{x} ) >> 1
       if $p->{options} & OF_CENTER_X;
     $p->{origin}{y} = ( $self->{size}{y} - $p->{size}{y} ) >> 1
@@ -411,9 +426,9 @@ sub at {    # $view|undef ($index)
   my ( $self, $index ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $index );
-  my $temp = $self->last();
+  my $temp = $self->{last};
   while ( $index-- > 0 ) {
-    $temp = $temp->next();
+    $temp = $temp->{next};
   }
   return $temp;
 } #/ sub at
@@ -425,16 +440,16 @@ sub firstMatch {    # $view|undef ($aState, $aOptions)
   assert ( looks_like_number $aState );
   assert ( looks_like_number $aOptions );
   return undef 
-    unless $self->last();
+    unless $self->{last};
 
-  my $temp = $self->last();
+  my $temp = $self->{last};
   while ( 1 ) {
     return $temp
       if ( $temp->{state} & $aState ) == $aState
       && ( $temp->{options} & $aOptions ) == $aOptions;
-    $temp = $temp->next();
+    $temp = $temp->{next};
     return undef 
-      if $temp == $self->last();
+      if $temp == $self->{last};
   }
 } #/ sub firstMatch
 
@@ -444,14 +459,14 @@ sub indexOf {    # $int ($p)
   assert ( blessed $self );
   assert ( blessed $p );
   return 0 
-    unless $self->last();
+    unless $self->{last};
 
   my $index = 0;
-  my $temp  = $self->last();
+  my $temp  = $self->{last};
   do {
     $index++;
-    $temp = $temp->next();
-  } while ( $temp != $p && $temp != $self->last() );
+    $temp = $temp->{next};
+  } while ( $temp != $p && $temp != $self->{last} );
   return $temp == $p ? $index : 0;
 } #/ sub indexOf
 
@@ -462,7 +477,7 @@ sub matches {    # $bool ($p)
 sub first {    # $view|undef ()
   my $self = shift;
   assert ( blessed $self );
-  return $self->last() ? $self->last()->next() : undef;
+  return $self->{last} ? $self->{last}{next} : undef;
 }
 
 my $doExpose = sub {    # void ($p, \$enable)
@@ -652,13 +667,13 @@ sub getData {    # void (\@rec)
   assert ( blessed $self );
   assert ( ref $rec );
   my $i = 0;
-  if ( $self->last() ) {
-    my $v = $self->last();
+  if ( $self->{last} ) {
+    my $v = $self->{last};
     do {
       $v->getData( alias [ @$rec[ $i .. $#$rec ] ] );
       $i += $v->dataSize();
       $v = $v->prev();
-    } while ( $v != $self->last() );
+    } while ( $v != $self->{last} );
   }
   return;
 } #/ sub getData
@@ -668,13 +683,13 @@ sub setData {    # void (\@rec)
   assert ( blessed $self );
   assert ( ref $rec );
   my $i = 0;
-  if ( $self->last() ) {
-    my $v = $self->last();
+  if ( $self->{last} ) {
+    my $v = $self->{last};
     do {
       $v->setData( alias [ @$rec[ $i .. $#$rec ] ] );
       $i += $v->dataSize();
       $v = $v->prev();
-    } while ( $v != $self->last() );
+    } while ( $v != $self->{last} );
   }
   return;
 } #/ sub setData
@@ -749,8 +764,8 @@ sub eventError {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  if ( $self->owner() ) {
-    $self->owner()->eventError( $event );
+  if ( $self->{owner} ) {
+    $self->{owner}->eventError( $event );
   }
   return;
 }
@@ -800,19 +815,6 @@ sub getBuffer {    # void ()
   return;
 } #/ sub getBuffer
 
-sub last {    # $view (|$view|undef)
-  my ( $self, $view ) = @_;
-  assert ( blessed $self );
-  assert ( !defined $view or blessed $view );
-  if ( @_ == 2 ) {
-    $unlock_value->( $self->{last} ) if STRICT;
-    weaken $self->{last} 
-      if $self->{last} = $view;
-    $lock_value->( $self->{last} ) if STRICT;
-  }
-  return $self->{last};
-} #/ sub last
-
 $invalid = sub {    # $bool ($p, $command)
   ...
 };
@@ -841,7 +843,7 @@ $findNext = sub {
   my $result = undef;
   if ( $p ) {
     do {
-      $p = $forwards ? $p->next() : $p->prev();
+      $p = $forwards ? $p->{next} : $p->prev();
     } while (
       !(
         ( ( $p->{state} & ( SF_VISIBLE | SF_DISABLED ) ) == SF_VISIBLE )

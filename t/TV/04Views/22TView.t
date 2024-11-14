@@ -26,7 +26,7 @@ BEGIN {
   use TV::Objects::Rect;
   require TV::Views::View;
   use base 'TV::Views::View';
-  use fields qw( clip );
+  use fields qw( last clip );
 
   sub BUILD { 
     my $self = shift;
@@ -34,7 +34,6 @@ BEGIN {
     return;
   }
   sub drawSubViews { }
-  sub last         { undef }
   $INC{"MyOwner.pm"} = 1;
 }
 

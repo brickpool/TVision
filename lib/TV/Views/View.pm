@@ -24,8 +24,6 @@ use List::Util qw( min max );
 use Scalar::Util qw( 
   blessed 
   weaken
-  unweaken
-  isweak
   looks_like_number
   readonly
 );
@@ -178,9 +176,9 @@ sub sizeLimits {    # void ($min, $max)
   assert ( blessed $min );
   assert ( blessed $max );
   $min->{x} = $min->{y} = 0;
-  if ( !( $self->{growMode} & GF_FIXED ) && $self->owner() ) {
-    $max->{x} = $self->owner()->{size}{x};
-    $max->{y} = $self->owner()->{size}{y};
+  if ( !( $self->{growMode} & GF_FIXED ) && $self->{owner} ) {
+    $max->{x} = $self->{owner}{size}{x};
+    $max->{y} = $self->{owner}{size}{y};
   }
   else {
     $max->{x} = $max->{y} = INT_MAX;
@@ -212,8 +210,8 @@ sub getClipRect {    # $rect ()
   my $self = shift;
   assert ( blessed $self );
   my $clip = $self->getBounds();
-  if ( $self->owner() ) {
-    $clip->intersect( $self->owner()->{clip} );
+  if ( $self->{owner} ) {
+    $clip->intersect( $self->{owner}{clip} );
   }
   $clip->move( -$self->{origin}{x}, -$self->{origin}{y} );
   return $clip;
@@ -256,7 +254,7 @@ sub locate {    # void ($bounds)
   my $r = $self->getBounds();
   if ( $bounds != $r ) {
     $self->changeBounds( $bounds );
-    if ( $self->owner() && ( $self->{state} & SF_VISIBLE ) ) {
+    if ( $self->{owner} && ( $self->{state} & SF_VISIBLE ) ) {
       if ( $self->{state} & SF_SHADOW ) {
         $r->Union( $bounds );
         $r->{b} += $shadowSize;
@@ -402,7 +400,7 @@ sub calcBounds {    # void ($bounds, $delta);
 
   $bounds = $self->getBounds();
 
-  $s = $self->owner()->{size}{x};
+  $s = $self->{owner}{size}{x};
   $d = $delta->{x};
 
   if ( $self->{growMode} & GF_GROW_LO_X ) {
@@ -413,7 +411,7 @@ sub calcBounds {    # void ($bounds, $delta);
     $grow->( $bounds->{b}{x} );
   }
 
-  $s = $self->owner()->{size}{y};
+  $s = $self->{owner}{size}{y};
   $d = $delta->{y};
 
   if ( $self->{growMode} & GF_GROW_LO_Y ) {
@@ -546,12 +544,12 @@ sub focus {    # $bool ()
   my $result = !!1;
 
   if ( !( $self->{state} & ( SF_SELECTED | SF_MODAL ) ) ) {
-    if ( $self->owner() ) {
-      $result = $self->owner()->focus();
+    if ( $self->{owner} ) {
+      $result = $self->{owner}->focus();
       if ( $result ) {
-        if ( !$self->owner()->{current}
-          || !( $self->owner()->{current}{options} & OF_VALIDATE )
-          || $self->owner()->{current}->valid( CM_RELEASED_FOCUS ) )
+        if ( !$self->{owner}{current}
+          || !( $self->{owner}{current}{options} & OF_VALIDATE )
+          || $self->{owner}{current}->valid( CM_RELEASED_FOCUS ) )
         {
           $self->select();
         }
@@ -559,7 +557,7 @@ sub focus {    # $bool ()
           return !!0;
         }
       } #/ if ( $result )
-    } #/ if ( $self->owner() )
+    } #/ if ( $self->{owner} )
   } #/ if ( !( $self->{state}...))
   return $result;
 } #/ sub focus
@@ -599,9 +597,9 @@ sub drawUnderRect {    # void ($r, $lastView|undef)
   assert ( blessed $r );
   assert ( !defined $lastView or blessed $lastView );
   assert ( @_ == 3 );
-  $self->owner()->{clip}->intersect( $r );
-  $self->owner()->drawSubViews( $self->nextView(), $lastView );
-  $self->owner()->{clip} = $self->owner()->getExtent();
+  $self->{owner}{clip}->intersect( $r );
+  $self->{owner}->drawSubViews( $self->nextView(), $lastView );
+  $self->{owner}{clip} = $self->{owner}->getExtent();
   return;
 }
 
@@ -710,8 +708,8 @@ sub getEvent {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  if ( $self->owner() ) {
-    $self->owner()->getEvent( $event );
+  if ( $self->{owner} ) {
+    $self->{owner}->getEvent( $event );
   }
   return;
 }
@@ -736,8 +734,8 @@ sub putEvent {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  $self->owner()->putEvent( $event )
-    if $self->owner();
+  $self->{owner}->putEvent( $event )
+    if $self->{owner};
   return;
 }
 
@@ -870,7 +868,7 @@ sub mapColor {    # $int ($color)
       return $errorAttr
         unless $color;
     }
-    $cur = $cur->owner();
+    $cur = $cur->{owner};
   } while ( $cur );
 
   return $color;
@@ -891,8 +889,8 @@ sub select {    # void ()
   if ( $self->{options} & OF_TOP_SELECT ) {
     $self->makeFirst();
   }
-  elsif ( $self->owner() ) {
-    $self->owner()->setCurrent( $self, NORMAL_SELECT );
+  elsif ( $self->{owner} ) {
+    $self->{owner}->setCurrent( $self, NORMAL_SELECT );
   }
   return;
 } #/ sub select
@@ -912,11 +910,11 @@ sub setState {    # void ($aState, $enable)
   }
 
   return
-    unless $self->owner();
+    unless $self->{owner};
 
   SWITCH: for ( $aState ) {
     $_ == SF_VISIBLE and do {
-      if ( $self->owner()->{state} & SF_EXPOSED ) {
+      if ( $self->{owner}{state} & SF_EXPOSED ) {
         $self->setState( SF_EXPOSED, $enable );
       }
       if ( $enable ) {
@@ -926,7 +924,7 @@ sub setState {    # void ($aState, $enable)
         $self->drawHide( undef );
       }
       if ( $self->{options} & OF_SELECTABLE ) {
-        $self->owner()->resetCurrent();
+        $self->{owner}->resetCurrent();
       }
       last;
     };
@@ -941,7 +939,7 @@ sub setState {    # void ($aState, $enable)
     $_ == SF_FOCUSED and do {
       $self->resetCursor();
       message(
-        $self->owner(),
+        $self->{owner},
         EV_BROADCAST,
         $enable ? CM_RECEIVED_FOCUS : CM_RELEASED_FOCUS,
         $self
@@ -980,8 +978,8 @@ sub makeGlobal {    # $point ($source)
   assert ( blessed $source );
   my $temp = $source + $self->{origin};
   my $cur  = $self;
-  while ( $cur->owner() ) {
-    $cur = $cur->owner();
+  while ( $cur->{owner} ) {
+    $cur = $cur->{owner};
     $temp += $cur->{origin};
   }
   return $temp;
@@ -993,8 +991,8 @@ sub makeLocal {    # $point ($source)
   assert ( blessed $source );
   my $temp = $source - $self->{origin};
   my $cur  = $self;
-  while ( $cur->owner() ) {
-    $cur = $cur->owner();
+  while ( $cur->{owner} ) {
+    $cur = $cur->{owner};
     $temp -= $cur->{origin};
   }
   return $temp;
@@ -1004,9 +1002,9 @@ sub nextView {    # $view|undef ()
   no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
-  return $self->next()
-    if $self->owner() 
-    && $self != $self->owner()->last();
+  return $self->{next}
+    if $self->{owner}
+    && $self != $self->{owner}{last};
   return undef;
 }
 
@@ -1015,8 +1013,8 @@ sub prevView {    # $view|undef ()
   my $self = shift;
   assert ( blessed $self );
   return $self->prev()
-    if $self->owner() 
-    && $self != $self->owner()->first();
+    if $self->{owner} 
+    && $self != $self->{owner}->first();
   return undef;
 }
 
@@ -1025,44 +1023,11 @@ sub prev {    # $view|undef ()
   my $self = shift;
   assert ( blessed $self );
   my $res = $self;
-  while ( $res && $res->next() != $self ) {
-    $res = $res->next();
+  while ( $res && $res->{next} != $self ) {
+    $res = $res->{next};
   }
   return $res;
 }
-
-my $strongCyclicRef = sub {
-  my $self = shift;
-  my $p = $self;
-  while ( $p->{next} && $p->{next} != $self ) {
-    if ( isweak $p->{next} ) {
-      $unlock_value->( $p->{next} ) if STRICT;
-      # warn sprintf("unweaken %d", $p->{next});
-      unweaken $p->{next};
-      $lock_value->( $p->{next} ) if STRICT;
-      last;
-    }
-    $p = $p->{next};
-  }
-  return;
-};
-
-my $weakenCyclicRef = sub {
-  my $self = shift;
-  my %seen;
-  my $p = $self;
-  while ( $p->{next} && $p->{next} != $self ) {
-    if ( $seen{ 0+ $p->{next} }++ ) {
-      $unlock_value->( $p->{next} ) if STRICT;
-      # warn sprintf("weaken %d", $p->{next});
-      weaken $p->{next};
-      $lock_value->( $p->{next} ) if STRICT;
-      last;
-    }
-    $p = $p->{next};
-  }
-  return;
-};
 
 sub next {    # $view (|$view|undef)
   my ( $self, $view ) = @_;
@@ -1070,14 +1035,7 @@ sub next {    # $view (|$view|undef)
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {
     $unlock_value->( $self->{next} ) if STRICT;
-    if ( $view ) {
-      $self->$strongCyclicRef();
-      $self->{next} = $view;
-      $self->$weakenCyclicRef();
-    } 
-    else {
-      $self->{next} = undef;
-    }
+    $self->{next} = $view;
     $lock_value->( $self->{next} ) if STRICT;
   }
   return $self->{next};
@@ -1086,8 +1044,8 @@ sub next {    # $view (|$view|undef)
 sub makeFirst {    # $void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->putInFrontOf( $self->owner()->first() ) 
-    if $self->owner();
+  $self->putInFrontOf( $self->{owner}->first() ) 
+    if $self->{owner};
   return;
 }
 
@@ -1097,14 +1055,14 @@ sub putInFrontOf {    # void ($target|undef)
   assert ( blessed $self );
   assert ( @_ == 2 );
 
-  if ( $self->owner()
+  if ( $self->{owner}
     && $target != $self
     && $target != $self->nextView()
-    && ( !$target || $target->owner() == $self->owner() ) )
+    && ( !$target || $target->{owner} == $self->{owner} ) )
   {
     if ( !( $self->{state} & SF_VISIBLE ) ) {
-      $self->owner()->removeView( $self );
-      $self->owner()->insertView( $self, $target );
+      $self->{owner}->removeView( $self );
+      $self->{owner}->insertView( $self, $target );
     }
     else {
       my $lastView = $self->nextView();
@@ -1117,15 +1075,15 @@ sub putInFrontOf {    # void ($target|undef)
       $self->{state} &= ~SF_VISIBLE;
       $self->drawHide( $lastView )
         if $lastView == $target;
-      $self->owner()->removeView( $self );
-      $self->owner()->insertView( $self, $target );
+      $self->{owner}->removeView( $self );
+      $self->{owner}->insertView( $self, $target );
       $self->{state} |= SF_VISIBLE;
       $self->drawShow( $lastView )
         if $lastView != $target;
-      $self->owner()->resetCurrent()
+      $self->{owner}->resetCurrent()
         if $self->{options} & OF_SELECTABLE;
     } #/ else [ if ( !( $self->{state}...))]
-  } #/ if ( $self->owner() &&...)
+  } #/ if ( $self->{owner} &&...)
   return;
 } #/ sub putInFrontOf
 
@@ -1137,7 +1095,7 @@ sub TopView {    # $view ()
 
   my $p = $self;
   while ( $p && !( $p->{state} & SF_MODAL ) ) {
-    $p = $p->owner();
+    $p = $p->{owner};
   }
   return $p;
 } #/ sub TopView
@@ -1232,8 +1190,8 @@ sub shutDown {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $self->hide();
-  if ( $self->owner() ) {
-    $self->owner()->remove( $self );
+  if ( $self->{owner} ) {
+    $self->{owner}->remove( $self );
   }
   $self->SUPER::shutDown();
   return;
