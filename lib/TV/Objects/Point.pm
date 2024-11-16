@@ -26,25 +26,10 @@ use Scalar::Util qw(
 
 sub TPoint() { __PACKAGE__ }
 
-my @ATTRIBUTES = qw( x y );
-
-for my $attr ( @ATTRIBUTES ) {
-  my $getset = sub {
-    my $self = shift;
-    assert( blessed $self );
-    if ( @_ ) {
-      my $value = shift;
-      assert( looks_like_number $value );
-      $self->{$attr} = $value;
-    }
-    return $self->{$attr};
-  }; #/ $getset = sub
-
-  {
-    no strict 'refs';
-    *{$attr} = $getset;
-  }
-} #/ for my $attr ( @ATTRIBUTES)
+our %FIELDS = (
+  x => 1,
+  y => 1,
+);
 
 sub new {    # $obj (%args)
   no warnings 'uninitialized';
@@ -123,5 +108,23 @@ use overload
   '+=' => \&add_assign,
   '-=' => \&subtract_assign,
   fallback => 1;
+
+my $_mk_accessors = sub {
+  my $pkg = shift;
+  for my $field ( keys %FIELDS ) {
+    no strict 'refs';
+    my $fullname = "${pkg}::$field";
+    *$fullname = sub {
+      assert( blessed $_[0] );
+      if ( @_ > 1 ) {
+        assert( looks_like_number $_[1] );
+        $_[0]->{$field} = $_[1];
+      }
+      $_[0]->{$field};
+    };
+  } #/ for my $field ( keys %FIELDS)
+}; #/ $_mk_accessors = sub
+
+__PACKAGE__->$_mk_accessors();
 
 1

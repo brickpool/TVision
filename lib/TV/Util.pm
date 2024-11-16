@@ -16,6 +16,7 @@ our @EXPORT_OK = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Module::Loaded qw( is_loaded );
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -51,5 +52,21 @@ sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
     return undef;
   }
 } #/ sub message
+
+our $toolkit;
+BEGIN {
+  $toolkit = 'PP';
+  foreach ( 'fields', 'Class::Tiny', 'Moo', 'Moose' ) {
+    if ( is_loaded $_ ) {
+      $toolkit = $_;
+      last;
+    }
+  }
+
+  sub TV::toolkit::fields    (){ $toolkit eq 'fields'      }
+  sub TV::toolkit::ClassTiny (){ $toolkit eq 'Class::Tiny' }
+  sub TV::toolkit::Moo       (){ $toolkit eq 'Moo'         }
+  sub TV::toolkit::Moose     (){ $toolkit eq 'Moose'       }
+}
 
 1

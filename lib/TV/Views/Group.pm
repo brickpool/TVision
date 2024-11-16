@@ -91,10 +91,10 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILD {    # void (%args)
-  my ( $self, %args ) = @_;
+sub BUILD {    # void (| $args)
+  my ( $self, $args ) = @_;
   assert ( blessed $self );
-  assert ( ref $args{bounds} );
+  assert ( defined $self->{options} );
   my %default = (
     last      => undef,
     phase     => PH_FOCUSED,
@@ -104,9 +104,11 @@ sub BUILD {    # void (%args)
     endState  => 0,
     eventMask => 0xffff,
   );
-  @$self{ keys %default } = values %default;
+  map { $self->{$_} = $default{$_} }
+    grep { !defined $self->{$_} }
+      keys %default;
   $self->{options} |= OF_SELECTABLE | OF_BUFFERED;
-  $self->{clip} = $self->getExtent();
+  $self->{clip} ||= $self->getExtent();
   $lock_value->( $self->{current} ) if STRICT;
   return;
 } #/ sub BUILD

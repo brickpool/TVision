@@ -39,25 +39,10 @@ use Scalar::Util qw(
 
 sub TRect() { __PACKAGE__ }
 
-my @ATTRIBUTES = qw( a b );
-
-for my $attr ( @ATTRIBUTES ) {
-  my $getset = sub {
-    my $self = shift;
-    assert( blessed $self );
-    if ( @_ ) {
-      my $value = shift;
-      assert( blessed $value );
-      $self->{$attr} = $value->clone();
-    }
-    return $self->{$attr};
-  }; #/ $getset = sub
-
-  {
-    no strict 'refs';
-    *{$attr} = $getset;
-  }
-} #/ for my $attr ( @ATTRIBUTES)
+our %FIELDS = (
+  a => 1,
+  b => 1,
+);
 
 # This method creates a new I<TRect> object. It accepts a variable number of 
 # arguments:
@@ -186,5 +171,23 @@ use overload
   '==' => \&equal,
   '!=' => \&not_equal,
   fallback => 1;
+
+my $_mk_accessors = sub {
+  my $pkg = shift;
+  for my $field ( keys %FIELDS ) {
+    no strict 'refs';
+    my $fullname = "${pkg}::$field";
+    *$fullname = sub {
+      assert( blessed $_[0] );
+      if ( @_ > 1 ) {
+        assert( blessed $_[1] );
+        $_[0]->{$field} = $_[1]->clone();
+      }
+      $_[0]->{$field};
+    };
+  } #/ for my $field ( keys %FIELDS)
+}; #/ $_mk_accessors = sub
+
+__PACKAGE__->$_mk_accessors();
 
 1

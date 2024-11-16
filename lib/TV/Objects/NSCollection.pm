@@ -72,8 +72,8 @@ my (
   $freeItem,
 );
 
-sub BUILD {    # void (%args)
-  my ( $self, %args ) = @_;
+sub BUILD {    # void (| $args)
+  my ( $self, $args ) = @_;
   assert( blessed $self );
   my %default = (
     items        => [],
@@ -82,12 +82,10 @@ sub BUILD {    # void (%args)
     delta        => 0,
     shouldDelete => !!1,
   );
-  @$self{ keys %default } = values %default;
-  if ( keys( %args ) == 2 ) {
-    no warnings 'uninitialized';
-    $self->{delta} = 0+ $args{delta};
-    $self->setLimit( 0+ $args{limit} );
-  }
+  map { $self->{$_} = $default{$_} }
+    grep { !defined $self->{$_} }
+      keys %default;
+  $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD
 

@@ -138,10 +138,10 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILD {    # void (%args)
-  my ( $self, %args ) = @_;
+sub BUILD {    # void (| $args)
+  my ( $self, $args ) = @_;
   assert( blessed $self );
-  assert( ref $args{bounds} );
+  assert( blessed $args->{bounds} );
   my %default = (
     owner     => undef,
     next      => undef,
@@ -155,10 +155,12 @@ sub BUILD {    # void (%args)
     origin    => TPoint->new(),
     cursor    => TPoint->new(), # $cursor->{x} = $cursor->{y} = 0;
   );
-  @$self{ keys %default } = values %default;
+  map { $self->{$_} = $default{$_} }
+    grep { !defined $self->{$_} }
+      keys %default;
   $lock_value->( $self->{owner} ) if STRICT;
   $lock_value->( $self->{next} )  if STRICT;
-  $self->setBounds( $args{bounds} );
+  $self->setBounds( $args->{bounds} );
   return;
 } #/ sub BUILD
 

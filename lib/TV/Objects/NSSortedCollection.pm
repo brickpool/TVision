@@ -51,14 +51,14 @@ use base TNSCollection;
 alias our %ITEMS = %TV::Objects::NSCollection::ITEMS;
 
 # predeclare attributes
-use fields  qw(
+use fields qw(
   duplicates
 );
 
-sub BUILD {    # void (%args)
+sub BUILD {    # void (| $args)
   my $self = shift;
   assert ( blessed $self );
-  $self->{duplicates} = !!0;
+  $self->{duplicates} ||= !!0;
   return;
 }
 
