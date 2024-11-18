@@ -12,8 +12,6 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-use TV::Util;
-
 sub TDeskInit() { __PACKAGE__ }
 
 # predeclare attributes
@@ -28,7 +26,7 @@ use subs qw(
 
 {
   require TV::Objects::Object;
-  *mk_accessors = \&TV::Objects::Object::mk_rw_accessors;
+  *mk_accessors = \&TV::Objects::Object::mk_accessors;
   *mk_constructor = \&TV::Objects::Object::mk_constructor;
 }
 

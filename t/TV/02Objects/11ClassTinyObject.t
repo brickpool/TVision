@@ -12,7 +12,7 @@ BEGIN{
     plan tests => 10;
   }
   use_ok 'Class::Tiny';
-  use_ok "TV::Objects::Object";
+  use_ok 'TV::Objects::Object';
 }
 
 BEGIN {

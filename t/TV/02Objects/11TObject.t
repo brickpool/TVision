@@ -7,7 +7,7 @@ use Hash::Util;
 
 BEGIN {
   use_ok 'fields';
-  use_ok "TV::Objects::Object";
+  use_ok 'TV::Objects::Object';
 }
 
 BEGIN {

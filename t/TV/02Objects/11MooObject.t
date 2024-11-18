@@ -12,7 +12,7 @@ BEGIN{
     plan tests => 10;
   }
   use_ok 'Moo';
-  use_ok "TV::Objects::Object";
+  use_ok 'TV::Objects::Object';
 }
 
 BEGIN {
