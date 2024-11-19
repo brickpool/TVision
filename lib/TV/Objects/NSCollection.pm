@@ -72,7 +72,7 @@ my (
   $freeItem,
 );
 
-sub BUILD {    # void (| $args)
+sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert( blessed $self );
   my %default = (

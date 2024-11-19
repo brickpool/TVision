@@ -138,7 +138,7 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILD {    # void (| $args)
+sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert( blessed $self );
   assert( blessed $args->{bounds} );
@@ -844,10 +844,11 @@ sub getColor {    # $int ($color)
   return $colorPair;
 } #/ sub getColor
 
-my $palette = TPalette->new( data => "\0", size => 0 );
+my $palette; 
 sub getPalette {    # $palette ()
   my $self = shift;
   assert ( blessed $self );
+  $palette ||= TPalette->new( data => "\0", size => 0 );
   return $palette->clone();
 }
 

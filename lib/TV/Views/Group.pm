@@ -91,7 +91,7 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILD {    # void (| $args)
+sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   assert ( defined $self->{options} );

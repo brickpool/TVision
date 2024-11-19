@@ -55,7 +55,7 @@ use fields qw(
   duplicates
 );
 
-sub BUILD {    # void (| $args)
+sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{duplicates} ||= !!0;

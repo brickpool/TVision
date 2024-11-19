@@ -40,14 +40,14 @@ sub BUILDARGS {    # \%args (\&cBackground)
   return { createBackground => $cBackground };
 }
 
-sub BUILD {    # void (| $args)
+sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   assert ( ref $self->{createBackground} eq 'CODE' );
   return;
 }
 
-sub createBackground { # $background ($r)
+sub createBackground {    # $background ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
   assert ( blessed $r );
