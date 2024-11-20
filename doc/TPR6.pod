@@ -1,0 +1,1513 @@
+=head1 CHAPTER 6
+
+Chapter 6 of the Turbo Pascal Reference - The Turbo Vision Reference
+
+=head2 Important note for use
+
+This material is used under the Fair Use doctrine for educational and 
+non-commercial purposes. The original text is copyrighted, and all rights are 
+retained by the author. The material is provided "as is" without warranty of 
+any kind. 
+
+Please note the following preliminary remark from Ed Mitchell:
+
+    This chapter is part of the Turbo Pascal Reference electronic freeware book 
+    (C) Copyright 1992 by Ed Mitchell. 
+
+    This freeware book contains supplementary material to Borland Pascal 
+    Developer's Guide, published by Que Corporation, 1992. 
+    
+    However, Que Corporation has no affiliation with nor responsibility for the 
+    content of this free book. 
+    
+    Please see Chapter 1 of the Turbo Pascal Reference for important information
+    about your right to distribute and use this material freely. 
+    
+    If you find this material of use, I would appreciate your purchase of one my
+    books, such as the Borland Pascal Developer's Guide or Secrets of the 
+    Borland C++ Masters, Sams Books, 1992. 
+    
+    Thank you.
+
+For additional information on using Turbo Vision, including a detailed
+tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
+Guide.
+
+=head2 About the Turbo Vision Reference
+
+The Turbo Vision Reference contains an alphabetized list of all Turbo Vision
+objects, global variables, subroutines, functions, types and constants. This
+reference is substantially different than Borland's reference because:
+
+=over 4
+
+=item 1. 
+Where possible, example code that actually uses the object type is
+shown. Borland's documentation generally does not show sample code within their
+Reference on Turbo Vision.
+
+=item 2. 
+The reference includes all Turbo Vision features, including object
+types, types, constants, variables, subroutines and functions. All are grouped
+together in one alphabetized section, unlike Borland's reference, where you
+must look in several sections to find the desired item.
+
+=item 3. 
+Most importantly, I have highlighted the methods that you are most
+likely to use within each object type. A problem with reading Borland's
+documentation is that they present each object type followed by all twenty to
+fifty possible methods within the object type. In real applications, though,
+you may only need to concern yourself with perhaps five to ten methods. Some of
+the variables and subroutines are only useful to the underlying implementation
+of Turbo Vision and may not be particularly useful to your applications.
+Nonetheless, these internal subroutines, where available, are included in the
+Reference and are designated as "internal" subroutines.
+
+=back
+
+When reading the Reference entries, keep in mind that since Turbo Vision
+objects are themselves usually derived from other Turbo Vision objects, it can
+be difficult to locate the definition of a particular method. For example, you
+may see a subroutine call such as,
+
+    $shell->redraw();
+
+where $shell is derived from TApplication. You will need to look at the
+description of TProgram from which TApplication is derived, and then back to
+TView where you will finally locate the redraw method.
+
+=head2 Naming Conventions
+
+Turbo Vision uses standardized naming conventions as an aid to making source
+code readable. The most important conventions are:
+
+=over 4
+
+=item 1. 
+Type declarations begin with a capital letter C<T>.
+
+=item 2. 
+Registration records for stream I/O begin with a capital letter C<R>.
+
+=item 3. 
+Identifiers beginning with lower case letters are standard Turbo Vision 
+constants. The following table shows the standard constant prefix characters:
+
+=back
+
+=head3 Prefix Definitions
+
+=over 4
+
+=item ap - Application palette
+
+=item bf - Button flag
+
+=item cp - Color palettes
+
+=item cm - Command constant
+
+=item co - Collection codes
+
+=item dm - Drag mode
+
+=item ev - Event constant
+
+=item gf - Grow mode flag
+
+=item hc - Help context
+
+=item kb - Keyboard code constant
+
+=item mb - Mouse button constant
+
+=item of - Option flag
+
+=item R - Registration record
+
+=item sb - Scroll bar
+
+=item sf - State flag
+
+=item sm - Screen mode constant
+
+=item st - Stream code
+
+=item T - Object type
+
+=item wf - Window flags
+
+=item wp - Window color palettes
+
+=back
+
+=head2 The Turbo Vision Object Hierarchy
+
+All Turbo Vision objects are descended from the TObject type. All displayable
+objects are descendants of TView (which is itself descended from TObject).
+Displayable objects include items such as dialogs, check boxes, buttons,
+windows and list boxes. Non-displayable objects are the TCollection, TStream,
+TResourceFile, TStringList and TStrListMaker data structure objects. The line
+of descent shown in the illustration below identifies how functionality is
+inherited between the objects. For example, TDialog is descended from TWindow
+and inherits functionality from the TWindow object.
+
+Illustration showing inheritance relationships between the Turbo Vision object 
+types
+
+    TObject
+        TView
+            TBackground
+            TButton
+            TCluster
+                TCheckBoxes
+                TRadioButtons
+            TFrame
+            TGroup
+            TProgram
+                TApplication
+            TDeskTop
+            TWindow
+                TDialog
+                THistoryWindow
+            THistory
+            TInputLine
+            TListViewer
+                TListBox
+                THistoryViewer
+            TMenuView
+                TMenuBar
+                TMenuBox
+            TScroller
+                TTextDevice
+                TTerminal
+            TScrollBar
+            TStaticText
+                TLabel
+                TParamText
+            TStatusLine
+        TCollection
+            TSortedCollection
+            TStringCollection
+            TResourceCollection
+        TStream
+            TDosStream
+                TBufStream
+            TEmsStream
+        TResourceFile
+        TStringList
+        TStrListMaker
+
+=head2 Turbo Vision Object Descriptions
+
+The following reference section contains each subroutine, function, variable,
+type and constant declaration defined in Turbo Vision, plus each of the primary
+Turbo Vision objects. For the object descriptions, the information is organized
+into sections:
+
+=head3 Turbo Vision Hierarchy
+
+This section displays the derivation order of each object to help you
+understand how functionality has been inherited from parent to descendant. For
+example, the TMenuBar object's derivation is indicated by this drawing:
+
+    TObject
+        TView
+            TMenuView
+                TMenuBar
+
+This shows that TMenuBar is a descendant of TMenuView, which is a descendant of
+TView, which is a descendant of TObject.
+
+=head3 Discussion
+
+A brief overview of the purpose of each object is given in this section.
+
+=head3 Commonly Used Features
+
+This section summarizes the primary methods that your applications will likely
+use so that you will not need to spend much time attempting to understand the
+other facilities of the object. Many Turbo Vision objects have a large variety
+of fields and methods available for use. However, many of these are needed only
+for the implementation of Turbo Vision itself, and in most practical
+applications you will only need to reference a small selection of the fields
+and methods.
+
+=head3 Example
+
+Where appropriate, a typical example usage of the object is given here.
+
+=head3 fields
+
+Each field is described. After the field's definition, a comment indicating 
+{ Read only } or { Read/Write } indicates whether or not it's okay to directly
+access this field.
+
+=head3 Methods
+
+Every method defined for the object is presented in this section. Generally,
+more details are provided for those methods you are actually likely to use,
+than for methods that are primarily of interest to understanding the internal
+implementation of Turbo Vision.
+
+=head2 $application
+
+variable
+
+=head3 Declaration
+
+    our $application = undef;
+
+=head3 Module
+
+    TV::App::Program
+
+=head3 Purpose
+
+TApplication->new, via TProgram->BUILD, sets $application to $self, hence,
+$application points to the application object. TProgram->DESTROY resets
+$application to undef.
+
+=head2 $appPalette
+
+variable
+
+=head3 Declaration
+
+    our $appPalette = apColor;
+
+=head3 Module
+
+    TV::App::Program
+
+=head3 Purpose
+
+Holds the current application color palette selection (either apColor,
+apBlackWhite or apMonoChrome). 
+
+B<See>: TView->setScreenMode, apXXXX constants
+
+=head2 apXXXX
+
+Application Palette constants
+
+=head3 Module
+
+    TV::App::Const
+
+=head3 Purpose
+
+These values are kept in $appPalette, indicating which application color palette
+is in use.
+
+    Constant    Value   Usage
+    apColor         0   Selects color screen palette
+    apBlackWhite    1   Selects black & white palette
+    apMonoChrome    2   Selects the monochrome screen palette
+
+B<See>: appPalette
+
+=head2 bfXXXX
+
+Button Flags constants
+
+=head3 Module
+
+    TV::Dialogs
+
+=head3 Purpose
+
+The bfXXXX values are passed as a bit mask to TButton->new and specify button
+attributes, as shown in the table:
+
+    Constant    Value   Usage
+    bfNormal     0x00   non-default button
+    bfDefault    0x01   This will be the default button
+    bfLeftAdjust 0x02   If OR'd with either bfNormal or bfDefault, 
+                        the button label will be left justified instead of 
+                        centered.
+    bfBroadcast  0x04   If this bit is set, when a button is pressed, TButton
+                        sends an evBroadcast message. If not set, TButton 
+                        inserts a new event with putEvent.
+
+B<Caution>: It's up to the programmer to ensure that each TGroup entity (TDialog
+is descended from TGroup) has only one default button.
+
+B<See>: Example code in Chapter 11, "Turbo Vision Tutorial" in the Borland 
+Pascal Developer's Guide, also see TButton->flags, TButton->makeDefault
+
+=head2 $buttonCount
+
+variable
+
+=head3 Declaration
+
+    our $buttonCount = 0;
+
+=head3 Module
+
+    TV::Drivers::HWMouse
+
+=head3 Purpose
+
+If a mouse is installed, $buttonCount holds the number of buttons on the mouse.
+If zero, then no mouse is installed. Check the value of $buttonCount when your
+program needs to know if a mouse is installed.
+
+=head2 $checkSnow
+
+variable
+
+=head3 Declaration
+
+    our $checkSnow = !!1;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+If a CGA adaptor is detected, Turbo Vision sets checkSnow to TRUE. Older CGA
+video adaptor cards require special programming to avoid "snow" or static-like
+lines on the display. If the CGA video adaptor does not require snow checking,
+the program may set checkSnow to FALSE, resulting in faster output to the
+screen. Do not set or check checkSnow until after calling TApplication->new.
+
+=head2 cpXXXX
+
+Color Palette constants
+
+See "Using Color Palettes" in chapter 13, "More Turbo Vision Features" in the
+Borland Pascal Developer's Guide for complete details regarding use of the
+color palettes. Except for cpColor, cpBlackWhite and cpMonoChrome, all of the
+color palette constants contain indices into their owner's palette. For cpColor,
+cpBlackWhite and cpMonoChrome, each entry contains an actual BIOS video color
+attribute byte.
+
+You can use these color palette maps to determine what color a particular
+object or component will have when it appears on the screen. For example, if
+you place a TButton object into a TDialog object, you can trace through the
+color palettes to determine what color it will have. A "normal" button will
+have the attribute "Text Normal" shown in the first byte of the cpButton color
+palette. This color entry is an index into its owner's palette, cpDialog.
+Looking at the 10th entry of cpDialog, we see that this maps to entry 41 in the
+application-level palette. In the case of cpColor (color display in use), this
+corresponds to black lettering on a green background.
+
+=head3 cpBackground
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Background      1           Application palettes
+
+=head3 cpButton
+
+    Byte Usage              Maps to     On this palette
+    [ 1] Text Normal        10          cpDialog palette
+    [ 2] Text Default       11          
+    [ 3] Text Selected      12
+    [ 4] Text Disabled      13
+    [ 5] Shortcut Normal    14
+    [ 6] Shortcut Default   14
+    [ 7] Shortcut Selected  14
+    [ 8] Shadow             15
+
+=head3 cpCluster
+
+B<Note>: used for TRadioButtons and TCheckBoxes
+
+    Byte Usage              Maps to     On this palette
+    [ 1] Text Normal        16          cpDialog
+    [ 2] Text Selected      17
+    [ 3] Shortcut Normal    18
+    [ 4] Shortcut Selected  18
+
+=head3 cpDialog
+
+    Byte Usage                  Maps to     On this palette
+    [ 1] Frame Passive          32          Application palettes
+    [ 2] Frame Active           33
+    [ 3] Frame Icon             34
+    [ 4] Scrollbar Page         35
+    [ 5] Scrollbar controls     36
+    [ 6] StaticText             37
+    [ 7] Label Normal           38
+    [ 8] Label Highlight        39
+    [ 9] Label Shortcut         40
+    [10] Button Normal          41
+    [11] Button Default         42
+    [12] Button Selected        43
+    [13] Button Disabled        44
+    [14] Button Shortcut        45
+    [15] Button Shadow          46
+    [16] Cluster Normal         47
+    [17] Cluster Selected       48
+    [18] Cluster Shortcut       49
+    [19] InputLine Normal       50
+    [20] InputLine Selected     51
+    [21] InputLine Arrows       52
+    [22] History Arrows         53
+    [23] History sides          54
+    [24] HistoryWindow
+         Scrollbar page         55
+    [25] HistoryWindow
+         Scrollbar controls     56
+    [26] ListViewer Normal      57
+    [27] ListViewer Focused     58
+    [28] ListViewer Selected    59
+    [29] ListViewer Divided     60
+    [30] InfoPane               61
+    [31] Reserved               62
+    [32] Reserved               63
+        
+=head3 cpFrame
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Passive frame   1           Standard window palettes
+    [ 2] Passive Title   1
+    [ 3] Active Frame    2
+    [ 4] Active Title    2
+    [ 5] Icons
+
+=head3 cpHistory
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Arrow           14          cpDialog palette
+    [ 2] Sides           20
+
+=head3 cpHistoryViewer
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Active          6           cpDialog palette
+    [ 2] Inactive        6
+    [ 3] Focused         7
+    [ 4] Selected        6
+    [ 5] Divider         6
+
+=head3 cpHistoryWindow
+
+    Byte Usage                  Maps to     On this palette
+    [ 1] Frame passive          19          cpDialog palette
+    [ 2] Frame active           19
+    [ 3] Frame icon             21
+    [ 4] ScrollBar page area    24
+    [ 5] Scrollbar controls     25
+    [ 6] HistoryViewer
+         normal text            19
+    [ 7] History Viewer
+         selected text          20
+
+=head3 cpInputLine
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Passive         19          cpDialog palette
+    [ 2] Active          19
+    [ 3] Selected        20
+    [ 4] Arrow           21
+
+=head3 cpLabel
+
+    Byte Usage              Maps to     On this palette
+    [ 1] Text Normal        7           cpDialog palette
+    [ 2] Text Selected      8
+    [ 3] Shortcut Normal    9
+    [ 4] Shortcut Selected  9
+
+=head3 cpListViewer 
+
+B<Note>: used for TListViewer and TListBox
+
+    Byte Usage           Maps to     On this palette
+    [ 1] Active          26          Application palette
+    [ 2] Inactive        26
+    [ 3] Focused         27
+    [ 4] Selected        28
+    [ 5] Divider         29
+
+=head3 cpMenuView
+
+B<Note>: used for TMenuBar and TMenuBox
+
+    Byte Usage              Maps to     On this palette
+    [ 1] Text Normal        2           Application palette
+    [ 2] Text Disabled      3
+    [ 3] Text Shortcut      4
+    [ 4] Selected Normal    5
+    [ 5] Selected Disabled  6
+    [ 6] Selected Shortcut  7
+
+=head3 cpColor 
+
+B<Note>: for TProgram and TApplication
+
+Bytes 1 to 7 are used by menus and status lines
+
+    Byte Usage              Attribute   Actual color displayed
+    [ 1] Background Text    0x71        Blue on White
+    [ 2] Normal Text        0x70        Black on White
+    [ 3] Disabled Text      0x78        Blue on Gray
+    [ 4] Shortcut text      0x74        Blue on Red
+    [ 5] Normal selection   0x20        Green on Black
+    [ 6] Disabled selection 0x28        Green on Gray
+    [ 7] Shortcut selection 0x24        Green on Red
+
+Bytes 8 to 15 are used by blue windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [ 8] Frame Passive          0x17        White on Blue
+    [ 9] Frame Active           0x1F        Bright White on Blue
+    [10] Frame Icon             0x1A        Light Green on Blue
+    [11] Scrollbar page         0x31        Blue on Cyan
+    [12] Scrollbar reserved     0x31        Blue on Cyan
+    [13] Scroller Normal text   0x1E        Yellow on Blue
+    [14] Scroller Selected text 0x71        Blue on White
+    [15] Reserved               0x00
+
+Bytes 16 to 23 are used by cyan windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [16] Frame Passive          0x37        White on Cyan
+    [17] Frame Active           0x3F        Bright White on Cyan
+    [18] Frame Icon             0x3A        Light Green on Cyan
+    [19] Scrollbar page         0x13        Cyan on Blue
+    [20] Scrollbar reserved     0x13        Cyan on Blue
+    [21] Scroller Normal text   0x3E        Yellow on Cyan
+    [22] Scroller Selected text 0x21        Blue on Green
+    [23] Reserved               0x00
+
+Bytes 24 to 31 are used by gray windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [24] Frame Passive          0x70        Black on White
+    [25] Frame Active           0x7F        Bright White on White
+    [26] Frame Icon             0x7A        Light Green on White
+    [27] Scrollbar page         0x13        Cyan on Blue
+    [28] Scrollbar reserved     0x13        Cyan on Blue
+    [29] Scroller Normal text   0x70        Black on White
+    [30] Scroller Selected text 0x7F        Bright White on White
+    [31] Reserved               0x00
+
+Bytes 32 to 63 are used by dialog box components.
+
+    Byte Usage                  Attribute   Actual color displayed
+    [32] Frame Passive          0x70        Black on White
+    [33] Frame Active           0x7F        Bright White on White
+    [34] Frame Icon             0x7A        Light Green on White
+    [35] Scrollbar Page         0x13        Cyan on Blue
+    [36] Scrollbar controls     0x13        Cyan on Blue
+    [37] Static text            0x70        Black on White
+    [38] Label Normal           0x70        Black on White
+    [39] Label Highlight        0x7F        Bright White on White
+    [40] Label Shortcut         0x7E        Yellow on White
+    [41] Button Normal          0x20        Black on Green
+    [42] Button Default         0x2B        Light Cyan on Green
+    [43] Button Selected        0x2F        Bright White on Green
+    [44] Button Disabled        0x78        Gray on White
+    [45] Button Shortcut        0x2E        Yellow on Green
+    [46] Button Shadow          0x70        Black on White
+    [47] Cluster Normal         0x30        Black on Cyan
+    [48] Cluster Selected       0x3F        Bright White on Cyan
+    [49] Cluster Shortcut       0x3E        Yellow on Cyan
+    [50] InputLine Normal       0x1F        Bright White on Blue
+    [51] InputLine Selected     0x2F        Bright White on Green
+    [52] InputLine Arrows       0x1A        Light Green on Blue
+    [53] History Arrow          0x20        Black on Green
+    [54] History Sides          0x72        Green on White
+    [55] Hist.Win. Scrollbar pg 0x31        Blue on Cyan
+    [56] H.W.Scrollbar          0x31        Blue on Cyan
+    [57] ListViewer Normal      0x30        Black on Cyan
+    [58] ListViewer Focused     0x2F        Bright White on Green
+    [59] ListViewer Selected    0x3E        Yellow on Cyan
+    [60] ListViewer Divider     0x31        Blue on Cyan
+    [61] InfoPane               0x13        Cyan on Blue
+    [62] Reserved               0x00
+    [63] Reserved               0x00
+
+=head3 cpBlackWhite
+
+B<Note>: for TProgram and TApplication
+
+Bytes 1 to 7 are used by menus and status lines
+
+    Byte Usage              Attribute   Actual color displayed
+    [ 1] Background Text    0x70        Black on White
+    [ 2] Normal Text        0x70        Black on White
+    [ 3] Disabled Text      0x78        Gray on White
+    [ 4] Shortcut text      0x7F        Bright White on White
+    [ 5] Normal selection   0x07        White on Black
+    [ 6] Disabled selection 0x07        White on Black
+    [ 7] Shortcut selection 0x0F        Bright White on Black
+
+Bytes 8 to 15 are used by blue windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [ 8] Frame Passive          0x07        White on Black
+    [ 9] Frame Active           0x0F        Bright White on Black
+    [10] Frame Icon             0x07        White on Black
+    [11] Scrollbar page         0x70        Black on White
+    [12] Scrollbar reserved     0x70        Black on White
+    [13] Scroller Normal text   0x07        White on Black
+    [14] Scroller Selected text 0x70        White on Black
+    [15] Reserved               0x00
+
+Bytes 16 to 23 are used by cyan windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [16] Frame Passive          0x07        White on Black
+    [17] Frame Active           0x0F        Bright White on Black
+    [18] Frame Icon             0x07        White on Black
+    [19] Scrollbar page         0x70        Black on White
+    [20] Scrollbar reserved     0x70        Black on White
+    [21] Scroller Normal text   0x07        White on Black
+    [22] Scroller Selected text 0x70        Black on White
+    [23] Reserved               0x00
+
+Bytes 24 to 31 are used by gray windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [24] Frame Passive          0x70        Black on White
+    [25] Frame Active           0x7F        Bright White on White
+    [26] Frame Icon             0x7F        Bright White on White
+    [27] Scrollbar page         0x70        Black on White
+    [28] Scrollbar reserved     0x07        White on Black
+    [29] Scroller Normal text   0x70        Black on White
+    [30] Scroller Selected text 0x07        White on Black
+    [31] Reserved               0x00
+
+Bytes 32 to 63 are used by dialog box components.
+
+    Byte Usage                  Attribute   Actual color displayed
+    [32] Frame Passive          0x70        Black on White
+    [33] Frame Active           0x7F        Bright White on White
+    [34] Frame Icon             0x7F        Bright White on White
+    [35] Scrollbar Page         0x70        Black on White
+    [36] Scrollbar controls     0x07        White on Black
+    [37] Static text            0x70        Black on White
+    [38] Label Normal           0x70        Black on White
+    [39] Label Highlight        0x7F        Bright White on White
+    [40] Label Shortcut         0x7F        Bright White on White
+    [41] Button Normal          0x07        White on Black
+    [42] Button Default         0x0F        Bright White on Black
+    [43] Button Selected        0x0F        Bright White on Black
+    [44] Button Disabled        0x78        Gray on White
+    [45] Button Shortcut        0x0F        Bright White on Black
+    [46] Button Shadow          0x78        Gray on White
+    [47] Cluster Normal         0x07        White on Black
+    [48] Cluster Selected       0x0F        Bright White on Black
+    [49] Cluster Shortcut       0x0F        Bright White on Black
+    [50] InputLine Normal       0x0F        Bright White on Black
+    [51] InputLine Selected     0x70        Black on White
+    [52] InputLine Arrows       0x0F        Bright White on Black
+    [53] History Arrow          0x07        White on Black
+    [54] History Sides          0x70        Black on White
+    [55] Hist.Win. Scrollbar pg 0x70        Black on White
+    [56] H.W.ScrollBar          0x70        Black on White
+    [57] ListViewer Normal      0x07        White on Black
+    [58] ListViewer Focused     0x70        Black on White
+    [59] ListViewer Selected    0x0F        Bright White on Black
+    [60] ListViewer Divider     0x07        White on Black
+    [61] InfoPane               0x07        White on Black
+    [62] Reserved               0x00
+    [63] Reserved               0x00
+
+=head3 cpMonoChrome
+
+B<Note>: for TProgram and TApplication
+
+Bytes 1 to 7 are used by menus and status lines
+
+    Byte Usage              Attribute   Actual color displayed
+    [ 1] Background Text    0x70        Black on White
+    [ 2] Normal Text        0x07        White on Black
+    [ 3] Disabled Text      0x07        White on Black
+    [ 4] Shortcut text      0x0F        Bright White on Black
+    [ 5] Normal selection   0x70        Black on White
+    [ 6] Disabled selection 0x70        Black on White
+    [ 7] Shortcut selection 0x70        Black on White
+
+Bytes 8 to 15 are used by blue windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [ 8] Frame Passive          0x07        White on Black
+    [ 9] Frame Active           0x0F        Bright White on Black
+    [10] Frame Icon             0x07        White on Black
+    [11] Scrollbar page         0x70        Black on White
+    [12] Scrollbar reserved     0x70        Black on White
+    [13] Scroller Normal text   0x07        White on Black
+    [14] Scroller Selected text 0x70        Black on White
+    [15] Reserved               0x00
+
+Bytes 16 to 23 are used by cyan windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [16] Frame Passive          0x07        White on Black
+    [17] Frame Active           0x0F        Bright White on Black
+    [18] Frame Icon             0x07        White on Black
+    [19] Scrollbar page         0x70        Black on White
+    [20] Scrollbar reserved     0x70        Black on White
+    [21] Scroller Normal text   0x07        White on Black
+    [22] Scroller Selected text 0x70        Black on White
+    [23] Reserved               0x00
+
+Bytes 24 to 31 are used by gray windows
+
+    Byte Usage                  Attribute   Actual color displayed
+    [24] Frame Passive          0x70        Black on White
+    [25] Frame Active           0x70        Black on White
+    [26] Frame Icon             0x70        Black on White
+    [27] Scrollbar page         0x07        White on Black
+    [28] Scrollbar reserved     0x07        White on Black
+    [29] Scroller Normal text   0x70        Black on White
+    [30] Scroller Selected text 0x07        White on Black
+    [31] Reserved               0x00
+
+Bytes 32 to 63 are used by dialog box components.
+
+    Byte Usage                  Attribute   Actual color displayed
+    [32] Frame Passive          0x70        Black on White
+    [33] Frame Active           0x70        Black on White
+    [34] Frame Icon             0x70        Black on White
+    [35] Scrollbar Page         0x07        White on Black
+    [36] Scrollbar controls     0x07        White on Black
+    [37] Static text            0x70        Black on White
+    [38] Label Normal           0x70        Black on White
+    [39] Label Highlight        0x70        Black on White
+    [40] Label Shortcut         0x7F        Bright White on White
+    [41] Button Normal          0x07        White on Black
+    [42] Button Default         0x07        White on Black
+    [43] Button Selected        0x0F        Bright White on Black
+    [44] Button Disabled        0x70        Black on White
+    [45] Button Shortcut        0x0F        Bright White on Black
+    [46] Button Shadow          0x70        Black on White
+    [47] Cluster Normal         0x07        White on Black
+    [48] Cluster Selected       0x0F        Bright White on Black
+    [49] Cluster Shortcut       0x0F        Bright White on Black
+    [50] InputLine Normal       0x07        White on Black
+    [51] InputLine Selected     0x70        Black on White
+    [52] InputLine Arrows       0x07        White on Black
+    [53] History Arrow          0x07        White on Black
+    [54] History Sides          0x70        Black on White
+    [55] Hist.Win. Scrollbar pg 0x07        White on Black
+    [56] H.W.ScrollBar          0x07        White on Black
+    [57] ListViewer Normal      0x07        White on Black
+    [58] ListViewer Focused     0x70        Black on White
+    [59] ListViewer Selected    0x0F        Bright White on Black
+    [60] ListViewer Divider     0x07        White on Black
+    [61] InfoPane               0x07        White on Black
+    [62] Reserved               0x00
+    [63] Reserved               0x00
+
+=head3 cpScrollBar
+
+    Byte Usage             Maps to   On this palette
+    [ 1] Page              4         Application palette
+    [ 2] Arrows            5
+    [ 3] Indicator         5
+
+=head3 cpScroller
+
+    Byte Usage             Maps to   On this palette
+    [ 1] Normal            6         Application palette
+    [ 2] Highlight         7
+
+=head3 cpStaticText
+
+    Byte Usage             Maps to   On this palette
+    [ 1] Text color        6         cpDialog
+
+=head3 cpStatusLine
+
+    Byte Usage             Maps to   On this palette
+    [ 1] Text Normal       2         Application palette
+    [ 2] Text Disabled     3
+    [ 3] Text Shortcut     4
+    [ 4] Selected Normal   5
+    [ 5] Selected Disabled 6
+    [ 6] Selected Shortcut 7
+
+=head3 cpGrayWindow
+
+    Byte Usage                  Maps to   On this palette
+    [ 1] Frame Passive          24        Application palette
+    [ 2] Frame Active           25
+    [ 3] Frame Icon             26
+    [ 4] ScrollBar page         27
+    [ 5] ScrollBar reserved     28
+    [ 6] Scroller Normal Text   29
+    [ 7] Scroller Selected Text 30
+    [ 8] Reserved               31
+
+=head3 cpBlueWindow
+
+    Byte Usage                  Maps to   On this palette
+    [ 1] Frame Passive          8         Application palette
+    [ 2] Frame Active           9
+    [ 3] Frame Icon             10
+    [ 4] ScrollBar page         11
+    [ 5] ScrollBar reserved     12
+    [ 6] Scroller Normal Text   13
+    [ 7] Scroller Selected Text 14
+    [ 8] Reserved               15
+
+=head3 cpCyanWindow
+
+    Byte Usage                  Maps to   On this palette
+    [ 1] Frame Passive          16        Application palette
+    [ 2] Frame Active           17
+    [ 3] Frame Icon             18
+    [ 4] ScrollBar page         19
+    [ 5] ScrollBar reserved     20
+    [ 6] Scroller Normal Text   21
+    [ 7] Scroller Selected Text 22
+    [ 8] Reserved               23
+
+=head2 clearHistory
+
+subroutine
+
+=head3 Declaration
+
+    sub clearHistory;
+
+=head3 Module
+
+    TV::HistList
+
+=head3 Purpose
+
+Removes all strings from all history lists.
+
+=head2 clearScreen
+
+subroutine
+
+=head3 Declaration
+
+    sub clearScreen;    # void ($class)
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+After TScreen->resume has been called by TApplication->new, this subroutine will
+clear the screen. However, most Turbo Vision applications will have no need to 
+use this subroutine.
+
+=head2 cmXXXX
+
+Command constants
+
+=head3 Module
+
+    TV::Views::Const
+
+=head3 Purpose
+
+The cmXXXX constants are the predefined commands within Turbo Vision and are
+passed to handleEvent methods in the $event->{command} field. Constant values 
+of 0 to 99, and 256 to 999 are reserved for use by Turbo Vision. Your 
+applications can define command constants in the range 100 to 255, and 1000 to 
+65535.
+
+    Constant        Value    Usage
+    cmValid             0    Message passed to TView->valid
+    cmQuit              1    Upon receipt of cmQuit, TProgram->handleEvent
+                             terminates the application. The Alt-X keystroke is
+                             normally mapped to the cmQuit command.
+    cmError             2    No object should handle this command. Instead, use
+                             cmError as a way of trapping any unimplemented
+                             commands (i.e. while the program is still in
+                             development).
+    cmMenu              3    This internal command is used to initiate menu
+                             selection. The status line, as shown in Chapter
+                             14, typically maps the F10 key to cmMenu. See
+                             TStatusLine.
+    cmClose             4    For mode less windows, clicking in a window's close
+                             box causes the cmClose command to be sent to the
+                             window and the window's Close method is called. To
+                             prevent closing a window, you can intercept the
+                             cmClose command in your derived window's
+                             handleEvent method (also see the wfClose
+                             constants). Typically a status line item such as
+                             Alt-F3 is mapped to the cmClose command. The
+                             TVSHELL1 program in Chapter 14 uses the F3 key to
+                             generate cmClose for opening and closing
+                             subdirectories.
+    cmZoom              5    The cmZoom flag is generated when the window is
+                             zoomed. You can prevent zooming by intercepting
+                             the cmZoom command (also see the wfZoom constant).
+                             By convention, Turbo Vision applications often use
+                             the F5 key to denote a zoom.
+    cmResize            6    cmResize is sent when a window is resized. Also
+                             see wfMove and wfGrow. By convention, Ctrl-F5 is
+                             often used to zoom a window.
+    cmNext              7    Causes the last window on the desktop to be moved
+                             to in front of all the others. F6 is often used as
+                             a short cut key for this command.
+    cmPrev              8    Moves the first window on the desktop to behind all
+                             the other windows. Shift-F6 is often used as a
+                             short cut key for this command.
+    cmOk                9    In a dialog, this value is returned if the Okay
+                             button was pressed.
+    cmCancel            10   In a dialog, this value is returned if the Cancel
+                             button was pressed, or if the keyboard Escape key
+                             was pressed, or a dialog's close icon was clicked.
+    cmYes               11   In a dialog, this is a standard value to be
+                             returned by a Yes button.
+    cmNo                12   In a dialog, this is the standard value to be
+                             returned by a No button.
+    cmDefault           13   Is used to indicate a "default" button selection.
+    cmReceivedFocus     50   Together with cmReleasedFocus, this command is sent
+                             by TView->setState to inform peer views of a change
+                             in focus. Views may use these messages to change
+                             their appearance (for example, when a button loses
+                             focus, it is no longer highlighted).
+    cmReleasedFocus     51   See above.
+    cmCommandSetChanged 52   Whenever enableCommands, disableCommands or
+                             setCommands changes the command set, this message
+                             is broadcast to every view's handleEvent method,
+                             giving them a chance to redraw themselves if the
+                             command set change affects how they should appear.
+    cmScrollbarChanged  53   When a scroll bar's position indicator moves, the
+                             scrollbar sends this broadcast message to its
+                             owner.
+    cmScrollbarClicked  54   When the mouse is clicked on a Scroll bar, the
+                             scroll bar broadcasts this message to its owner.
+    cmSelectWindowNum   55   This broadcast message is sent when the keyboard
+                             keys Alt-1 through Alt-9 are pressed to select a
+                             specific window. The window whose TWindow.Number
+                             field matches the selection number (passed in
+                             $event->{infoInt}), responds by selecting itself 
+                             with TView->select.
+    cmListItemSelected  56   Whenever an item in a list viewer is selected, the
+                             TListViewer sends this as an evBroadcast message.
+    cmRecordHistory     60   When received by a THistory object, this message
+                             causes it to record the contents of the TInputLine
+                             object that it owns.
+
+=head2 coXXXX
+
+Collection Error constants
+
+=head3 Module
+
+    TV::Objects:.Const
+
+=head3 Purpose
+
+When a TCollection error occurs, the method TCollection->error is called, with
+the Code parameter having one of the values shown in the table.
+
+    Constant     Value  Usage
+    coIndexError    -1  Means that the index is out of range. In this
+                        case, the Info parameter of Error contains the
+                        invalid index.
+    coOverflow      -2  The collection could not be expanded any further.
+
+=head2 cstrlen
+
+function
+
+=head3 Declaration
+
+    sub cstrlen; # $int ($s)
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+Returns the length of control strings, which are any strings containing
+short-cut characters surrounded by tilde '~' characters, minus the number of
+tilde characters. For example,
+
+    cstrlen( '~F~ile' )
+
+has a length of 4.
+
+=head2 $ctrlBreakHit
+
+variable
+
+=head3 Declaration
+
+    our $ctrlBreakHit = !!0
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+Whenever the user presses Ctrl-Break at the keyboard, this flag is set to TRUE.
+You can clear it any time by resetting to FALSE.
+
+=head2 ctrlToArrow
+
+function
+
+=head3 Declaration
+
+    sub ctrlToArrow; # $int ($keyCode)
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+This esoteric function converts certain control-key combinations to standard
+kbXXXX constant values. The original Wordstar word processor used a standard
+set of Ctrl-letter combinations as equivalents to IBM cursor movement keys and
+set a standard interpretation of these keys when used in word processing. To
+assist in providing Wordstar compatibility, ctrlToArrow can be used to convert
+$event->{keyCode} values to their corresponding kbXXXX values. The following 
+chart shows the mapping from control keys to kbXXXX values.
+
+=head3 
+
+    Control key     keyCode & 0xff  Maps to
+    Ctrl-A          0x01            kbHome
+    Ctrl-D          0x04            kbRight
+    Ctrl-E          0x05            kbUp
+    Ctrl-F          0x06            kbEnd
+    Ctrl-G          0x07            kbDel
+    Ctrl-S          0x13            kbLeft
+    Ctrl-V          0x16            kbIns
+    Ctrl-X          0x18            kbDown
+
+=head2 $cursorLines
+
+variable
+
+=head3 Declaration
+
+    our $cursorLines = 0;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+Contains the height of the video cursor encoded such that the high 4 bits
+contain the top scan line and the low 4 bits contain the bottom scan line. For
+example, on a CGA screen a character is made up of 8 scan lines, with the
+topmost scan line being 0 and the bottommost scan line being 7 (the number of
+scan lines varies according to the type of the video adaptor card in use). The
+shape of the character cursor is determined with BIOS interrupt 10H, function
+01H. For more information, consult the DOS Programmer's Reference, 2nd Edition,
+Que Books, page 424 "BIOS INT 10H Function 01h Set Cursor Type". 
+
+B<See>: TView->showCursor, TView->hideCursor, TView->normalCursor (to set cursor
+shape to an underline), TView->blockCursor (to set cursor to a solid block).
+
+=head2 $deskTop
+
+variable
+
+=head3 Declaration
+
+    our $deskTop = undef;
+
+=head3 Module
+
+    TV::App::Program
+
+=head3 Purpose
+
+Points to the application's TDeskTop object, and can be used to insert a window 
+or dialog on to the desktop. For example,
+
+	$deskTop->insert( new TDirectoryWindow( $bounds, 'Directory Listing', 0 ) );
+
+=head2 dmXXXX
+
+Drag Mode constants
+
+=head3 Module
+
+    TV::Views::Const
+
+=head3 Purpose
+
+The TView->dragMode field controls whether or not a view can be dragged or have
+its size changed. The dragMode field is stored in a scalar, with the bits set by
+the constants shown in the following table, and Limits is a TRect parameter to
+TView->dragView.
+
+    Constant        Value    Usage
+    dmDragMove      0x01     Allow the view to move.
+    dmDragGrow      0x02     Allow the view to change size.
+    dmLimitLoX      0x10     The left hand side cannot move outside Limits.
+    dmLimitLoY      0x20     The top side cannot move outside Limits.
+    dmLimitHiX      0x40     The right hand side cannot move outside Limits.
+    dmLimitHiY      0x80     The bottom side cannot move outside Limits.
+    dmLimitAll      0xF0     None of the view can move outside Limits.
+
+=head2 TEventQueue->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub resume;
+
+=head3 Unit
+
+    TV::Drivers::EventQueue
+
+=head3 Purpose
+
+This is a Turbo Vision internal routine that will not normally be used by your
+applications. resume disables the mouse interrupt handler and hides the mouse.
+
+=head2 doneHistory
+
+subroutine
+
+=head3 Declaration
+
+    sub doneHistory;
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+This internal Turbo Vision routine is called automatically by
+TApplication->resume free up the history block allocated by initHistory.
+
+=head2 TVMemMgr->suspend
+
+subroutine
+
+=head3 Declaration
+
+    sub suspend;
+
+=head3 Module
+
+    TV::Memory
+
+=head3 Purpose
+
+This internal Turbo Vision routine is called automatically by
+TApplication->resume to free up all memory buffers that were allocated by
+allocateDiscardable.
+
+=head2 TSystemError->resume
+
+=head3 Declaration
+
+    sub resume;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+This internal routine is called automatically by TApplication->resume,
+terminating Turbo Vision's system error trapping and restoring the interrupt
+vectors 09h, 1bh, 21h, 23h and 24h and the Ctrl-Break checking of DOS, to their
+original settings.
+
+=head2 TScreen->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub resume;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+This internal routine is called automatically by TApplication->resume and
+terminates Turbo Vision's video support.
+
+=head2 $doubleDelay
+
+variable
+
+=head3 Declaration
+
+    our $doubleDelay = 8;
+
+=head3 Module
+
+    TV::Drivers::EventQueue
+
+=head3 Purpose
+
+$doubleDelay holds the time interval (in 1/18.2 of a second intervals) defining
+how quickly two mouse clicks must occur in order to be treated as a double
+click (rather than two separate single clicks). By default, the two mouse
+clicks must occur with 8/18'ths of a second to be considered a double click
+event (with TEvent->{double} set to TRUE).
+
+=head2 $errorAttr
+
+variable
+
+=head3 Declaration
+
+    our $errorAttr = 0xCF;
+
+=head3 Module
+
+    TV::Views::View
+
+=head3 Purpose
+
+If the TView->getColor method is unable to map a color palette index into a
+video attribute byte because the index is out of range, TView->getColor returns
+this value. $CF is the video attribute for flashing white characters on a red
+background - if you see flashing white on red, you need to check or override
+the getPalette method. An example of how this works can be seen in the TVSHELL
+program. If the TDirList->getPalette method is removed from TDirList, the
+listbox text will appear as flashing white on red. This occurs because the
+palette indices for a TListViewer, 26, 27, 28 and 29 are out of range for the
+window palette into which the list viewer is inserted. The solution is to
+override getPalette to return values within an acceptable range. 
+
+B<See>: Chapter 13, "More Turbo Vision Features" in Borland Pascal Developer's 
+Guide, Que Books, 1992.
+
+=head2 evXXXX
+
+constants
+
+=head3 Event constants
+
+=head3 Module
+
+    TV::Drivers::Const
+
+=head3 Purpose
+
+The evXXXX constants are used to designate event types and event masks,
+particularly as used in the What field of an event record but also in other
+places within Turbo Vision.
+
+    Constant        Value   Usage
+    evMouseDown    0x0001   Mouse button pressed
+    evMouseUp      0x0002   Mouse button released
+    evMouseMove    0x0004   Mouse has changed location
+    evMouseAuto    0x0008   This event occurs periodically while the mouse
+                            button is held down
+    evKeyDown      0x0010   A key has been pressed.
+    evCommand      0x0100   The event type is a command event.
+    evBroadcast    0x0200   The event type is a broadcast event.
+    evNothing      0x0000   This event was already handled.
+    evMouse        0x000F   The event type is a mouse event.
+    evKeyboard     0x0010   The event type is a keyboard event.
+    evMessage      0xFF00   The event is a message event, which can be either
+                            user defined, an evCommand or evBroadcast event.
+
+B<See>: "Introduction to Events and the HandleEvent Method", in Chapter 11, 
+"Turbo Vision Tutorial" in the Borland Pascal Developer's Guide. Also see
+positionalEvents and focusedEvents.
+
+=head2 focusedEvents
+
+constant
+
+=head3 Declaration
+
+    use constant focusedEvents => evKeyboard | evCommand;
+
+=head3 Module
+
+    TV::Views:.Const
+
+=head3 Purpose
+
+focusedEvents contains a bit mask for identifying events that are focused. Any
+event that is neither a focused event nor a positional event, is classed as a
+broadcast event. 
+
+B<See>: positionalEvents variable, and "Positional Events" in Chapter 13, 
+"More Turbo Vision Features" in the Borland Pascal Developer's Guide.
+
+=head2 freeDiscardable
+
+subroutine
+
+=head3 Declaration
+
+    sub freeDiscardable; # void ($p)
+
+=head3 Module
+
+    TV::Memory
+
+=head3 Purpose
+
+Frees up the cache buffer pointed to by $p. See allocateDiscardable for details.
+
+=head2 getAltChar
+
+function
+
+=head3 Declaration
+
+    sub getAltChar; # $char ($keyCode)
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+When Keycode specifies an Alt-Ch character combination, where Ch is a letter
+from A to Z, getAltChar extracts and returns the Ch character value. For
+example,
+
+    say( getAltChar( kbAltA ));
+
+prints the single letter A. Procedure getAltCode maps characters back to Alt-Ch
+combinations.
+
+=head2 getAltCode
+
+function
+
+=head3 Declaration
+
+    sub getAltCode; # $int($ch)
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+Maps a single character 'A' to 'Z' to the Keycode equivalent value for pressing
+Alt-Ch. For example,
+
+    getAltCode('A')
+
+returns 0x1E00, which is the value of kbAltA. getAltCode is the inverse function
+to getAltChar.
+
+=head2 allocateDiscardable
+
+subroutine
+
+=head3 Declaration
+
+    sub allocateDiscardable; # ($p; $size)
+
+=head3 Module
+
+    TV::Memory
+
+=head3 Purpose
+
+Used to allocate a cache buffer where the cache buffer is a heap allocation
+that may be moved or disposed of at any time by the memory manager. As a
+result, the pointer variable passed to allocateDiscardable may be changed by the
+memory manager at any time during program execution to point to a different 
+memory area, or even be reset to undef. Turbo Vision uses cache buffers to speed 
+up output the screen (also see TView->options field and the ofXXXX constants) 
+by having views store their display image in memory so that, if possible, the
+screen can be updated quickly merely by copying the memory image back to the
+screen (this is faster than regenerating the text and other data in the Draw
+method). However, when Turbo Vision begins to run low on memory, it starts
+throwing away the cache buffers, as needed until enough memory is freed up. In
+addition to Turbo Vision's use of cache buffers, your application can use cache
+buffers for storage that can be deleted by the memory manager in case memory is
+running low. An example use might be to cache the disk directory read into the
+TVSHELL8 sample program of Chapter 12 in the Borland Pascal Developer's Guide.
+If for some reason Turbo Vision or some other part of the program requests
+memory and there is not enough free memory in the heap, then the memory manager
+will dispose of one or more cache buffers, and set the corresponding pointer to
+undef. Since the TVSHELL program can always recreate the directory structure by
+reading the disk directory again, its okay to reallocate this memory to some
+other function. Cache buffers are useful for speeding up access to items that
+can always be recreated. 
+
+B<See>: freeDiscardable.
+
+=head2 getKeyEvent
+
+subroutine
+
+=head3 Declaration
+
+    sub getKeyEvent; # void ($event)
+
+=head3 Module
+
+    TV::Drivers::HardwareInfo
+
+=head3 Purpose
+
+Uses the BIOS function INT 16H, Function 01H "Read Keyboard Status" to
+determine if a key has been pressed on the keyboard. If so, $event->{what} is 
+set to evKeyDown and Event.Keycode is set to the scan code of the key. If no 
+keys have been pressed, $event->{what} is set to evNothing. This is an internal
+subroutine called by TProgram->getEvent. 
+
+B<See>: evXXXX constants, also DOS Programmer's Reference, 2nd Edition, Que 
+Books, page 496,
+
+=head2 getMouseEvent
+
+subroutine
+
+=head3 Declaration
+
+    sub getMouseEvent; # void ($event)
+
+=head3 Module
+
+    TV::Drivers::HardwareInfo
+
+=head3 Purpose
+
+Similar to getKeyEvent, but for mouse events. This internal subroutine checks
+Turbo Vision's internal mouse event queue, and if a mouse event has occurred,
+sets $event->{what} to the appropriate evMouseXXXX constant; $event->{buttons} 
+to mbLeftButton or mbRightButton; $event->{double} to TRUE or FALSE; and 
+$event->{where} to the mouse position in TApplication coordinates. If no mouse 
+events have occurred, $event->{what} is set to evNothing.
+
+=head2 gfXXXX
+
+TView->growMode field constants
+
+=head3 Module
+
+    TV::Views::Const
+
+=head3 Purpose
+
+The gfXXXX constants set the TView->growMode field, which controls how a view
+grows in relation to the view that owns it.
+
+    Constant      Value     Usage
+    gfGrowLoX      0x01     The left side of the view will stay a constant
+                            distance from its owner's left side.
+    gfGrowLoY      0x02     The top of the view will stay a constant distance
+                            from its owner's top.
+    gfGrowHiX      0x04     The right side of the view will stay a constant
+                            distance from its owner's right side.
+    gfGrowHiY      0x08     The bottom of the view will stay a constant distance
+                            from its owner's bottom side.
+    gfGrowRel      0x10     The view will maintain its size relative to the
+                            owner. This flag should only be used on TWindow
+                            derived objects and is intended for keeping windows
+                            adjusted relative to their owner when switching
+                            between 25 line mode and 43/50 line screen modes.
+    gfGrowAll      0x0F     The view should maintain the same size and move with
+                            respect to the lower right corner of the owner.

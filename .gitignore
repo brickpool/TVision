@@ -37,7 +37,8 @@ inc/
 /*.zip
 
 # Documents
-/doc/
+/doc/_*
+/doc/*.pdf
 
 # Sources
 /lib/_*
@@ -60,3 +61,6 @@ test.bin
 
 # perltidy
 .perltidyrc
+
+# Spelling
+.cspell
