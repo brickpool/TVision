@@ -1,4 +1,4 @@
-package TV::Drivers::DrawBuffer;
+package TV::Objects::DrawBuffer;
 
 use strict;
 use warnings;

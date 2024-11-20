@@ -13,7 +13,7 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
 use TV::App::Const qw( CP_BACKGROUND );
-use TV::Drivers::DrawBuffer;
+use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
   GF_GROW_HI_X
   GF_GROW_HI_Y

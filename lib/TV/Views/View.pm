@@ -34,13 +34,13 @@ use TV::Const qw(
 );
 use TV::Util qw( message );
 use TV::Objects::Object;
+use TV::Objects::DrawBuffer;
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Drivers::Const qw(
   :evXXXX
   :kbXXXX
 );
-use TV::Drivers::DrawBuffer;
 use TV::Drivers::Event;
 use TV::Views::Const qw(
   :cmXXXX

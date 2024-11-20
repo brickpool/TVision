@@ -9,7 +9,6 @@ BEGIN {
   use_ok 'TV::Drivers::Display';
   use_ok 'TV::Drivers::Screen';
   use_ok 'TV::Drivers::SystemError';
-  use_ok 'TV::Drivers::DrawBuffer';
   use_ok 'TV::Drivers::Event';
   use_ok 'TV::Drivers::HWMouse';
   use_ok 'TV::Drivers::Mouse';

@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 15;
 
 BEGIN {
-  use_ok 'TV::Drivers::DrawBuffer';
+  use_ok 'TV::Objects::DrawBuffer';
 }
 
 # Test object creation

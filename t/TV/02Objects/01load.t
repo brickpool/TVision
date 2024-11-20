@@ -6,6 +6,7 @@ use Test::More;
 BEGIN {
   use_ok 'TV::Objects::Const';
   use_ok 'TV::Objects::Object';
+  use_ok 'TV::Objects::DrawBuffer';
   use_ok 'TV::Objects::Point';
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Objects::NSCollection';
