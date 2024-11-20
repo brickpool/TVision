@@ -1,8 +1,4 @@
-=head1 CHAPTER 6
-
-Chapter 6 of the Turbo Pascal Reference - The Turbo Vision Reference
-
-=head2 Important note for use
+=head1 TPR-BOOK
 
 This material is used under the Fair Use doctrine for educational and 
 non-commercial purposes. The original text is copyrighted, and all rights are 
@@ -28,6 +24,10 @@ Please note the following preliminary remark from Ed Mitchell:
     Borland C++ Masters, Sams Books, 1992. 
     
     Thank you.
+
+=head1 CHAPTER 6 - The Turbo Vision Reference
+
+Chapter 6 of the Turbo Pascal Reference
 
 For additional information on using Turbo Vision, including a detailed
 tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
@@ -305,7 +305,7 @@ is in use.
     apBlackWhite    1   Selects black & white palette
     apMonoChrome    2   Selects the monochrome screen palette
 
-B<See>: appPalette
+B<See>: $appPalette
 
 =head2 bfXXXX
 
@@ -360,7 +360,7 @@ variable
 
 =head3 Declaration
 
-    our $checkSnow = !!1;
+    our $checkSnow = TRUE;
 
 =head3 Module
 
@@ -368,11 +368,11 @@ variable
 
 =head3 Purpose
 
-If a CGA adaptor is detected, Turbo Vision sets checkSnow to TRUE. Older CGA
+If a CGA adaptor is detected, Turbo Vision sets $checkSnow to TRUE. Older CGA
 video adaptor cards require special programming to avoid "snow" or static-like
 lines on the display. If the CGA video adaptor does not require snow checking,
-the program may set checkSnow to FALSE, resulting in faster output to the
-screen. Do not set or check checkSnow until after calling TApplication->new.
+the program may set $checkSnow to FALSE, resulting in faster output to the
+screen. Do not set or check $checkSnow until after calling TApplication->new.
 
 =head2 cpXXXX
 
@@ -932,8 +932,8 @@ applications can define command constants in the range 100 to 255, and 1000 to
                              handleEvent method (also see the wfClose
                              constants). Typically a status line item such as
                              Alt-F3 is mapped to the cmClose command. The
-                             TVSHELL1 program in Chapter 14 uses the F3 key to
-                             generate cmClose for opening and closing
+                             C<TVSHELL1> program in Chapter 14 uses the F3 key 
+                             to generate cmClose for opening and closing
                              subdirectories.
     cmZoom              5    The cmZoom flag is generated when the window is
                              zoomed. You can prevent zooming by intercepting
@@ -1034,7 +1034,7 @@ variable
 
 =head3 Declaration
 
-    our $ctrlBreakHit = !!0
+    our $ctrlBreakHit = FALSE
 
 =head3 Module
 
@@ -1165,7 +1165,7 @@ subroutine
 This is a Turbo Vision internal routine that will not normally be used by your
 applications. resume disables the mouse interrupt handler and hides the mouse.
 
-=head2 doneHistory
+=head2 THistory->doneHistory
 
 subroutine
 
@@ -1175,7 +1175,7 @@ subroutine
 
 =head3 Module
 
-    TV::Util
+    TV::Dialogs::History
 
 =head3 Purpose
 
@@ -1192,7 +1192,7 @@ subroutine
 
 =head3 Module
 
-    TV::Memory
+    TV::Memory::Buffers
 
 =head3 Purpose
 
@@ -1327,7 +1327,7 @@ constant
 
 =head3 Module
 
-    TV::Views:.Const
+    TV::Views::Const
 
 =head3 Purpose
 
@@ -1338,7 +1338,7 @@ broadcast event.
 B<See>: positionalEvents variable, and "Positional Events" in Chapter 13, 
 "More Turbo Vision Features" in the Borland Pascal Developer's Guide.
 
-=head2 freeDiscardable
+=head2 TVMemMgr->freeDiscardable
 
 subroutine
 
@@ -1348,7 +1348,7 @@ subroutine
 
 =head3 Module
 
-    TV::Memory
+    TV::Memory::Buffers
 
 =head3 Purpose
 
@@ -1399,17 +1399,17 @@ Alt-Ch. For example,
 returns 0x1E00, which is the value of kbAltA. getAltCode is the inverse function
 to getAltChar.
 
-=head2 allocateDiscardable
+=head2 TVMemMgr->allocateDiscardable
 
 subroutine
 
 =head3 Declaration
 
-    sub allocateDiscardable; # ($p; $size)
+    sub allocateDiscardable; # void ($p; $size)
 
 =head3 Module
 
-    TV::Memory
+    TV::Memory::Buffers
 
 =head3 Purpose
 
