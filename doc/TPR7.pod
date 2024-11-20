@@ -1,0 +1,983 @@
+=head1 CHAPTER 7
+
+Chapter 7 of the Turbo Pascal Reference - The Turbo Vision Reference
+
+=head2 Important note for use
+
+This material is used under the Fair Use doctrine for educational and 
+non-commercial purposes. The original text is copyrighted, and all rights are 
+retained by the author. The material is provided "as is" without warranty of 
+any kind. 
+
+Please note the following preliminary remark from Ed Mitchell:
+
+    This chapter is part of the Turbo Pascal Reference electronic freeware book 
+    (C) Copyright 1992 by Ed Mitchell. 
+
+    This freeware book contains supplementary material to Borland Pascal 
+    Developer's Guide, published by Que Corporation, 1992. 
+    
+    However, Que Corporation has no affiliation with nor responsibility for the 
+    content of this free book. 
+    
+    Please see Chapter 1 of the Turbo Pascal Reference for important information
+    about your right to distribute and use this material freely. 
+    
+    If you find this material of use, I would appreciate your purchase of one my
+    books, such as the Borland Pascal Developer's Guide or Secrets of the 
+    Borland C++ Masters, Sams Books, 1992. 
+    
+    Thank you.
+
+For additional information on using Turbo Vision, including a detailed
+tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
+Guide.
+
+=head2 THistory->historyAdd
+
+subroutine
+
+=head3 Declaration
+
+    sub historyAdd; # void ($id, $str)
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+This is an internal routine used by the THistory and related objects to add a
+string $str to the history list identified by the $id number.
+
+=head2 $historyBlock
+
+variable
+
+=head3 Declaration
+
+    our $historyBlock = undef;
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+The THistory object allocates a block of memory from the heap in order to store
+the history list. $historyBlock is set to point to this memory block.
+
+=head2 THistory->historyCount
+
+function
+
+=head3 Declaration
+
+    sub historyCount; # $int ($id)
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+The THistory history list system, and the associated history list memory
+manager (See historyAdd, $historyBlock, $historySize, historyStr, $historyUsed)
+can manage multiple memory history lists. The historyCount function calculates
+and returns the number of items stored in the history list selected by the $id
+value.
+
+=head2 $historySize
+
+variable
+
+=head3 Declaration
+
+    our $historySize = 1024;
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+At program initialization, TApplication->resume calls the THistory->doneHistory 
+subroutine to allocate history list memory space. The default allocation is 
+determined by the value stored in $historySize. To change this value, set 
+$historySize to a new size, specified in bytes, before calling 
+TApplication->resume.
+
+=head2 THistory->historyStr
+
+function
+
+=head3 Declaration
+
+    sub historyStr; # $string ($id, $index)
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+Looks into the history list specified by $id, and returns the contents of the
+$index'th string in the list.
+
+=head2 $historyUsed
+
+variable
+
+=head3 Declaration
+
+    our $historyUsed = 0;
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+This is an internal value used by the history list routines.
+
+=head2 THistory->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub resume;
+
+=head3 Module
+
+    TV::Dialogs::History
+
+=head3 Purpose
+
+TApplication->resume calls this routine to initialize the history list 
+management system. Also see $historySize and THistory.
+
+=head2 inputBox
+
+function
+
+=head3 Declaration
+
+    sub inputBox; # $command ($title, $aLabel, $s; $limit)
+
+=head3 Module
+
+    TV::MsgBox
+
+=head3 Purpose
+
+inputBox is not described in the Borland documentation but is contained in the
+file MSGBOX.CPP (and MSGBOX.H).
+
+inputBox displays a simple dialog with a single label and input field,
+plus Okay and Cancel buttons. The Title parameter becomes the dialog box title,
+and the input field is given ALabel as a prompt line. The input field is set to
+Limit bytes in length. inputBox returns either cmOk or cmCancel. 
+
+B<B<See>:> Listing DMSGBOX3.PAS for an example of using the message box.
+
+=head2 inputBoxRect
+
+function
+
+=head3 Declaration
+
+    sub inputBoxRect; $command ($bounds, $title, $aLabel, $s, $limit)
+
+=head3 Module
+
+    TV::MsgBox
+
+=head3 Purpose
+
+inputBoxRect is not described in the Borland documentation but is contained in
+the file MSGBOX.CPP (and MSGBOX.H). 
+
+inputBoxRect is identical to inputBox except that you can specify a
+bounding rectangle in order to position and size the input box to specific
+coordinates. 
+
+B<See>: also messageBoxRect.
+
+=head2 TEventQueue->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub TEventQueue->resume;
+
+=head3 Module
+
+    Drivers;
+
+=head3 Purpose
+
+This internal subroutine initializes Turbo Vision's event manager, and
+initializes and displays the mouse, if installed. TEventQueue->resume is 
+automatically called by TApplication->resume, and is terminated by calling its 
+corresponding TEventQueue->suspend subroutine.
+
+=head2 TVMemMgr->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub TVMemMgr->resume;
+
+=head3 Module
+
+    TV::Memory::Buffers
+
+=head3 Purpose
+
+This internal subroutine initializes Turbo Vision's memory management system and
+is automatically called by TApplication->resume. TVMemMgr->resume is terminated 
+by calling its corresponding TVMemMgr->suspend.
+
+=head2 TSystemError->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub TSystemError->resume;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+This internal subroutine, called by TApplication->resume, initializes system 
+error trapping by redirecting the interrupt vectors 09H, 1BH, 21H, 23H, and 24H 
+and clearing DOS's Ctrl-Break state. System error trapping is terminated by 
+calling the corresponding TSystemError->suspend routine.
+
+=head2 TScreen->resume
+
+subroutine
+
+=head3 Declaration
+
+    sub TScreen->resume;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+This internal subroutine, called by TApplication->resume, initializes Turbo
+Vision's video display manager and switches the display to the mode specified
+in the $screenMode variable. TScreen->resume initializes the variables 
+$screenWidth, $screenHeight, $hiResScreen, $checkSnow, $screenBuffer and 
+$cursorLines.
+
+=head2 kbXXXX
+
+Keyboard constants
+
+The kbXXXX constants are divided into two groups: a small group for detecting
+keyboard shift states, and a large group as equates for the non-standard
+keystrokes such as function and Alt keys.
+
+=head3 Keyboard Shift State constants
+
+    Constant        Value   Usage
+    kbRightShift   0x0001   Bit set if the right shift key down
+    kbLeftShift    0x0002   Bit set if the left shift key down
+    kbCtrlShift    0x0004   Bit set if the Ctrl key is down
+    kbAltShift     0x0008   Bit set if the Alt key is down
+    kbScrollState  0x0010   Bit set if the Scroll Lock is down
+    kbNumState     0x0020   Bit set if the Num Lock is down
+    kbCapsState    0x0040   Bit set if the Caps Lock down
+    kbInsState     0x0080   Bit set if keyboard is in Ins Lock state
+
+The keyboard shift state constants are used as a bit mask to test a location in
+low memory at 0x40:0x17 for the status of various keyboard keys, such as the 
+Ctrl or Shift key. For example, to see if the keyboard is producing shifted
+characters, declare an absolute variable at  0x40:$17 and test the bits like
+this:
+
+    my $keyboardShifts = THardwareInfo->getShiftState();
+    ...
+    if ( $keyboardShifts & ( kbRightShift | kbLeftShift | kbCapsState ) )
+
+=head3 Keyboard ScanCode constants
+
+Use these constants to check for specific keystroke values in the 
+TEvent->{keyCode} field. For example,
+
+    if ( $event->{keyCode} == kbPgDn ) {
+        # handle page down function
+        ...;
+    }
+
+=head3 Alt-Ch key code constants
+
+    Constant    Value       Constant    Value
+    kbAltA      0x1E00      kbAltN      0x3100
+    kbAltB      0x3000      kbAltO      0x1800
+    kbAltC      0x2E00      kbAltP      0x1900
+    kbAltD      0x2000      kbAltQ      0x1000
+    kbAltE      0x1200      kbAltR      0x1300
+    kbAltF      0x2100      kbAltS      0x1F00
+    kbAltG      0x2200      kbAltT      0x1400
+    kbAltH      0x2300      kbAltU      0x1600
+    kbAltI      0x1700      kbAltV      0x2F00
+    kbAltJ      0x2400      kbAltW      0x1100
+    kbAltK      0x2500      kbAltX      0x2D00
+    kbAltL      0x2600      kbAltY      0x1500
+    kbAltM      0x3200      kbAltZ      0x2C00
+
+=head3 Ctrl and special key code constants
+
+    Constant    Value       Constant    Value
+    kbAltEqual  0x8300      kbEnd       0x4F00
+    kbAltMinus  0x8200      bEnter      0x1C0D
+    kbAltSpace  0x0200      kbEsc       0x011B
+    kbBack      0x0E08      kbGrayMinus 0x4A2D *
+    kbCtrlBack  0x0E7F      kbHome      0x4700
+    kbCtrlDel   0x0600      kbIns       0x5200
+    kbCtrlEnd   0x7500      kbLeft      0x4B00 *
+    kbCtrlEnter 0x1C0A      kbNoKey     0x0000
+    kbCtrlHome  0x7700      kbPgDn      0x5100
+    kbCtrlIns   0x0400      kbPgUp      0x4900
+    kbCtrlLeft  0x7300      kbGrayPlus  0x4E2B
+    kbCtrlPgDn  0x7600      kbRight     0x4D00 *
+    kbCtrlPgUp  0x8400      kbShiftDel  0x0700
+    kbCtrlPrtSc 0x7200      kbShiftIns  0x0500
+    kbCtrlRight 0x7400      kbShiftTab  0x0F00
+    kbDel       0x5300      kbTab       0x0F09
+    kbDown      0x5000      kbUp        0x4800
+
+[*] kbGrayMinus and kbGrayPlus are the - and + keys on the numeric keypad.
+kbLeft and kbRight are the arrow keys.
+
+=head3 Alt-number key code constants
+
+    Constant    Value       Constant    Value
+    kbAlt1      0x7800      kbAlt6      0x7D00
+    kbAlt2      0x7900      kbAlt7      0x7E00
+    kbAlt3      0x7A00      kbAlt8      0x7F00
+    kbAlt4      0x7B00      kbAlt9      0x8000
+    kbAlt5      0x7C00      kbAlt0      0x8100
+
+=head3 Function key code constants
+
+    Constant    Value       Constant    Value
+    kbF1        0x3B00      kbF6        0x4000
+    kbF2        0x3C00      kbF7        0x4100
+    kbF3        0x3D00      kbF8        0x4200
+    kbF4        0x3E00      kbF9        0x4300
+    kbF5        0x3F00      kbF10       0x4400
+
+=head3 Shift-function key code constants
+
+    Constant    Value       Constant    Value
+    kbShiftF1   0x5400      kbShiftF6   0x5900
+    kbShiftF2   0x5500      kbShiftF7   0x5A00
+    kbShiftF3   0x5600      kbShiftF8   0x5B00
+    kbShiftF4   0x5700      kbShiftF9   0x5C00
+    kbShiftF5   0x5800      kbShiftF10  0x5D00
+
+=head3 Ctrl-function key code constants
+
+    Constant    Value       Constant    Value
+    kbCtrlF1    0x5E00      kbCtrlF6    0x6300
+    kbCtrlF2    0x5F00      kbCtrlF7    0x6400
+    kbCtrlF3    0x6000      kbCtrlF8    0x6500
+    kbCtrlF4    0x6100      kbCtrlF9    0x6600
+    kbCtrlF5    0x6200      kbCtrlF10   0x6700
+
+=head3 Alt-function key codes
+
+    Constant    Value       Constant    Value
+    kbAltF1     0x6800      kbAltF6     0x6D00
+    kbAltF2     0x6900      kbAltF7     0x6E00
+    kbAltF3     0x6A00      kbAltF8     0x6F00
+    kbAltF4     0x6B00      kbAltF9     0x7000
+    kbAltF5     0x6C00      kbAltF10    0x7100
+
+=head2 lowMemory
+
+function
+
+=head3 Declaration
+
+    sub lowMemory; # $bool ()
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+lowMemory returns TRUE if a memory allocation used a portion of the memory
+safety pool, otherwise lowMemory returns FALSE. Use of the memory safety pool
+is described in Chapter 19.
+
+=head2 maxCollectionSize 
+
+constant
+
+=head3 Declaration
+
+    use constant maxCollectionSize => int( (UINT_MAX - 16) / $Config{ptrsize} );
+
+=head3 Module
+
+    TV::Const
+
+=head3 Purpose
+
+maxCollectionSize sets the maximum number of elements that can be put into a
+collection (which is equal to the maximum number of pointers that can fit into
+a single data segment).
+
+=head2 maxViewWidth
+
+constant
+
+=head3 Declaration
+
+    use constant maxViewWidth => 132;
+
+=head3 Module
+
+    TV::Const
+
+=head3 Purpose
+
+Determines the maximum width of a view.
+
+=head2 mbXXXX
+
+Mouse Button constants
+
+=head3 Module
+
+    TV::Drivers::Const
+
+=head3 Purpose
+
+The mbXXXX constants are used to test the $event->{buttons} field of a TEvent
+hash to determine if the left or right button was pressed.
+
+    Constant        Value   Usage
+    mbLeftButton    0x01    Value if left button was pressed.
+    mbRightButton   0x02    Value if right button was pressed.
+
+B<See>: TEvent
+
+=head2 $menuBar
+
+variable
+
+=head3 Declaration
+
+    our $menuBar = undef;
+
+=head3 Module
+
+    TV::App::MenuBar
+
+=head3 Purpose
+
+$menuBar is initialized by TProgram->initMenuBar (via TApplication->initMenuBar,
+which you override in your program when initializing the pulldown menus) to
+point to your application's menu bar. The default value of undef indicates that
+no menu bar is defined for the application. See the examples in the "Turbo
+Vision Tutorial", Chapter 11 in the Borland Pascal Developer's Guide.
+
+=head2 message
+
+subroutine
+
+=head3 Declaration
+
+    sub message; # void ($receiver, $what, $command, $infoPtr)
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+Use message to send messages between views. message creates an evCommand $event
+hash using the parameters $event->{what}, $event->{command} and 
+$event->{infoPtr} and attempts to invoke $receiver->handleEvent to process the 
+$event. If $receiver->handleEvent successfully handles the $event then message 
+sets $event->{infoPtr} from the processed message (which is a reference to the 
+object that handled the message). Otherwise, if the event was not handled, 
+message set $event->{infoPtr} to undef.
+
+When using message, the $event->{infoPtr} parameter may be used for most any 
+purpose. For example, to pass a block of data to the recipient, set this 
+parameter to reference to a data hash. If you wish to let the recipient of the 
+message know who sent the message, set $event->{infoPtr} to $self.
+
+The message facility is used for many purposes. One example is a list box and a
+vertical scroll bar. Whenever the scroller position is adjusted (using the
+mouse or keyboard controls), the scroller sends a message informing the world
+that it has changed,
+
+    nessage( TopView, evBroadcast, cmScrollBarChanged, $self );
+
+where TopView is a TView function returning the current modal view (hence, the 
+view that owns the scrollbar), and cmScrollBarChanged is a standard message 
+broadcast to the rest of the views informing the world that it has changed. 
+TopView->handleEvent looks at the cmScrollBarChanged message and passes it along
+to its subviews. Eventually, the list box view receives and processes the 
+message at its HandleEvent method, causing the listbox cursor to move up or 
+down, or for the contents of the list box to be redrawn.
+
+=head2 messageBox
+
+function
+
+=head3 Declaration
+
+    sub messageBox; # $ccode ($msg, $aOptions)
+    sub messageBox; # $ccode ($aOptions, $msg, @param)
+
+=head3 Module
+
+    TV::MsgBox
+
+=head3 Purpose
+
+messageBox is not described in the Borland documentation but is provided in the
+file MSGBOX.CPP.
+
+messageBox displays a string within a dialog box, inserting optional Params
+parameters, as desired, and displays optional Okay, Cancel, Yes or No buttons
+depending upon the settings of the $aOptions parameter. This function is useful
+for displaying error and warning messages.
+
+The $msg string and the @params parameter are both passed to the sprintf
+subroutine for formatting. Because of this, you can insert variable parameters
+into the $msg string (see the description of sprintf for more information on
+the type of formatting that may be performed).
+
+For example, if a problem occurs renaming a file, you might display an error
+message using the sample code shown in Listing DMSGBOX2.PAS.
+
+=head3 Listing dmsgbox2.pl
+
+    # dmsgbox2.pl
+    # Demonstrates use of the messageBox function
+    #
+    sub TShell::demoMessageBox {
+      my $control;
+      my @errMsg;
+      my $fileName = 'SAMPLE.TXT';
+      $errMsg[0] = $fileName;
+      $control = messageBox(
+          mfError | mfOKButton | mfCancelButton, 
+          'Problem renaming %s',
+          @errMsg
+      );
+      return $control;
+    } # TShell::demoMessageBox
+
+The @errMsg array is set to the filename parameter that will be inserted into 
+the message string (as per sprintf usage).
+
+The $aOptions values select the type of message box to display and the type of
+buttons to display in the message box. Select only one Message box type, and or
+it with the button types shown in the Button flags table.
+
+The messageBox function returns either cmOk, cmCancel, cmYes or cmNo.
+
+=head3 Table of Message Box Types
+
+    Constant        Value   Usage
+    mfWarning       0x0000  Display a warning type message box
+    mfError         0x0001  Display an error type message box
+    mfInformation   0x0002  Display an Information box
+    mfConfirmation  0x0003  Display a confirmation box
+
+=head3 Table of Button flags
+
+    Constant        Value   Usage
+    mfYesButton     0x0100  Show a Yes button
+    mfNoButton      0x0200  Show a No button
+    mfOkButton      0x0400  Show an Okay button
+    mfCancelButton  0x0800  Show a Cancel button
+    mfYesNoCancel           Show a Yes, No and a Cancel button
+    mfOkCancel              Show an Okay and a Cancel button
+
+B<Important>: messageBox only works within Turbo Vision applications. Do not 
+attempt to use messageBox in non-Turbo Vision applications.
+
+B<See>: sprintf, messageBoxRect, TStaticText
+
+=head2 messageBoxRect
+
+function
+
+=head3 Declaration
+
+    sub messageBoxRect; # $ccode ($r, $msg, $aOptions)
+
+=head3 Module
+
+    TV::MsgBox
+
+=head3 Purpose
+
+messageBoxRect is identical to messageBox, except that you can specify a
+specific location and size for the message box using the $r parameter. For
+example,
+
+    my $r = TRect->new( ax => 5, ay => 5, bx => 60, by => 10 );
+    my $control = messageBoxRect( $r, 'Problem Renaming %s', @errMsg, 
+        mfError | mfCancel );
+
+B<See>: messageBox
+
+=head2 minWinSize
+
+variable
+
+=head3 Declaration
+
+    our $minWinSize = TPoint->new( x => 16, y => 6 ;
+
+=head3 Module
+
+    TV::Views::Window
+
+=head3 Purpose
+
+$minWinSize sets the minimum allowed width and height for all objects descended
+from TWindow. The default is 16 characters wide and 6 characters high
+(including the shadow). You can see how these values are used by sizing an
+editor window in the Borland DOS IDE to the minimum size.
+
+=head2 THardwareInfo->getButtonCount 
+
+function
+
+=head3 Declaration
+
+    sub getButtonCount; # $mouseButtons ()
+
+=head3 Module
+
+    TV::Drivers::HardwareInfo
+
+=head3 Purpose
+
+Contains the current state of the mouse buttons. See the mbXXXX constants for
+the bit settings in this variable.
+
+=head2 $mouseEvents
+
+variable
+
+=head3 Declaration
+
+    our $mouseEvents = FALSE;
+
+=head3 Module
+
+    TV::Drivers::EventQueue
+
+=head3 Purpose
+
+The TEventQueue->resume subroutine detects the presence of a mouse, and if a 
+mouse is found, sets $mouseEvents to TRUE. If no mouse is found, then 
+$mouseEvents is set to FALSE and no mouse event processing occurs.
+
+=head2 $mouseReverse
+
+variable
+
+=head3 Declaration
+
+    our $mouseReverse = FALSE;
+
+=head3 Module
+
+    TV::Drivers::EventQueue
+
+=head3 Purpose
+
+When set to TRUE, this field causes the TEvent->{buttons} field to reverse the
+mbLeftButton and mbRightButton flags.
+
+=head2 moveBuf 
+
+method
+
+=head3 Declaration
+
+    sub moveBuf; # void ($indent, \@source, $attr, $count)
+
+=head3 Module
+
+    TV::Objects::DrawBuffer
+
+=head3 Purpose
+
+moveBuf is typically used for copying text and video attribute bytes to a
+TDrawBuffer-type array. Such an array holds character bytes in the low bytes of
+each word, and attribute values in the high bytes. moveBuf copies Count bytes
+from Source into the low bytes of the Dest destination parameter, setting each
+high byte to the Attr byte value (or leaving the attribute bytes as is if Attr
+equals zero).
+
+B<See>: moveChar, TDrawBuffer, TView->writeBuf and TView->writeLine.
+
+=head2 moveChar
+
+method
+
+=head3 Declaration
+
+    sub moveChar;    # void ($indent, $c, $attr, $count)
+
+=head3 Module
+
+    TV::Objects::DrawBuffer
+
+=head3 Purpose
+
+Similar to moveBuf, except that this copies the single character $c, $count
+number of times, into each low byte of the TDrawBuffer object parameter, and if 
+$attr is non-zero, copies $attr to each high byte position in the (internal 
+data) array.
+
+B<See>: moveBuf, TDrawBuffer, TView->writeBuf and TView->writeLine.
+
+=head2 moveCStr
+
+method
+
+=head3 Declaration
+
+    sub moveCStr;    # void ($indent, $str, $attrs)
+
+=head3 Module
+
+    TV::Objects::DrawBuffer
+
+=head3 Purpose
+
+moveCStr copies a string to a TDrawBuffer array such that the text is
+alternately one of two different colors. moveCStr copies the $str string
+parameter to the TDrawBuffer (internal array) and sets each character's
+attributes using either the low or high byte of the $attr word. Initially,
+moveCStr uses the low byte of $attr, but upon encountering a "~" tilde
+character, moveCStr switches to the high byte of $attr. Each tilde in the string
+causes moveCStr to toggle to the other $attr attribute byte. moveCStr is used by
+Turbo Vision for setting up pulldown menu strings where the hot keys are set
+off in a different color from the rest of the text. For example,
+
+    TSubMenu->new('~R~un', 0, hcNoContext, TMenuItem->new( ...
+
+You use moveCStr like this:
+
+    my $aBuffer = TDrawBuffer->new();
+    ...
+    $aBuffer->moveCStr( 0, 'This ~is~ some text.', 0x0770 );
+    $view->writeLine( 10, 10, 18, 1, $aBuffer );
+
+This sets the word 'is' to the attribute 0x07 and the rest of the text to 0x70.
+
+B<See>: TDrawBuffer, moveChar, moveBuf, moveStr, TView->writeBuf and 
+TView->writeLine, see also "Setting Color Palettes" in Chapter 13, 
+"More Turbo Vision Features" in the Borland Pascal Developer's Guide, cpColor, 
+cpMonochrome, cpBlackWhite
+
+=head2 moveStr
+
+method
+
+=head3 Declaration
+
+    sub moveStr;    # void ($indent, $str, $attrs)
+
+=head3 Module
+
+    TV::Objects::DrawBuffer
+
+=head3 Purpose
+
+moveStr copies the $str string parameter to the TDrawBuffer (internal array) and
+sets each character's attributes to the video attribute contained in $attr.
+
+B<See>: TDrawBuffer, moveChar, moveBuf, moveStr, TView->writeBuf and 
+TView->writeLine, see also "Setting Color Palettes" of Chapter 13 in the 
+Borland Pascal Developer's Guide, cpColor, cpMonochrome, cpBlackWhite
+
+=head2 newLine
+
+function
+
+=head3 Declaration
+
+    sub newLine; # $menuItem ()
+
+=head3 Module
+
+    TV::Menus::MenuItem
+
+=head3 Purpose
+
+Use newLine to insert horizontal separator lines into pulldown menus. You can
+place newLine anywhere that you would use a newItem function. See Chapter 14,
+Turbo Vision Tutorial.
+
+=head2 newStr
+
+function
+
+=head3 Declaration
+
+    sub newStr; # $string ($str);
+
+=head3 Module
+
+    TV::Util
+
+=head3 Purpose
+
+Use newStr to dynamically a string variable. newStr is especially useful for
+creating arrays or collections of strings. See listing, below, for an example
+of an array of strings. 
+
+=head3 Sample code
+
+    my $aStrArray = [ 0..100 ];
+    ...
+    for my i ( 0..100 ) {
+      $aLine = $io->getline();
+      $aStrArray->[$i] = newStr( $aLine );
+    }
+    say( $_ ) for @aStrArray;
+
+B<See>: Chapter 14,"Collections" in the Borland Pascal Developer's Guide.
+
+=head2 TSubMenu->new
+
+class
+
+=head3 Declaration
+
+    sub new; # $menu ($nm, $key, | $helpCtx)
+
+=head3 Module
+
+    TV::Menus::SubMenu
+
+=head3 Purpose
+
+TSubMenu creates an individual pulldown menu within the menu bar
+initialization. See Chapter 11, "Turbo Vision Tutorial" in the Borland Pascal
+Developer's Guide for examples of menu creation.
+
+B<See>: TMenu, newLine
+
+=head2 ofXXXX 
+
+TView->options field bit positions constants
+
+=head3 Purpose
+
+The ofXXXX constants select options available in all TView-derived objects. 
+Setting the bit position to a 1 sets the indicated attribute; clearing the bit 
+position to 0 disables the indicated attributes.
+
+    Constant        Value   Usage
+    ofSelectable    0x0001  If this bit is set, then the view can be selected 
+                            with a mouse. While most views are normally 
+                            selectable, this bit gives the option to make the 
+                            item unselectable. An example of an unselectable 
+                            view is TStaticText items.
+    ofTopSelect     0x0002  When set, this view will move to the topmost view 
+                            whenever it is selected. This option should normally
+                            be set only for window objects.
+    ofFirstClick    0x0004  When a mouse click is used to select a view, the 
+                            click can be optionally passed to the view after it 
+                            is selected. For example, within a dialog box, if 
+                            you click on a button, you not only wish to set the 
+                            focus to that button, but you probably also want to 
+                            activate the button at the same time.
+    ofFramed        0x0008  When set, the view has visible frame drawn around 
+                            it.
+    ofPreProcess    0x0010  This option enables views other than the focused 
+                            view to have a chance at processing an $event. 
+                            Normally, events are passed down the focus-chain, 
+                            however, events are also sent to any subviews 
+                            (in Z-order) that have this bit set, giving them a 
+                            chance to process the $event. See Chapter 13, 
+                            "More Turbo Vision Features" in the Borland Pascal 
+                            Developer's Guide.
+    ofPostProcess   0x0020  When this bit is set, subviews are given a chance 
+                            after the focused view, to process events that have 
+                            not yet cleared.
+    ofBuffered      0x0040  Views can optionally store an image of themselves in
+                            a memory buffer. When the view needs to be redrawn 
+                            on the screen, it can rapidly copy itself from the 
+                            buffer, rather than recreate the drawing on the 
+                            screen. To enable cache buffering of the view's 
+                            displayable image, set the ofBuffered bit to on. 
+                            The buffers are stored in special, disposable memory
+                            caches. When the memory manager runs out of memory, 
+                            these cache buffers are automatically deleted to 
+                            free up more memory space, and the view's recreate 
+                            their displayable images as they would without the 
+                            ofBuffered option. If you set the ofBuffered option,
+                            be sure to call the TGroup method's lock and unlock 
+                            to prevent copying of the screen image to the 
+                            display until all of the subview's have drawn 
+                            themselves.
+    ofTileable      0x0080  Generally, you will want window objects to be either
+                            tileable or cascadeable so that the desktop can 
+                            automatically rearrange the windows, if desired. 
+                            If you wish to disable this function for a 
+                            particular view, clear this bit position in the 
+                            TView->options field. When disabled, the view will 
+                            not move on the screen, even if other views become 
+                            tiled or cascaded. See also: TDeskTop->cascade, 
+                            TDeskTop->tile.
+    ofCenterX       0x0100  When this bit is set, the insertion of the view 
+                            causes the view to be horizontally centered.
+    ofCenterY       0x0200  When this bit is set, a view is centered in the 
+                            vertical direction (especially useful when switching
+                            between 25 and 43/50 line modes).
+    ofCentered      0x0300  Same as setting both ofCenterX and ofCenterY: 
+                            centers the view in both vertical and horizontal 
+                            directions.
+
+=head2 positionalEvents
+
+constant
+
+=head3 Declaration
+
+    use constant positionalEvents => evMouse;
+
+=head3 Module
+
+    Views
+
+=head3 Purpose
+
+You can force events and messages to route as if they are positional events by 
+setting positionalEvents to the event's evXXXX constant. By adding your own 
+event classes (by setting the bit patterns) you can create broadcast messages 
+that route the same as a positional $event.
+
+B<See>: focusedEvents, Chapter 13, "More Turbo Vision Features" in the Borland 
+Pascal Developer's Guide.
