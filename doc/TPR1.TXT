@@ -1,0 +1,975 @@
+
+                          The Turbo Pascal Reference
+                                      by
+                                  Ed Mitchell
+
+                                A Freeware Book
+
+First edition, Nov 1992. (C) Copyright 1992 by Ed Mitchell, author of the
+Borland Pascal Developer's Guide, Que Corporation, 1992.  
+
+
+
+Introduction
+
+     Welcome to the electronic edition of the Turbo Pascal Reference.  This
+reference provides approximately 400 single-spaced pages of reference
+information about the Turbo Pascal IDE, the Turbo Pascal language, all of the
+System and Graph libraries, plus a comprehensive 150+ page reference to Turbo
+Vision.
+
+     This book is intended to be used as a reference - not as a tutorial.  If
+you have no programming experience whatsoever, you should consult a Turbo
+Pascal programming tutorial first.  If you have a minor amount of programming
+experience, you will find a complete discussion of Turbo Pascal in Chapter 3,
+"The Turbo Pascal Language".
+
+     The Turbo Vision Reference section, Chapters 6 through 10, is unique in
+that it provides many examples and highlights the most commonly used features. 
+If you have programmed in Turbo Vision you already know that you do not need to
+use all of the methods described for each object type.  Unfortunately, it is
+difficult, using Borland's documentation, to discern those that are needed and
+those that you can safely ignore.  This means that learning Turbo Vision using
+the Borland documentation is much more difficult than it needs to be.  And that
+is why you will want to use the reference information I've provided in this
+freeware book.  
+
+     If you have never programmed in Turbo Vision, I recommend that you consult
+Chapter 11, "Turbo Vision Tutorial", continuing though Chapter 16, of the
+Borland Pascal Developer's Guide, published by Que Books.
+
+     This Turbo Pascal Reference, a 400 page book, is available to you, for
+free.  Subject to the copyright and distribution rights described below, you
+are free to copy this book and give it to others.
+
+
+
+Why am I giving this book away?
+
+     When I wrote Borland Pascal Developer's Guide (Que Books, 1992), my
+publisher asked for a comprehensive book that would cover every feature of
+Turbo Pascal.  Obviously, such a volume would take a lot more than could fit
+within the approximately 1,000 page limitation of a printed book.
+
+     Because there is not room in a single volume to hold all of this material,
+I am giving away the extra 400 pages that it takes to flesh out the entire
+topic.  I want you, my reader, to have access to this text, to help you in your
+development of Pascal applications.  There is a great deal of valuable insight,
+tutorials and sample code within this text and I very much want these
+techniques to get into your hands and to be used by you.
+
+     Please note that while the material presented here complements the Borland
+Pascal Developer's Guide, this electronic book is not in any way affiliated
+with the Que Corporation.
+
+     This electronic book is completely free.  However, if you find this
+information of value to you, I would greatly appreciate your purchase of
+Borland Pascal Developer's Guide, published by Que Corporation, 1992.  (Or,
+alternately, my Secrets of the Borland C++ Masters (Sams Books, 1992) or Using
+Microsoft C/C++ (Que, 1992)).  
+
+     This freeware book does not duplicate the material in the Borland Pascal
+Developer's Guide.  The Borland Pascal Developer's Guide and the Turbo Pascal
+Reference are completely independent of one another - yet strongly complement
+each other - so it is to your advantage to have access to both.  If your book
+store does not stock Borland Pascal Developer's Guide, you can ask your
+retailer to order them directly from Que Corporation, or call Que at
+317-573-2500 or 1-800-428-5331.
+
+     Because the material in the Turbo Pascal Reference was originally intended
+as extra chapters in the Borland Pascal Developer's Guide, you will find cross
+references to the Developer's Guide.  For example, in the reference section on
+the Turbo Vision TCollection object, I will point you to chapter 14,
+"Collections" in the Borland Pascal Developer's Guide for additional examples.
+
+
+
+About the Author
+
+     I am the author of Borland Pascal Developer's Guide (Que Books, 1992),
+coauthor of Using Microsoft C/C++ 7.0 (Que Books, 1992), Secrets of the Borland
+C++ Masters (Sams Books, 1992), and author of, under a pseudonym, Software
+Construction Set for the IBM PC (Hayden Books, 1984).  
+
+     As a past employee of Software Publishing Corporation, I was the project
+manager of the best selling PFS First Choice integrated software product, and
+coauthor of the original PFS Write which was one of the first word processors
+for the IBM PC (and was also a best seller).  Both PFS Write and PFS First
+Choice were written in Pascal.  In the case of First Choice, the source ran to
+over 125,000 lines of Pascal code.  I've been writing Pascal code since my
+first use of an LSI-II Terak Microcomputer in 1978.
+
+
+
+How to Contact the Author
+
+     You can contact me via electronic mail to Compuserve 73317,2513 or via the
+Internet to 73317.2513@compuserve.com.  I promise to read all mail that I
+receive; realistically I cannot promise to respond to all enquiries.
+
+
+Copyright  Notice
+
+     This text is copyrighted, which means that I retain ownership and control
+over the right to make copies of this electronic book.  However, I give you
+permission to copy this electronic text and give it away, free, to others,
+subject to the following rules and restrictions:
+
+1.  This electronic book may only be copied in its entirety, unless separate
+permission is received from the author.
+
+2.  Each copy of this material, whether electronic or printed, must not be
+modified by you.  In particular, each copy must include this introduction, my
+copyright statement and the reference to Borland Pascal Developer's Guide (Que,
+1992).
+
+3.  You may print out copies of this electronic text for your own use.
+
+4.  Teachers and instructors are encouraged to copy, or to print and use this
+material in their classroom; however, if material is extracted for use in a
+classroom setting, the extracted material must bear the following notice:
+
+     From Turbo Pascal Reference, (C) Copyright 1992 by Ed
+     Mitchell, author of Borland Pascal Developer's Guide, Que
+     Corporation, 1992.
+
+5.  Bona fide shareware distributors may charge a "nominal" fee for the costs
+of duplication and distribution.  By "nominal", I mean a low fee such as $5.00
+per disk.
+
+6.  You may not sell copies of the Turbo Pascal Reference in electronic,
+printed or any other form, for profit or not-for profit.
+
+7.  You may not give this material away or distribute this freeware text as a
+promotion for any other product without the express written permission of Ed
+Mitchell.
+
+8.  Turbo Pascal, Turbo Pascal for Windows, and Borland Pascal are trademarks
+of Borland International, Inc.
+
+
+
+Disclaimer:  There are No Warranties
+
+     The material in this electronic book has not been professionally edited. 
+In particular, Turbo Pascal Reference is not produced by nor sanctioned by the
+Que Corporation.  Que Corporation has no affiliation with nor responsibility
+for the content of Turbo Pascal Reference.  Ed Mitchell is solely responsible
+for the content of Turbo Pascal Reference.
+
+     This means that the text has NOT been reviewed by one or more copy editors
+and a technical editor, which is typical of the material that you read in a
+published book.  As such, you may find typographical or grammatical errors. 
+There may also be technical errors of the type that crop up during any big
+project as large as this one.  If you find a problem, please notify me
+directly, via electronic mail, and I will fix the problem for a subsequent
+release of this electronic book. 
+
+     The text and sample programs are intended solely for educational purposes.
+While the programs are believed to reasonably accurate and functional, they
+have not been subjected to the standards of a professional software quality
+assurance department.  No warranties, expressed or implied, are given.  This
+material is used by you "as is".  You may use the sample code in your own
+applications but you must subject the sample code to the same testing that you
+would give to your own code.
+
+
+About Borland Pascal Developer's Guide
+
+     The Borland Pascal Developer's Guide is aimed at the intermediate to
+advanced Pascal programmer, although it contains an enormous amount of
+information that will be of value to those who have just learned Turbo Pascal. 
+The Guide covers Turbo Pascal 6.0, Turbo Pascal 7.0, Borland Pascal, including
+the new protected-mode features, and Turbo Pascal for Windows.  The book
+includes a companion disk containing all of the source code from the book, plus
+several shareware utilities.  A detailed outline of the Borland Pascal
+Developer's Guide is presented after the Table of Contents for the Turbo Pascal
+Reference.
+
+
+About the Illustrations and Sample Source Code
+
+     In some of the chapters you will see reference to "figures", such as
+"Figure 3.2".  Above the Figure caption you will see a notation similar to:
+
+***03tpr02.pcx***
+
+     This notation means that the illustration is contained in "pcx" format
+graphics file named 03TPR02.PCX.  You can read and print .pcx files using the
+Microsoft PaintBrush program that comes with Microsoft Windows.  Many other
+graphics programs can also display and print these .pcx format files.  All of
+the .pcx files are included in this electronic book.
+
+     The text contains many program listings.  Some of these are also provided
+as separate source code files to make it easy for you to use the sample code in
+your own programs.  Whenever you see a listing in the text that contains "line
+numbers" on the left hand side, the topmost line of the listing will show the
+name of the file containing the source code.  The sample files are included in
+this electronic book.  The line numbers are for reference only; if you choose
+to type in any of the sample programs, do not type the line numbers.
+
+
+
+                            Turbo Pascal Reference 
+                             ---------------------
+
+                               Table of Contents
+                    ---------------------------------------
+
+Total pages in the electronic book:
+     Over 400 single spaced pages.
+
+Chapter 1
+20 pages.
+This introduction
+Copyright information
+Table of Contents for Turbo Pascal Reference
+Table of Contents for Borland Pascal Developer's Guide
+
+
+
+Chapter 2
+The Integrated Development Environment
+36 pages.
+
+Using the Integrated Development Environment
+     When to Use the IDE?
+     Starting Turbo Pascal's IDE
+     Selecting Menu Items
+     Editing, Saving and Compiling a Program
+Dialog Boxes
+Using the Editor
+     Navigating in the Editor
+     Selecting Text and Text Block Operations
+     Specific Editing Commands
+The IDE Help System
+     Copying Text from the Help system
+The File Menu
+     File Menu/Open
+     File Menu/New  
+     File Menu/Save functions
+     File Menu/Change dir
+     File Menu/Print
+     File Menu/Get Info
+     File Menu/DOS Shell
+     File Menu/Exit
+The Search Menu
+     Search Menu/Find (Ctrl-Q-F)
+     Search Menu/Replace (Ctrl-A)
+     Search Menu/Search Again (Ctrl-L)
+     Search Menu/Go to Line Number
+     Search Menu/Find Procedure
+     Search Menu/Find Error (Alt-F8)
+The Run Menu
+     Run Menu/Run (Alt-R)
+     Run Menu/Program Reset (Ctrl-F2)
+     Run Menu/Go to Cursor (F4)
+     Run Menu/Trace Into (F7) and Step Over (F8)
+     Run Menu/Parameters
+The Compile Menu
+     Compile Menu/Compile (Alt-F9)
+     Compile Menu/Make (F9)
+     Compile Menu/Build
+     Compile Menu/Destination
+     Compile Menu/Primary File
+The Debug Menu and the Built-in Debugger
+     Debug Menu/Evaluate/Modify (Ctrl-F4)
+     Debug Menu/Watches
+     Debug/Watches - Add Watch (Ctrl-F7)
+     Debug Menu/Watches - Delete Watch
+     Debug Menu/Watches - Edit Watch
+     Debug Menu/Watches-Remove all Watches
+     Debug Menu/Toggle Breakpoint (Ctrl-F8)
+     Debug Menu/Breakpoints
+          Edit Breakpoints Button
+          Delete Button
+          View Button
+          Clear All Button
+The Options Menu
+     Options Menu/Compiler
+     Options Menu/Memory sizes
+     Options Menu/Linker
+     Options Menu/Debugger
+     Options Menu/Directories
+     Options Menu/Environment
+          Options Menu/Environment - Preferences
+          Options Menu/Environment - Editor Options
+          Options Menu/Environment - Mouse
+          Options Menu/Environment - Startup
+          Options Menu/Environment - colors
+          Options Menu/Save options
+The Window Menu
+
+
+Chapter 3
+The Turbo Pascal Language
+104 pages.
+
+Your First Turbo Pascal Program
+Pascal Program Structure
+Pascal Data Types
+     A Note on the Use of Floating Point Values
+     Declaring Identifiers
+     Constants
+     Variables
+     Arrays
+     Multidimensional Arrays
+          Arrays and the packed Keyword
+     Enumerated Types
+     Subrange Types
+     Sets
+          Set Relational Operators
+          Set Logical Operators
+     Records
+          The With Statement
+          Record Types
+     Case-variant records
+     File Types
+     Typed Constants:  Pre-initialized variables
+     The Pointer Type
+          Defining and Allocating a Pointer
+          Using a Pointer
+          Disposing of a Dynamic variable
+          Common problems when using pointers
+          The Use of Mark and Release Procedures
+          Cautions concerning the use of Mark and Release
+          The Use of GetMem and FreeMem procedures
+          Pointers and Memory Management
+          Pointer Relational Operators
+          The Address-of operator @
+          @ and Procedures and Functions
+          @ and Procedure Value parameters
+          @ and Procedure Variable parameters
+     Summary of Pointer Operations
+     Pointers and Complex Data Structures
+     Pointers and the With Statement
+Turbo Pascal Arithmetic Operations
+     Basic Arithmetic Operators
+     Mixing Data Types in Expressions
+     Implicit Type Conversion
+     Explicit Type Conversion
+     Address-of @ operator
+Comparision or Relational Operators
+     Logical or Bit Level Operations
+     Boolean Operations
+     Short-Circuit versus Complete Evaluation
+String Operations
+Evaluation Hierarchy
+Pascal Statements
+     Program Comments
+     Assignment Statements:  :=
+     Conditional Statements:  If-then-else and case
+          The if-then and if-then-else statements
+          The case Statement
+     Looping Statements:  For, While and Repeat
+          For Loop
+          While Loop
+          Repeat Loop
+     Labels and Goto
+Procedures and Functions
+     Procedures
+          The <Optional parameter list>
+          Arrays as Parameters
+          Strings as Parameters
+          Records as Parameters
+          Summary of Using Parameter Values and Variables
+     The Procedure Body
+          Forward declared procedures
+          Near and Far procedure call models
+          Interrupt Procedures
+          Assembly language procedures:  External, Inline and Asm
+     Functions
+          Calling a function
+          Assigning a value to a function identifier
+          Acceptable Function Return Values
+          Recursive functions
+          The effect of short-circuit evaluation on functions
+     Procedures and Functions as Parameters
+Conditional Compilation
+     Built-in Conditional Compilation Symbols
+Compiler Directives
+Disk File Operations
+     Defining a File Identifier
+     Opening a File
+     Writing and Reading File Data
+     Checking for File-related Errors
+     Text Files
+     Sequential Access Data Files
+     Random Access Data Files
+     Writing Pointer values to disk files
+     BlockRead and BlockWrite:  The Use of Untyped Files
+     Specifying Different Block Sizes
+     Maximum buffer size and maximum data to read or write
+     Other File Operations
+Turbo Pascal Memory Limitations
+
+
+
+Chapter 4
+System Library Reference
+89 pages.
+
+
+Chapter 5
+Graph Library Reference
+54 pages.
+
+
+
+Chapter 6
+The Turbo Vision Reference
+34 pages.
+
+About the Reference Section
+Naming Conventions
+Naming Conventions
+The Turbo Vision Object Hierarchy
+The Reference Section
+     Contains reference information on every aspect of Turbo Vision, including
+object types, global variables, type declarations, constants, plus examples and
+an overview of commonly used features.
+
+Chapter 7, 8, 9 and 10
+The Turbo Vision Reference
+(continued)
+Chapter 7: 28 pages.
+Chapter 8: 42 pages.
+Chapter 9: 40 pages.
+Chapter 10: 37 pages.
+
+
+
+
+
+                       Borland Pascal Developer's Guide 
+                        -------------------------------
+
+                               Table of Contents
+                    ---------------------------------------
+
+Chapter 1
+Introduction
+
+
+Who Should Use This Book?
+How To Use This Book
+About the Sample Programs
+About The Programming Style Used in This Book
+The Companion Diskette
+How to Contact the Author
+New Features in Borland Pascal and Turbo Pascal 7.0
+     Which Compiler Should You Use?
+     Using Protected-Mode 
+     Compiling for Protected Mode
+Issues of Programming Style
+     Capitalization of Keywords
+     Indenting
+          Where to Indent?
+     Use Blank Lines
+     Types and Pointers
+     Procedures and Functions
+
+
+
+Chapter 2
+Units
+
+Introduction
+Structure of a Unit
+Defining the Interface Section
+Inline Procedures and Functions
+Using Other Units Within the Interface Section
+Defining the Implementation Section
+The Unit Initialization Section
+Using a Unit in another Program
+Compiling a Unit
+Using TPUMOVER to Update TURBO.TPL
+Multiple .TPL Library Files
+Project Management:  The Build and Make Options
+Circular References:  When Units Use Each Other
+Sharing Declarations Between Units
+The Standard Turbo Pascal Units
+Library Units Available From Other Suppliers
+A Sample Unit
+Dynamic Link Libraries
+
+
+
+Chapter 3
+Overlays
+
+Introduction
+General Guidelines
+Overlay Example
+Description of Example Program OverDemo
+Checking OvrResult
+Combining .OVR and .EXE into a single .EXE file
+Assembly language and Overlay Calls
+Overlays and Unit Initialization Code
+Overlaying Data
+Tuning the Virtual Array Code
+Turbo Pascal Overlay Unit Reference
+
+
+
+Chapter 4
+Object-Oriented Programming
+
+Introduction
+What You Need To Learn
+The Terminology of Object-oriented Programming
+A First Look at Object Oriented Programming in Turbo Pascal
+Pointers to Objects and Dynamic Object Allocations
+Disposing of Object Pointers
+Destructor Methods
+The Power of Inheritance
+Calling the Ancestor's Init Method
+Object Types, Objects and Inheritance
+Virtual Methods
+Objects containing Virtual Methods Must Have a Constructor
+Static versus Virtual:  Which Do You Choose?
+Object Types and Type Compatability
+Objects as Procedural Parameters
+Objects as Typed Constants
+Polymorphism
+Object Libraries
+Designing Object-oriented Programs
+Object-oriented Programming Reference
+Defining an object
+Deriving an object
+Object Pointers
+Constructor and Destructor Methods
+Virtual methods
+Using the Self variable
+Range Checking of Virtual Method Calls
+Glossary of Object Terminology
+
+
+
+Chapter 5
+Turbo Pascal Graphics
+
+Introduction to Turbo Pascal Graphics
+     The Graph Unit and Related Files
+     Sample Program
+     Circles
+     Graphic Text
+Viewports
+The Current Pointer
+Selecting Colors
+Choosing Colors from the Color Palette
+Selecting Interior Colors for Objects
+Charting
+The Pie Chart
+The Bar Chart
+The Line Chart
+Graphics Drivers and Font Files
+Font Files
+Linking Device Drivers and Font Files
+Converting .BGI and .CHR files into .OBJ files
+Two Approaches to Linking .BGI and .CHR Files
+Modifying Your Program to Reference the Linked .BGI and .CHR files
+
+
+
+Chapter 6
+Assembly Language Programming and Turbo Assembler
+
+Overview of 80x86 CPU Architecture
+Bit representations
+Memory Addressing
+Turbo Pascal Memory Structure
+80x86 Processor Instruction Set
+Direct Memory Address:  The Use of Mem, MemW and MemL
+Direct Port Access:  The Use of Port and PortW
+The Use of Inline Statements
+Encoding Multiple Bytes
+The Inline Directive
+The Built-in asm Assembler
+Using the Built-in Assembler
+How Procedures and Functions Are Called
+Accessing Global Variables
+The Difference Between Constants and Variables
+Local Variables in Procedures and Functions
+Accessing Value Parameters and Variable Parameters
+Function Return Values
+Accessing Pointer Variables
+Accessing Record Structures
+Statement Labels
+Jump Instructions
+Near and Far RET return instructions
+Data Formats and Definitions
+Table of Internal Data Representations
+DB, DD and DW Directives
+Using DB, DW and DD for Multiple Values and Symbols
+Assembler Expressions
+Turbo Assembler Basics
+Turbo Assembler Statements
+A Sample Program
+Assembling and Compiling
+Turbo Assembler Summary
+
+
+
+Chapter 7
+Debugging Turbo Pascal
+
+Program Testing Strategies
+Catching Software Defects Before They Happen
+Debugging Strategies
+Logic errors
+Unitialized variables
+Unitialized or Erroneous Pointer Values
+Changes to Global Variables
+Failure to Free Up Dynamically Allocated Memory
+Off by 1 Errors
+Clobbering Memory and Out of Range Errors
+Ignoring Pascal Scoping Rules
+Undefined Functions
+Check all Return Error Codes
+Boundary Conditions
+Debugging Techniques
+The IDE Debugger
+Compiling for the IDE Debugger
+Using the Integrated Debugger
+Debugger Windows
+The Watch Window
+Changing the Value of Variables
+Using Breakpoints
+Other Debug/Breakpoints features
+The Debugger Unit
+Using Turbo Debugger
+Compiling for Turbo Debugger Compatability
+Starting Turbo Debugger
+The Watch Wndow
+Inspector Windows
+Evaluate/Modify
+Viewing All Variables
+Controlling Program Execution
+Breakpoints
+Setting Breakpoint Options
+Inserting Executable Expressions
+Changed Memory Global..
+Expression True Global...
+Viewing Breakpoints
+Turbo Debugger and Assembling Language Programs
+Protected Mode Debugging on the 80286
+Virtual Debugging on the 80386
+Starting the Virtual Debugger
+Debugging Turbo Vision Applications
+Debugging Windows Applications
+
+
+
+Chapter 8
+Program Optimization and Turbo Profiler
+
+Program Optimization
+Using the Turbo Profiler
+Compiling for Turbo Profiler Compatability
+Selecting Program Areas to Profile
+Obtaining Accurate Measurements
+Improving the Program
+Statistics Provided by Turbo Profiler
+Turbo Profiler Output Options
+Active versus Passive Profiling
+Optimization Tricks
+Clean Up of Loop Statements
+Test for the Most Likely Outcomes First
+Set Compiler Options For Most Efficient Execution
+Replace Function Calls with Lookup Tables
+Don't be Afraid of Goto!
+Use Better Algorithms!
+Use var Parameters Instead of Value Parameters
+Consider Assembly Language
+Use Fixed Point Longints in Place of Reals
+Increase File I/O Buffers
+Memory Reduction
+Use Local and Dynamic Variables
+Recycle Memory
+Using Virtual Memory for Data
+
+
+
+Chapter 9
+Special Programming Techniques: 8087 Usage, Interrupts and TSRs
+
+Using the 80x87 Math Coprocessor
+Advantages and Disadvantages
+Important Considerations when Using the Coprocessor
+Transcendental Functions and the 80387
+Other Data Types
+Interrupt Handlers and TSRs
+Compiling TSR Programs
+Installing an Interrupt Handler
+Writing the Interrupt Procedure
+Use of the Procedure's Register Parameters
+Writing Interrupt Procedures using the Assembler Directive
+Writing TSRs
+TSR Dangers
+TSR Interrupt Trapping
+TSR Construction
+The Main Body of the Program
+InstallTSR and the Message Passing Mechanism
+Back to InstallTSR
+The Keyboard Interrupt Handler
+The INT $28 Interrupt Handler
+RunPopUp
+DoPopUpFunction
+DoUnUnstall    
+The Timer Interrupt
+Debugging TSRs
+
+
+
+Chapter 10
+Turbo Pascal Standalone Programs
+
+BINOBJ
+GREP
+MAKE
+Example Use of MAKE
+Explicit Rules
+Command Lines
+Implicit Rules
+Conditional Directives
+Using BUILTINS.MAK
+Macros
+MAKE Command Line Options     
+THELP
+TOUCH
+TPC and BPC - Standalone Turbo Pascal compilers
+TEMC The Turbo Editor Macro Compiler 
+TDSTRIP
+TDUMP
+
+
+
+Chapter 11
+Turbo Vision Tutorial 
+
+What is Turbo Vision?
+Learning Turbo Vision
+About TVSHELL
+A Simple Turbo Vision Application
+How does it Run?
+Creating the Menu Bar
+NewMenu, NewSubMenu and NewItem
+NewSubMenu
+Hot keys
+Command codes
+Command Code values
+Suggested Exercise
+Using the NewLine function
+Windows and Views
+Turbo Vision Windows
+Adding a simple window
+TApplication.Init
+Adding the Window
+Introduction to Dialog Boxes and the HandleEvent Method
+Modal versus Non-Modal Dialogs
+Radiobuttons and Checkboxes
+Tab Order
+Introduction to Events and the HandleEvent method
+How Events Work
+When do you call an ancestor's HandleEvent method?
+Keystrokes
+Retrieving data from a dialog
+Setting Default Values in Dialogs
+Getting User Input
+The Dialog Data Record
+Putting Data into the Dialog
+Getting Data
+Storing Dialog Data
+
+
+
+Chapter 12
+Turbo Vision List Boxes
+
+List Boxes and Collections
+Sidebar:  Introduction to Collections
+Creating a TCollection data object
+Updating an entry in the collection
+Deleting a collection entry
+Advanced TCollection retrieval methods
+Using Collections in TVSHELL6
+Adding items to DirectoryCollection
+The List Box Viewer
+Creating a List box
+Displaying List Box Text with GetText
+Summary of TCollection and TListViewer
+Finishing the TVSHELL Example Program
+     Outline numbering and file selecting
+     Scavenge hunts
+     Selecting Files and evKeyDown Events
+     Mouse Events
+     DoSelectFile
+     MoveCursor
+     DoOpenClose
+     Modifying GetText to display Outline numbering
+     Finishing TVSHELL
+     TShell.RenameDialog Implementation
+     TShell.CopyDialog
+     The Set Up Program Dialog
+     The SetScreenMode Method
+     Summary of SetScreenMode
+     Disabling Menu Commands
+Where to go next
+
+
+
+Chapter 13
+More Turbo Vision Features
+
+Ownership versus Relationship
+Z-Order
+Views and Event Processing
+Selected Views
+Events and Event Processing Order
+Positional Events
+Broadcast Events
+User Defined Events
+Phased Events
+TApplication.Idle:  Writing Background Tasks
+Using Color Palettes
+Application Color Palettes
+The Default Color Palettes
+Setting Color Palette Attribute Values
+Changing the Default Colors
+Common Problems with Color Mapping
+Fixing an out of range color problem
+Detecting Out of Memory Problems in Turbo Vision
+LowMemory and ValidView
+ValidView
+Setting The Safety Pool Size
+Cache Buffers
+TView.Valid and TGroup.Valid
+Adding On-line Help to Turbo Vision Programs
+Step 1:  Writing the on-line help text
+Step 2:  Using TVHC to Compile the Help Text
+Step 3:  Adapting An Application for On-Line Help
+
+
+Chapter 14
+Collections
+
+Creating a Collection
+Adding records to a Collection
+How many records are in the Collection?
+Retrieving records from the Collection
+Updating an entry in the collection
+Deleting a collection entry
+Disposing the Collection
+Strings in TCollection Records
+Iterators
+ForEach
+FirstThat and LastThat
+Writing FindName as Method
+Other Uses of FirstThat and LastThat
+Collections and Memory usage
+TSortedCollection
+Sort into Descending Order
+Using PStrings
+Using TSortedCollection.Search
+TStringCollection
+Overriding Compare for TStringCollection
+TStringCollection and Duplicate Entries
+Using TStringCollection.Search
+Polymorphic Collections
+
+
+
+Chapter 15
+Streams
+
+Stream Types
+Using a Stream
+The TPersonInfo record for Stream I/O
+The Registration Record
+The ObjType Field
+The VMTLink Field
+Load and Store
+The Store Method
+Registering the stream
+All Turbo Vision Objects are Streamable
+Reading a Stream
+     Defining the Load method and Registration record
+The Get Method
+Random Access Streams
+GetPos, GetSize and Truncate
+Streams in EMS Memory:  TEmsStream
+Copying Entire Streams
+Handling Stream Errors
+Polymorphic Streams
+
+
+
+Chapter 16
+Resources
+
+Creating a Database with Resources
+Reading data from the Resource file
+Storing Program Resources
+Using Program Resources
+Registering Turbo Vision Components using RegisterXXXX
+Creating String Resources
+Using String Resources
+A String Resource Compiler Utility
+Adding Resources to an .EXE File
+
+
+
+Chapter 18
+ObjectWindows Basics
+Chapter written by Namir C. Shammas.
+
+Windows Data Types
+The ObjectWindows Hierarchy
+TObject
+TApplication
+TWindowsObject
+TDialog
+TFileDialog
+TInputDialog
+TWindow
+TControl
+TScrollBar
+TStatic
+TEdit
+TListBox
+TComboBox
+TGroupBox
+TButton
+TCheckBox
+TRadioButton
+TEditWindow
+TFileWindow
+Programming Note
+TMDIWindow
+TMDIClient
+TScroller
+The Windows API Functions
+Invoking Windows API Functions
+The Windows Messages
+Responding to Messages
+Sending Messages
+User-defined Messages
+Summary
+
+
+
+Chapter 19
+ObjectWindows Examples
+Chapter written by Namir C. Shammas.
+
+Resources
+The Resource Workshop
+Emulating DOS Screen in Windows
+The Minimal Windows Application
+Using Menus
+User Input and Painting Windows
+Command Buttons and Text Boxes
+A Text File Editor
+Summary
+
