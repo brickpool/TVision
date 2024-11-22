@@ -93,53 +93,27 @@ Registration records for stream I/O begin with a capital letter C<R>.
 Identifiers beginning with lower case letters are standard Turbo Vision 
 constants. The following table shows the standard constant prefix characters:
 
-=back
-
-=head3 Prefix Definitions
-
-=over 4
-
-=item ap - Application palette
-
-=item bf - Button flag
-
-=item cp - Color palettes
-
-=item cm - Command constant
-
-=item co - Collection codes
-
-=item dm - Drag mode
-
-=item ev - Event constant
-
-=item gf - Grow mode flag
-
-=item hc - Help context
-
-=item kb - Keyboard code constant
-
-=item mb - Mouse button constant
-
-=item of - Option flag
-
-=item R - Registration record
-
-=item sb - Scroll bar
-
-=item sf - State flag
-
-=item sm - Screen mode constant
-
-=item st - Stream code
-
-=item T - Object type
-
-=item wf - Window flags
-
-=item wp - Window color palettes
-
-=back
+    Prefix  Definition              Example
+    ap      Application palette     apColor
+    bf      Button flag             bfDefault
+    cp      Color palettes          cpListViewer
+    cm      Command constant        cmOk
+    co      Collection codes        coOverflow
+    dm      Drag mode               dmDragGrow
+    ev      Event constant          evCommand
+    gf      Grow mode flag          gfGrowAll
+    hc      Help context            hcNoContext
+    kb      Keyboard code constant  kbAltA
+    mb      Mouse button constant   mbRightButton
+    of      Option flag             ofTopSelect
+    R       Registration record     RCollection
+    sb      Scroll bar              sbRightArrow
+    sf      State flag              sfActive
+    sm      Screen mode constant    smFont8x8
+    st      Stream code             stOk
+    T       Object type             TCollection
+    wf      Window flags            wfMove
+    wp      Window color palettes   wpBlueWindow
 
 =head2 The Turbo Vision Object Hierarchy
 
@@ -147,9 +121,10 @@ All Turbo Vision objects are descended from the TObject type. All displayable
 objects are descendants of TView (which is itself descended from TObject).
 Displayable objects include items such as dialogs, check boxes, buttons,
 windows and list boxes. Non-displayable objects are the TCollection, TStream,
-TResourceFile, TStringList and TStrListMaker data structure objects. The line
-of descent shown in the illustration below identifies how functionality is
-inherited between the objects. For example, TDialog is descended from TWindow
+TResourceFile, TStringList and TStrListMaker data structure objects. 
+
+The line of descent shown in the illustration below identifies how functionality 
+is inherited between the objects. For example, TDialog is descended from TWindow
 and inherits functionality from the TWindow object.
 
 Illustration showing inheritance relationships between the Turbo Vision object 
@@ -202,8 +177,9 @@ types
 
 The following reference section contains each subroutine, function, variable,
 type and constant declaration defined in Turbo Vision, plus each of the primary
-Turbo Vision objects. For the object descriptions, the information is organized
-into sections:
+Turbo Vision objects. 
+
+For the object descriptions, the information is organized into sections:
 
 =head3 Turbo Vision Hierarchy
 
@@ -227,11 +203,14 @@ A brief overview of the purpose of each object is given in this section.
 
 This section summarizes the primary methods that your applications will likely
 use so that you will not need to spend much time attempting to understand the
-other facilities of the object. Many Turbo Vision objects have a large variety
-of fields and methods available for use. However, many of these are needed only
-for the implementation of Turbo Vision itself, and in most practical
-applications you will only need to reference a small selection of the fields
-and methods.
+other facilities of the object. 
+
+Many Turbo Vision objects have a large variety of fields and methods available 
+for use. 
+
+However, many of these are needed only for the implementation of Turbo Vision 
+itself, and in most practical applications you will only need to reference a 
+small selection of the fields and methods.
 
 =head3 Example
 
@@ -300,10 +279,10 @@ Application Palette constants
 These values are kept in $appPalette, indicating which application color palette
 is in use.
 
-    Constant    Value   Usage
-    apColor         0   Selects color screen palette
-    apBlackWhite    1   Selects black & white palette
-    apMonoChrome    2   Selects the monochrome screen palette
+    Constant        Value   Usage
+    apColor         0       Selects color screen palette
+    apBlackWhite    1       Selects black & white palette
+    apMonoChrome    2       Selects the monochrome screen palette
 
 B<See>: $appPalette
 
@@ -320,15 +299,15 @@ Button Flags constants
 The bfXXXX values are passed as a bit mask to TButton->new and specify button
 attributes, as shown in the table:
 
-    Constant    Value   Usage
-    bfNormal     0x00   non-default button
-    bfDefault    0x01   This will be the default button
-    bfLeftAdjust 0x02   If OR'd with either bfNormal or bfDefault, 
-                        the button label will be left justified instead of 
-                        centered.
-    bfBroadcast  0x04   If this bit is set, when a button is pressed, TButton
-                        sends an evBroadcast message. If not set, TButton 
-                        inserts a new event with putEvent.
+    Constant        Value   Usage
+    bfNormal        0x00    non-default button
+    bfDefault       0x01    This will be the default button
+    bfLeftAdjust    0x02    If OR'd with either bfNormal or bfDefault, 
+                            the button label will be left justified instead of 
+                            centered.
+    bfBroadcast     0x04    If this bit is set, when a button is pressed, TButton
+                            sends an evBroadcast message. If not set, TButton 
+                            inserts a new event with putEvent.
 
 B<Caution>: It's up to the programmer to ensure that each TGroup entity (TDialog
 is descended from TGroup) has only one default button.
@@ -351,8 +330,10 @@ variable
 =head3 Purpose
 
 If a mouse is installed, $buttonCount holds the number of buttons on the mouse.
-If zero, then no mouse is installed. Check the value of $buttonCount when your
-program needs to know if a mouse is installed.
+If zero, then no mouse is installed. 
+
+Check the value of $buttonCount when your program needs to know if a mouse is 
+installed.
 
 =head2 $checkSnow
 
@@ -370,9 +351,11 @@ variable
 
 If a CGA adaptor is detected, Turbo Vision sets $checkSnow to TRUE. Older CGA
 video adaptor cards require special programming to avoid "snow" or static-like
-lines on the display. If the CGA video adaptor does not require snow checking,
-the program may set $checkSnow to FALSE, resulting in faster output to the
-screen. Do not set or check $checkSnow until after calling TApplication->new.
+lines on the display. 
+
+If the CGA video adaptor does not require snow checking, the program may set 
+$checkSnow to FALSE, resulting in faster output to the screen. Do not set or 
+check $checkSnow until after calling TApplication->new.
 
 =head2 cpXXXX
 
@@ -906,86 +889,87 @@ Command constants
 =head3 Purpose
 
 The cmXXXX constants are the predefined commands within Turbo Vision and are
-passed to handleEvent methods in the $event->{command} field. Constant values 
-of 0 to 99, and 256 to 999 are reserved for use by Turbo Vision. Your 
-applications can define command constants in the range 100 to 255, and 1000 to 
-65535.
+passed to handleEvent methods in the $event->{command} field. 
 
-    Constant        Value    Usage
-    cmValid             0    Message passed to TView->valid
-    cmQuit              1    Upon receipt of cmQuit, TProgram->handleEvent
-                             terminates the application. The Alt-X keystroke is
-                             normally mapped to the cmQuit command.
-    cmError             2    No object should handle this command. Instead, use
-                             cmError as a way of trapping any unimplemented
-                             commands (i.e. while the program is still in
-                             development).
-    cmMenu              3    This internal command is used to initiate menu
-                             selection. The status line, as shown in Chapter
-                             14, typically maps the F10 key to cmMenu. See
-                             TStatusLine.
-    cmClose             4    For mode less windows, clicking in a window's close
-                             box causes the cmClose command to be sent to the
-                             window and the window's Close method is called. To
-                             prevent closing a window, you can intercept the
-                             cmClose command in your derived window's
-                             handleEvent method (also see the wfClose
-                             constants). Typically a status line item such as
-                             Alt-F3 is mapped to the cmClose command. The
-                             C<TVSHELL1> program in Chapter 14 uses the F3 key 
-                             to generate cmClose for opening and closing
-                             subdirectories.
-    cmZoom              5    The cmZoom flag is generated when the window is
-                             zoomed. You can prevent zooming by intercepting
-                             the cmZoom command (also see the wfZoom constant).
-                             By convention, Turbo Vision applications often use
-                             the F5 key to denote a zoom.
-    cmResize            6    cmResize is sent when a window is resized. Also
-                             see wfMove and wfGrow. By convention, Ctrl-F5 is
-                             often used to zoom a window.
-    cmNext              7    Causes the last window on the desktop to be moved
-                             to in front of all the others. F6 is often used as
-                             a short cut key for this command.
-    cmPrev              8    Moves the first window on the desktop to behind all
-                             the other windows. Shift-F6 is often used as a
-                             short cut key for this command.
-    cmOk                9    In a dialog, this value is returned if the Okay
-                             button was pressed.
-    cmCancel            10   In a dialog, this value is returned if the Cancel
-                             button was pressed, or if the keyboard Escape key
-                             was pressed, or a dialog's close icon was clicked.
-    cmYes               11   In a dialog, this is a standard value to be
-                             returned by a Yes button.
-    cmNo                12   In a dialog, this is the standard value to be
-                             returned by a No button.
-    cmDefault           13   Is used to indicate a "default" button selection.
-    cmReceivedFocus     50   Together with cmReleasedFocus, this command is sent
-                             by TView->setState to inform peer views of a change
-                             in focus. Views may use these messages to change
-                             their appearance (for example, when a button loses
-                             focus, it is no longer highlighted).
-    cmReleasedFocus     51   See above.
-    cmCommandSetChanged 52   Whenever enableCommands, disableCommands or
-                             setCommands changes the command set, this message
-                             is broadcast to every view's handleEvent method,
-                             giving them a chance to redraw themselves if the
-                             command set change affects how they should appear.
-    cmScrollbarChanged  53   When a scroll bar's position indicator moves, the
-                             scrollbar sends this broadcast message to its
-                             owner.
-    cmScrollbarClicked  54   When the mouse is clicked on a Scroll bar, the
-                             scroll bar broadcasts this message to its owner.
-    cmSelectWindowNum   55   This broadcast message is sent when the keyboard
-                             keys Alt-1 through Alt-9 are pressed to select a
-                             specific window. The window whose TWindow.Number
-                             field matches the selection number (passed in
-                             $event->{infoInt}), responds by selecting itself 
-                             with TView->select.
-    cmListItemSelected  56   Whenever an item in a list viewer is selected, the
-                             TListViewer sends this as an evBroadcast message.
-    cmRecordHistory     60   When received by a THistory object, this message
-                             causes it to record the contents of the TInputLine
-                             object that it owns.
+Constant values of 0 to 99, and 256 to 999 are reserved for use by Turbo Vision.
+Your applications can define command constants in the range 100 to 255, and 1000 
+to 65535.
+
+    Constant        Value   Usage
+    cmValid             0   Message passed to TView->valid
+    cmQuit              1   Upon receipt of cmQuit, TProgram->handleEvent
+                            terminates the application. The Alt-X keystroke is
+                            normally mapped to the cmQuit command.
+    cmError             2   No object should handle this command. Instead, use
+                            cmError as a way of trapping any unimplemented
+                            commands (i.e. while the program is still in
+                            development).
+    cmMenu              3   This internal command is used to initiate menu
+                            selection. The status line, as shown in Chapter
+                            14, typically maps the F10 key to cmMenu. See
+                            TStatusLine.
+    cmClose             4   For mode less windows, clicking in a window's close
+                            box causes the cmClose command to be sent to the
+                            window and the window's Close method is called. To
+                            prevent closing a window, you can intercept the
+                            cmClose command in your derived window's
+                            handleEvent method (also see the wfClose
+                            constants). Typically a status line item such as
+                            Alt-F3 is mapped to the cmClose command. The
+                            C<TVSHELL1> program in Chapter 14 uses the F3 key 
+                            to generate cmClose for opening and closing
+                            subdirectories.
+    cmZoom              5   The cmZoom flag is generated when the window is
+                            zoomed. You can prevent zooming by intercepting
+                            the cmZoom command (also see the wfZoom constant).
+                            By convention, Turbo Vision applications often use
+                            the F5 key to denote a zoom.
+    cmResize            6   cmResize is sent when a window is resized. Also
+                            see wfMove and wfGrow. By convention, Ctrl-F5 is
+                            often used to zoom a window.
+    cmNext              7   Causes the last window on the desktop to be moved
+                            to in front of all the others. F6 is often used as
+                            a short cut key for this command.
+    cmPrev              8   Moves the first window on the desktop to behind all
+                            the other windows. Shift-F6 is often used as a
+                            short cut key for this command.
+    cmOk                9   In a dialog, this value is returned if the Okay
+                            button was pressed.
+    cmCancel            10  In a dialog, this value is returned if the Cancel
+                            button was pressed, or if the keyboard Escape key
+                            was pressed, or a dialog's close icon was clicked.
+    cmYes               11  In a dialog, this is a standard value to be
+                            returned by a Yes button.
+    cmNo                12  In a dialog, this is the standard value to be
+                            returned by a No button.
+    cmDefault           13  Is used to indicate a "default" button selection.
+    cmReceivedFocus     50  Together with cmReleasedFocus, this command is sent
+                            by TView->setState to inform peer views of a change
+                            in focus. Views may use these messages to change
+                            their appearance (for example, when a button loses
+                            focus, it is no longer highlighted).
+    cmReleasedFocus     51  See above.
+    cmCommandSetChanged 52  Whenever enableCommands, disableCommands or
+                            setCommands changes the command set, this message
+                            is broadcast to every view's handleEvent method,
+                            giving them a chance to redraw themselves if the
+                            command set change affects how they should appear.
+    cmScrollbarChanged  53  When a scroll bar's position indicator moves, the
+                            scrollbar sends this broadcast message to its
+                            owner.
+    cmScrollbarClicked  54  When the mouse is clicked on a Scroll bar, the
+                            scroll bar broadcasts this message to its owner.
+    cmSelectWindowNum   55  This broadcast message is sent when the keyboard
+                            keys Alt-1 through Alt-9 are pressed to select a
+                            specific window. The window whose TWindow.Number
+                            field matches the selection number (passed in
+                            $event->{infoInt}), responds by selecting itself 
+                            with TView->select.
+    cmListItemSelected  56  Whenever an item in a list viewer is selected, the
+                            TListViewer sends this as an evBroadcast message.
+    cmRecordHistory     60  When received by a THistory object, this message
+                            causes it to record the contents of the TInputLine
+                            object that it owns.
 
 =head2 coXXXX
 
@@ -1043,6 +1027,7 @@ variable
 =head3 Purpose
 
 Whenever the user presses Ctrl-Break at the keyboard, this flag is set to TRUE.
+
 You can clear it any time by resetting to FALSE.
 
 =head2 ctrlToArrow
@@ -1060,14 +1045,16 @@ function
 =head3 Purpose
 
 This esoteric function converts certain control-key combinations to standard
-kbXXXX constant values. The original Wordstar word processor used a standard
-set of Ctrl-letter combinations as equivalents to IBM cursor movement keys and
-set a standard interpretation of these keys when used in word processing. To
-assist in providing Wordstar compatibility, ctrlToArrow can be used to convert
-$event->{keyCode} values to their corresponding kbXXXX values. The following 
-chart shows the mapping from control keys to kbXXXX values.
+kbXXXX constant values.
 
-=head3 
+The original Wordstar word processor used a standard set of Ctrl-letter 
+combinations as equivalents to IBM cursor movement keys and set a standard 
+interpretation of these keys when used in word processing. 
+
+To assist in providing Wordstar compatibility, ctrlToArrow can be used to 
+convert $event->{keyCode} values to their corresponding kbXXXX values. 
+
+The following chart shows the mapping from control keys to kbXXXX values.
 
     Control key     keyCode & 0xff  Maps to
     Ctrl-A          0x01            kbHome
@@ -1094,13 +1081,15 @@ variable
 =head3 Purpose
 
 Contains the height of the video cursor encoded such that the high 4 bits
-contain the top scan line and the low 4 bits contain the bottom scan line. For
-example, on a CGA screen a character is made up of 8 scan lines, with the
+contain the top scan line and the low 4 bits contain the bottom scan line. 
+
+For example, on a CGA screen a character is made up of 8 scan lines, with the
 topmost scan line being 0 and the bottommost scan line being 7 (the number of
-scan lines varies according to the type of the video adaptor card in use). The
-shape of the character cursor is determined with BIOS interrupt 10H, function
-01H. For more information, consult the DOS Programmer's Reference, 2nd Edition,
-Que Books, page 424 "BIOS INT 10H Function 01h Set Cursor Type". 
+scan lines varies according to the type of the video adaptor card in use). 
+
+The shape of the character cursor is determined with BIOS interrupt 10H, 
+function 01H. For more information, consult the DOS Programmer's Reference, 2nd 
+Edition, Que Books, page 424 "BIOS INT 10H Function 01h Set Cursor Type". 
 
 B<See>: TView->showCursor, TView->hideCursor, TView->normalCursor (to set cursor
 shape to an underline), TView->blockCursor (to set cursor to a solid block).
@@ -1163,7 +1152,9 @@ subroutine
 =head3 Purpose
 
 This is a Turbo Vision internal routine that will not normally be used by your
-applications. resume disables the mouse interrupt handler and hides the mouse.
+applications. 
+
+resume disables the mouse interrupt handler and hides the mouse.
 
 =head2 THistory->doneHistory
 
@@ -1250,9 +1241,10 @@ variable
 
 $doubleDelay holds the time interval (in 1/18.2 of a second intervals) defining
 how quickly two mouse clicks must occur in order to be treated as a double
-click (rather than two separate single clicks). By default, the two mouse
-clicks must occur with 8/18'ths of a second to be considered a double click
-event (with TEvent->{double} set to TRUE).
+click (rather than two separate single clicks). 
+
+By default, the two mouse clicks must occur with 8/18'ths of a second to be 
+considered a double click event (with TEvent->{double} set to TRUE).
 
 =head2 $errorAttr
 
@@ -1272,12 +1264,17 @@ If the TView->getColor method is unable to map a color palette index into a
 video attribute byte because the index is out of range, TView->getColor returns
 this value. $CF is the video attribute for flashing white characters on a red
 background - if you see flashing white on red, you need to check or override
-the getPalette method. An example of how this works can be seen in the TVSHELL
-program. If the TDirList->getPalette method is removed from TDirList, the
-listbox text will appear as flashing white on red. This occurs because the
-palette indices for a TListViewer, 26, 27, 28 and 29 are out of range for the
-window palette into which the list viewer is inserted. The solution is to
-override getPalette to return values within an acceptable range. 
+the getPalette method. 
+
+An example of how this works can be seen in the C<TVSHELL> program. If the 
+TDirList->getPalette method is removed from TDirList, the listbox text will 
+appear as flashing white on red. 
+
+This occurs because the palette indices for a TListViewer, 26, 27, 28 and 29 are
+out of range for the window palette into which the list viewer is inserted.
+
+The solution is to override getPalette to return values within an acceptable 
+range.
 
 B<See>: Chapter 13, "More Turbo Vision Features" in Borland Pascal Developer's 
 Guide, Que Books, 1992.
@@ -1299,18 +1296,18 @@ particularly as used in the What field of an event record but also in other
 places within Turbo Vision.
 
     Constant        Value   Usage
-    evMouseDown    0x0001   Mouse button pressed
-    evMouseUp      0x0002   Mouse button released
-    evMouseMove    0x0004   Mouse has changed location
-    evMouseAuto    0x0008   This event occurs periodically while the mouse
+    evMouseDown     0x0001  Mouse button pressed
+    evMouseUp       0x0002  Mouse button released
+    evMouseMove     0x0004  Mouse has changed location
+    evMouseAuto     0x0008  This event occurs periodically while the mouse
                             button is held down
-    evKeyDown      0x0010   A key has been pressed.
-    evCommand      0x0100   The event type is a command event.
-    evBroadcast    0x0200   The event type is a broadcast event.
-    evNothing      0x0000   This event was already handled.
-    evMouse        0x000F   The event type is a mouse event.
-    evKeyboard     0x0010   The event type is a keyboard event.
-    evMessage      0xFF00   The event is a message event, which can be either
+    evKeyDown       0x0010  A key has been pressed.
+    evCommand       0x0100  The event type is a command event.
+    evBroadcast     0x0200  The event type is a broadcast event.
+    evNothing       0x0000  This event was already handled.
+    evMouse         0x000F  The event type is a mouse event.
+    evKeyboard      0x0010  The event type is a keyboard event.
+    evMessage       0xFF00  The event is a message event, which can be either
                             user defined, an evCommand or evBroadcast event.
 
 B<See>: "Introduction to Events and the HandleEvent Method", in Chapter 11, 
@@ -1413,28 +1410,36 @@ subroutine
 
 =head3 Purpose
 
-Used to allocate a cache buffer where the cache buffer is a heap allocation
-that may be moved or disposed of at any time by the memory manager. As a
-result, the pointer variable passed to allocateDiscardable may be changed by the
-memory manager at any time during program execution to point to a different 
-memory area, or even be reset to undef. Turbo Vision uses cache buffers to speed 
-up output the screen (also see TView->options field and the ofXXXX constants) 
-by having views store their display image in memory so that, if possible, the
-screen can be updated quickly merely by copying the memory image back to the
-screen (this is faster than regenerating the text and other data in the Draw
-method). However, when Turbo Vision begins to run low on memory, it starts
-throwing away the cache buffers, as needed until enough memory is freed up. In
-addition to Turbo Vision's use of cache buffers, your application can use cache
-buffers for storage that can be deleted by the memory manager in case memory is
-running low. An example use might be to cache the disk directory read into the
-TVSHELL8 sample program of Chapter 12 in the Borland Pascal Developer's Guide.
+Used to allocate a cache buffer where the cache buffer is a heap allocation that
+may be moved or disposed of at any time by the memory manager. As a result, the 
+pointer variable passed to allocateDiscardable may be changed by the memory 
+manager at any time during program execution to point to a different memory 
+area, or even be reset to undef.
+
+Turbo Vision uses cache buffers to speed up output the screen (also see 
+TView->options field and the ofXXXX constants) by having views store their 
+display image in memory so that, if possible, the screen can be updated quickly 
+merely by copying the memory image back to the screen (this is faster than 
+regenerating the text and other data in the Draw method).
+
+However, when Turbo Vision begins to run low on memory, it starts throwing away 
+the cache buffers, as needed until enough memory is freed up.
+
+In addition to Turbo Vision's use of cache buffers, your application can use 
+cache buffers for storage that can be deleted by the memory manager in case 
+memory is running low. An example use might be to cache the disk directory read 
+into the C<TVSHELL8> sample program of Chapter 12 in the Borland Pascal 
+Developer's Guide.
+
 If for some reason Turbo Vision or some other part of the program requests
 memory and there is not enough free memory in the heap, then the memory manager
 will dispose of one or more cache buffers, and set the corresponding pointer to
-undef. Since the TVSHELL program can always recreate the directory structure by
-reading the disk directory again, its okay to reallocate this memory to some
-other function. Cache buffers are useful for speeding up access to items that
-can always be recreated. 
+undef. Since the C<TVSHELL> program can always recreate the directory structure 
+by reading the disk directory again, its okay to reallocate this memory to some
+other function.
+
+Cache buffers are useful for speeding up access to items that can always be 
+recreated.
 
 B<See>: freeDiscardable.
 
