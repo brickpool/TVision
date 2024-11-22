@@ -1,0 +1,1461 @@
+                                   Chapter 3
+			     - Part 1 of 3 parts -
+                                    of the
+                            Turbo Pascal Reference
+
+                           The Turbo Pascal Language
+
+
+This chapter is part of the Turbo Pascal Reference electronic freeware book (C)
+Copyright 1992 by Ed Mitchell.  This freeware book contains supplementary
+material to Borland Pascal Developer's Guide, published by Que Corporation,
+1992.  However, Que Corporation has no affiliation with nor responsibility for
+the content of this free book.  Please see Chapter 1 of the Turbo Pascal
+Reference for important information about your right to distribute and use this
+material freely.  If you find this material of use, I would appreciate your
+purchase of one my books, such as the Borland Pascal Developer's Guide or
+Secrets of the Borland C++ Masters, Sams Books, 1992.  Thank you.
+
+Note:  For ease of access, Chapter 3 is continued in TPR3B.TXT and TPR3C.TXT.
+
+
+     The Pascal programming language was originally developed by Niklaus Wirth
+as an idealized language for teaching basic concepts of programming.  Many of
+the concepts and constructions used in Pascal trace their ancestry to the Algol
+programming language developed in the early 1960's.  By 1968, Wirth had
+developed the basic structure of Pascal, but it was not until his publication
+of the Pascal User Manual and Report in 1973 that Pascal received wide spread
+acceptance.
+     Since that time, the core structure of Pascal has remained largely the
+same, but many signficant enhancements have been made, especially in the
+version known as Turbo Pascal.  These enhancements include:
+
+       Units, for the sharing and reuse of code, 
+
+       Powerful object oriented programming capabilities,
+
+       Extensive library support including graphics, overlays (for managing
+       large programs), and system-level access for system programming.
+
+     Yet, because Turbo Pascal traces its heritage to Pascal's early
+development as a tool for teaching programming, Turbo Pascal is probably the
+premier programming language for learning modern programming concepts and
+practices.  And with Borland's significant enhancements, Turbo Pascal has
+become the definitive implementation of the Pascal language, providing  one of
+the most powerful development languages and environments available.  The
+professional editions of Turbo Pascal and Borland Pascal are every bit as
+powerful as C++, plus Borland's Pascal compilers generate fast, compact code,
+often much smaller than similar C++ code.  Except for Pascal's lack of
+templates and overloaded functions, Turbo Pascal has all the features and
+capabilities of C++.
+     This chapter presents an overview of the entire Turbo Pascal language,
+except for object oriented programming (OOP) features.  OOP may be found in
+Chapter 4, "Object Oriented Programming" in the Borland Pascal Developer's
+Guide.
+
+
+Your First Turbo Pascal Program
+     Common practice is to introduce a new programming language by writing a
+simple program that simply displays,
+
+     Hello, World!
+
+In Turbo Pascal, such a program look liks this:
+
+     program Hello;
+     begin
+          Writeln('Hello, World!');
+     end.
+
+Each Pascal program begins with a statement containing the keyword program and
+the program name, shown here as Hello, optional variable declarations (none
+shown in this example), the keyword begin, zero or more Pascal statements, and
+an end statement to terminate the program.  Each statement is terminated with a
+semicolon, except the last end statement is terminated in a period.
+     The statement,
+
+     Writeln('Hello, World!');
+
+calls a built-in Pascal routine called Writeln, which has as its single
+parameter, the contents of the text to be printed.
+     All Pascal programs have roughly the same structure as that used by the
+Hello program, but with many more options available.
+     While the Turbo Pascal Reference includes substantial tutorial and
+reference information, if you have little or no programming experience, I
+suggest you consult an introductory text first.
+     Programmers who are experienced in Pascal or other programming languages
+such as C, QuickBasic or Visual Basic, will find that Turbo Pascal Reference
+provides a concise and complete description of the Turbo Pascal language,
+libraries, development environment and the powerful Turbo Vision
+character-based windowing system.
+
+
+Pascal Program Structure
+     Each Pascal program is organized in a standard format, as shown in figure
+3.1.  Turbo Pascal, unlike other implementations of Pascal, does not require
+the strict ordering of declarations suggested by figure 3.1.  In Turbo Pascal,
+you can, if you wish, place type declarations before the const declarations, or
+even add a second var section after you have defined procedures and functions. 
+You do not need to have each of the declarations sections shown, but only those
+that are used by your program.  Figure 3.2 displays a "railroad" syntax diagram
+illustrating how the declarations may occur in any order.  These syntax
+diagrams are frequently used to describe the structure of Pascal programs.  You
+read the diagram by starting, usually, at the upper left corner and tracing
+through the drawing, through each keyword or symbol in the language, until you
+exit the diagram, usually a the upper right.
+
+Figure 3.1.  The structure of Pascal program.
+
+     program programname;
+     uses
+       unitnames-list;
+     label
+       declarations;
+     const
+       declarations;
+     type
+       declarations;
+     var 
+       variable declarations;
+     procedure and function declarations;
+
+     begin
+       Main body of program;
+     end.
+
+***03tpr02.pcx***
+Figure 3.2.  A syntax diagram showing how the elements of the Pascal language
+declarations may appear in any order.
+
+
+Pascal Data Types
+     Data types determine the type of data and the permissible range of values
+within each type upon which Pascal can operate.   These data types range from a
+variety of small and large integer values to several real or floating point
+number formats, plus character and string values.  The basic data types of
+Pascal are shown in Table 3.1.
+     For reasons of program efficiency, some values may be represented by more
+than one type.  Consider a numeric value in the range of 0 to 100.  Such a
+value can be represented by an Integer, Byte, Shortint, Longint or other
+standard types.    These values vary in the amount of memory storage they
+require, and hence, the length of time it takes the CPU to process such data. 
+For example, the Byte data type uses 8 bits of memory, while the Longint type
+takes 32 bits.  
+     Table 3.1 presents the standard predefined Turbo Pascal data types.  As
+described later in this chapter, you may also create custom data types, as
+appropriate.
+
+
+Table 3.1.  The standard Pascal data types.
+Data Type          Typical Values              Size and Description
+
+Boolean  True, False         1 byte
+          A Boolean value holds one of the predefined constants True or False,
+          where Ord(True) = 1 and Ord(False) = 0.
+
+Byte     0 to +255           1 byte
+          A Byte value is an integer in the range of 0 to +255 and is
+          represented in an unsiged 8 bit format.
+
+Shortint -128 to +127        1 byte
+          A numeric value in the range -128 to +127 is a signed 8-bit value
+          called a Shortint.
+
+Integer  -32768 to +32767    2 bytes
+          Integers store numeric values in the range of -32768 to +32767 in
+          signed 16 bit format.  
+
+Word     0 to 65535          2 bytes
+          The Word data type is an unsigned 16 bit value and is used when
+          numbers larger than standard integers are required, and when negative
+          values are not needed.
+
+Longint  -2147483648 to 2147483647  4 bytes
+          Longints store signed 32-bit values and are used for storing very
+          large integer values.  They may also be used for high speed fixed
+          point operations for small values having a presumed decimal point. 
+          This requires that you write appropriate routines for entering and
+          displaying such fixed point values.  Also see the Comp data type.
+
+Real     2.9 x 10-39 to 1.7 x 1038             6 bytes
+          Real values hold positive and negative floating point numbers in the
+          range shown, providing 11 to 12 digits of accuracy.  Real numbers are
+          written as a sequence of digits, a decimal point, and additional
+          digits to specific the fractional part, if needed.  Reals may be also
+          be written using exponential notation, such as 1E2 meaning 1 X 102.
+
+Single   1.5 x 1045 to 3.4 x 1038              4 bytes
+          $N+, $E+ required for use.  Provides 7 to 8 digit real number
+          accuracy in an IEEE  floating point format, compatibile with the 8087
+          math coprocessor.
+
+Double   5.0 x 10-324 to 1.7 x 10308           8 bytes                         
+
+          $N+, $E+ required for use.  Provides 15 to 16 digit real number
+          accuracy in an IEEE floating point format compatible with the 8087
+          math coprocessor.
+
+Extended 3.4 x 10-4932 to 1.1 x 104932         10 bytes
+          $N+, $E+ required for use.  Provides 19 to 20 digits of accuracy for
+          floating point values.
+
+Comp     -263+1 to 263-1     8 bytes
+          $N+, $E+ required for use.  Provides 19 to 20 digits of accuracy in a
+          64 bit Longint-type.  The values range from -9.2 x 1018 to 9.2 x
+          1018.  Comp types are used for integer values only, but are
+          implemented in the math coprocessor and the 8087 floating point
+          software emulation routines.
+
+Char     ASCII 0 to 255      1 byte
+          Stores character values represented by their internal ASCII code. 
+          Character constants are written between single quotes as 'x', where x
+          may be replaced by any valid character.  For non-printable
+          characters, you may use the special notation #nn to directly specify
+          the ASCII value of the desired character.  For example, the Enter key
+          on the keyboard generates an ASCII 13 "carriage return" code.  You
+          can assign such a value by writing,
+         EnterKey := #13;
+
+String   2 to 256 bytes total size
+          A string contains a string of characters, such as 'ABCDEF', which is
+          a string constant of 6 bytes in length, plus a length byte that
+          always appears as the invisible first byte of a string.  Strings are
+          stored as an array of Char, where the zero'th element contains the
+          length of the string, in bytes, and the subsequent bytes contains the
+          string contents.  A string identifier is declared using the String
+          data type, which allocates a length byte, plus 255 bytes for the
+          actual text.  A shorter string allocation may be specified by writing
+          String[n] where n represents the maximum defined length of the
+          string.  This is explained in greater detail, later in this chapter. 
+          To use the single quote character within a string, use two quotes.  
+          Hence, by writing 'ABC''DEF' you effectively insert a single quote
+          between C and D.
+
+
+Writing Integer, Word and Byte constants
+         Integer and byte constants may be written in decimal notation, such as
+255, or in hexadecimal notation, such as $FF.  Hexadecimal values are always
+preceded by a $ symbol and immediately followed by valid hexadecimal digits,
+which are 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, and F.
+
+
+A Note on the Use of Floating Point Values
+     The compiler directives, $N, controlling code generation for a math
+coprocessor (either the 8087, 80287 or 80387), and $E, controlling 8087
+software emulation, are set such that only the Real numeric type is initially
+available for floating point arithmetic, and all floating point arithmetic is
+performed with software run-time library routines.  (Compiler directives
+specifying specific compiler options are placed within source code comments,
+like {$N+}.  
+     To gain access to the additional floating point types (Single, Double,
+Extended and Comp), you should compile your program using the {$N+, E+} option.
+This generates floating point code that will operate on systems with or without
+a math coprocessor.  If the math coprocessor is present, it will be used.  If
+the math coprocessor is not found, then the 8087 will be simulated in software.
+This has the advantage that your programs will run on all configurations, but
+has the disadvantage that the software emulation routines take a substantial
+amount of memory (about 10k more code space) and run slower than the standard
+library that is linked when the $E- option is in effect).
+     If your program does not require use of a math coprocessor (either the
+8087, 80287 or 80387), you should use the Real numeric type for floating point
+arithmetic and compile with the {$N-, E-} options set.  This format provides a
+good compromise among number of digits of accuracy, memory storage, speed of
+software implementation and code size. 
+     However, if your application makes use of extensive floating point
+operations and will either definitely have a math coprocessor available or is
+likely to have a math coprocessor available, or must operate in an IEEE
+standard mode for purposes of data exchange, then the other data types may be
+used.  To use the other data types (Single, Double, Extended or Comp) requires
+that you set the $N and $E options as {$N+, E+}.
+
+
+Declaring Identifiers
+     Every identifier used in a Turbo Pascal program must be declared or
+defined either as part of the main program section or within defined procedures
+and functions.  If you are coming to Turbo Pascal with a background in BASIC
+programming, this may seem a bit peculiar since BASIC allows you to use any
+variable name by assigning a value to it.  Pascal requires that you define a
+list of identifier names before they are used in the program. Identifiers can
+be defined as variables, constants, programmer defined types and several other
+variants.
+     A global identifier is one which is visible to all procedures and
+functions within the program unit and is defined in a program-level var
+declaration.  A local identifier is one that is visible only within the
+procedure or function where it is defined.  This characteristic of an identifer
+- either global or local - is called the identifier's scope.
+     An identifier must begin with a letter or an underscore character (_), and
+may then contain combinations of lower and upper case letters, digits and
+underscores.  Some examples,
+
+     A,   Alpha,       _LinkRef    Pointer_to_Names
+     X10  Alpha35      C01234      X_12
+
+Identifiers are not case sensitive, meaning that abc and ABC refer to the same
+identifier.  The Turbo Pascal compiler retains up to the first 63 characters of
+identifiers, and any excess characters are disgarded.  Identifiers can be any
+valid sequence of characters, letters and underscores, except for the Turbo
+Pascal keywords shown in Table 3.2.  These keywords are reserved for use by the
+Turbo Pascal language and will cause compiler errors if you attempt to use a
+reserved word for an identifier.
+
+
+Table 3.2.  Table of Turbo Pascal Keywords.
+These keywords are reserved for use by the Turbo Pascal language and may not be
+used as identifiers.
+
+and          end               nil         shr
+asm          file              not         string
+array        for               object      then
+begin        function          of          to
+case         goto              or          type
+const        if                packed      unit
+constructor  implementation    procedure   until
+destructor   in                program     uses
+div          inline            record      var
+do           interface         repeat      while
+downto       label             set         with
+else         mod               shl         xor
+
+These keywords are reserved by Turbo Pascal but may be redefined in your
+programs although its not recommended that you do so.
+
+absolute  external     forward     near
+assembler far          interrupt   private
+virtual                            
+
+          The keyword private is a reserved word only within the scope of an
+object definition.  Object oriented programming is covered in depth in Chapter
+4, "Object Oriented Programming" of the Borland Pascal Developer's Guide (Que
+Corp, 1992).
+          As their names imply, a variable holds a value that can change during
+program execution; a constant holds a value that remains the same during
+program execution; and a type is a user defined type, especially useful for
+creating record structures, arrays and objects (these concepts are explained at
+the end of this chapter).
+     Within a given scope, you can have only one identifier with the same name.
+A program can define only one variable called X, although it can later define
+another variable X provided that the identifier is defined in a different scope
+- such as locally within a procedure, function or within a separate unit
+(described in Chapter 2, "Units and Dynamic Link Libraries" of the Borland
+Pascal Developer's Guide).
+
+
+Constants
+     A constant identifier is declared using the const statement, and is
+followed by as many constant declarations as are needed in the program.  Here
+is an example declaring 4 constant identifiers, an integer, a string, and two
+characters:
+
+     const
+          MaximumSize = 100;
+          DefaultName = 'SAMPLE.TXT';
+          ExitCommand = 'Q';
+          EnterKey = #13;
+
+The notation #13 assigns the ASCII code 13 to the character identifier
+EnterKey.
+     Constant identifiers may be used anywhere in your Pascal program that a
+number, a string or a character or other appropriate data type is used. 
+Constants are often used to set values that might be changed at a later date,
+but which do not need to be stored in a variable because they never change
+during program execution.  For example, MaximumSize might be set to 100 data
+records initially, but perhaps a new, larger hard disk makes more storage
+available.  With the increased storage you might revise MaximumSize up, perhaps
+to 1000.  Rather than search through all the Pascal source looking for 1000,
+you need only change the value assigned to MaximumSize where it is defined.
+     Some examples that use constants:
+
+const
+     MaximumSize = 100;
+var
+     InfoTable : Array[0..MaximumSize] of Integer;
+     ...
+     for  I := 0 to MaximumSize do InfoTable[I] := 0;
+
+     A special type of constant, called a typed constant provides a way to
+initialize variables when they are declared, rather than through an assignment
+statement.   Such a constant is actually a variable that is initialized to some
+starting value and can be assigned new values, just like a variable.  Typed
+constants are described below under the heading Typed constants:  Initializing
+Variables.
+
+Variables
+     Variables are defined in the var section of the Pascal program, preceded
+by the keyword var, and followed by any number of variable declarations,
+separated by semicolons.  For example,
+
+     var
+       TotalLines : Word;
+       InputLine : String[128];
+       R : Real;
+       AllDone : Boolean;
+
+The InputLine variable is a string declared to hold a maximum of 128
+characters.  The total amount of memory occupied by InputLine is 129 bytes,
+including the length byte.
+
+Important note:  Uninitialized variables
+     The value of a declared variable is undefined until your program
+explicitly assigns a value to the variable with an assignment statement.  A
+common Turbo Pascal programming error is to use an uninitialized variable
+without realizing that its value is potentially random.  Such programs may run
+fine and then suddenly fail without warning.  Always insure that you have
+assigned a value to your variables prior to using the variable in an
+expression.
+     In some instances, you may be able to give your variables an initial value
+as part of the declaration.  See Typed Constants:  Initializing Variables,
+below.
+
+
+Arrays
+     An array holds a specific number of items, all the same type.  For
+example,
+
+     var
+       Sizes : Array[0..9] of Integer;
+
+defines Sizes to be an array having 10 integer elements.  The values in the
+array are accessed by indexing into the array, so that Size[0] references the
+first element and Size[9] references the last element.  The minimum and maximum
+array bounds are determined by the array index type.  By writing,
+
+     var
+       Sizes : Array [1..10] of Integer;
+
+you also define an array of 10 elements, indexed beginning at 1.  You may also
+write,
+
+     var
+       Sizes : Array[-5..4] of Integer;
+
+which also creates a 10 element array, now indexed from -5 to +4.  In general
+though,, it is more efficient to begin arrays at 0 since it takes less
+generated code to access each element.
+     The array index may be specified with one of the following data types:
+
+     Boolean, Byte, Shortint, Integer, Word, Char
+
+As a practical matter, you must use a subrange of Integer or Word, as the array
+would otherwise be to large for Turbo Pascal to create.  For example,
+
+     var
+       Sizes : Array[Byte] of Integer;
+
+effectively creates Sizes as an array of 0 to 255 elements.  When an array is
+defined using a data type, the acceptable values for the array index are the
+same as the data values defined for the data type.  Listing 3.1 illustrates
+array indexing using Char and Boolean array types.  Note how the Charray is
+indexed using the character value 'a'.
+
+
+Listing 3.1.  Example using arrays of non-integer types.
+
+program Demo;
+var
+  Charray : array[Char] of Integer;
+  B : array[Boolean] of Integer;
+begin
+  Charray['a']:= 33;
+  B[false] := 0;
+end.
+
+
+Multidimensional arrays
+     Multi-dimensional arrays are created by specifying each additional
+dimension after a comma, in the array declaration:
+
+     var
+       Sizes : Array[0..5, 0..9] of Integer;
+
+defines a two-dimensional array 6 x 10 in size.  Alternatively, you can write:
+
+     var
+       Sizes : Array[0..5] of Array[0..9] of Integer;
+
+Both notations produce identical array definitions.  
+     The elements of a multi-dimensional array are accessed using the
+appropriate number of indices, such as Sizes[0,9] or Sizes[5,3].
+
+Important note:  Maximum array sizes
+     The maximum allowed number of dimensions is limited only by available
+memory and the restriction that the largest Pascal data structure is limited to
+65,521 bytes in total memory storage.  The 65,521 byte restriction also applies
+to single dimension arrays.
+
+
+Arrays and the Packed Keyword
+     Array definitions may be prefaced by the keyword packed for compatability
+with other versions of Pascal.  Packing causes the compiler to minimize the
+amount of space required by an array, even if doing so would result in
+increased code generation or slower array access.  For example, some compilers
+may store an array of bytes, with each byte in separate 16-bit memory words. 
+The packed option causes the compiler to insure that bytes are stored in byte
+values, not words.  In the case of Turbo Pascal, packing occurs automatically
+and the packed keyword is ignored.
+
+
+Types
+Syntax:
+     type <identifier> = <type definition>
+
+Examples:type
+     TNewInt = Integer;
+     TTableEntry = String[80];
+     TShortString = String[10];
+     TTable = Array[MinSize..MaxSize] of TTableEntry;
+     ...
+var
+     Table : TTable; { becomes an array of TTableEntry,
+                    a.k.a. String[80], as defined }
+     X : TNewInt; { is a new special purpose integer type }
+
+Description:
+     In addition to Turbo Pascal's predefined data types, the Pascal language
+contains a means for creating user defined data types.  The type keyword
+precedes a list of one or more type definitions.  While a type identifier, like
+variable and constant identifiers, may contain alphabetic, numeric and the
+underscore characters, many Pascal programmers have adopted a convention of
+beginning a type identifier with the letter T to help make their source code
+more readable.  The examples above all use this convention.
+     An important use of type is in creating data types for use as parameters
+in procedures and functions (described later in this chapter).  Procedural
+parameters may only specify a simple type declaration - and cannot specify an
+array declaration, for instance.  In order to pass an array to a procedure, a
+new type, such as TTable in the example above, must be created, and is then
+used as the type of the procedure parameter.
+     Types are also used to declare pointers to data types (pointers are
+described later in this chapter).
+     Many examples of type declarations appear throughout the remainder of this
+chapter, and throughout many examples in this book.
+
+
+Enumerated Types
+     Enumerated types provide for a specific list of constant values.  For
+example, 
+
+type 
+     TDaysOfTheWeek = (Sun, Mon, Tue, Wed, Thu, Fri, Sat, Sun);
+
+creates a new type called TDaysOfTheWeek, which consists of an enumerated list
+of values that may be used in expressions.  For example,
+
+     var
+       DayInformation : TDaysOfTheWeek;
+     ...
+     DayInformation := Mon;
+
+The data type for DayInformation is TDaysOfTheWeek, so it should only be
+assigned values from the predeclared list of enumerated identifiers.
+     An enumerated type is essentially equivalent to a list of constant values,
+with the first item in the list having the value of zero, and the subsequent
+enumerated identifiers being assigned the next succeeding value.  For
+TDaysOfTheWeek, the list of values are equivalent to the const declaration,
+
+     const
+       Sun = 0;
+       Mon = 1;
+       Tue = 2;
+       Wed = 3;
+       Thu = 4;
+       Fri = 5;
+       Sat = 6;
+
+As can be seen, the values of the enumerated identifiers are determined by the
+order that they appear within the enumerated list.
+     The enumerated type may be used like other scalar types, such as Integer,
+and may be compared using any of the standard relational operators.  The
+enumerated type may be used anywhere a scalar type is used, as in, for example,
+a for loop using a loop control variable declared as TDaysOfTheWeek:
+
+     var
+       Day : TDaysOfTheWeek;
+     ...
+     for Day := Sun to Sat do ...
+
+If the function Succ() is applied to an enumerated type, Succ() returns the
+next element in the list, so that Succ(Tue) returns Wed.
+     The standard Pascal data type, Boolean, is itself an enumerated type,
+declared as,
+
+     type
+       Boolean = (False, True);
+
+Important note:  Enumerated Types versus Scalar types
+     The original Pascal definition, and some other versions of Pascal, use the
+terminology scalar type (having enumerated values), in place of enumerated
+type.
+
+
+Subrange Types
+     A new type, defined as a subrange of any existing scalar type is easily
+defined with the subrange notation:
+
+     var
+       IndexValues : 1..100;
+
+where 1..100 means that the variable IndexValues will hold values in the range
+of 1 to 100.
+     You can create a user defined subrange type by writing a type definition
+as in this example,
+
+     type TIndexRange = 1..100;
+
+And then defining subsequent variables as,
+
+     var
+       A, B : TIndexRange;
+
+Another example is creating a subrange of characters, as in this example,
+
+     type
+       LowerCase = 'a'..'z';
+       UpperCase = 'A'..'Z';
+
+     Enumerated types may also be written as a subrange.  For instance, with
+TDaysOfTheWeek defined as,
+
+     type TDaysOfTheWeek = (Sun, Mon, Tue, Wed, Thu, Fri, Sat, Sun);
+a subrange of TDaysOfTheWeek can be defined as,
+     var
+       WeekDays : Mon..Fri;
+
+
+Sets
+Syntax:
+     set of <type>
+
+Description:
+     A set defines a collection of values.  Using the TDaysOfTheWeek type
+described above, you can create a set by writing,
+
+     var
+       WeekSet : Set of TDaysOfTheWeek;
+
+This creates WeekSet to contain from zero up to 7 elements from the list of the
+values defined for TDaysOfTheWeek.  For example, to assign a range of values to
+WeekSet, you may write,
+
+     WeekSet := [Sun..Wed];
+
+or, explicity list each of the desired values in the set, such as,
+
+     WeekSet := [Sun, Mon, Tue, Wed];
+
+After giving WeekSet some values, you can check for a specific element using
+the in set operator.  For example,
+
+     if Sun in WeekSet then
+       Writeln('Sunday is active.');
+
+     A convenient use for sets is to check for a value appearing within a
+range.  For instance, to determine if a character value is a lower case letter,
+where Ch is of type Char, you may write, 
+
+     if (Ch >= 'a') and (Ch <= 'z') then
+       Writeln( Ch,' is a lower case letter.');
+
+Or, using set notation, you can write,
+
+     if Ch in ['a'..'z'] then
+       Writeln( Ch, ' is a lower case letter.');
+
+You may also use set notation to check for a variety of values, as in this
+example:
+
+     if Ch in ['0'..'9', 'A'..'Z', 'a'..'z'] then ...
+
+Sets provide an easy to use method of checking for membership among a large
+group of values.  By using the in operator on a set, you can reduce a
+complicated if-then statement containing many and plus or boolean operators,
+into a simple test.
+     The null set is written as [] and can be used to initialize a set.
+
+
+Set Relational Operators
+     Four relational comparisons are permitted on sets.
+
+       A = B : Compares two sets and returns True only if A and B contain the
+       same members.  Example:  [Sun, Tue, Fri] = [Tue, Fri, Sun] returns True.
+
+       A <> B: Compares two sets and returns True if A and B do not contain the
+       same members.
+
+       A <= B : Determines if A is a subset of B.  Example:  If A contains
+       [Sun, Mon, Tue] and B contains [Sun, Mon, Tue, Wed, Thu], then A is a
+       subset of B and the expression is True.
+
+       A >= B : Determines if A is a superset of B, meaning that A contains the
+       subset described by B.  Example:  If  A contains [Sun..Sat], and B
+       contains [Mon..Fri], then A >= B is True.
+
+
+Set Logical Operators
+     Three logical operations may be performed on sets.
+
+       + or Union:  [Sun, Mon, Tue, Wed] + [Mon, Thu, Fri] produces the result
+       [Sun, Mon, Tue, Wed, Thu, Fri], effectively combining the two sets
+       together.
+
+       -  or Difference:  [Sun, Mon, Tue, Wed] - [Mon, Tue, Fri] produces the
+       result [Sun, Tue, Wed], which is the set of elements of the first set
+       that are not also in the second set.
+
+       * or Intersection: [Sun, Mon, Tue, Wed] * [Mon, Tue, Fri] returns [Mon,
+       Tue], which are the set elements that appear in both sets.
+
+
+Records
+     A record specifies a collection of data.  Typically, a record data type is
+used to store related information.  For example,
+
+     var
+       PersonInfo = record
+          Name : String[30];
+          StreetAddress : String[30];
+          City : String[20];
+          State : String[2];
+          Zip : String[9];
+       end;
+
+This record declaration defines a new variable PersonInfo, containing five
+separate data fields.  The fields of a record are accessed individually using
+both the variable name and the field name, together.  For example,
+
+     PersonInfo.Name := 'Sam Bedford';
+     PersonInfo.Zip := '98327-7463';
+
+Records may be defined inside other records.  For example,
+
+     var
+       PersonInfo: record
+          Name : String[30];
+          StreetAddress : String[30];
+          City : String[20];
+          State : String[2];
+          Zip : String[9];
+          Education: record
+            HiSchool : Boolean;
+            Bachelors : Boolean;
+            Masters : Boolean;
+            PhDLevel : Boolean;
+          end;
+       end;
+
+Such nested records are accessed by referencing each component of the record,
+as,
+
+     PersonInfo.Education.HiSchool := True;
+     PersonInfo.Education.Bachelors := True;                                   
+     
+For compatibility with other implementations of the Pascal langauge, the
+keyword packed may appear before the record keyword.  Turbo Pascal
+automatically packs all record structures so the keyword serves no purpose for
+Turbo Pascal programs.
+
+
+The With Statement
+     The use of long record names, or many nested record declarations, could
+develop into quite a typing chore.  Pascal provides the with statement to
+abbreviate access to the record components.  Here is an example of the with
+statement:
+
+     with PersonInfo do
+     begin
+       Name := 'Sam Bedford';
+       Zip := '98327-7463';
+     end;
+
+When there are multiple levels of record declarations, as in the example
+specifying education, above, the with statement may nest the components, such
+as,
+
+     with PersonInfo.Education do
+     begin
+       HiSchool := True;
+       Bachelors := True;
+     end;
+
+Pascal also allows the above with statement to be written variously as,
+
+     with PersonInfo, Education do ...
+
+and
+
+     with PersonInfo do
+       with Education do ...
+
+Later in this chapter, the use of pointers that point to records is explained. 
+You can similarly use the with statement in conjunction with a record pointer. 
+For example, if PPersonInfo is a variable that points to a PersonInfo record,
+the with statement may be written as,
+
+     with PPersonInfo^ do
+     begin
+       Name := 'Sam Bedford';
+       Zip := '98327-7463';
+     end;
+
+The use of pointers is explain detail in the section titled Pointer Types.
+       
+Important notes: Scoping rules and use of the with statement
+     Variables defined within a record are defined within the scope of the
+record declaration.  Since record variables must be prefaced with the record
+name (or nested inside a with statement), it is acceptable to have variables
+defined as in this example,
+
+     var
+       X : Integer;
+       Point : record
+          X : Integer;
+          Y : Integer;
+       end;
+
+because the variable X and the record component Point.X are uniquely specified.
+     If the record name used in the with statement is an array, then the index
+should not be changed within the scope of the with statement.  If PersonInfo is
+an array, then the statement,
+
+     with PersonInfo[Index] do
+     begin
+       ...
+       Index := Index + 1;
+     end;
+
+is not permitted.  To execute these statements properly, write,
+
+     For Index := 1 to MaxRecords do
+       with PersonInfo[Index] do
+       ...
+
+The with statement is also used with pointer variables, and such usage is
+described in the section on the use of pointers, below.
+
+
+Record Types
+     Type definitions are frequently equated to record structure definitions
+for ease of use, for passing records structures as procedure parameters, and
+especially when using pointers.  A type identifier is assigned a record
+structure as in this example to create a type identifier TPersonInfo:
+
+     type
+       TPersonInfo = record
+          Name : String[30];
+          StreetAddress : String[30];
+          City : String[20];
+          State : String[2];
+          Zip : String[9];
+       end;
+
+A variable can then be declared as:
+
+     var
+       PersonInfo: TPersonInfo;
+
+The components of PersonInfo are then accessed as in any other record
+structure.  The use of record structures and record types is further detailed
+in sections The Pointer Type and Procedures and Functions.
+
+
+Case-variant records
+     Pascal provides a special record construct called a case-variant record. 
+Case-variant records use multiple variable names to access the same memory
+space.  The case-variant record is defined using the case keyword (which has no
+real relationship to the case conditional statement described later in this
+chapter).  The case-variant part of a record must appear at the end of the
+record declaration, after all non-variant portions of the record have been
+declared.
+     Here's a modified example of the PersonInfo record, now containing a
+variant section to store an employer or school name:
+
+     var
+       PersonInfo = record
+          Name : String[30];
+          StreetAddress : String[30];
+          City : String[20];
+          State : String[2];
+          Zip : String[9];
+          case Employed : Boolean of
+            True : ( EmployerName : String[30] );
+            False : ( SchoolName : String[30] );
+       end;
+
+     Employed is a new Boolean type component of the record (although its value
+is irrelevant in terms of using the EmployerName or SchoolName fields). 
+Employed is the tag field of the case-variant part of the record.  Two
+alternate fields, EmployerName and SchoolName are defined.  Note the use of
+parenthesis around the variant field's definition.
+     The case portion of the record does not have a matching end statement, as
+is used in the conditional statement form of the case statement.  The end
+keyword that matches the record keyword terminates both the record and the
+case-variant.
+     If the person whose information is stored in this record is employed, then
+Employed is set to True, and the employer's name is stored in
+PersonInfo.EmployerName; otherwise, assuming that this person is in school, 
+the school name is stored in PersonInfo.SchoolName.  EmployerName and
+SchoolName occupy the same location in memory.  As a result, in this example,
+if you write,
+
+     PersonInfo.EmployerName := 'George Smith, Inc';
+
+and then write,
+
+     Writeln(PersonInfo.SchoolName);
+
+you will see,
+
+     George Smith, Inc
+
+printed on the display because EmployerName and SchoolName, in this example, 
+occupy the same memory locations.
+     In a more generalized sense, case-variant records are often used when
+storing information records, where much of the information is the same for each
+record, but depending upon each individual record. some data may be different. 
+     Each case in the variant record is matched to at least one constant value
+(on the left hand side of the colon ":").  Its not necessary that these
+constant values bear any relation to another field or identifier.  For
+instance, in Turbo Pascal's Turbo Vision programming environment, the TEvent
+record contains a variant item called evKeyDown (which is a constant).  This is
+defined as,
+
+     evKeyDown: ( 
+       case Integer of
+          0: (KeyCode : Word);
+          1: (CharCode : Char;
+            ScanCode : Byte ));
+     evMessage: (
+       ...
+
+(There is no end to match the case keyword because the next variant evMessage
+is placed immediately after the evKeyDown instance.)
+     In this example, the Integer tag field is used merely to define the
+identifiers KeyCode, CharCode and ScanCode.  This format is used to access the
+upper and lower bytes of the KeyCode word as char and byte values,
+respectively.
+     While there can only be a single case-variant component within a record,
+it is possible to nest the case-variant declarations to create as many
+case-variant fields as are needed.  For example, this record contains two
+case-variant records.
+
+     var
+       PersonInfo : record
+          Name : String;
+          case Word of
+            0: (A : Integer);
+            1: (B : Integer);
+            2: (
+               case Word of
+                 0: (C : Integer);
+                 1: (D : Integer);
+               )
+       end; { PersonInfo record }
+
+
+File Types
+     Files are implemented in Turbo Pascal with a File type declaration and a
+variety of library procedures and functions, for opening, closing, reading,
+writing and performing random access.  File usage is described in the section
+at the end of this chapter, titled File Operations.
+
+
+Typed Constants:  Pre-initialized variables
+     Typed constants provide a way to declare a variable that is
+pre-initialized.  For example,
+
+     Const
+       TotalLines : Integer = 0;
+       FileName : String[14] = 'NONAME.TXT';
+       Minimum : Word = 0;
+       Maximum : Word = 50;
+
+In this form, the constant identifier defines a variable that is given an
+initial value at the start of a program.  Unlike regular constants, you can
+assign a new value to such identifiers during program execution.  The purpose
+of typed constants is to provide for initialized variable declarations.
+     Because typed constants are treated just like variables, typed constants
+are not equivalent to regular constants.  For example, if Minimum and Maximum
+are defined as above, then writing,
+
+     var
+       Lines : Array[Minimum..Maximum] of String[80];
+
+is invalid because Minimum and Maximum are initialized typed constants, not
+true constants.
+     For String typed constants, you must declare a maximum string length.  The
+maximum length, as shown in the example above, may be longer than the initial
+string value.
+     All typed constants are initialized at the beginning of the program's
+execution, including locally declared typed constants within procedures and
+functions.  As a result, locally defined typed constants are initialized only
+once - not each time that the procedure or function is invoked.  Listing 3.2
+shows other typed constants and how to initialize complex structures such as
+arrays of records.
+
+
+Listing 3.2.  A code fragment that uses typed constants.  This is not a
+complete program.
+   1  {TYPED.PAS}
+   2  
+   3  type
+   4    TDataRecord = record
+   5                    Name        : String[20];
+   6                    PhoneNumber : String[14];
+   7                    Age         : Integer;
+   8                  end;
+   9  
+  10  
+  11  const
+  12  
+  13    { Initializes a typed constant record }
+  14    SampleRecord : TDataRecord =
+  15                    (Name : 'Ed'; PhoneNumber : '555-1212'; Age : 32 );
+  16  
+  17    { Initializes a typed constant array }
+  18    SampleArray : Array [1..5] of Integer = (10, 20, 30, 40, 50);
+  19  
+  20    { Initializes a typed constant set }
+  21    SampleSet : Set of Byte = [1, 100, 200];
+  22  
+  23  
+  24    { Initializes a typed constant array of records }
+  25    DataRecords : Array[0..4] of TDataRecord
+  26  
+  27    = ( (Name : 'George'; PhoneNumber : '262-1234'; Age : 10 ),
+  28     (Name : 'John'  ; PhoneNumber : '262-1235'; Age : 20 ),
+  29     (Name : 'Lisa'  ; PhoneNumber : '262-1236'; Age : 22 ),
+  30      (Name : 'Marcia'; PhoneNumber : '262-1237'; Age : 30 ),
+  31     (Name : 'Gwen'  ; PhoneNumber : '262-1238'; Age : 4 ) );
+
+
+Important note:  Using typed-constants to create static local variables
+     If you have programmed in C, you may recognize typed-constants as similar
+to C's local static variables.  Like C, you can use locally defined typed
+constants in a manner similar to C's static variables.  Normally, a local
+variable defined inside a procedure or function in Turbo Pascal (or C) does not
+retain its value between calls to the procedure or function.  Each time you
+enter a procedure or function, you must reinitialize the local variable.   
+However, sometimes a procedure may wish to retain information for future
+reference.  While such values could be placed in a global variable, you can
+provide better modularity by keeping the definition within the procedure where
+the value is used.  By declaring the variable as a local typed constant, the
+contents of the variable remain unchanged between calls to the procedure or
+function.
+
+
+The Pointer Type
+     A pointer type is a variable whose contents point to some other location
+in memory.  Pointers are used to access dynamically allocated variable types. 
+Variables declared with var definition statements are static variables, meaning
+that they are allocated at the start of a program (or procedure or function)
+and remain allocated until the program (or procedure or function) terminates. 
+Adynamic variable is one that is created during program execution (usually with
+the New procedure) and remains allocated until explicitly thrown away using the
+Dispose procedure.  
+
+
+Defining and Allocating a Pointer
+     New allocates a dynamic variable in a program's heap memory area, an area
+reserved for all types of dynamic memory allocations.  (Other program memory
+areas include the the program's code space and the stack, a memory structure
+for keeping track of procedure and function calls, for allocating space to
+local variables.)  A dynamic variable does not exist in any explicit variable
+declaration.  Instead, New allocates memory for the variable within the heap
+memory area and sets its variable parameter to the memory address of the
+allocation.  A variable type called a pointer is defined to accept the memory
+address.
+     A pointer variable (that is, a variable of the pointer type) is defined
+thusly:
+
+     var
+       PointsToString : ^String;
+
+which declares PointsToString to hold a pointer to a String.  The value of
+PointsToString is undefined, until it is given a value by calling New or by
+equating to another pointer.  A special value, nil, is reserved for indicating
+a pointer that does not currently point to anything (hence, the nil pointer).
+     Memory space is dynamically allocated by calling New like this:
+
+       New( PointsToString );
+
+New takes the pointer type as its parameter and allocates sufficient memory
+from the heap to store the type of data that PointsToString points to, in this
+case a default 255 byte long string, plus a length byte.  PointsToString is
+gets the value of the memory address where the string is allocated.
+     (A special form of the New function is used in object-oriented
+programming.  This format is described in Chapter 4, "Object Oriented
+Programming", in the Borland Pascal Developer's Guide).
+
+
+Using a Pointer
+     To reference the data pointed to by PointsToString, use the circumflex
+character ^, denoting "points to", as,
+
+     PointsToString^ := 'This is a sample pointer to a string';
+
+If you directly reference PointsToString, you are accessing the memory address
+stored in PointsToString.  Use the circumflex ^ character to access what the
+pointer is pointing at.  You can use the pointer variable like any other
+variable.  Some examples:
+
+     procedure WriteAString( S : String );
+     begin
+       writeln( S );
+     end;
+     ...
+     WriteAString( PointsToString^ );
+     ...
+     for I := 1 to Length(PointsToString^) do
+       write( PointsToString^[I] );
+
+
+Disposing of a Dynamic variable
+     Memory allocated with New remains allocated until explicitly disgarded
+with Dispose.  Once a memory allocation has been disposed it can be reused
+again by other program functions.
+     To dispose of a dynamically allocated variable, pass the pointer to the
+Dispose procedure, like this:
+
+     New ( PointsToString );
+     ...
+     Dispose( PointsToString );
+
+Note that the pointer address is passed to the Dispose procedure, not what the
+pointer points to (unless of course, the pointer points to another pointer and
+you are disposing of that pointer).  Hence, do not include the circumflex ^
+"points to" notation on this parameter.
+     (A special form of Dispose is used in object oriented programming and is
+described in Chapter 4, "Object Oriented Programming", in the Borland Pascal
+Developer's Guide).  Related procedures are GetMem and FreeMem and Mark and
+Release, described later in this chapter).
+
+Important Note:  Common problems when using pointers
+     When working with pointers, the most common errors are failure to
+initialize a pointer before use, and erroneously using a pointer after the
+dynamically allocated variable it points to has been disgarded.  Another common
+error is allocating a variable within a procedure or function and never calling
+Dispose to free the memory.  If the procedure is called often, the program will
+soon run out of memory and halt execution.
+     To play it safe, always explicitly initialize pointer values to nil or to
+an actual memory allocation, in order to avoid using a potentially random
+memory reference.
+     Always dispose of dynamic variables when they are no longer needed by
+calling the Dispose procedure.
+     Insure that once a dynamic allocation is disgarded with the Dispose
+procedure that the now invalid memory pointer is no longer used.  Dispose
+disgards the allocated heap memory but does not change the address stored in
+the pointer variable.  As a result, you may inadvertently continue to use a
+disposed pointer reference.  To play it safe and to help in subsequently
+debugging your program, after calling Dispose, you may wish to assign nil to
+the pointer.
+
+
+The Use of Mark and Release Procedures
+     When several pointers are allocated using the New procedure, memory blocks
+are allocated one after the other, in sequence.  For example,
+
+     New( P1 );
+     New( P2 );
+     New( P3 );
+     New( P4 );
+     New( P5 );
+
+will (at least initially) allocate P1 through P5 so that they occupy sequential
+blocks of memory (See Figure 3.3).
+
+***03tpr03.pcx***
+Figure 3.3.  An illustration showing how several items are allocated in
+sequential blocks of memory.
+
+     Normally, these variable allocations are disposed of by calling the
+Dispose procedure.  An alternate disposal method uses the Mark and Release
+procedures.  When called, Mark saves the location within the heap memory area
+of the next variable allocation.  Later, by calling Release, the heap memory is
+reset to its allocation at the time Mark was called.  For example,
+
+     New( P1 );
+     New( P2 );
+     Mark (P);
+     New( P3 );
+     New( P4 );
+     New( P5 );
+
+saves the location in variable P, where P can be of any pointer type, including
+an untyped pointer declared as,
+
+     var
+       P : Pointer;
+
+When the statement,
+
+     Release( P );
+
+is subsequently executed, the heap allocation is reset to its position prior to
+the allocation of P3, P4 and P5 such that calling Release is equivalent to
+individually disposing of P3, P4 and P5.  Release effectively frees up all
+memory allocated since the matching Mark procedure call.
+
+Important Note:  Cautions concerning the use of Mark and Release
+     Mark and Release should only be used for programs that deallocate dynamic
+variables in exactly the reverse order of their allocation.  In such a case,
+the use of Mark and Release is more efficient than using Dispose.
+     However, if variables are randomly allocated and disposed, then Mark and
+Release should be used with caution, or not used at all.  When the Dispose
+procedure removes a variable allocation, it maintains a list of free memory
+space.  The Release procedure eliminates this free list and can cause the heap
+memory manager to lose track of memory blocks that have already been freed
+using Dispose.  For example, in this code section,
+
+     New( P1 );
+     New( P2 );
+     Mark (P);
+     New( P3 );
+     New( P4 );
+     New( P5 );
+     Dipose (P1);
+
+when Dispose (P1) is executed, a free block appears within the heap.  However,
+if you now call Release(P), the free list that keeps track of the free block
+previously pointed to by P1 is eliminated and that free memory can no longer be
+recovered.
+
+
+The Use of GetMem and FreeMem procedures
+     Turbo Pascal allows the program to dynamically allocate arbitrarily sized
+blocks of memory, up to a maximum of 65,521 bytes in size.  This memory is
+allocated with the GetMem procedure, passing to it a pointer of any type, and
+the size of the requested memory block.  For example, to dynamically allocate
+an array of the char data type, you could use the example code in
+Listing 3.3.
+
+Listing 3.3.  Demonstration of how to dynamically allocate a large array of
+characters.
+
+program DemoGetMem;
+type
+  PCharArray = ^CharArray;
+  CharArray = array [0..19999] of char;
+var
+  TextArray : PCharArray;
+  I : Integer;
+begin
+  GetMem( TextArray, 20000 );
+  for I := 0 to 19999 do
+     TextArray^[I] := ' ';
+end.
+
+     Depending upon the amount of memory actually needed, you can use GetMem to
+allocate a dynamically sized TextArray.  You don't need to allocate the full
+20,000 bytes; you could allocate a smaller value if that is all that is needed.
+     Dynamic variables allocated with GetMem should be disposed of by calling
+FreeMem, again passing to FreeMem the pointer variable and the actual memory
+block sized allocated by GetMem.  For example,
+
+     FreeMem ( TextArray, 20000 );
+
+New and GetMem, and Dispose and FreeMem may be freely intermixed as they
+internally use the same memory heap allocation mechansim.  However, the
+cautions that apply to mixing calls to Dispose with Mark and Release also apply
+to using Mark and Release with FreeMem.
+
+
+Pointers and Memory Management
+     When dynamically allocating memory space for a new variable, the heap
+memory area may run out of available memory.  By default this results in a
+program run-time error,
+
+     Error 203: Heap Overflow error
+
+causing the program to terminate execution.
+     Turbo Pascal programs can intercept the out of memory condition using the
+following programming trick.  The global system variable HeapError points to a
+function that is called whenever a heap error occurs.  By setting HeapError to
+point to your own function, your program can take its own action to handle the
+out of memory condition and prevent a program terminating run-time error from
+occurring.
+     To use HeapError, define a function similar to this,
+
+     function HeapErrorCondition ( Size : Word ): Integer; far;
+
+and set HeapError as,
+
+     HeapError := @HeapErrorCondition;
+
+Also, see  The Address-of @ Operator, below.
+     During program execution, if the heap runs low on memory and calls to New
+or GetMem cannot be completed, the heap memory manager calls the function
+pointed to by HeapError, passing to the heap error function the size of the
+requested memory allocation that caused the heap manager to run out of memory.
+     Within the HeapErrorCondition function, your program can display its own
+error message, or optionally dispose of unneeded variables.  Upon completion,
+the HeapErrorCondition function should return:
+
+       0:  Means out of memory and causes a run-time error,
+
+       1:  Means out of memory but causes New and GetMem to merely return a
+       value of nil without generating a run-time error,
+
+       2:  Means that memory was freed up and the New or GetMem routine can try
+       again to allocate a memory block.  Note that this could result in
+       another out of memory condition and a second call to HeapErrorCondition.
+
+
+Pointer Relational Operators
+     The only comparisons that can be made using pointer values directly are:
+
+       =: Compare two pointers to see if they point to the same location, as
+       in,
+                    if P1 = P2 then ...
+
+       <>: Compare two pointers to see if they are different from one another,
+       as in,
+                    if  P1 <> P2 then ...
+
+Turbo Pascal does not allow relative comparisons such as,
+
+     if P1 < P2 then ...
+
+since these operations make no sense when applied to pointers.
+
+
+The Address-of operator @
+     In addition to using New to allocate a pointer variable, you may also
+assign a pointer to an already allocated pointer, or you can assign a pointer
+to the address of an existing variable using the @ address-of operator.  For
+example, given the definitions,
+
+     var
+       AString : String;
+       PointsToString : ^String;
+     ...
+     AString := 'Hello, World!';
+     PointsToString := @AString;
+     Writeln( PointsToString^ );
+
+displays,
+
+     Hello, World!
+
+The statement,
+
+     PointsToString := @AString;
+
+assigns the memory address of AString to PointsToString.  Hence,
+PointsToString^ points to the contents of AString.
+
+
+@ and Procedures and Functions
+     When the @ address-of operator is placed before a procedure or function,
+it returns the address of the procedure or function's entry point.  This form
+is used for passing a procedure or function location to an assembly language
+routine, or to save a pointer to a procedure.  For example, given
+
+     var
+       ProcPointer : Pointer;
+
+     function Sum(A, B: Integer) : Integer;
+     ...
+     ProcPointer := @Sum;
+
+assigns ProcPointer the address of function Sum.
+     Listing 3.4 illustrates the use of the @ symbol for passing a pointer to a
+procedure as a procedure parameter.  This example uses the TCollection
+object-oriented library method ForEach, which takes as its only a parameter, a
+pointer to a procedure.  ForEach is defined as,
+
+     procedure ForEach (Action: Pointer);
+
+ForEach calls the procedure parameter using code that resembles,
+
+
+Listing 3.4.  A sample procedure that uses the @ address-of operator on a
+procedure.
+
+procedure PrintPhoneBook;
+  procedure PrintEntry( OneEntry : PPersonInfo ); far;
+  begin
+     with  OneEntry^  do
+     Writeln(Name,Address,City,State,Zip,Age);
+  end; { PrintEntry }
+
+begin
+  PhoneBook^.ForEach( @PrintEntry );
+end;
+
+     
+@ and Procedure Value parameters
+     When the @ address-of operator is placed before a variable that is a
+procedural value parameter, then this returns the address of the stack location
+containing the parameter's value.  See Procedure P in listting 3.5 for an
+illustration of building a pointer reference to a value parameter.
+
+
+@ and Procedure Variable parameters
+     The use of @ on a procedure variable parameter produces the address of the
+formal variable parameter passed to the procedure.  In other words, the pointer
+returned by the @ address-of operator, points to the variable that was passed
+to the procedure as a parameter.  Procedure Q in Listing 3.5 illustrates.
+
+Listing 3.5.  Sample code that uses the @ address-of operator on procedure
+pass-by-value and pass-by-address (or var) parameters.
+
+program DemoAddressOf;
+var
+  AString : String;
+  PointsToString : ^String;
+
+procedure P ( S : String );
+var
+  PS : ^String;
+begin
+  PS := @S;
+  Writeln(PS^);
+end;
+
+procedure Q ( var S : String );
+var
+  PS : ^String;
+begin
+  PS := @S;
+  Writeln ( PS^ );
+  PS^ := 'Goodbye!';
+end;
+
+begin
+  AString := 'Hello, World!';
+  P( AString );
+  Q( AString );
+  Writeln( AString );
+  Readln;
+end.
+
+
+Summary of Pointer Operations
+     A pointer is defined in a var or type definition, by prefacing the data
+type that is pointed to, with a circumflex ^ character.
+
+type
+     PInteger = ^Integer;
+var
+     PointerToInteger : ^Integer;  { These two are 
+                                        effectively equivalent }
+     IntegerPointer : PInteger;
+
+     A dynamic variable is allocated by calling New ( pointer-type or
+pointer-variable ), which returns a memory address or pointer to the memory
+location where the variable was allocated.  Note that the parameter to New may
+be either the pointer itself, or the data type:
+
+     PointerToInteger := New ( PointerToInteger );
+     IntegerPointer := New ( PInteger );
+
+     A pointer references the dynamic variable by appending the circumflex ^
+character, so that,
+
+     IntegerPointer^ := 12;
+
+assigns the value 12 to memory location that IntegerPointer points to.
+     All dynamic variables must be disgarded by calling the Dispose procedure,
+passing to it the pointer to dispose of:
+
+     Dispose( IntegerPointer );
+
+

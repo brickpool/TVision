@@ -1,0 +1,1498 @@
+				   Chapter 3
+				 - continued -
+			     - Part 3 of 3 parts -
+                                    of the
+                            Turbo Pascal Reference
+
+                           The Turbo Pascal Language
+
+
+This chapter is part of the Turbo Pascal Reference electronic freeware book (C)
+Copyright 1992 by Ed Mitchell.  This freeware book contains supplementary
+material to Borland Pascal Developer's Guide, published by Que Corporation,
+1992.  However, Que Corporation has no affiliation with nor responsibility for
+the content of this free book.  Please see Chapter 1 of the Turbo Pascal
+Reference for important information about your right to distribute and use this
+material freely.  If you find this material of use, I would appreciate your
+purchase of one my books, such as the Borland Pascal Developer's Guide or
+Secrets of the Borland C++ Masters, Sams Books, 1992.  Thank you.
+
+Functions
+Syntax:
+
+     function <identifier> <parameter list> : <data type>
+
+Examples:
+
+     function Minimum ( A, B : Integer ) : Integer;
+     { Returns the value of the smaller number A, or B }
+     begin
+       if A < B then
+          Minimum := A
+       else { if B < A or B = A then }
+          Minimum := B;
+     end;
+
+     { Example of a function returning a String value }
+     function LowerCase (S : String ) : String;
+     { Convert string S to lower case, returning the result }
+
+     var
+       I : Integer;
+     begin
+       for I := 1 to length(S)  do
+          if ((S[I]>='A') and (S[I]<='Z'))  then
+            S[I] :=  Chr( Ord( S[I] ) + 32 );
+       LowerCase := S;
+     end; { LowerCase }
+
+Description:
+     A function is similar to a procedure, except that a function is called
+from within an expression and it returns a value that is then used in
+evaluating the overall expression.  Functions can have both value and variable
+parameters, and may be declared as near, far, forward, and external, or may be
+implemented entirely in assembly language.  Functions may not, however, be
+declared as interrupt functions.
+
+
+Calling a function
+     The function is called by appearing within an expression, such as,
+
+     I := Min ( X1, X2 ) + 1;
+
+
+Assigning a value to a function identifier
+     The function's block definition must include a statement that assigns a
+value to the function's identifier.  This is how a function gets a value that
+it can return to the caller.  If you omit this assignment statement, or the
+assignment statement does not get executed as a result of conditional
+statements in the function's code, then the function returns an undefined or
+potentially random value.  If during the course of debugging a program you find
+your functions returning erratic values, be certain that the function
+identifier is  correctly assigned a value.
+     Examples of assigning values to function identifiers appear above in the
+Min and LowerCase functions.
+
+
+Acceptable Function Return Values
+     The data type that a function returns can be any of the following:
+
+       Any ordinal value, including Boolean, Byte, Char, Smallint, Integer,
+       Word, Longint, and enumarated data types and user defined sub range
+       types.
+
+       Real, Single, Double, Extended and Comp data types,
+
+       Pointer values
+
+       Strings.
+
+
+Functions may not return records or sets, although they may return pointers to
+records or sets.
+
+
+Recursive functions
+     Functions may call themselves.  Such a function is called a recursive
+function.  A popular and simple example of a recursive function is a function
+that computes the factorial of a number.  The factorial of a number n, is n *
+(n-1) * (n-2) ... until n reaches 1.  For example, the factorial of 5, is 5 * 4
+* 3 * 2 * 1, which equals 120.  An illustration of how this might be solved
+recursively is shown in listing 3.10.  (Actually, its not necessary to use a
+recursive function to compute a factorial;  this method is used here for
+illustration only.)
+
+Listing 3.10.  An example of a recursive function.
+   1  program DemoRecursion; {DEMORECU.PAS}
+   2  
+   3  function Factorial ( n : real ) : real;
+   4  begin
+   5    if n = 1 then
+   6      Factorial := 1
+   7    else
+   8      Factorial := N * Factorial ( N - 1.0 );
+   9  end;
+  10  
+  11  var
+  12    X : Real;
+  13  
+  14  begin
+  15    Write('Enter a number:  ');
+  16    Readln( X );
+  17    Writeln;
+  18    Writeln('Factorial of ',X,' = ', Factorial ( X ) );
+  19    Writeln;
+  20    Write('Press Enter to finish.');
+  21    Readln;
+  22  end.
+  23  
+
+Important note:  The effect of short-circuit evaluation on functions
+     By default, Turbo Pascal generates short-circuit evaluation code, so it is
+possible that a function may not be called within a particular expression.  For
+example, consider a function defined as:
+
+     function ValueInRange ( X1 : Integer ) : Boolean;
+     begin
+       ...
+       if  X1 > 0  then
+          ValueInRange := True
+       else
+          ValueInRange := False;
+       if  X1 < LowestCoordinate  then
+          LowestCoordinate := X1;
+     end;
+
+In this function, a global variable LowestCoordinate may have its value changed
+during the course of execution.  If this function is called in an expression
+such as,
+
+     if (X1<>X2) and ValueInRange(X1)  then ...
+
+In normal short-circuit evaluation, if X1 is not equal to X2, then the
+remainder of the expression will not be evaluated.  If your code depends upon
+the value of LowestCoordinate being set as a side effect of the ValueInRange
+function call, this may result in an error.  In general, it is best to avoid
+side-effects within functions and procedures, but if you must make use of
+side-effect such as this, you should disable short-circuit evaluation to force
+the entire expression to be fully evaluated.  See the section "Compiler
+Directives" for more information on using the {$B+} option to enable full
+expression evaluation.
+
+
+Procedures and Functions as Parameters
+     A procedure or function may itself be passed to another procedure or
+function as a parameter value.  To pass a procedure or function as a parameter
+requires that a type declaration define a procedure type that matches the
+appropriate procedure or function header.  This type becomes the parameter type
+used in the procedure parameter list.  Listng 3.11 demonstrates the use of a
+procedure parameter.
+     Note that the type declaration describes the procedure or function that is
+called, and does not include the actual procedure or function identifier.
+
+Listing 3.11.  Using a procedure type as a procedure parameter.
+   1  Program ProcParameter;{PROCPARM.PAS}
+   2  { Demonstrates using a procedure type as a procedure
+       parameter }
+   3  
+   4  type
+   5    FormatProc = procedure ( X : Integer );
+   6  
+   7  
+   8  const
+   9    MaxListSize = 15;
+  10    Values: array[1..MaxListSize] of Integer =
+  11       (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
+  12  
+  13  
+  14  
+  15  function Hexadecimal ( X: Word ) : String;
+  16  var
+  17    HiByte, LoByte : Word;
+  18  
+  19    function HexConvert( B : Byte ) : String;
+  20    const
+  21      HexTable : Array[0..15] of Char =
+  22        ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+  23         'A', 'B', 'C', 'D', 'E', 'F');
+  24    begin
+  25      HexConvert := HexTable[B div 16] + HexTable[B and 15];
+  26    end;
+  27  
+  28  begin
+  29    HiByte := X Div 256;
+  30    LoByte := X and 255;
+  31    Hexadecimal := HexConvert( HiByte ) + HexConvert(LoByte);
+  32  end;
+  33  
+  34  
+  35  
+  36  procedure PrintInteger( X : Integer ); far;
+  37  begin
+  38  
+  39    Writeln( X : 5 );
+  40  
+  41  end;
+  42  
+  43  
+  44  
+  45  procedure PrintHex( X : Integer ); far;
+  46  begin
+  47  
+  48    Writeln ( Hexadecimal ( X ) );
+  49  
+  50  
+  51  end;
+  52  
+  53  
+  54  procedure PrintPercent( X : Integer ); far;
+  55  begin
+  56  
+  57    Writeln( X, '%');
+  58  
+  59  end;
+  60  
+  61  
+  62  procedure Traverse ( Proc : FormatProc );
+  63  var
+  64    I : Integer;
+  65  begin
+  66    for I := 1 to MaxListSize do
+  67      Proc( Values[I] );
+  68  end;
+  69  
+  70  
+  71  begin
+  72    Traverse ( PrintInteger );
+  73    Traverse ( PrintHex );
+  74    Traverse ( PrintPercent );
+  75  
+  76    readln;
+  77  
+  78  end.
+
+
+Conditional Compilation
+     While not specifically a part of the Pascal programming language, Turbo
+Pascal provides special compiler directives to create different executable
+programs from a single source.  These features are called conditional
+compilation directives.  The basic statements are,
+
+     {$IFxxxx} <Pascal statements> {$ENDIF}
+
+and
+
+     {$IFxxxx} <Pascal statements> {$ELSE} <Pascal statements> 
+     {$ENDIF}
+
+where the {$IFxxxx} may be one of the following conditional tests,
+
+          {$IFDEF symbol}:  If symbol is defined, then compile the statements
+       between the {$IFDEF} and the {$ENDIF} or {$ELSE}.  
+
+          {$IFNDEF symbol}:  If symbol is not defined, then compile the
+       statements between the {$IFNDEF} and the {$ENDIF} or {$ELSE}.
+
+          {$IFOPT switch}: Tests the state of compiler directive switches (such
+       as $R+ or $I-, for instance).  For example, {$IFOPT I+} compiles the
+       following Pascal statements if the $I options is currently set, while
+       {$IFOPT I-} compiles the following statements if the $I options is not
+       set.
+
+     These statements may be embedded into Pascal source code like any other
+program comment.  Symbols used in conditional compilation statements are
+created with the {$DEFINE symbol} directive, and eliminated or undefined with
+the {$UNDEF symbol} directive.  
+     A frequent use of conditional compilation is to embed debugging code into
+a program during development.  By changing a single option, all of the debug
+code can be eliminated from the final compilation, but switched back on if bugs
+are detected or new program features are added later.  Listing 3.12 illustrates
+the use of the conditional compiler directives in a section of code.
+
+Listing 3.12.  This program section shows how conditional compilation might be
+used to add debug statements into a program.
+   1  {$DEFINE DEBUGGING} {DEBUG.PAS}
+   2  {$IFDEF DEBUGGING}
+   3  procedure DebugTrace( S : String; X : Integer );
+   4  begin
+   5    Writeln( DebugFile, S,', ', X );
+   6  end;
+   7  {$ENDIF}
+   8  
+   9  {---------------------------------------------------------}
+  10  function  UpperCase ( S : String ) : String;
+  11  var
+  12    I : Integer;
+  13  begin
+  14    {$IFDEF DEBUGGING}
+  15    DebugTrace('UpperCase', 0 );
+  16    {$ENDIF}
+  17    for  I := 1 to Length( S )  do
+  18      S[I] := UpCase ( S[I] );
+  19    UpperCase := S;
+  20  end; { UpperCase }
+  21  {------------------------------------------------------------}
+  22  function HeapFunc ( Size : Word ) : integer;
+  23  begin
+  24    {$IFDEF DEBUGGING}
+  25    DebugTrace('HeapFunc', 0 );
+  26    {$ENDIF}
+  27  
+  28    HeapFunc := 1;
+  29  end;
+  30  
+  31  {-----------------------------------------------------------}
+  32  function LowerCase (S : String ) : String;
+  33  Var
+  34    I : Integer;
+  35  begin
+  36    {$IFDEF DEBUGGING}
+  37    DebugTrace('LowerCase', 0 );
+  38    {$ENDIF}
+  39  
+  40    for I := 1 to length(s)  do
+  41      if ((S[I]>='A') and (S[I]<='Z'))  then
+  42        S[I] :=  Chr( Ord( S[I] ) + 32 );
+  43    LowerCase := S;
+  44  end;
+  45  
+  46  {------------------------------------------------------------}
+  47  Function Max ( A, B : Integer ) : Integer;
+  48  Begin
+  49    {$IFDEF DEBUGGING}
+  50    DebugTrace('Max', 0 );
+  51    {$ENDIF}
+  52  
+  53    IF A>B THEN Max := A Else Max := B;
+  54  End; {Max}
+  55  
+
+Important Note: Conditional Symbols
+     The symbols defined by {$DEFINE} must follow the same rules as those
+applied to normal Pascal language identifiers.  However, symbols defined by
+{$DEFINE} are completely unrelated to identifiers declared within Pascal
+programs.  For example, it is permissible to have,
+
+     {$DEFINE Debug}
+     var
+       Debug : Boolean;
+
+because these identifiers have no relation to one another.  Similarly, if you
+wrote,
+
+     {$DEFINE Options}
+     if  Options  then ....
+
+you would receive an error because the symbol Options used in the if-then
+statement has not been declared (at least as a Pascal identifier).
+     In addition to the {$DEFINE} directive, symbol may also be defined with
+the /D command line option (See Chapter 10, "Turbo Pascal Standalone Programs"
+in the Borland Pascal Developer's Guide) or the Conditional Defines option of
+the IDE (see chapter 2 of the Turbo Pascal Reference).
+
+
+Built-in Conditional Compilation Symbols
+     Turbo Pascal automatically defines the following 4 conditional compilation
+symbols:
+
+       VER60:  Turbo Pascal automatically defines this symbol, meaning that
+       this is version 6.0 of the Turbo Pascal compiler.
+
+       VER70:  Turbo Pascal defines this symbol when you are compiling under
+       version 7.0 of the Turbo Pascal compiler.
+
+       MSDOS:  Defined for all MS-DOS versions of the Turbo Pascal.
+
+       CPU86:  Defined for all versions of Turbo Pascal running on 80x86
+       microprocessors.
+
+       CPU87:  If, at compile time, the compiler detects an 80x87 math
+       coprocessor, this symbol is automatically defined.  When used in
+       conjunction with {$N}, this symbol can be used to set the floating-point
+       libraries for use with or without the 80x87 coprocessor.  Example:
+            {$IFDEF CPU87} {$N+} {$ELSE} {$N-} {$ENDIF}
+
+
+Compiler Directives
+     Compiler directives are special program comments that select compiler
+options.  Two types of compiler directives are provided (in addition to the
+conditional compiler options just described):
+
+       Switch directives:  These are written in the form {$I+} or {$I-}, where
+       $I specifies a particular option, and a + symbol switches the option on,
+       and a minus - symbol switches the option off.
+
+       Parameter directives:  Parameters specify a value to the option, such
+       as, {$I filename} to include another file during compilation.
+
+Compiler options may be set by embedding compiler directives into the source
+text, or may be set globally using the IDE's Options menu, Compiler selection. 
+(See Chapter 2, in the section titled "Options Menu/Compiler)".  Many of the
+options may also be specified as command line options to the command line
+version of the compiler (See Chapter 10 in the Borland Pascal Developer's
+Guide).
+     Table 3.3 describes the embedded compiler directive options.
+
+
+Table 3.3.  The $ compiler directives.
+
+Word align data:  $A, default $A+
+          Normally, the compiler generates byte aligned data assignments. 
+          Setting this option forces the compiler to generate word aligned
+          assignments, so that if one value ends on an odd byte, the compiler
+          will skip a byte to insure that the next assignment is made to an
+          even byte position.  The 80x86 CPUs, including the 8086, operate
+          slightly faster when fetching word-aligned data than when fetching
+          byte aligned data.
+
+Complete Boolean evaluation:  $B, default $B-
+          The Turbo Pascal compiler normally performs short-circuited boolean
+          expression evaluation.  This means that as the expression is
+          evaluated at run time, as soon as the result is definitely known, the
+          remainder of the expression will be ignored.  This is particularly
+          useful in testing an index value before using it in an array
+          subscript, in for example,
+            if Index < 10  and (X[Index]=9)  then...
+          If  Index is 10 or greater, the program will not execute the array
+          subscript.  However, by enabling this compiler option, $B+, you can
+          force the program to always fully evaluate the expression.  This
+          might be used when calling a function within an expression, and your
+          program must use an intended side affect of the function call.
+
+Debug information: $D, default $D+
+          If you are going to use either the built-in or the standalone
+          debuggers, set this option on so that the compiler will generate
+          internal line number tables to assist in matching generated code to
+          program source statements.  You can selectively disable debug
+          information on a per unit basis; such units cannot have their
+          procedures or functions traced into.
+
+Emulation: $E, default $E+
+          When this option is set, the compiler will link in routines that
+          automatically detect the prescence or abscence of the floating point
+          processors.  If the math processor is installed, then it will be
+          used; if the math processor is not installed, the routines that
+          simulate the processor are called instead.  To generate code for all
+          types of machines, regardless of whether or not they have a floating
+          point chip, select both the 8087/80287 and the Emulation options.  If
+          you know that the target machine definitely has a coprocessor, then
+          disable this option but enable the 8087/80287 option.  See Table 3.1
+          and A Note on the Use of Floating Point Values earlier in this
+          chapter for additional information concerning Pascal floating point
+          data types and use of the math coprocessor and emulation libraries.
+
+Force far calls: $F, default $F-
+          Normally, the compiler generates near calls for all procedure and
+          functions in the current file, and far calls for all procedures or
+          functions appearing in the interface portion of a unit.  You can
+          force far call generation by selecting this option.  Also see the
+          section @ and Procedures and Functions, for examples using the far
+          option for passing procedures and functions as parameters to
+          procedures.
+
+286 instructions: $G, default $G-
+          When set, the compiler generates code using the additional
+          instructions available in the 80286 instruction set.  Programs
+          created with this option will not run on 8088 or 8086 processors.
+
+I/O checking: $I, default $I+
+          The default setting is to have the compiler check for input/output
+          errors on all input/output operations, such as reading or writing to
+          a file.  However, usually you will want to have your own checks for
+          such errors so you will want to disable this option.  Usethe $I-
+          compiler directive to locally disable I/O checking.  You can then
+          check the value of the IOResult function to determine if an error
+          occurred.  See Checking for File-related Errors, later in this
+          chapter.
+
+Include File parameter directive: $I filename
+          This form of the $I compiler directive causes the specified filename
+          to be incorporated directly into the Pascal source text at the
+          location of the directive.  Its operation is as if the included file
+          has been typed at this location in the original source file.  The $I
+          is a convenient way of breaking large source files into smaller, more
+          manageable pieces.  Included files may themselves include other
+          files, up to a maximum nesting depth of 15 files.  The only
+          restriction is that all statements between a begin - end pair must
+          appear in the same source file.  For example,
+            Program Demo;
+            var
+            ...
+            {$I IOPROCS.PAS}
+            {$I ERRCODE.PAS}
+            begin { Demo }
+                    ...
+            end; { Demo }
+
+Local symbols: $L, default $L+
+          When set, the compiler builds a table of all local variables and
+          constant identifiers for use during debugging session. If {$D-} is in
+          effect, disabling the generation of debug information, then {$L+} is
+          ignored.  See also the $D option, above.
+
+Link object file parameter directive: $L filename
+          When using external assembly language routines, the $L parameter
+          directive tells the compiler which .OBJ file contains the externally
+          defined routine.
+
+Memory allocation parameter directive: $M stacksize, heapmin, heapmax,         
+Default $M 16384, 0, 655360
+          The $M parameter directives specifies, for a Program module, how much
+          memory to allocate to the program stack, and the minimum and maximum
+          size permitted for the heap memory allocation.  The default values
+          specify a stack size of 16k bytes, and a maxium heap allocation up to
+          640k bytes.  During program initialization, the heap memory is
+          allocated from whatever is left over after loading the program code
+          and setting aside space for global variables and the stack.  As a
+          result, the actual heap allocation may be less than the maximum value
+          specified in this directive.
+            The stacks size may be set to any value from 1,204 to 65,520 bytes.
+          The heap values may be set anywhere from 0 to 655,360 bytes.
+
+8087/80287:  $N, default $N-
+          When set, this results in the compiler generating code for the 8087
+          or 80x87 math coprocessor chip.  This option is often used in
+          conjunction with the Emulation mode option (see above).  Also see See
+          Table 3.1 and A Note on Floating Point Values earlier in this chapter
+          for additional information concerning Pascal floating point data
+          types and use of the math coprocessor and emulation libraries.
+
+Overlays allowed: $O, default $O-
+          You must set this option for all units that will subsequently be
+          overlaid.  Its also okay to set this option for units that are not
+          overlaid as it merely adds some additional run time checks to the
+          generated code.  Chapter 3, "Overlays" in the Borland Pascal
+          Developer's Guide describes the creation and use of overlay programs.
+
+Overlay unit name parameter directive: $O unitname
+          When a Program module will use overlay units, immediately after the
+          uses statement, the program must specify which units should be placed
+          in a separate .OVR overlay file instead of the main .EXE program
+          executable file.  All such overlay units must be compiled with the
+          $O+ option.  See Chapter 2, "Units and Dynamic Link Libraires" for
+          information on creating and using program units, and chapter 3,
+          "Overlays" for information on using overlays, both in the Borland
+          Pascal Developer's Guide.
+
+Range checking: $R, default $R-
+          Range checking can be performed on all array and string subscript
+          values.  If the index is out of range, then a run time error occurs
+          and the program halts.  Set this option to enable range checking, and
+          disable this option to turn off range checking.  Programs may run
+          noticeably faster with range checking turned off, and will require
+          somewhat less code.
+
+Stack checking: $S, default $S+
+          When this option is set, the compiler generates extra code for every
+          procedure and function call to insure that adequate memory remains in
+          the stack area.  If the call would cause the program to run out of
+          memory, the program is halted with a run-time error.
+
+Strict var-strings: $V, default $V+
+          Most Pascal compilers will not let you pass a string variable as a 
+          var parameter unless both  var parameters are exactly the same type
+          and length.  For example, you normally cannot pass a STRING[80] typed
+          variable to a procedure having a var parameter defined (via a type
+          declaration) as STRING[128].  However, by selecting the $V- option,
+          Turbo Pascal allow you to pass mismatched string types as procedure
+          parameters.
+
+Extended syntax: $X, default $X-
+          When $X+ is in effect, Turbo Pascal lets you call a function just
+          like it was a procedure.  In effect, the result of the function will
+          be ignored and thrown away.
+          This feature does not apply to any System unit functions.
+
+
+Disk File Operations
+     Turbo Pascal provides disk file access through file declarations, standard
+library procedures, functions and system variables.  Turbo Pascal programs can
+read and write text files (containing text information), as well as reading and
+writing random access disk files containing complex data records.
+     This section describes basic file operations, and then presents example
+code for reading and writing text files, reading and writing sequential and
+random access data files, and an example using the high speed BlockRead and
+BlockWrite file functions.
+
+
+Defining a File Identifier
+     Text files are accessed through a special data type called Text, such that
+a file identifier is declared as,
+
+     var
+       TextFileID : Text;
+
+Data files (those containing data other than text files) are accessed via a
+File identifier declared using the syntax,
+
+     var
+       FileId : File of <type>;
+
+where <type> is any type identifier, including built in data types, records and
+user defined types.  Some examples:
+
+     type
+       TPersonInfo = record
+               Name : String[20];
+               Age : Integer;
+       end;
+     var
+       DataFile1 : File of Real;
+       DataFile2 : File of Integer;
+       DataFile3 : File of TPersonInfo;
+
+
+Opening a File
+     A filename is associated with a file identifier by calling the Assign
+procedure, like this:
+
+     Assign ( DataFile1, 'QTR-DATA.DAT' );
+
+which assigns the filename 'QTR-DATA.DAT' to file identifier DataFile1.  This,
+however, does not actually open the file.
+     To open an existing file, use the Reset procedure (or the Append
+procedure, summarized later):
+
+     Reset ( DataFile1 );
+
+To create a new file and open it so that data can be written to the file,
+write:
+
+     Rewrite ( DataFile1 );
+
+
+Writing and Reading File Data
+     Data is output to a data file using the standard Write procedures and
+specifying the file identifier as the first parameter.  Example:
+
+     Write ( DataFile1, 3.14159 );
+
+Each time data is output to the file, an internal file pointer is advanced
+forward into the file.  When a file is first opened, the file pointer is
+located at the beginning of the file.  Once a record is written to the file,
+the file pointer advances to just beyond that record, so that it points to the
+next position in the file.
+     If a previously created file was opened using Reset, data may be read by
+using Read, specifying the file identifier as the first identifier, followed by
+a data variable to store the results.  Example:
+
+     Read ( DataFile1, X );
+
+
+Checking for File-related Errors
+     By default, if a file operation error is detected, such as unable to open
+a file, the program halts with a run-time error.  However, your program can
+disable automatic file error detection and process file errors directly by
+checking the value returned by the IOResult function.
+     To test for file errors, you must set the {$I-} option to disable
+automatic I/O (input/output) result checking.  Then, perform the desired
+option.  Example:
+
+     {$I-}
+     Reset( DataFile1 );
+     {$I+}
+     ErrorCode := IOResult;
+     if  ErrorCode <> 0  then
+     begin
+       Writeln('Problem opening the file');
+       ...
+     end;
+
+     While you can test the value of IOResult directly, you will probably want
+to copy its integer result to a variable, as shown in the code fragment above. 
+This is because IOResult returns the result code of the previous I/O operation,
+and then resets the internal error code to 0.  Consequently, if you test
+IOResult in a conditional statement, and then attempt to access the error code
+again to display an error message or perform other processing, IOResult will
+now be zero.
+
+
+Text Files
+     Listing 3.12 demonstrates reading and writing text files.  This simple
+program prompts for a filename to read from, and the name of file to copy to. 
+It opens the input file, InFile using the Reset procedure.  The output file,
+OutFile is opened using Rewrite to create the new file.  However, to insure
+that an existing file is not inadvertently overwritten, the program first
+attempts to open the file using the Reset procedure.  If the IOResult is zero,
+this means that the file already exists, so the program prompts to see if you
+really wish to overwrite the existing file.  Then the file is opened using the
+Rewrite procedure.
+     Finally, a while loop reads each line from InFile, and writes it to
+OutFile, displaying a dot or period '.' on the screen for each line that is
+processed, providing user feedback that the program is doing something.  (Its a
+good idea to present some type of feedback whenever your program performs time
+consuming tasks.  If nothing happens for too long, the user might suspect the
+program has crashed, or perhaps is reformatting the hard disk, neither of which
+makes for user friendly software.)
+     The while loop calls the function Eof, which returns True when the end of
+the input file has been reached.  If the program did not call Eof, it would
+eventually attempt to read beyond the end of the file, resulting in a run-time
+error.  While not shown in this example, you could disable I/O result checking
+using {$I-} and check the IOResult function after each Read and Write.
+     You may wish to modify this program to perform various types of data
+manipulation.  For instance, you can easily alter this program to create a
+program that puts line numbers on Pascal source statements.  Add a TotalLines
+line counter variable, set to zero, and then increment by 1 for each line read
+from the input file.  Add TotalLines to the Writeln output statement, like
+this:
+
+     Writeln( OutFile, TotalLines:4, ': ', DataLine );
+To send output to the printer, instead of another disk file, specify LPT1: (or
+other appropriate DOS printer device) for the output file name.
+
+Listing 3.12.  An example program showing how process text files.
+   1  program TextFiles; {TEXTFILE.PAS}
+   2  { Demonstrates copying a text file to another file }
+   3  
+   4  var
+   5    DataLine    : String;
+   6    Error       : Integer;
+   7    InFileName  : String[80];
+   8    InFile      : Text;
+   9    Line        : Integer;
+  10    OutFileName : String[80];
+  11    OutFile     : Text;
+  12    TotalLines  : Word;
+  13    Response    : String[80];
+  14  
+  15  
+  16  begin
+  17  
+  18    { Get name of input file and open the file }
+  19    Repeat
+  20  
+  21      Write('Enter the name of the file to read (CR=done): ');
+  22      Readln( InFileName );
+  23      if  Length( InFileName ) > 0  then
+  24      begin
+  25        Assign( InFile, InFileName );
+  26        {$I-}
+  27        Reset( InFile );
+  28        {$I+}
+  29        Error := IoResult;
+  30        if  Error <> 0 then
+  31          writeln('Unable to open ',InfileName,'.');
+  32      end; { if begin }
+  33  
+  34    Until (Error = 0) or (Length( InFileName ) = 0);
+  35  
+  36  
+  37    { Get name of output file and open the file }
+  38    If  Length( InFileName ) > 0 then
+  39    begin
+  40  
+  41      repeat
+  42        repeat
+  43          Error := 0;
+  44          Write('Enter the name of the file to COPY TO (CR=done): ');
+  45          Readln( OutFileName );
+  46          if  Length( OutFileName ) > 0 then
+  47          begin
+  48            Assign( OutFile, OutFileName );
+  49            {$I-}
+  50            Reset( OutFile );
+  51            {$I+}
+  52            Error := IoResult;
+  53            if  Error = 0  then
+  54            begin
+  55              Close ( OutFile );
+  56              Write(OutFileName,' already exists.  Overwrite (Y/Cr=No)? ');
+  57              Readln( Response );
+  58              if  (Response = 'Y') or (Response = 'y') then
+  59                Error := 1; { Allow exit from the filename query loop }
+  60            end; { if begin }
+  61          end; { if begin }
+  62        until (Error <> 0) or (Length( OutFileName ) = 0);
+  63  
+  64        if  Error <> 0  then
+  65        begin
+  66          {$I-}
+  67          Rewrite( OutFile );
+  68          {$I+}
+  69  
+  70          Error := IoResult;
+  71          if  Error <> 0  then
+  72            Writeln('Problem creating ',OutFileName,'.');
+  73        end; { if begin }
+  74  
+  75      until (Error = 0) or (Length( OutFileName ) = 0);
+  76  
+  77  
+  78      { Copy the input file to the output file }
+  79      if  Length( OutFileName ) > 0  then
+  80      begin
+  81  
+  82        while not Eof(InFile) do
+  83        begin
+  84          Readln( InFile, DataLine );
+  85          Writeln( OutFile, DataLine );
+  86  
+  87          { Write a dot on the screen for each line copied }
+  88          Write('.');
+  89        end; { while }
+  90        Writeln;
+  91  
+  92        Close( InFile );
+  93        Close( OutFile );
+  94      end; { if begin }
+  95  
+  96    end; { if begin }
+  97  
+  98  end. { program }
+
+Important Note:  Other Text File Features
+     Additional text file procedures and facilities are provided in Turbo
+Pascal.  The Append procedure operates like Reset, to open an existing file,
+but automatically positions the file pointer to the end of the file so that the
+next Write operation will be made to the end of the file.  Normally, text file
+I/O is performed through a 128-byte sized internal file buffer maintained by
+Turbo Pascal.   For faster performance, this default buffer may be replaced
+with a larger buffer using the SetTextBuf procedure.  Normally, the buffer is
+only output to the disk when it becomes full, but programs can force the buffer
+to be emptied to disk by calling the Flush procedure.  These routines are
+briefly described below in the section Other File Operations, and described in
+detail in the library reference section.
+
+
+Sequential Access Data Files
+     A frequent use of file operations is reading and writing record-oriented
+data.  In this form, the entire contents of a record structure, including all
+of its fields, are written to the disk file.  Data values within the record,
+such as integer or real data types, are stored on the disk file in their
+internal format.  Listing 3.13 illustrates by creating a small array of a
+TDataRecord, containing name, phone number and age values.  The contents of
+each record are written directly to the data file with the statement,
+
+     for I := 0 to MaxRecords do
+       Write( SeqFile, DataRecords[I] );
+
+After each record is written, the internal file pointer advances to the next
+position in the file.  In this example program, the data file is then closed
+and reopened for reading, using Reset.  Entire records are then read from the
+file using,
+
+     Read ( SeqFile, SampleRecord );
+
+Each record is written back, in sequence.  Hence, this particular data file is
+accessed as a sequential data file.  Turbo Pascal also provides random access
+data files, permitting reading and writing of specific records anywhere within
+the file.
+
+Listing 3.13.  An example program that writes and then reads data to and from a
+sequential file.
+   1  { SEQFILE.PAS }
+   2  program SeqFiles;
+   3  { Demonstrates writing data to a sequential record file
+   4    and reading it back in }
+   5  
+   6  const
+   7    MaxRecords = 4;
+   8  
+   9  type
+  10    TDataRecord = record
+  11                    Name        : String[20];
+  12                    PhoneNumber : String[14];
+  13                    Age         : Integer;
+  14                  end;
+  15  
+  16  const
+  17    DataRecords : Array[0..MaxRecords] of TDataRecord
+  18  
+  19                = ( (Name : 'George'; PhoneNumber : '262-1234'; Age : 10 ),
+  20                    (Name : 'John'  ; PhoneNumber : '262-1235'; Age : 20 ),
+  21                    (Name : 'Lisa'  ; PhoneNumber : '262-1236'; Age : 22 ),
+  22                    (Name : 'Marcia'; PhoneNumber : '262-1237'; Age : 30 ),
+  23                    (Name : 'Gwen'  ; PhoneNumber : '262-1238'; Age : 4 )
+);
+  24  
+  25  
+  26  var
+  27    I           : Integer;
+  28    SeqFile     : File of TDataRecord;
+  29    SampleRecord: TDataRecord;
+  30  
+  31  begin
+  32    Assign( SeqFile, 'SEQFILE.DAT');
+  33    Rewrite( SeqFile );
+  34  
+  35    for I := 0 to MaxRecords  do
+  36      Write( SeqFile, DataRecords[I] );
+  37  
+  38    Close ( SeqFile );
+  39  
+  40    Reset( SeqFile );
+  41    For I := 0 to MaxRecords do
+  42    begin
+  43      Read( SeqFile, SampleRecord );
+  44      with  SampleRecord  do
+  45        Writeln('Name=', Name,', Phone #=', PhoneNumber, ', Age=', Age);
+  46    end;
+  47  
+  48    Close ( SeqFile );
+  49  
+  50    Write('Press Enter when done.');
+  51    Readln;
+  52  
+  53  
+  54  end. { program }
+
+
+Random Access Data Files
+     Program RandFile, in listing 3.14 demonstrates the use of random access
+data files to read and write any record within the data file.  The process is
+nearly the same as a sequential data file except that a new procedure, Seek, is
+used to position the internal file pointer to specific records in the file. 
+Seek has two parameters: the file identifier and the record number (each data
+record within the file counts as a single record).  A statement such as,
+
+     Seek ( RandomFile, 10 );
+
+positions the internal file pointer to the 10th record in the data file.  The
+next read (or write) will occur at this location in the file.
+
+
+Listing 3.14.  How to use random access file operations.
+   1  program RandFile; {RANDFILE.PAS}
+   2  { Demonstrates random access to a record file }
+   3  
+   4  const
+   5    MaxRecords = 100;
+   6  
+   7  type
+   8    TDataRecord = record
+   9                    Name        : String[20];
+  10                    PhoneNumber : String[14];
+  11                    Age         : Integer;
+  12                    Available   : Boolean;
+  13                  end;
+  14  
+  15  var
+  16    Command     : Char;
+  17    RandomFile  : File of TDataRecord;
+  18  
+  19  
+  20  
+  21  procedure AddRecord;
+  22  var
+  23    DataRecord : TDataRecord;
+  24    NewName : String[20];
+  25    NewPhone: String[14];
+  26    NewAge  : String[20];
+  27    RecordNum  : Word;
+  28  
+  29  
+  30  function  FindFreeRecord : Integer;
+  31  { Scans through the file until finding a free or unused record.
+  32    Returns:  The record number of the free record, or if no free
+  33              records are found, then returns MaxRecords + 1.
+  34  }
+  35  var
+  36    DataRecord : TDataRecord;
+  37    RecNum : Integer;
+  38  begin
+  39    RecNum := 0;
+  40    repeat
+  41      Seek( RandomFile, RecNum );
+  42      Read( RandomFile, DataRecord );
+  43      if  not  DataRecord.Available  then
+  44        RecNum := RecNum + 1;
+  45    until (RecNum > MaxRecords) Or (DataRecord.Available);
+  46    FindFreeRecord := RecNum;
+  47  end; { FindFreeRecord }
+  48  
+  49  
+  50  begin { AddRecord }
+  51  
+  52    RecordNum := FindFreeRecord;
+  53    if  RecordNum > MaxRecords  then
+  54      Writeln('The maximum number of records (',MaxRecords,') are in use.')
+  55    else
+  56    begin
+  57  
+  58      with  DataRecord  do
+  59      begin
+  60        Writeln('Adding record #', RecordNum );
+  61        Write('Enter Name ?');
+  62        Readln( Name );
+  63        Write('Enter # PhoneNumber ?');
+  64        Readln( PhoneNumber );
+  65        Write('Enter Age ?');
+  66        Readln( Age );
+  67        Available := False;
+  68      end;
+  69  
+  70      Seek( Randomfile, RecordNum );
+  71      Write( RandomFile, DataRecord );
+  72    end;
+  73  
+  74  end; { AddRecord }
+  75  
+  76  
+  77  procedure DisplayRecords;
+  78  var
+  79    DataRecord : TDataRecord;
+  80    I : Integer;
+  81  begin
+  82    for  I := 0 to MaxRecords  do
+  83    begin
+  84      Seek( Randomfile, I );
+  85      Read( RandomFile, DataRecord );
+  86      if  not DataRecord.Available  then
+  87      { Found a record that is in use }
+  88      begin
+  89        Writeln('Record #', I);
+  90        with  DataRecord  do
+  91          Writeln('Name=', Name,', Phone #=', PhoneNumber,', Age=', Age:3);
+  92        Writeln;
+  93      end; { if begin }
+  94    end; { for begin }
+  95  end; { DisplayRecords }
+  96  
+  97  
+  98  procedure EditRecord;
+  99  var
+ 100    DataRecord : TDataRecord;
+ 101    Error : Integer;
+ 102    NewName : String[20];
+ 103    NewPhone: String[14];
+ 104    NewAge  : String[20];
+ 105    RecordNum  : Word;
+ 106  begin
+ 107  
+ 108    Repeat
+ 109  
+ 110      Write('Enter number of record to edit:  ');
+ 111      Readln( RecordNum );
+ 112  
+ 113      Seek( RandomFile, RecordNum );
+ 114      Read( RandomFile, DataRecord);
+ 115      if  DataRecord.Available  then
+ 116        writeln('Record #', RecordNum, ' does not contain any data.');
+ 117  
+ 118    Until  not DataRecord.Available;
+ 119  
+ 120  
+ 121    with  DataRecord  do
+ 122    begin
+ 123      Write('Name =', Name,'(CR=no change) ? ');
+ 124      Readln( NewName );
+ 125      if  NewName <> '' then
+ 126        Name := NewName;
+ 127      Write('PhoneNumber =', PhoneNumber, '(CR=no change) ? ');
+ 128      Readln( NewPhone );
+ 129      if  NewPhone <> ''  then
+ 130        PhoneNumber := NewPhone;
+ 131      Write('Age =', Age, '(CR=no change) ? ');
+ 132      Readln( NewAge );
+ 133      if  NewAge <> ''  then
+ 134        Val( NewAge, Age, Error);
+ 135    end;
+ 136    Seek( RandomFile, RecordNum );
+ 137    Write( RandomFile, DataRecord );
+ 138  end; { EditRecord }
+ 139  
+ 140  
+ 141  procedure OpenFile;
+ 142  var
+ 143    SampleRecord : TDataRecord;
+ 144    Error : Integer;
+ 145    I : Integer;
+ 146  begin
+ 147    { Open existing file or create a new random access data file }
+ 148    Assign( RandomFile, 'RANDFILE.DAT');
+ 149    {$I-}
+ 150    Reset( RandomFile );
+ 151    {$I+}
+ 152    Error := IoResult;
+ 153    if  Error <> 0  then
+ 154    begin
+ 155      { Create and initialize a new file.  Set all records to available }
+ 156      Rewrite( RandomFile );
+ 157      SampleRecord.Available := True;
+ 158      for  I := 0 to MaxRecords  do
+ 159        write( RandomFile, SampleRecord );
+ 160    end; { if begin }
+ 161  end; { OpenFile }
+ 162  
+ 163  
+ 164  begin { RandFile }
+ 165  
+ 166    OpenFile;
+ 167  
+ 168    repeat
+ 169      Write('A)dd record, D)isplay records, E)dit record, Q)uit? ');
+ 170      Readln( Command );
+ 171      Command := Upcase( Command );
+ 172      case  Command  of
+ 173        'A' :  AddRecord;
+ 174        'D' :  DisplayRecords;
+ 175        'E' :  EditRecord;
+ 176      end; { case }
+ 177    until Command = 'Q';
+ 178  
+ 179    Close( RandomFile );
+ 180  
+ 181  
+ 182    Write('Press Enter when done.');
+ 183    Readln;
+ 184  
+ 185  
+ 186  end. { program }
+
+     The actual data record is defined in TDataRecord, containing 4 fields: 
+Name, PhoneNumber, Age, and a Boolean flag Available.  The Available flag is
+used to keep track of which records are in use and which have yet to be used.
+     Procedure OpenFile first tries to open an existing 'RANDFILE.DAT', since
+if the file already exists, it will then be used as-is.  However, if no such
+file exists, a new one is created by calling Rewrite.  For each of the records
+in file (the total number of records is specified in the MaxRecords constant),
+the Available flag is set to True, using this code:
+
+     SampleRecord.Available := True;
+     for I := 0 to MaxRecords do
+       write( RandomFile, SampleRecord );
+
+Note that we don't care about the contents of the other fields.  As long as the
+Available flag is set to True, we know that the record is available for writing
+new data to, and we will ignore the contents of the other fields.
+     In the main body of the program, a repeat-until loop is used to prompt for
+a command, A)dd, D)isplay, E)dit or Q)uit the program (this notation is used to
+suggest that you should only enter the first letter of each command).  After
+converting to upper case, the program uses a case statement to determine which
+procedure should execute.
+     AddRecord calls its local function FindFreeRecord to find the next free
+record (one with Available = True).  FindFreeRecord merely reads through the
+file, one record at a time, until either finding a free record, or reaching the
+end of the data file.  Back inside AddRecord, the user is prompted for a new
+name, phone number and age values; the Available flag is set to False and the
+record is written out to the file.  Note the use of Seek to position to the
+free record in the file, and then a Write procedure to output the record data
+to the file.
+     The EditRecord procedure takes a record number as input, seeks to the
+given record, reads the data from the file, and gives you a chance to make
+changes.  The altered data is then output to the file.
+     DisplayRecords scans through the file, displaying the record number, name,
+phone number and age values for each record that is in use.
+     For practice, you may wish to modify this program to include a Delete
+function.  All that's needed is to output a new record with the Available flag
+set to True, for each record that is deleted.
+
+Important note:  Writing Pointer values to disk files
+     When writing a record structure to a disk file, any pointer type values
+contained in the record are also written to the file.  However, when these
+values are read back into memory from a disk file, their value is meaningless. 
+Pointers to internal memory addresses are only valid when used within the
+original execution of the program.
+     Instead of storing pointers in the disk file, you must be able to recreate
+the internal data structure without referencing the pointer values.  A simple
+approach is to output the data records in the exact order that they will be
+read back.  Upon reading each record from the file, you must recreate the
+internal data strcuture, via calls to New to allocate new data records from the
+heap, and then explicitly reassign any pointer values to the new allocations.
+     More complicated structures may require that you create a file record
+number field, and instead of using pointer values in the data file, store
+actual file record numbers.  Upon reading the file, you would then use New to
+create a new internal record, and copy the values read from disk into the
+record, setting pointers as appropriate, to point to other records in the
+internal memory structure.
+
+
+BlockRead and BlockWrite:  The Use of Untyped Files
+     In addition to reading and writing specific data types, Turbo Pascal
+provides for untyped data files, using just the File keyword, and two
+procedures BlockRead and BlockWrite, for reading and writing data to such a
+file.  By default, each untyped files is treated as having 128 bytes per block
+(but can be set to other values).  This means that data is read or written in
+128-byte sized chuncks called blocks.
+     BlockRead and BlockWrite are especially useful for performing high speed
+file copy operations because of their ability to read and write very large
+blocks of data in a single statement.  Block I/O is also used by programs that
+perform their own internal data formatting.  For example, a word processor may
+store its internal representation of a document directly to disk using
+BlockWrite to output the document's internal memory structure.  Data base and
+spreadsheet applications may also build buffers of data for faster reading and
+writing of data base and spreadsheet files.
+     An untyped file is declared using the File keyword by itself, as in this
+declaration of InFile and OutFile:
+
+     var
+       InFile, OutFile : File;
+
+BlockRead has 3 or 4 parameters, depending on its mode of operation.  The same
+is true of BlockWrite.  At a minimum, each procedure has 3 parameters:
+
+     BlockRead( FileId, Buffer, NumBlocks );
+     BlockWrite( FileId, Buffer, NumBlocks );
+
+where,
+
+       FileId is a file identifier specifying the file where the operation will
+       be performed,
+
+       Buffer, is typically an array of char or an array of byte large enough
+       to hold all the data,
+
+       NumBlocks is the number of blocks to read into the buffer, where each
+       block is either the default of 128 bytes, or is a different block size
+       as specified with the Reset  or Rewrite procedures (see below).
+
+       An optional 4th parameter returns the number of blocks actually read,
+       which, in the event that something prevented the program from reading
+       the number of blocks that were requested, may be different than the
+       number of blocks requested.  For example, a program might request 4
+       blocks but only read 3 blocks before reaching the end of the file.  In
+       this case, the 4th parameter returns a value of 3.
+     An example, given the definition of Buffer as:
+
+     var
+       Buffer : Array [0..2047] of Char;
+
+then, the statement,
+
+     BlockRead ( FileId, Buffer, 16 );
+
+reads sixteen 128 byte-sized blocks from the file and places them in Buffer.
+
+
+Specifying Different Block Sizes
+     The Reset and Rewrite procedures have an optional 2nd parameter to specify
+a different block size.  For example,
+
+     Reset ( FileId, 1024 );
+
+specifies that each block of data read from the untyped FileId will contain
+1024 bytes of data.  In this instance, you may write,
+
+     BlockRead ( FileId, Buffer, 2 );
+
+and read two 1,204 byte blocks from the disk file.
+     A problem with BlockRead is that it cannot read data that is less than the
+block size.  For instance, what happens if you attempt to read a 1,204 byte
+sized block from a file having only 300 bytes?  If you use BlockRead with the
+optional 4th parameter, as for instance,
+
+     BlockRead ( FileId, Buffer, 1, Result );
+
+then Result will be 0, indicating that the amount of data you requested could
+not be read.  The partial record is stored in Buffer, but you have no way of
+knowing how many bytes were actually read.  
+     The solution to this problem is to open the file with a block size of 1
+byte, and set the NumBlocks parameter to the Buffer size.  For example,
+
+     Reset ( FileId, 1 );
+     BlockRead ( FileId, Buffer, SizeOf(Buffer), Result );
+
+Now, if the amount of data to read is less than 2048 bytes, the actual number
+read is returned in Result.  Listing 3.15 is a procedure CopyFile that copies
+one file to another, using a blocksize of 1, and buffer size of 1,204 bytes
+(see the declaration of TFileBuffer).  For faster performance you can change
+the declaration of TFileBuffer to a much larger size, such as 32,768 bytes.   
+     As with other file operations, use the {$I-} compiler option to disable
+automatic I/O result checking.  Write your own error checking routines to check
+the contents of IOResult to determine success or failure of block operations.
+
+
+Listing 3.15.  Demonstration of the BlockRead and BlockWrite functions for fast
+file copying. 
+   1  function CopyAFile ( Source, Dest : String ) : Integer;
+   2  {COPYFILE.PAS}
+   3  { Purpose:
+   4    Copies the filenamed in 'Source' to the file named in 'Dest'.
+   5  
+   6    Returns:
+   7    0 = copy was okay
+   8    1 = not enough RAM memory to copy the file
+   9    2 = error occurred when writing to the 'Dest' file
+  10    3 = Could not open the source file
+  11    4 = Could not open the destination file
+  12  }
+  13  label
+  14    ExitProc;
+  15  
+  16  type
+  17    TFileBuffer = Array [0..1023] of Byte;
+  18      { Copies the file in 1k chunks.  For a larger buffer, 
+  19        increase the size of the byte array. }
+  20  var
+  21    BytesIn  : Integer;   { Number of bytes read in }
+  22    BytesOut : Integer;   { Number of bytes written out }
+  23    F1 : File;            { F1=file to read, F2=file to write }
+  24    F2 : File;
+  25    FileBuffer : ^TFileBuffer;
+  26    Dialog : PDialog;
+  27    Bounds : TRect;
+  28  
+  29  begin { CopyFile }
+  30  
+  31    New( FileBuffer );
+  32    if  FileBuffer = NIL  then
+  33      CopyAFile := 1 {Not enough RAM memory to do a copy}
+  34    else
+  35    begin
+  36  
+  37      { Open the source file }
+  38      Assign ( F1, Source );
+  39      {$I-}
+  40      Reset ( F1, 1 );
+  41      if  IoResult <> 0  then
+  42      begin
+  43        CopyAFile := 3; {Error on opening source file}
+  44        goto ExitProc;
+  45      end;
+  46  
+  47      { Open the destination file }
+  48      Assign ( F2, Dest );
+  49      Rewrite ( F2, 1 );
+  50      if  IoResult <> 0  then
+  51      begin
+  52        CopyAFile := 4; {Error on opening the destination file}
+  53        goto ExitProc;
+  54      end; { if }
+  55  
+  56      repeat
+  57        BlockRead ( F1, FileBuffer^, SizeOf(FileBuffer^), BytesIn );
+  58        if  BytesIn > 0  then
+  59        begin
+  60          { Since we read something, go ahead and write it to the
+destination }
+  61          BlockWrite ( F2, FileBuffer^, BytesIn, BytesOut );
+  62          if  BytesIn <> BytesOut  then
+  63          begin
+  64            CopyAFile := 2; {Error occurred while writing the output}
+  65            {$I-}
+  66            Close ( F2 );
+  67            Erase ( F2 );
+  68            Close ( F1 );
+  69            {$I+}
+  70            goto ExitProc;
+  71          end; { begin }
+  72        end; { if }
+  73      until  BytesIn = 0;
+  74  
+  75      CopyAFile := 0;
+  76      Close ( F1 );
+  77      Close ( F2 );
+  78  
+  79    end; { begin }
+  80  
+  81  ExitProc:
+  82  
+  83    if  FileBuffer <> NIL  then
+  84      Dispose (FileBuffer);
+  85  
+  86  end; { CopyAFile  }
+  87  
+
+Important Note: Maximum buffer size and maximum data to read or write
+     The maximum amount of data that can be read with BlockRead or written with
+BlockWrite is limited in the following ways:
+       Individual data structures in Turbo Pascal can be no larger than 65,521
+       bytes.
+       The file record size times the count of bytes to read or write, must be
+       65,535 (or less) since its stored in a Word data type.  In other words,
+       SizeOf(Buffer) * NumBlocks must be less than or equal to 65,535.
+
+
+Other File Operations
+     In addition to the basic file operation facilities covered in the previous
+sections, Turbo Pascal provides a variety of standard procedures for creating
+directories, switching to other directories, erasing and renaming files and so
+on.  Other functions and variables provide additional features.  The following
+is a summary of the available functions; they are described in detail in the
+library reference section.
+
+
+Procedures
+
+       ChDir ( S: String ):  Changes the current directory to the path
+       specified by S.
+
+       Erase ( var F): Erases or deletes the file associated with the closed
+       file identifier F (with the name previously given to it by Assign), 
+
+       GetDir (D: Byte; var S: String):  Where D=1 for drive A, 2 for drive B,
+       etc, or 0 for the current drive, GetDir returns the current directory
+       name in variable S.
+
+       MkDir( S: String ):  Used to create new subdirectories, where S is the
+       path, including the subdirectory name, to create.
+
+       Rename( var F; Newname : String ):  Where F is a closed file identifier
+       having a name set with the Assign procedure, Rename changes the name of
+       that file to the name specified by Newname.
+
+       RmDir( S : String ):  Deletes an empty subdirectory specified by S.
+
+       Truncate( var F ):  The current file position in open file F becomes the
+       new end of file, effectively disgarding any records that may follow the
+       current record.
+
+
+Functions
+
+       FilePos (var F): Longint:  Returns the current position in the non-text
+       file as the record number of the file pointer.
+
+       FileSize (var F): Longint :  Where F is an open non-text file, this
+       returns the size of the file, in number of components.  If F is a file
+       of Char, then FileSize(F) returns the size in bytes.  If  F is a file of
+       Integer, then FileSize(F) returns the number of integer records in the
+       file.
+
+
+Text file procedures
+
+       Append (var F: Text): Like Reset, for opening an existing text file, but
+       automatically positions the current file position to the end of the file
+       so that the next output will be written at the end of the current file.
+
+       Flush( var F: Text ):  Empties the internal buffer associated with text
+       file F. to the disk file.
+
+       SetTextBuf(var F: Text; var Buf [; Size : Word ] ):  By default, all
+       text files use an internal 128 byte-sized buffer.  For faster text file
+       performance, programs can establish their own text file buffer by
+       calling SetTextBuf and passing to it their own data block to be used for
+       the buffer.  SizeOf(Buf) becomes the new buffer size, or a different
+       size may be explicitly provided with the optional Size parameter.  Calls
+       to SetTextBuf should occur just prior to Append, Reset or Rewrite.
+
+       Eoln ( var F : Text ): Returns True if the next character is the text
+       file is an end of line character (e.g. carriage return).
+
+       SeekEof( var F: Text ):  For text file use only, SeekEof is equivalent
+       to the Eof function except it skips over any trailing blanks, tabs or
+       blank lines.
+
+       SeekEoln( var F: Text ):  For text file use only, SeekEoln is equivalent
+       to Eoln, except that is skips over trailing blanks and tabs at the end
+       of a line.
+
+
+Untyped Files
+
+       FileMode:  By assigning a value to FileMode prior to opening a file with
+       Reset, you can specify an access mode for the file.  A value of 0
+       specifies Read only, 1 specifies Write only, and 2, the default value,
+       specifies Read/write access to the file.  The value of FileMode remains
+       in effect for all subsequent Reset operations, until set to some other
+       value.
+
+
+
+Turbo Pascal Memory Limitations
+
+       Maximum statement width:  126 characters
+
+       Maximum size of generated code per code unit: 64k bytes
+       The program module and each Unit may contain up to 64k bytes of code. 
+       Ifthe program or unit exceeds this value, then you must split it up into
+       smaller sections.
+
+       Maximum size of global and typed constants: 64k bytes
+       If your program must have several large values, such as arrays, as
+       global values, and their combined size will exceed this value, then you
+       must recode your program to reduce the memory usage.  A simple approach
+       is to dynamically allocate the arrays and define only a pointer to the
+       array as a global value.
+
+       Maximum program stack size (used for procedure and function call return
+       address and all local variable storage):  64k bytes
+       The default stack size is 16k bytes but may be adjusted up or down using
+       the $M compiler directive or the IDE's Options/Memory Sizes menu
+       selection.
+
+       Maximum heap size:  0 to 640k bytes
+       The heap's default memory allocation is all the memory left over after
+       the code is loaded and the stack and data segments are allocated.  The
+       heap will take all the available memory up to its maximum declared size,
+       which is 640k by default.  You will want to set the default value to a
+       lower limit especially if your program will be memory resident with
+       other software, or if your program launches other applications using the
+       Exec procedure.
+
+       Maximum data allocation size: 65,521 bytes
+       You cannot allocate a single data structure (such as an array) that is
+       larger than this size.
+
+

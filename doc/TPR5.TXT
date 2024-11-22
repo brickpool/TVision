@@ -1,0 +1,2578 @@
+                                   Chapter 5
+                                    of the
+                            Turbo Pascal Reference
+
+                          The Graph Library Reference
+
+
+This chapter is part of the Turbo Pascal Reference electronic freeware book (C)
+Copyright 1992 by Ed Mitchell.  This freeware book contains supplementary
+material to Borland Pascal Developer's Guide, published by Que Corporation,
+1992.  However, Que Corporation has no affiliation with nor responsibility for
+the content of this free book.  Please see Chapter 1 of the Turbo Pascal
+Reference for important information about your right to distribute and use this
+material freely.  If you find this material of use, I would appreciate your
+purchase of one my books, such as the Borland Pascal Developer's Guide or
+Secrets of the Borland C++ Masters, Sams Books, 1992.  Thank you.
+
+
+     This chapter contains detailed reference information, including examples,
+on all procedures, functions, variables and constants that make up the Graph
+unit of Turbo Pascal.  Additional information on using these features is also
+described in Chapter 5, "Turbo Pascal Graphics" of the Borland Pascal
+Developer's Guide.
+
+
+Arc procedure
+----------------------------------------------------------------
+Declaration:        
+     procedure Arc ( X, Y : Integer; StAngle, 
+                    EndAngle, Radius : Word );
+
+Example:
+     { Draw an arc from 0 degs to 90 degs, center on (100, 100)
+     and having a radius of 80 pixels }
+     Arc ( 100, 100, 0, 90, 80 );
+
+Purpose:
+     Use Arc for drawing an arc in the current color, where the arc is a subset
+of a circle's circumference.  X and Y specifiy the mid-point of a circle having
+a size specified by Radius.  StAngle marks the starting point for the arc and
+EndAngle marks the ending point, as shown in this drawing:
+ 
+***FIG5ARC.PCX***
+
+As shown in the drawing, 0 degrees is on a horizontal line going directly to
+the right (at the 3 O'clock position of a clock), 90 degrees is straight up
+(noon or Midnite), 180 degrees is to the left, 270 degrees is straight down,
+and 360 degrees is back around to the 3 O'clock position.
+     If circles look more like ellipses on your display, you will need to call
+SetAspectRatio which adjusts the algorithm used by both the circle and arc
+drawing code.  See SetAspectRatio for details.
+
+
+ArcCoordsType procedure
+----------------------------------------------------------------
+Declaration:
+     ArcCoordsType = record
+       X, Y : Integer;
+       XStart, YStart : Integer;
+       XEnd, YEnd : Integer;
+     end;
+
+See GetArcCoords, SetArcCoords
+     
+
+Bar procedure
+----------------------------------------------------------------
+Declaration:
+     procedure Bar ( X1, Y1, X2, Y2 : Integer );
+
+Example:
+     See Chapter 5, "Turbo Pascal Graphics" in the Borland Pascal Developer's
+Guide, for completed information on charting, and a complete generalized bar
+chart display programs.
+
+Purpose:
+     Use Bar for drawing filled rectangular regions, especially for use in
+drawing bar charts.  Note that Bar does not create a bounding rectangle;
+instead it fills the region specified by X1,Y1 for the upper left corner and
+X2,Y2 at the lower right corner, using the current fill pattern and interior
+color selected with SetFillStyle or SetFillPattern.  If you wish to have a
+rectangle drawn as a border around the bar, you should call Rectangle or call
+Bar3D with Bar3D's Depth parameter set to zero.
+     Unfortunately, drawing Bar charts requires quite a bit more work than
+merely displaying individual bars.  For this reason, Chapter 5, "Turbo Pascal
+Graphics", in the Borland Pascal Developer's Guide provides a complete routine
+for drawing professional quality bar charts, including titles, Y axis grids, X
+axis labels and scaling of data.
+
+
+Bar3D procedure
+----------------------------------------------------------------
+Declaration:
+     procedure Bar3D ( X1, Y1, X2, Y2 : Integer; 
+                    Depth : Word; Top : Boolean );
+
+Example:
+     { Draw a 3D bar whose upper left corner is at (StartX,
+     StartY), having a width of Width and a height of Height.
+     The "depth" effect is set to 40 pixels and a "top" placed on
+     the bar }
+     Bar3D ( StartX, StartY, StartX + Width, StartY + Height, 
+          40, TopOn );
+
+Purpose:
+     Bar3D is the pseudo 3-dimensional equivalent of Bar, in that Bar3D draws
+and fills a rectangular region suited for use in a bar graph, but adds an
+optional simulated depth to the bar.  Depth controls the number of pixels of
+simulated depth.
+     Because Depth is in pixels, you should calculate the relative depth from
+the width specified by the X1 and X2 coordinates.  For example, to set the
+Depth to 30% of the width, write:
+     (X2 - X1 + 1) * 0.30
+where 0.30 represents 30%.  If you wish to avoid real number arithmetic, you
+can use an integer divisor instead, such as div 2, div 4 or div 8, as shown:
+
+     Bar3D( X1, Y1, X2, Y2, (X2 - X1 + 1) div 8, TopOn );
+
+By setting Depth to zero, Bar3D draws a 2-dimensional bar just like Bar, but
+Bar3D  adds the bounding rectangle that Bar does not include.
+     TopOn and TopOff are Graph unit constants set to True and False,
+respectively.  When the Top parameter is set to True, a simulated 3-D cap is
+placed on the column; when False, no cap is placed on the column.
+     The interior of the 3-dimensional column is drawn using the pattern and
+color set by SetFillStyle or SetFillPattern.  The bounding rectangle is drawn
+with the line style set with SetLineStyle and color selected by SetColor.
+     When you use Bar3D, be aware that the depth portion of the column is not a
+solid object - if you draw a 3D bar on top of an existing drawing, especially a
+background grid, the background will show through the simulated depth section.
+
+
+Circle
+----------------------------------------------------------------
+Declaration:
+     procedure Circle ( X, Y : Integer; Radius : Word );
+
+Example:
+     To draw a circle centered on the mid-point of the display, and having a
+radius of 50 pixels, write:
+     Circle ( GetMaxX div 2, GetMaxY div 2,  50 );
+To change the color of the Circle, call SetColor before calling Circle.
+
+Purpose:
+***FIG5CIR.PCX***
+     Draws a circle haviing a radius of Radius pixels, centered about (X,Y),
+using the current color selected with a previous SetColor procedure call.  If
+your circles look more like ellipses than circles, refer to SetAspectRatio for
+information on making an adjustment to the circle drawing algorithm that can
+fix this problem.
+     If you wish to draw a filled or "solid" circle, use the PieSlice
+procedure, setting the starting angle to 0 and the ending angle to 360.  Or use
+the FillEllipse procedure setting the XRadius and YRadius parameters to the
+same radius value.  For example,
+     FillEllipse ( GetMaxX div 2, GetMaxY div 2, 50, 50 );
+See Arc, Ellipse, FillEllipse, GetAspectRatio, PieSlice, SetAspectRatio
+
+
+ClearDevice
+----------------------------------------------------------------
+Declaration:
+     procedure ClearDevice;
+
+Example:
+     ClearDevice;
+
+Purpose:
+     Use ClearDevice to erase or clear the current graphical screen, resetting
+the screen to the current background color (see SetBkColor) and moving the
+current pointer (CP) to (0,0).
+See ClearViewPort, SetBkcolor
+
+
+ClearViewPort
+----------------------------------------------------------------
+Declaration:
+     procedure ClearViewPort;
+
+Example:
+     To clear out the area bounded by (100, 100) at the upper left corner, and
+(400, 300) at the lower right corner, write:
+
+     SetViewPort ( 100, 100, 400, 300, ClipOn );
+     ClearViewPort;
+
+Purpose:
+Use ClearViewPort to erase or clear the graphical screen area within the
+currently defined viewport, resetting the current pointer (CP) to (0,0)
+(relative to the viewport).  By setting a view port smaller than the screen,
+you can use ClearViewPort to selectively clear just a portion of the screen.
+See ClearDevice, SetViewPort
+
+
+CloseGraph
+----------------------------------------------------------------
+Declaration:
+     procedure CloseGraph;
+
+Example:
+     CloseGraph;
+
+Purpose:
+     When you are finished using the graphics system, call CloseGraph to shut
+down the graphics system and return the screen to text mode operation. 
+CloseGraph frees up all memory allocations used by the graphics system for
+drivers, fonts and temporary space.  To reuse graphics after calling
+CloseGraph, you must again call InitGraph.  If you only wish to temporarily
+switch to text mode, call RestoreCrtMode instead.  Then, to switch back to
+graphics, call SetGraphMode.  
+See InitGraph, RestoreCrtMode, SetGraphMode
+
+
+DetectGraph
+----------------------------------------------------------------
+Declaration:
+     procedure DetectGraph
+          ( var GraphDriver, GraphMode : Integer );
+
+Example:
+     DetectGraph ( GraphDriver, GraphMode );
+     InitGraph ( GraphDriver, GraphMode );
+
+Purpose:
+     DetectGraph is called by InitGraph when InitGraph's GraphDriver parameter
+is set to Detect.  DetectGraph examines the graphics hardware; if none is
+found, both GraphDriver and the GraphResult function return grNotDetected (-2).
+Otherwise, DetectGraph sets GraphDriver to one of the graphics driver constants
+and selects an appropriate GraphMode (See InitGraph for details).
+     DetectGraph can not distinguish between an IBM 8514 interface and the VGA
+interface which is a subset of the 8514's capabilities.  Hence, for the 8514,
+DetectGraph will return the VGA driver constant.  If you wish to use the 8514's
+capabilities, you must explicitly set GraphDriver to IBM8514 prior to calling
+InitGraph.
+     Normally, your programs have no need to call DetectGraph.  However, if for
+some reason you wish to override the default selection that InitGraph makes
+when autodetecting the hardware, you may wish to call DetectGraph prior to
+calling InitGraph, check the result, make changes to GraphDriver and GraphMode,
+as needed, and then call InitGraph with explicit selection of the driver and
+mode.
+See GraphResult, InitGraph
+
+
+DrawPoly
+----------------------------------------------------------------
+Declaration:
+     procedure DrawPoly ( NumPoints : Word; var PolyPoints );
+
+Example:
+const
+     { Describe a "house" shape using an array of 6 points }
+     House       : Array[1..6] of PointType =
+     ((X:100; Y:100), (X:60;Y:140), (X:60; Y:180), (X:140;Y:180),
+     (X:140; Y:140), (X:100; Y:100) );
+     ...
+     { Draw the house on the screen }
+     DrawPoly ( 6, House );
+
+Purpose:
+     Use DrawPoly for drawing simple or complex polygon shapes, where each
+vertice is specified with an (X, Y) coordinate (parameter PolyPoints) and the
+total number of vertices is indicated with NumPoints.  The polygon is drawn in
+a "connect the dots" fashion, moving from vertice 1 to vertice 2 to vertice 3
+and so on.  
+***FIG5HOU.PCX***
+     If the polygon encloses a region, then you must specify one of the points
+at least twice.  In the illustration above, drawing the triangle requires
+PolyPoints to list vertices 1, 2, 3, and then draw the final segment from
+vertice 3 back to 1.  As a result, PolyPoints must contain 4 sets of
+coordinates (1, 2, 3, and 1).
+     The polygon is drawn using the current SetColor color, and may be XOR'd on
+to the screen (for easy erasure) using SetWriteMode (XORPut) (See
+SetWriteMode).  If you wish to draw a filled polygon, use FillPoly instead of
+DrawPoly.
+See FillPoly, GraphResult, SetColor, SetLineStyle and SetWriteMode
+     
+
+Ellipse
+----------------------------------------------------------------
+Declaration:
+     procedure Ellipse ( X, Y:Integer; StAngle, EndAngle : Word; 
+                    XRadius, YRadius : Word );
+
+Example:
+     { Draw a full ellipse centered at X, Y, having X radius of
+     150 and Y radius of 75 }
+     Ellipse ( X, Y, 0, 360, 150, 75 );
+
+Purpose:
+     Using the current color selected with SetColor, draws an ellipse or
+portion of an ellipse (an elliptical arc) with a center at (X, Y), and having X
+axis and Y axis radii specified by XRadius and YRadius, respectively.  To draw
+a vertical ellipse, set YRadius to a larger value than XRadius; to draw a
+horizontal ellipse, set XRadius to a larger value than YRadius.
+     If you set StAngle to 0 and EndAngle to 360, a full ellipse is drawn.  To
+draw only a subset of the ellipse, set StAngle and EndAngle as required.  The
+angular measurement for all arc and circular drawing procedures is made from 0
+degrees at the 3 O'clock position, and rotating counter-clockwise around to 360
+degrees.
+***FIG5ELL.PCX***
+     To draw a filled in ellipse, use FillEllipse.
+See Arc, Circle, FillEllipse, SetAspectRatio, SetColor
+
+
+FillEllipse
+----------------------------------------------------------------
+Declaration:        
+     procedure FillEllipse
+          (X, Y: Integer; XRadius, YRadius : Word);
+
+Example:
+     SetColor(4);                       { Set border color }
+     SetFillStyle ( HatchFill, 3 );     { Set interior style and
+                                        color }
+FillEllipse ( 100, 100, 50, 70 );       {Draw a vertical ellipse}
+
+Purpose:
+     Draws an ellipse, like the Ellipse procedure, using the current SetColor
+selection for the ellipse outline, but fills the interior with the color and
+pattern set by SetFillStyle or SetFillPattern.  XRadius specifies the X axis
+radius and YRadius specifies the Y axis radius.
+See Arc, Circle, Ellipse, SetAspectRatio
+
+
+FillPoly procedure
+----------------------------------------------------------------
+Declaration:
+     procedure FillPoly ( NumPoints : Word; var PolyPoints);
+
+Example:
+
+const
+     { Describe a "house" shape using an array of 6 points }
+     House       : Array[1..6] of PointType =
+     ((X:100; Y:100), (X:60;Y:140), (X:60; Y:180), (X:140;Y:180),
+     (X:140; Y:140), (X:100; Y:100) );
+     ...
+     { Select a fill pattern for the house }
+     SetFillStyle ( HatchFill, 4 );
+     { Draw the house on the screen }
+     FillPoly ( 6, House );
+
+Purpose:
+     Use FillPoly for drawing and filling polygon shapes, where each vertice is
+specified with an (X, Y) coordinate (parameter PolyPoints) and the total number
+of vertices is indicated with NumPoints.  The polygon is drawn in a "connect
+the dots" fashion, moving from vertice 1 to vertice 2 to vertice 3 and so on. 
+See DrawPoly for sample illustration.
+     For a filled polygon, you must specify a sequence of points that result in
+an enclosed area.  
+     The polygon outline is drawn in the current line style (see SetLineStyle)
+using the current color (see SetColor) and filled with the current pattern and
+pattern color set by SetFillStyle or SetFillPattern.  The SetColor color used
+for the outline, and the color used for the interior drawing need not be the
+same.  The SetWriteMode setting should not be used for solid objects as it does
+not affect the interior of the object.
+See DrawPoly, SetColor, SetFillPatttern, SetFillStyle, SetLineStyle
+
+
+FillSettingsType type
+----------------------------------------------------------------
+Declaration:
+     FillSettingsType = record
+       Pattern : Word;
+       Color : Word;
+     end;
+
+See GetFillSettings, GetFillPattern, SetFillPattern, SetFillStyle
+
+
+FillPatternType type
+----------------------------------------------------------------
+Declaration:        
+     FillPatternType = array[1..8] of Byte;
+    
+See GetFillSettings, GetFillPattern, SetFillPattern, SetFillStyle
+
+
+FloodFill
+----------------------------------------------------------------
+Declaration:        
+    procedure FloodFill (X, Y: Integer; Border : Word );
+
+Example:
+    SetColor (4);                  { Set border color }
+    Rectangle ( 100, 100, 200, 200 );{ Draw rectangle in that
+                                   color }
+    SetFillStyle ( HatchFill, 5 ); { Prepare to hatch fill the
+                                   rectangle }
+    FloodFill ( 110, 110, 4); { Fill the interior to matching
+                                   color 4 }
+
+Purpose:
+    Use FloodFill to fill the interior of an object that is bound by a border
+having the color specified in the Border parameter.  To fill the interior, you
+must insure that (X, Y) describes a point inside the object to be filled, and
+that the object is bounded.  If (X, Y) lies outside the object, then everything
+outside the given color boundary is filled.  If there is a "hole" in the
+boundary area, then the color will "leak out" and potentially cover the entire
+screen.  If (X, Y) is outside the boundaries of the object, FloodFill will fill
+the screen area on the outside if the object.
+    If a problem occurs during FloodFill execution, GraphResult is set to
+grNoFloodMem (-7).
+See  Circle, DrawPoly, GraphResult, Rectangle, SetColor, SetFillStyle,
+SetFillPattern
+
+
+GetArcCoords
+----------------------------------------------------------------
+Declaration:
+    procedure GetArcCoords (var ArcCoords : ArcCoordsType );
+
+Purpose:
+    Returns a record structure (see ArcCoordsType) containing the X and Y
+coordinates of the mid-point of the defining ellipse, the starting and ending
+angles, and the internally calculated ending position of the arc, as XEnd and
+YEnd.
+See Arc, Circle, Ellipse, FillEllipse, PieSlice
+
+
+GetAspectRatio
+----------------------------------------------------------------
+Declaration:        
+    procedure GetAspectRatio (var Xasp, Yasp : Word );
+
+Purpose:
+    Returns Xasp and Yasp, which when dividing Xasp / Yasp produces the aspect
+ratio of the monitor.  These values are used by SetAspectRatio to adjust the
+computation used in drawing arcs, circles, ellipses and alll other objects that
+are circular in nature.
+See SetAspectRatio
+
+
+GetBkColor function
+----------------------------------------------------------------
+Declaration:
+    function GetBkColor : Word;
+
+Purpose:
+    Use GetBkColor to determine the index of the current palette color entry
+being used as the background color.  GetBkColor returns a value from 0 up to
+15, depending on which graphics driver and mode are in use.
+
+
+GetColor function
+----------------------------------------------------------------
+Declaration:        function GetColor : Word;
+
+Purpose:
+    Use GetColor to obtain the setting of the current drawing color that was
+last set by calling SetColor.  GetColor returns a value in the range of 0 up to
+15.
+
+
+GetDefaultPalette function
+----------------------------------------------------------------
+Declaration:
+    function GetDefaultPalette (var Palette : PaletteType);
+
+Purpose:
+    Use GetDefaultPalette to retrieve the default color palette for the current
+graphics driver.  You can use GetDefaultPalette, after calling InitGraph, to
+save a copy of the default palette in to a local variable.  During program
+execution, if you have a need to restore the graphics palette to its original
+setting, you can do so by passing the saved palette variable to SetAllPalette.
+See PaletteType, SetAllPalette, SetPalette
+
+
+GetDriverName function
+----------------------------------------------------------------
+Declaration:
+    function GetDriverName : String;
+Example:
+    OutTextXY( 1, 40, 'The current graphics driver is ' +
+                    GetDriverName );
+
+Purpose:
+    Use GetDriverName to obtain the name of the current graphics driver (for
+example, EGAVGA).
+See InitGraph.
+
+
+GetFillPattern procedure
+----------------------------------------------------------------
+Declaration:
+    procedure GetFillPattern(var FillPattern: FillPatternType);
+
+Purpose:
+    Use GetFillPattern to retrieve the current setting of the user defined fill
+pattern that was last set with SetFillPattern (See SetFillPattern).  The data
+is returned in an array of bytes (see FillPatternType).  If there has not yet
+been a user defined pattern assigned with SetFillPattern, then every value in
+the array is set to $FF (decimal 255).
+See FillPatternType, SetFillStyle, SetFillPattern
+
+
+GetFillSettings procedure
+----------------------------------------------------------------
+Declaration:
+    procedure GetFillSettings (var FillInfo: FillSettingsType);
+
+Purpose:
+    Use GetFillSettings to retrieve the current setting of the pattern used to
+fill the interior of enclosed objects.  FillSettingsType (see FillSettingsType)
+contains two fields, Pattern and Color, both Word data types.  Pattern returns
+a value corresponding to one of the constants used in selecting a fill style
+(see SetFillStyle), or is set to the constant value UserFill, meaning that a
+user defined pattern is currently active.  The user defined pattern is then
+retrieved by calling GetFillPattern.
+
+
+GetGraphMode function
+----------------------------------------------------------------
+Declaration:
+    function GetGraphMode : Integer;
+
+Example:
+    GraphDriver := Detect;
+    InitGraph ( GraphDriver, GraphMode, '\TP\BGI');
+    ...
+    RestoreCrtMode;                { Return to text mode }
+    ...
+    SetGraphMode ( GetGraphMode ); { Return to graphics mode }
+    ...
+    
+Purpose:
+    Use GetGraphMode to determine the current graphics mode set by InitGraph or
+SetGraphMode.  For example, a VGA adaptor can provide 3 modes of operation:
+640x200, 640x350 and 640x480.  GetGraphMode returns a value from 0 to 5
+indicating which of the modes is currently active, where the value depends on
+the graphics driver in use.  As indicated in the example above, the most common
+use of GetGraphMode is to obtain the current mode value for passing to
+SetGraphMode when switching back and forth between text and graphics modes.
+
+The following table shows the various values:
+
+Return Value         Driver        Mode Constant  Resolution                   
+Palette     Pages
+    0        CGA     CGAC0       320x200      C0   1
+    1                CGAC1       320x200      C1   1
+    2                CGAC2       320x200      C2   1
+    3                CGAC3       320x200      C3   1
+    4                CGAHi       640x200      B&W  1
+
+    0        MCGA    MCGAC0      320x200      C0   1
+    1                MCGAC1      320x200      C1   1
+    2                MCGAC2      320x200      C2   1
+    3                MCGAC3      320x200      C3   1
+    4                MCGAMed     640x200      2 color        1
+    5                MCGAHi      640x480      2 color        1
+
+    0        EGA     EGALo       640x200      16 color       4
+    1                EGAHi       640x350      16 color       2
+
+    0        EGA64   EGA64Lo     640x200      16 color       1
+    1                EGA64Hi     640x350      4 color        1
+
+    3        EGAMono EGAMonoHi   640x350 [64k card]          2 color           
+1
+    3                EGAMonoHi   640x350 [256k card]         2 color           
+2
+
+    0        HercMono            HercMonoHi   720x348        2 color           
+2
+    
+    0        ATT400  ATT400C0    320x200      C0   1
+    1                ATT400C1    320x200      C1   1
+    2                ATT400C2    320x200      C2   1
+    3                ATT400C3    320x200      C3   1
+    4                ATT400Med   640x200      2 color        1
+    5                ATT400Hi    640x400      2 color        1
+
+    0        VGA     VGALo       640x200      16 color       2
+    1                VGAMed      640x350      16 color       2
+    2                VGAHi       640x480      16 color       1
+
+    0        PC3270  PC3270Hi    720x350      2 color        1
+
+    0        IBM8514 IBM8514Lo   640x480      256 color      1
+    1                IBM8514Hi   1024x768     256 color      1
+
+See GetDriverName, GetModeName, InitGraph, RestoreCrtMode, SetGraphMode,
+SetVisualPage
+
+
+GetImage procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure GetImage( X1, Y1, X2, Y2 : Integer; var BitMap );
+
+Example:
+     See PutImage.      
+Purpose:
+     Use GetImage to copy an area of the graphics screen into a separate memory
+buffer.  The area to copy is bounded by (X1, Y1)  and (X2, Y2), and is copied
+to the buffer specified by the BitMap parameter.  BitMap must define a buffer
+equal to the memory required to store the image, plus 6 additional bytes.  The
+easiest way to determine the correct size is to call the ImageSize function,
+which automatically computes the amount of memory required, including the 6
+additional bytes.
+See ImageSize, OutImage
+
+
+GetLineSettings
+----------------------------------------------------------------
+Declaration: 
+     procedure GetLineSettings
+       (var LineInfo : LineSettingsType );
+
+Purpose:
+     Use this to determine the current line draw settings that were set by
+calling SetLineStyle.  GetLineSettings returns a record containing information
+about the current line sytle, pattern and thickness. 
+See LineSettingsType, SetLineStyle
+
+
+GetMaxColor function
+----------------------------------------------------------------
+Declaration: 
+     function GetMaxColor : Word;
+
+Purpose:
+     Use GetMaxColor to determine the highest color value to be passed as a
+parameter to SetColor.  Color selections range from 0 up to 15 for the VGA and
+some EGA cards, although several modes support only 2 colors having values of 0
+and 1.  Four color  modes have values of 0, 1, 2 and 3.
+See SetColor
+
+
+GetMaxMode function
+----------------------------------------------------------------
+Declaration: 
+     function GetMaxMode : Word;
+
+Purpose:
+     Mode values vary from 0 up to a maximum of 5, depending on the graphics
+driver in use (See GetGraphMode for a table of all possible mode values). 
+GetMaxMode returns the highest mode value available for the current graphics
+driver.
+See GetGraphMode, GetModeRange, InitGraph
+
+GetMaxX function
+----------------------------------------------------------------
+Declaration: 
+     function GetMaxX : Integer;
+
+Purpose:
+     GetMaxX returns the maximum resolution of pixels in the X axis direction. 
+The return value is zero-relative meaning that a 640x480 VGA display has a
+GetMaxX return value of 639.
+
+
+GetMaxY function
+----------------------------------------------------------------
+Declaration: 
+     function GetMaxY : Integer;
+
+Purpose:
+     GetMaxY returns the maximum resolution of pixels in the Y axis direction. 
+For example, on a 640x480 VGA display, GetMaxY returns a zero-relative value of
+479.
+
+
+GetModeName function
+----------------------------------------------------------------
+Declaration: 
+     function GetModeName ( ModeNumber : Integer);
+
+Example:
+     InitGraph( GraphDriver, GraphMode, '\TP\BGI');
+     ...
+     {After switching to graphics screen, show available modes}
+     for I := 0 to GetMaxMode do
+     begin
+       ModeName := GetModeName( I );
+       OutTextXY( 5, (I+1)*TextHeight( ModeName ), ModeName );
+     end;
+
+On my configuration this displays:
+
+     640x200 EGA
+     640x350 EGA
+     640x480 VGA
+
+Purpose:
+     Use GetModeName to return a string containing the graphics mode name
+corresponding to ModeNumber.  This function can be used to build a menu of
+choices, listing each of the available modes for the current graphics driver.
+See GetGraphMode, InitGraph
+
+GetModeRange procedure
+----------------------------------------------------------------
+Declaration:
+     procedure GetModeRange( GraphDriver : Integer;
+                        var LoMode, HiMode : Integer );
+
+Example:
+
+     GetModeRange ( CurrentDriver, MinMode, MaxMode );
+
+Purpose:
+     Use GetModeRange to determine the valid mode values for a particular
+driver.  Pass one of the driver constants (CGA, MCGA, EGA, EGA64, HERC, VGA,
+etc) to GraphDriver.  On return, LoMode and HiMode are set to the range of
+permissible mode values (See also GetGraphMode), or are set to -1 if
+GraphDriver specifies an invalid driver.  To obtain the mode values for the
+current driver, use the constant CurrentDriver as the driver selection.
+
+
+GetPalette procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure GetPalette ( var Palette : PaletteType );
+
+
+Purpose:
+     Use GetPalette to copy the current palette to parameter variable Palette
+(see PaletteType).  Palette returns a record structure containing Colors, an of
+array of 0 to 15 palette values, and a Size field indicating how many of the
+array entries are in use:  Colors[0]..Colors[Size-1].
+     You can use GetPalette to fetch the entire palette, make several changes,
+and then make a group of changes all at once by calling SetAllPalette.
+     This function should not be used in 256-color VGA mode or with the IBM
+8514 driver.
+See GetDefualtPalette, GetPaletteSize, SetAllPalette, SetPalette
+
+
+GetPaletteSize function
+----------------------------------------------------------------
+Declaration: 
+     function GetPAletteSize : Integer;
+
+Purpose:
+     GetPaletteSize returns the size of the palette color table, which is the
+same value returned in the size field when calling GetPalette.
+See GetPalette, SetPalette
+
+GetPixel function
+----------------------------------------------------------------
+Declaration: 
+     function GetPixel ( X, Y : Integer );
+
+Purpose:
+     Use with PutPixel to read and write individual pixel values on the
+display.  GetPixel returns the color of the pixel located at (X, Y).
+See PutPixel
+
+
+GetTextSettings procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure GetTextSettings (var TextInfo: TextSettingsType);
+
+Purpose:
+     Use GetTextSettings to retrieve a record containing all the current
+settings (font, direction, size and justfication) that have been set by calling
+SetTextStyle and SetTextJustify.
+See TextSettingsType, SetTextJustify, SetTextStyle
+
+
+GetViewSettings procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure GetViewSettings(var ViewPort : ViewPortType );
+
+Purpose:
+     GetViewSettings returns the coordinates of the current view port and the
+status of the Clip clipping flag.  The information is returned in a
+ViewPortType record structure, containing X1, Y1, X2, Y2 and Clip fields.
+See SetViewPort, ViewPortType
+
+
+GetX function
+----------------------------------------------------------------
+Declaration: 
+     function GetX : Integer;
+
+Purpose:
+     Use GetX to obtain the X coordinate of the current pointer, where the
+returned value is relative to the current viewport setting.  Note that if you
+change the viewport, the current pointer is reset to (0, 0) relative to the new
+viewport and GetX will then return 0.
+See GetViewsettings, GetY, SetViewPort
+
+
+GetY function
+----------------------------------------------------------------
+Declaration: 
+     function GetY : Integer;
+
+Purpose:
+     Use GetY to obtain the Y coordinate of the current pointer, where the
+returned value is relative to the current viewport setting.  Changing the
+viewport causes the current pointer to be reset to (0, 0) relative to the new
+viewport setting, and hence, GetY will return 0.
+
+
+Graph constants (all except grXXXX constants)
+----------------------------------------------------------------
+The graph unit contains a large number of constant identifiers that are used to
+pass and return values between graph unit procedures and functions.  Except for
+the grXXXX result code constants, none of the constant identifiers adhere to
+any particular naming scheme.  As a result, the entire group of constants are
+presented in this section for easier reference.
+ 
+
+
+Constant       Purpose
+-------------  ------------------------------------------
+(Driver and Mode Selection Constants)
+
+CurrentDriver  Passed to GetModeRange to select the current
+               driver.
+
+Detect         Used to request automatic driver selection in
+               InitGraph
+
+CGA            The following constants are used or returned by
+MCGA           Init Graph, DetectGraph and so on.   Each
+EGA            constant corresponds to one of the graphics 
+EGA64          modes.
+EGAMono
+IBM8514
+HercMono
+ATT400
+VGA
+PC3270
+
+Constant       Purpose
+-------------  ------------------------------------------
+(The following correspond to the respective graphics modes available for each
+driver.  Also see GetGraphMode.)
+
+CGAC0          
+               320x200 palette 0: LightGreen, LightRed, Yellow; 1 page 
+CGAC1          
+               320x200 palette 1: LightCyan, LightMagenta, White; 1 page
+CGAC2          
+               320x200 palette 2: Green, Red, Brown; 1 page
+CGAC3          
+               320x200 palette 3: Cyan, Magenta, LightGray; 1 page
+CGAHi          
+               640x200 1 page 
+MCGAC0         
+               320x200 palette 0: LightGreen, LightRed, Yellow; 1 page
+MCGAC1         
+               320x200 palette 1: LightCyan, LightMagenta, White; 1 page
+MCGAC2         
+               320x200 palette 2: Green, Red, Brown; 1 page
+MCGAC3         
+               320x200 palette 3: Cyan, Magenta, LightGray; 1 page
+MCGAMed        640x200 1 page
+MCGAHi         640x480 1 page
+EGALo          640x200 16 color 4 page
+EGAHi          640x350 16 color 2 page
+EGA64Lo        640x200 16 color 1 page
+EGA64Hi        640x350 4 color  1 page
+EGAMonoHi      640x350 64K on card, 1 page; 256K on card, 2 page
+HercMonoHi     720x348 2 page
+ATT400C0       
+               320x200 palette 0: LightGreen, LightRed, Yellow; 1 page
+ATT400C1       
+               320x200 palette 1: LightCyan, LightMagenta, White; 1 page
+ATT400C2       320x200 palette 2: Green, Red, Brown; 1 page
+ATT400C3       
+               320x200 palette 3: Cyan, Magenta, LightGray; 1 page
+ATT400Med      640x200 1 page
+ATT400Hi       640x400 1 page
+VGALo          640x200 16 color 4 page
+VGAMed         640x350 16 color 2 page
+VGAHi          640x480 16 color 1 page
+PC3270Hi       720x350 1 page
+IBM8514Lo      640x480 256 colors
+IBM8514Hi      1024x768 256 colors
+
+Constant       Purpose
+-------------  ------------------------------------------
+(Color selection related constants.)
+
+MaxColors      Maximum number of colors, zero relative.
+Black          This set of constants is used for setting colors
+               in the color palette using SetPalette and
+Blue           SetAllPalette
+Green
+Cyan
+Red
+Magenta
+Brown
+LightGray
+DarkGray
+LightBlue
+LightGreen
+LightCyan
+LightRed
+LightMagenta
+Yellow
+White
+
+EGABlack       Selects EGA equivalent colors on the IBM 8514 display.
+EGABlue        See SetRGBPalette.
+EGAGreen
+EGACyan
+EGARed
+EGAMagenta
+EGABrown
+EGALightgray
+EGADarkgray
+EGALightblue
+EGALightgreen
+EGALightcyan
+EGALightred
+EGALightmagenta
+EGAYellow
+EGAWhite
+
+Constant       Purpose
+-------------  ------------------------------------------
+(Drawing parameter constants)
+
+ClipOn  = true;   Parameter to SetViewPort.
+ClipOff = false;
+
+TopOn  = true; Parameter to Bar3D.
+TopOff = false;
+               
+EmptyFill      The following are used with SetFillStyle.
+SolidFill      See SetFillStyle for details.
+LineFill
+LtSlashFill
+SlashFill
+BkSlashFill
+LtBkSlashFill
+HatchFill
+XHatchFill
+InterleaveFill
+WideDotFill
+CloseDotFill
+UserFill       Selects the user defined pattern (see SetFillPattern).
+
+NormalPut      Used with PutImage (NormalPut is equivalent to CopyPut)
+CopyPut
+XORPut
+OrPut
+AndPut
+NotPut
+
+SolidLn        Selects a line style in SetLineStyle.
+DottedLn       Also see GetLineStyle
+CenterLn
+DashedLn
+UserBitLn
+NormWidth
+ThickWidth
+
+Constant       Purpose
+-------------  ------------------------------------------
+(Text output related constants)
+
+DefaultFont    Used in with SetTextStyle to choose the 8x8 bitmap font.
+TriplexFont
+SmallFont
+SansSerifFont
+GothicFont
+
+HorizDir       Selects horizontal text direction with
+               SetTextStyle.
+VertDir        Selects vertical text direction.
+
+LeftText       In SetTextJustify, selects horizontal positioning
+               of text around (X, Y).  See TextJustify.
+CenterText     
+RightText
+BottomText     Selects vertical positioning of text.
+TopText
+
+
+
+grXXXX constants
+----------------------------------------------------------------
+The grXXXX constants indicate error status after performing various graphics
+operations.  To obtain the current error status, call the GraphResult function,
+copying the result to a temporary value (GraphResult resets the error code to
+zero after each call).  You can convert the error code values shown below to
+textual error messages by passing the error code to GraphErrorMsg.
+
+Constant       Value  Purpose
+
+grOk             0    No error occurred; everything is fine.
+grNoInitGraph   -1    InitGraph has not yet initialized the
+                      graphics system
+grNotDetected   -2    No graphics hardware appears to be
+                      available on this PC.
+grFileNotFound  -3    The appropriate .BGI device driver file
+                      can not be located.
+grInvalidDriver -4    The .BGI device driver file is invalid;
+                      corrupted.
+grNoLoadMem     -5    There is insufficient available memory to
+                      load the driver.
+grNoScanMem     -6    Insufficient memory available for the scan
+                      fill buffer (used for filling in solid
+                      objects)
+grNoFloodMem    -7    Insufficient memory to complete FloodFill
+                      execution.
+grFontNotFound  -8    Cannot locate the .CHR font file.
+grNoFontMem     -9    Insufficient memory to load the .CHR font
+                      file.
+grInvalidMode   -10   Attempted to select an unacceptable
+                      graphics mode.
+grError         -11   Generic graphics system error.
+grIOerror       -12   Error occurred in performing graphics I/O.
+grInvalidFont   -13   The selected font file is invalid or
+                      corrupted.
+grInvalidFontNum      -14         The font number is out of range.
+
+
+
+GraphDefaults
+----------------------------------------------------------------
+Declaration:
+     procedure GraphDefaults;
+
+Purpose:
+     By calling GraphDefaults, the graphics system parameters are reset to
+their initial values.  GraphDefaults affects the current pointer, foreground
+and background color selections, line style and patterns, fill style, color and
+pattern, the viewport settings and all the font and text drawing attributes.
+
+
+GraphErrorMsg function
+----------------------------------------------------------------
+Declaration: 
+     function GraphErrorMsg ( ErrorCode : Integer ) : String;
+
+Purpose:
+     Converts the ErrorCode parameter into a textual message, where ErrorCode
+is one of the grXXXX constant values (See grXXXX constants) returned by
+GraphResult.
+
+
+GraphResult function
+----------------------------------------------------------------
+Declaration: 
+     function GraphResult : Integer;
+
+Example:
+     See PutImage.
+
+Purpose:
+     GraphResult contains the error code result of the most recent graphics
+function (See grXXXX constants for a list of the values returned).  GraphResult
+always resets the last error condition when called.  In order to use
+GraphResult, it is recommend that you assign the returned value to a variable,
+and then use the variable in your subsequent error handling.
+See grXXXX constants, GraphErrorMsg
+
+
+ImageSize function
+----------------------------------------------------------------
+Declaration: 
+     function ImageSize ( X1, Y1, X2, Y2 : Integer );
+     
+Purpose:
+     ImageSize computes the number of bytes of memory needed to store the
+region defined by (X1, Y1) at the upper left corner and (X2, Y2) at the lower
+right corner.  ImageSize is normally used to calculate the size of the memory
+buffer needed to store the image prior to calling GetImage.
+See GetImage
+
+
+InitGraph
+----------------------------------------------------------------
+Declaration: 
+     procedure InitGraph 
+     (var GraphDriver : Integer; var GraphMode : Integer;
+      PathToDriver : String );
+
+Example:
+
+     GraphDriver := Detect;
+     InitGraph ( GraphDriver, GraphMode, 'C:\TP\BGI' );
+     ErrorCode := GraphResult;
+     if ErrorCode <> grOk then
+     begin
+       { Initialization failed; handle error condition here }
+     end;
+
+Purpose:
+     InitGraph must be called prior to calling most of the graphics routines
+and is used to initialize the graphics system and switch the display from text
+mode to graphics mode.  InitGraph can automatically detect the type of graphics
+hardware on the system, or you can explicitly select the hardware to which it
+should initialize.
+     For automatic detection, set GraphDriver equal to the Detect constant, and
+then call InitGraph, like this:
+
+     GraphDriver := Detect;
+     InitGraph( GraphDriver, GraphMode, '' );
+
+The PathToDriver parameter specifies where the .BGI driver files are located. 
+If PathToDriver is null, then InitGraph looks in the current directory.  To
+look in another directory, specify the subdirectory name here.  By default
+Turbo Pascal installation places the .BGI files in the \TP\BGI directory
+(although you may have elected to place them in a different subdirectory).  For
+example,
+
+     InitGraph( GraphDriver, GraphMode, 'C:\TP\BGI');
+
+On return from InitGraph, GraphDriver is set to a value corresponding to one of
+the graph driver constants (CGA, EGA, VGA, etc; see Graph constants), and
+GraphMode is set to the mode in use (e.g. 640x480, 320x200, etc).  If an error
+occurred, the error result is returned in GraphResult (see GraphResult and
+grXXXX constants).  You should always check GraphResult, particularly after
+calling InitGraph.  If the initialization failed, subsequent calls to graphics
+routines will cause the program to crash.
+     You can manually select a driver and mode by setting both parameters to
+the appropriate values prior to calling InitGraph. For example,
+
+     GraphDriver := CGA;
+     GraphMode := 1;
+     InitGraph ( GraphDriver, GraphMode, 'C:\TP\BGI' );
+
+You may also call DetectGraph first, to automatically detect the graphics
+hardware in use, and then manually modify the GraphDriver and GraphMode
+parameters before calling InitGraph (See DetectGraph).
+     When the graphics driver is loaded, InitGraph calls an internal procedure,
+GraphGetMem, to allocate a memory buffer where it can store the driver.  As an
+alternative to searching the disk and loading the driver file into memory, you
+can link one or more driver files directly into your program.  See "Linking
+Device Drivers and Font Files" in Chapter 5, "Turbo Pascal Graphics" in the
+Borland Pascal Developer's Guide, Que Books, 1992. 
+
+Important note: InitGraph and the IBM 8514
+     If you use the automatic hardware detection feature with the IBM 8514
+display adaptor, InitGraph will always select VGA instead of IBM 8514.  This is
+because VGA is a subset of the IBM 8514 capabilities and because the 8514
+cannot be distinguished from the VGA.  In order to use the IBM 8514, you must
+set GraphDriver to IBM8514 prior to calling InitGraph.
+See CloseGraph, DetectGraph, GraphResult, grXXXX constants
+
+
+InstallUserDriver function
+----------------------------------------------------------------
+Declaration: 
+     function InstallUserDriver 
+       ( Name : String; AutoDetect : Pointer ): Integer;
+
+Example:
+
+     { Install Knight Software's 256 color VGA driver }
+     DriverNum := InstallUserDriver ( 'BGI256', @AutoDet );
+     Errcode := GraphResult;
+     if Errcode < 0 then
+     { Oopsie... an error occurred ... handle it here }
+
+Purpose:
+     InstallUserDriver adds a third-party supplied device driver to the
+internal device driver table.  Its two parameters are the name of the .BGI file
+and a pointer to an automatic hardware detection routine that is used by
+InitGraph when the GraphDriver parameter is set to Detect.  The pointer value
+may be set to nil, in which case, the users of the driver must always insure
+that they select an appropriate mode for the driver before calling InitGraph.
+     The example shown above shows how you can install a third party supplied
+device driver.  In this case, the code installs the BGI256 VGA 256-color driver
+sold by Knight Software.  Generally, the supplier of the device driver will far
+provide a routine to perform automatic detection.  It is the address of this
+function, shown as @AutoDet in the example code, that should be passed to the
+AutoDetectPtr parameter.
+     The automatic detection routine should be a function returning an integer
+result of grError if the hardware is not located, or it should return a default
+mode selection.
+See InitGraph
+
+
+InstallUserFont function
+----------------------------------------------------------------
+Declaration: 
+     function InstallUserFont ( FontFileName : String ) 
+       : Integer;
+
+Example:
+
+     CourierFont := InstallUserFont ( 'COURIER' );
+     ...
+     SetTextStyle ( CourierFont, HorizDir, 3 );
+     OutTextXY ( X, Y, 'Courier font looks like this!' );
+
+Purpose:
+     Adds the font file specified by FontFileName to the internal font table,
+and returns the font identification number to be used when calling
+SetTextStyle.  This font ID value corresponds to the standard font constants
+DefaultFont, TriplexFont and so on.  If the there is no more room to add
+additional fonts, the function returns 0.
+See SetTextStyle
+
+
+Line procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure Line( X1, Y1, X2, Y2 : Integer );
+
+Example:
+
+     { Draw diagonal line across screen }
+     Line ( 0, 0, GetMaxX, GetMaxY );  
+
+Purpose:
+     Use Line to draw a line between (X1, Y1) and (X2, Y2), using the current
+color set with SetColor and the current line attributes from SetLineStyle.  To
+select copy or XOR drawing of the line, call SetWriteMode prior to calling
+Line.
+See LineRel, LineTo, SetColor, SetLineStyle, SetWriteMode
+
+
+LineRel procedure
+----------------------------------------------------------------
+Declaration: procedure LineRel( Dx, Dy : Integer );
+
+Example:
+
+     { Demonstrates using LineRel to draw the same object in
+     multiple locations.  This routine animates a triangle  moving from the
+center of the screen to the lower right.
+     It uses the XOR writing mode to display the triangle, then
+     XORs the triangle over itself to erase it before moving to
+     the next position and drawing again }
+     StartX := GetMaxX div 2;      { Setting start point at
+                                  screen center }
+     StartY := GetMaxY div 2;
+     SetWriteMode ( XORPut );      { Use XOR writing mode }
+     for I := 1 to 25 do
+     begin
+       for J := 1 to 2 do
+       begin
+         MoveTo ( StartX, StartY );{ Draw a triangle }
+         LineRel ( -30, 60 );
+         LineRel ( 60, 0 );
+         LineRel ( -30, -60 );
+         Delay ( 20 );            { Pause for 20 ms (Delay is in
+                                  Crt Unit) }
+       end;                        { Second XOR "draw" erases
+                                  the triangle }
+       StartX := StartX + 5;     { Move to a new position }
+       StartY := StartY + 5;      {and draw the triangle again }
+     end;
+
+Purpose:
+     LineRel draws a line to a new point relative to the current pointer's
+location.  If (X1, Y1) is the current pointer, then calling LineRel ( Dx, Dy )
+is equivalent to Line (X1, Y1, X1+Dx, Y1+Dy ).
+See Line, LineTo, MoveRel, MoveTo, SetColor, SetLineStyle, SetWriteMode
+
+
+LineSettingsType type
+----------------------------------------------------------------
+Declaration:
+
+     LineSettingsType = record
+       LineStyle = Word;
+       Pattern = Word;
+       Thickness = Word;
+     end;
+
+See GetLineSettings, SetLineStyle
+
+
+LineTo procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure LineTo( X, Y : Integer );
+
+Example:
+
+     { Draws a vertical line of 100 pixels in length }
+     MoveTo ( 100, 100 );
+     LineTo ( 100, 200 );
+
+Purpose:
+     Starting at the location of the current pointer, LineTo draws a line to
+(X, Y), using the current color from SetColor and current line style from
+SetLineStyle.  As with all line drawing commands, call SetWriteMode to select
+copy bits or exclusive-or (XOR) bits prior to calling LineTo.
+See Line, LineRel, MoveRel, MoveTo, SetColor, SetLineStyle, SetWriteMode
+
+
+MoveRel procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure MoveRel ( Dx, Dy : Integer );
+
+Example:
+
+     MoveTo ( 100, 100 );
+     LineTo ( 100, 200 );
+     MoveRel ( 50, 50 );          { Moves CP to 150, 250 }
+
+Purpose:
+     Adds Dx and Dy to the X and Y coordinates of the current pointer to move
+the current pointer relative to its current location.
+See Line, LineRel, LineTo, MoveTo, SetColor, SetLineStyle, SetWriteMode
+
+
+MoveTo procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure MoveTo ( X, Y : Integer );
+
+Purpose:
+     Use MoveTo to set the coordinates of the current pointer to (X, Y).  If a
+view port has been set for the screen, then X and Y are relative to the
+viewport - MoveTo(0,0) positions to the upper left corner of the viewport.
+See Line, LineRel, LineTo, MoveRel, SetColor, SetLineStyle, SetWriteMode
+
+
+OutText procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure OutText ( TextString : String );
+
+Example:
+     { Position the CP to (100, 100) }
+     MoveTo ( 100, 100 );
+     SetTextJustify ( CenterText, CenterText );
+     {Write the text at current pointer location }
+     OutText ('Hello, World!');
+
+Purpose:
+     Draws the contents of TextString on the graphics screen at the current
+pointer's location.  TextString is drawn using the font and characteristics set
+by SetTextStyle and SetTextJustify (see SetTextStyle and SetTextJustify). 
+Depending on the settings of SetTextJustify, the CP can mark the location of
+the either the start or end of the displayed text.  When the text is written in
+the horizontal direction, CP is moved accordingly; for vertical text output, CP
+is unchanged.  OutText is especially useful when writing several strings, one
+after the other.  
+     Problems can occur if there is insufficient room on the display to fit the
+contents of TextString.  Specifically, if DefaultFont is the current font in
+use, and the string is too large to fit, then nothing is displayed.  If one of
+the stroked fonts is in use, the string is truncated at the edge of the screen.
+You can check to see if TextString fits by calling TextWidth to determine how
+many pixels are needed to display the string.  TextWidth calculates the
+required display area, taking into account the current font and text size.
+See OutTextXY, SetTextJustify, SetTextStyle, SetUserCharSize, TextHeight,
+TextWidth
+
+
+OutTextXY procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure OutTextXY
+       ( X, Y : Integer; TextString ) : String;
+
+Example:
+
+     { Output string at center of the screen }
+     OutTextXY( GetMaxX Div 2, GetMaxY div 2, 'Hello, World!' );
+
+Purpose:
+     Like OutText, except that TextString is written at the coordinates
+specified by X and Y, using the font and characteristics set with SetTextStyle
+and SetTextJustify.  See the description for OutText regarding problems that
+may occur if the length of the string exceeds the space available on the
+screen.  See OutText for additional information.
+See OutText, SetTextJustify, SetTextStyle, SetUserCharSize, TextHeight,
+TextWidth
+
+
+PaletteType type
+----------------------------------------------------------------
+Declaration:
+
+     PaletteType = record
+       Size : Byte;
+       Colors : array[0..MaxColors] of ShortInt;
+     end;
+
+See GetPalette, SetPalette
+
+
+PieSlice procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure PieSlice 
+       ( X, Y : Integer; StAngle, EndAngle, Radius : Word );
+
+Example:
+     See the "The Pie Chart" in Chapter 5, "Turbo Pascal Graphics" in the
+Borland Pascal Developer's Guide, Que Books, 1992.  This section describes in
+detail how to create a professional quality pie chart, including chart titles,
+pie slice labels, and how to create exploded pie charts.
+
+Purpose:
+     Use PieSlice to draw the individual pie sections that make up a pie chart.
+X and Y specifiy the mid-point of the pie.  The slice is drawn between StAngle
+and EndAngle, where the angles are measured with 0 degrees at the 3 O'clock
+position, 90 degrees at the 12 O'Clock position, and so on, in a counter
+clockwise direction.   Setting StAngle to 0, and EndAngle to 90, draws a pie
+slice occupying the upper right quadrant of the pie.
+     The interior of the pie may be empty or filled and colored with a pattern
+as specified with SetFillStyle or SetFillPattern.  SetColor sets the color of
+the bounding circle and the line segments that delineate each pie slice.  Make
+sure that SetWriteMode is set to CopyPut and not XORPut.  In XOR mode, peculiar
+drawing effects occur to the bounding circle and slice separation lines.
+     A detailed example is given earlier in this chapter in the section titled
+"The Pie Chart".  Also see the description of the Arc procedure, in this
+section.
+See Arc, Circle, Ellipse, FillEllipse, Sector, SetFillStyle, SetFillPattern,
+SetWriteMode
+
+
+PointType type
+----------------------------------------------------------------
+Declaration:
+
+     PointType = record
+       X, Y : Integer;
+     end;
+
+
+PutImage procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure PutImage 
+       ( X, Y : Integer; var BitMap; BitBlt : Word );
+
+Example:
+
+     var
+       X1, Y1, X2, Y2, Dx, Dy : Integer;
+       GraphBuffer : Pointer;
+     ...
+     TheText := 'First Graphics Program';
+     SetTextJustify (LeftText, LeftText);
+     SetTextStyle( TriplexFont, HorizDir, 3);
+     OutTextXY (GetMaxX div 2, GetMaxY div 2, TheText);
+
+     {Prepare to "grab" the graphical text item from the screen}
+     Dx := TextWidth ( TheText );
+     Dy := TextHeight ( TheText );
+     X1 := GetMaxX div 2;
+     Y1 := GetMaxY div 2 - Dy;
+     X2 := X1 + Dx;
+     Y2 := GetMaxY div 2 + Dy div 2;
+     GetMem ( GraphBuffer, ImageSize (X1, Y1, X2, Y2 ) );
+
+     { Copy the image into GraphBuffer^ }
+     GetImage ( X1, Y1, X2, Y2, Graphbuffer^ );
+
+     { And copy the buffer to 5 new locations on the screen }
+     for I := 0 to 5 do
+       PutImage(Dy + 2*I*Dy,  Dy+2*I*Dy, GraphBuffer^, CopyPut);
+
+Purpose:
+     PutImage copies a bit image from a buffer to some location on the screen. 
+The buffer is normally created by calling GetImage to copy a region of the
+graphics screen into the buffer (See GetImage).   PutImage copies the contents
+of the the buffer to the graphics screen at (X, Y), where X and Y mark the
+upper left corner of the graphics region.  When GetImage creates a saved
+graphic image, it saves the height and width of the original region in the
+buffer.  PutImage checks these values to insure that the saved image will
+actually fit on the screen beginning at location (X, Y).  If the image is wider
+than the available pixels to the right of X, then the image is not copied to
+the display.  However, if the image is drawn near the bottom of the screen,
+then the topmost portion of the image is displayed, but those portions falling
+below the bottom of the screen are clipped.
+     By passing one of the predefined constants (see list) to the BitBlt
+pararameter, the image may be copied or merged into the existing screen image.
+     AndPut  { Ands each bit in the buffer with corresponding screen bits}
+     CopyPut { Copies each bit in the buffer to corresponding position on the
+screen }
+     NotPut  { Inverts each bit in the buffer, and then copies the inverted
+bits to the
+                        screen }
+     OrPut              { Ors each bit in the buffer with corresponding screen
+bits }
+     XORPut  { Exclusive-Ors each buffer bit with the corresponding screen bit
+}
+
+
+PutPixel procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure PutPixel ( X, Y : Integer; Pixel : Word );
+
+Example:
+
+     for X := 0 to 50 do          { A very slow way to draw a
+                                  filled in rectangle! }
+       for Y := 0 to 50 do
+         PutPixel ( X, Y, 4 );
+
+Purpose:
+     Use PutPixel to set the pixel at (X, Y) to the color value passed in the
+Pixel parameter.  
+See GetPixel
+
+
+Rectangle procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure Rectangle (X1, Y1, X2, Y2 : Integer);
+
+Example:
+     { Draw border around entire screen }
+     Rectangle ( 0, 0, GetMaxX, GetMaxY );         
+
+Purpose:
+     Use Rectangle to draw a rectangular object on the screen, with (X1, Y1) as
+the upper left corner of the rectangle, and (X2, Y2) as the lower right corner.
+The rectangle's border is drawn in the current color (from the last SetColor)
+using the current line attributes (from the last SetLineStyle).  The rectangle
+can be either by copied or XOR'd on to the screen, depending on the most recent
+setting of SetWriteMode.
+     The rectangle's coordinates are always drawn relative to the current
+viewport setting (see SetViewPort).  To draw a filled rectangle, see Bar and
+Bar3D.
+See Bar, Bar3D, SetColor, SetLineStyle, SetWriteMode
+
+
+RegisterBGIdriver function
+----------------------------------------------------------------
+Declaration: 
+     function RegisterBGIdriver (Driver : Pointer): Integer;
+
+Example:
+     See "Linking Driver and Font Files" section in Chapter 5, "Turbo Pascal
+Graphics", of the Borland Pascal Developer's Guide.
+
+Purpose:
+     When driver (.BGI) files are linked into the .EXE executable program file,
+you must register the driver's location with the Graph unit.  RegisterBGIdriver
+takes a pointer to the entry point routine for the driver file where the entry
+point name comes from the public symbol name name that you assigned when
+converting the .BGI file to a .OBJ file using BINOBJ.
+     RegisterBGIdriver returns a negative value to indicate that an error has
+occurred, and a positive or zero value indicates success the internal driver
+number and indicates successful registration.
+See "Linking Driver and Font Files", InitGraph, RegisterBGIfont
+
+
+RegisterBGIfont function
+----------------------------------------------------------------
+Declaration: 
+     function RegisterBGIfont (Font: Pointer) : Integer;
+
+Example:
+     See the "Linking Driver and Font Files" section of Chapter 5, "Turbo
+Pascal Graphics" in the Borland Pascal Developer's Guide.
+
+Purpose:
+     When font (.CHR) files are linked into the .EXE executable program file,
+you must register the font's location with the Graph unit.  RegisterBGIfont
+takes a pointer to the entry point routine for the driver file.  This entry
+point name comes from the public symbol name name that you assigned when
+converting the .CHR file to a .OBJ file using BINOBJ.
+     RegisterBGIfont returns a negative value to indicate that an error has
+occurred, and a positive or zero value indicates success and is the internal
+font number.
+     RegisterBGIfont is also used in conjunction with loading a disk-based font
+file into a memory buffer to improve display performance when you need to
+frequently switch back and forth between stroked fonts.  Normally, the Graph
+unit loads one stroked font at a time.  Each time that you switch to a new
+font, the new font must be read (or reread) into memory.  By adding code like
+the following, prior to calling InitGraph, you can read one or more fonts into
+buffers that your program manages separately from the Graph unit:
+
+     var
+       FontFile : File;
+       PFontBuffer : Pointer;
+     ...
+     Assign ( FontFile, '\TP\BGI\GOTH.CHR' );
+     {$I-}
+     Reset ( FontFile );
+     { Check IOResult here }
+
+     {Allocate a buffer big enough to hold the entire font file}
+     GetMem ( PFontBuffer, FileSize ( FontFile ) );
+     BlockRead ( FontFile, PFontBuffer, FileSize ( FontFile ));
+     FontID := RegisterBGIfont ( PFontBuffer );
+
+This code reads the Gothic font into a memory buffer separate from the standard
+font buffer.  As a result, when you select a font using SetTextStyle, you can
+switch between one other stroked font and the Gothic font.  Once the Gothic
+font is registered, the Graph unit knows to look at your memory buffer rather
+than read the font from disk.
+     Note that fonts which have been linked to the .EXE file are already stored
+in memory and are not read in at each call to SetTextStyle.
+See "Linking Driver and Font Files", InitGraph, RegisterBGIfont
+
+
+RestoreCrtMode procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure RestoreCrtMode;
+
+Example:
+     See GetGraphMode for an example.
+
+Purpose:
+     While in graphics mode (after calling InitGraph), call RestoreCrtMode to
+switch from the graphics mode back to text mode operation.  Use SetGraphMode to
+switch from text back to graphics.
+See InitGraph, SetGraphMode
+
+
+Sector procedure
+----------------------------------------------------------------
+Declaration: 
+     procedure Sector( X, Y : Integer; StAngle, EndAngle,
+                        XRadius, YRadius : Word );
+
+Example:
+     Sector ( GetMaxX div 2, GetMaxY div 2, 0, 90, 100, 100 );
+
+Purpose:
+     Sector is the underlying graphics drawing routine used by PieSlice,
+FillEllipse and so on.  Sector draws and fills an ellipse centered on (X, Y)
+and having an X axis radius of XRadius and a Y axis radius of YRadius.  StAngle
+and EndAngle delineate a subset of the total ellipse, with 0 degrees at the 3
+O'clock position, 90 degrees at 12 O'clock, 180 degrees at 9 O'clock.   The
+ellipse is filled with the current fill pattern from SetFillStyle or
+SetFillPattern, and bounded in the current color from the last SetColor.
+See Circle, Ellipse, Fillellipse, PieSlice, SetAspectRatio, SetFillStyle,
+SetFillPattern
+
+
+SetActivePage procedure
+----------------------------------------------------------------
+Declaration:
+     procedure SetActivePage ( Page : Word );
+
+Example:
+   1  { PAGEDEMO.PAS }
+   2  program PageDemo;
+   3  { Demonstrates multiple video pages by writing to page #0
+       and displaying
+   4    that page.  Then, by calling SetActivePage ( 1 ),
+       switches to Page #1
+   5    and sends output to that page while still display page
+       #0.  After
+   6    writing the output to Page #1, the program then switches
+       back and
+   7    forth between the two pages.
+   8    This program should only be run in graphic modes that
+       support
+   9    multiple pages.
+  10  }
+  11  uses
+  12    Graph;
+  13  
+  14  var
+  15    GraphBuffer : Pointer;
+  16    GraphDriver, GraphMode : Integer;
+  17    TheText : String;
+  18  
+  19  begin
+  20    { Check for VGA and select a multi-page mode }
+  21    DetectGraph ( GraphDriver, GraphMode );
+  22  
+  23    { This code may be different for your monitor }
+  24    if  GraphDriver = VGA then
+  25      GraphMode := VGALo;
+  26  
+  27    InitGraph ( GraphDriver, GraphMode, '\BP\BGI');
+  28  
+  29    SetVisualPage ( 0 );
+  30    SetActivePage ( 0 );
+  31  
+  32    SetTextJustify (CenterText, CenterText);
+  33    SetTextStyle( TriplexFont, HorizDir, 3);
+  34    OutTextXY (GetMaxX div 2, GetMaxY div 2, 'This is Page #0');
+  35  
+  36    SetActivePage ( 1 );
+  37    OutTextXY ( GetMaxX div 2, GetMaxY div 2, 'This is Page # 1');
+  38    Line ( 50, 50, 150, 150 );
+  39    Readln;
+  40    SetVisualPage ( 1 );
+  41    Readln;
+  42    SetVisualPage ( 0 );
+  43    Readln;
+  44  
+  45    CloseGraph;
+  46  end.
+
+Purpose:
+     Use in conjunction with SetVisualPage for directing graphics output to an
+off screen display area.  These functions are especially useful when drawing
+complex scenes.  The time consuming drawing does not appear on screen until a
+SetVisualPage selects the off screen display area and the screen is instantly
+updated with the new drawing.
+
+Important!
+     Only the following drivers and modes support multiple screen pages:
+
+Mode Value  Driver   Mode       Resolution    Palette   Pages
+    0       EGA      EGALo      640x200        16 color  4
+    1                EGAHi      640x350        16 color  2
+
+    3       EGAMono  EGAMonoHi  640x350 [256k card]      2 color               
+2
+
+    0       HercMono HerccMonoHi               720x348   2 color               
+2
+    
+    0       VGA      VGALo      640x200        16 color  2
+    1                VGAMed     640x350        16 color  2
+
+Do not use SetVisualPage or SetActivePage without first insuring that the
+GraphDriver parameter returned by InitGraph is equal to EGA, EGAMono, HercMono
+or VGA.  Note that some of these drivers also support single page modes (such
+as VGA) so you should also check the current mode, or explicitly select a
+graphics mode before calling InitGraph (see DetectGraph and InitGraph).  The
+EGAMono driver supports multiple pages only for the 256k card, and not for the
+64k card.
+See DetectGraph, GetGraphMode, InitGraph, SetVisualPage
+
+
+SetAllPalette procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetAllPalette (var Palette);
+
+Example:
+    var
+       PaletteRecord : PaletteType;
+    ...
+    GetPalette ( PaletteRecord ); { Get existing color palette }
+    with PaletteRecord do
+    begin
+       Colors[4] := Brown;        { Map entry #4 to Brown }
+       Colors[5] := Blue;         { Map entry #5 to Blue }
+    end;
+    SetAllPalette ( PaletteRecord );               
+          { And make the palette active }
+
+Purpose:
+    Use SetPalette to change the entire color palette in a single procedure
+call.  Palette is typically a record of type PaletteType (see PaletteType),
+containing a Size byte specifying the length of the palette, and an array of
+ShortInt values, indexed from 0 to 15.  Each value in the array contains one of
+the color values shown in the chart below, or -1, meaning that no change should
+be made to this entry.
+
+Chart of Color Constants
+
+Constants      Value
+Black          0
+Blue                              0
+Green          2
+Cyan                              3
+Red            4
+Magenta        5
+Brown          6
+LightGray      7
+DarkGray       8
+LightBlue      9
+LightGreen     10
+LightCyan      11
+LightRed       12
+LightMagenta   13
+Yellow         14
+White          15
+
+    The default 16 color palette contains the values in the chart, below.  When
+you use SetColor to select a current drawing color, such as SetColor (4), you
+are selecting the 4th entry in the palette, which maps to the color red.  By
+placing a different value in the 4th entry, for instance, Brown, future
+references to the 4th color (SetColor(4)) then select the color brown.
+    SetAllPalette (and SetPalette) are useful for changing the color of
+existing items on the screen, without redrawing the objects in the new color. 
+The easiest way to change the entire palette is to call GetPalette to fetch the
+current color palette.  Then, change the desired entries in the palette and
+call SetAllPalette.  The color changes are made immediately without any
+redrawing actually occurring.  This is because all of the color attributes on
+the screen are mapped through the graphics color palette.  Changing an entry
+causes all objects having that color to instantly change on the screen.
+    By setting all the unchanged entries to -1, you can set just a few entries
+to new color values.   The entries containing -1 are ignored when calling
+SetAllPalette so only the desired palette entries are changed.  If you wish to
+change just a single entry in the Palette to a new color value, consider using
+SetPalette.
+
+Important!
+    Color palettes are used only for the EGA and VGA graphics drivers (256
+color IBM 8514 used the SetRGBPalette procedure).  The CGA has hardwired color
+palettes that cannot be rearranged (see list of graphics modes at
+GetGraphMode).
+See GetDefaultPalette, GetPalette, PaletteType, SetPalette, SetRGBPalette
+
+
+SetAspectRatio procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetAspectRatio ( Xasp, Yasp : Word );
+
+Example:
+   1  { ASPECTR.PAS }
+   2  program AspectRatio;
+   3  { Demonstrates the effect of varying the aspect ratio
+   4    on circle drawing. Increasing Xasp results in an
+   5    increasingly elliptical circle, in the Y axis.
+   6    Decreasing Xasp or increasing Yasp produces a
+   7    increasing ellipse in the horizontal direction.
+   8  }
+   9  uses
+  10    Crt, Graph;
+  11  
+  12  var
+  13    { Parameters to InitGraph }
+  14    GraphDriver : Integer;
+  15    GraphError  : Integer;
+  16    GraphMode   : Integer;
+  17    { X and Y aspect ratio values }
+  18    Xasp, Yasp  : Word;
+  19    { Used for display purposes }
+  20    XString,
+  21    YString     : String[20];
+  22  
+  23  procedure ClearSection ( X1, Y1, X2, Y2 : Integer );
+  24  begin
+  25    SetViewPort (X1, Y1, X2, Y2, ClipOff);
+  26    ClearViewPort;
+  27    SetViewPort (0, 0, GetMaxX, GetMaxY, ClipOn);
+  28  end;
+  29  
+  30  begin
+  31  
+  32    { Request autodetection of correct graphics driver }
+  33    GraphDriver := Detect;
+  34  
+  35    { Initialize graphics system; look for driver files
+  36      in specified directory }
+  37    InitGraph ( GraphDriver, GraphMode, 'F:\BP\BGI' );
+  38  
+  39    GraphError := GraphResult;
+  40    if GraphError <> grOk  then
+  41    begin
+  42      Writeln('Error occurred:', GraphErrorMsg(GraphError));
+  43      Halt(1);
+  44    end;
+  45  
+  46    { Display prompt line }
+  47    SetTextJustify ( LeftText, BottomText );
+  48    SetTextStyle ( DefaultFont, HorizDir, 1 );
+  49    OutTextXY ( 10, GetMaxY - 10, 'Press any key to stop.');
+  50  
+  51    SetTextJustify( LeftText, TopText );
+  52    GetAspectRatio ( Xasp, Yasp );
+  53    repeat
+  54      Yasp := Yasp - 25;
+  55      SetAspectRatio ( Xasp, Yasp );
+  56      Circle ( GetMaxX div 2, GetMaxY div 2, 75 );
+  57      Str( Xasp:5, XString );
+  58      Str( Yasp:5, YString );
+  59      { Clear out a section on the screen and ... }
+  60      ClearSection (10, 10, 10+TextWidth(XString+', '
+  61                     +YString), 10+TextHeight(XString));
+  62      { Display current Xasp and Yasp values }
+  63      OutTextXY ( 10, 10, XString + ', ' + YString );
+  64    until KeyPressed;
+  65  
+  66  
+  67    CloseGraph;
+  68  
+  69  end.
+
+Purpose:
+    If circles appear more like ellipses on your monitor (a common problem), it
+means that your monitor is slightly out of alignment.  Rather than fixing the
+hardware, its easier to modify the graphics drawing algorithms by calling
+SetAspectRatio and varying the Xasp and Yasp parameters until a true circle
+appears.  See the example code, above, for a routine that you can use to help
+calibrate the software for any monitor.
+See Arc, Circle, GetAspectRatio
+
+SetBkColor procedure
+----------------------------------------------------------------
+Declaration:             
+    procedure SetBkColor ( ColorNum : Word );
+
+Example:
+    { Select palette entry #1 for background color }
+    SetBkColor( 1 );
+
+Purpose:
+    Use SetBkColor to choose a background color for the screen where ColorNum
+is the palette index containing the color to choose.  In other words, write
+SetBkColor(3) to select the 3d entry in the palette.  SetBkColor(0) always
+choosed black for the background color, regardless of the current value of the
+0th entry in the palette.
+See SetAllPalette, SetColor, SetPalette
+
+
+SetColor procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetColor ( Color : Word );
+
+Example:
+    { Draws line in palette color #3 }
+    SetColor ( 3 );
+    Line( 10, 10, 45, 100 );                       
+
+    { Draws rectangle in palette color #5 }
+    SetColor ( 5 );
+    Rectangle ( 10, 10, 200, 200 );
+
+Purpose:
+    Selects the palette entry specified by Color and makes that entry the
+current drawing color (See SetAllPalette).  This color selection remains in
+effect until the next SetColor call, and applies to all line drawing
+procedures, Rectangle, Arc, Circle, the border color for the ellipse routines
+and others.  For solid or filled interior objects, the interior color is
+selected with SetFillStyle or SetFillPattern.
+     Color values range from 0 to 15 (See SetAllPalette for a list of default
+colors) for EGA and VGA screens, 0 to 3 for CGA color palettes (See Graph Unit
+constants for the CGA color modes available), and 0 to 1 for monochrome or 2
+color schemes.  You can obtain the current maximum number of available colors
+by calling GetMaxColor, which returns a number from 1 to 15.
+See GetColor, GetMaxColor, SetAllPalette, SetBkColor, SetFillStyle,
+SetFillPattern, SetPalette, SetRGBPalette
+
+
+SetFillPattern procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetFillPattern 
+       (Pattern : FillPatternType; Color : Word );
+
+Example:
+
+   1  { CUSTOMPA.PAS }
+   2  program CustomPattern;
+   3  
+   4  { Use this program to help you design a custom fill
+   5    pattern. After the 8 x 8 grid displays, you can use
+   6    the arrow keys to navigate to a specific bit, and set
+   7    it to a 1 by pressing the 1 key, or clearing the bit
+   8    by pressing the 0 key. Press the Esc key to terminate
+   9    data entry and a sample filled circle is displayed on
+  10    the screen. Press Enter to return to pattern editing,
+  11    or press Esc key again to terminate the program.
+  12  }
+  13  
+  14  uses
+  15    Crt, Graph;
+  16  
+  17  const
+  18    { Key equates for the extended key strokes,
+  19      plus Key0 and Key1 for 0 and 1}
+  20    UpArrow       = 72 shl 8;
+  21    LeftArrow     = 75 shl 8;
+  22    RightArrow    = 77 shl 8;
+  23    DownArrow     = 80 shl 8;
+  24    EscapeKey     = 27;
+  25    Key0          = 48;
+  26    Key1          = 49;
+  27  
+  28  var
+  29    { Parameters to InitGraph }
+  30    GraphDriver : Integer;
+  31    GraphError  : Integer;
+  32    GraphMode   : Integer;
+  33    { Holds the pattern that we are designing }
+  34    UserPattern : FillPatternType;
+  35    { X, Y position in the matrix }
+  36    X, Y        : Integer;
+  37    { The key that has been pressed }
+  38    KeyCode     : Word;
+  39    F           : File of Byte;
+  40  
+  41  procedure BitPlot (X, Y : Integer; BitValue : Boolean );
+  42  { Displays each bit in the pattern as a 1 or 0,
+  43    on the display }
+  44  begin
+  45    GotoXY ( X*4, Y * 1 );
+  46    If BitValue then
+  47      write('1')
+  48    else
+  49      write('0');
+  50  end;
+  51  
+  52  
+  53  procedure DisplayPattern ( APattern : FillPatternType );
+  54  { Displays the entire pattern on the screen }
+  55  var
+  56    X, Y : Integer;
+  57  begin
+  58    for X := 1 to 8 do
+  59      for Y := 1 to 8 do
+  60      begin
+  61        BitPlot ( X, Y, (APattern[X] and (256 shr Y)) <> 0);
+  62      end;
+  63  end;
+  64  
+  65  
+  66  procedure GetChar ( var Key : Word );
+  67  { Reads a character from the keyboard, placing
+  68    extended bytes into the high byte of the word
+  69    value returned }
+  70  begin
+  71    Key := Word( ReadKey );
+  72    if  Key = 0  then
+  73      { Read extended byte character code }
+  74      Key := Word( ReadKey) shl 8;
+  75  end;
+  76  
+  77  {$I-}
+  78  begin
+  79    Writeln;
+  80    { Set the initial pattern to all 0's (no
+  81      pattern at all) }
+  82    FillChar ( UserPattern, SizeOf ( FillPatternType ), 0 );
+  83  
+  84    Assign( F, 'PATTERN' );
+  85    Reset ( F );
+  86    if IOResult = 0 then
+  87    begin
+  88      Write('Read in existing PATTERN file (Y/N=Cr)? ');
+  89      GetChar ( KeyCode );
+  90      if (KeyCode = Ord('Y')) or
+  91         (KeyCode = Ord('y'))  then
+  92           for X := 1 to 8 do
+  93             Read(F,  UserPattern[X] );
+  94      Close ( F );
+  95    end;
+  96  
+  97  
+  98    { Request autodetection of correct graphics driver }
+  99    GraphDriver := Detect;
+ 100  
+ 101    { Initialize graphics system; look for driver files
+ 102      in specified directory.  You must change the directory
+ 103      to the appropriate directory for you system. }
+ 104    InitGraph ( GraphDriver, GraphMode, 'F:\BP\BGI' );
+ 105  
+ 106    GraphError := GraphResult;
+ 107    if GraphError <> grOk  then
+ 108    begin
+ 109      Writeln('Error occurred:', GraphErrorMsg(GraphError) );
+ 110      Halt(1);
+ 111    end;
+ 112  
+ 113    { Enter the editing loop }
+ 114    repeat
+ 115      RestoreCrtMode;
+ 116  
+ 117      DisplayPattern ( UserPattern );
+ 118  
+ 119      Gotoxy ( 1, 10 );
+ 120      Writeln( 'Use arrow keys to navigate.');
+ 121      Writeln(
+ 122       'Press 1 to set a bit, press 0 to clear a bit.' );
+ 123      Writeln( 'Press Esc key to see the result.' );
+ 124      Writeln(
+ 125       'Press Esc key TWICE to terminate the program');
+ 126      X := 1;
+ 127      Y := 1;
+ 128      repeat
+ 129        GotoXY ( X*4, Y * 1);
+ 130        GetChar ( KeyCode );
+ 131        case KeyCode of
+ 132          Key0:
+ 133          begin
+ 134            write('0');       { Clear the bit }
+ 135            UserPattern[X] :=
+ 136              UserPattern[X] and not (256 shr Y);
+ 137          end;
+ 138          Key1:
+ 139          begin
+ 140            write('1');       { Set the bit }
+ 141            UserPattern[X] :=
+ 142              UserPattern[X] or (256 shr Y) ;
+ 143          end;
+ 144          UpArrow:        if Y > 1 then Dec(Y);
+ 145          DownArrow:      if Y < 8 then Inc(Y);
+ 146          LeftArrow:      if X > 1 then Dec(X);
+ 147          RightArrow:     if X < 8 then Inc(X);
+ 148        end;
+ 149        Gotoxy ( X*4, Y * 1);
+ 150      until KeyCode = EscapeKey;
+ 151  
+ 152      { After editing the matrix, return to graphics mode
+ 153        and display an object containing the pattern. }
+ 154      SetGraphMode ( GetGraphMode );
+ 155  
+ 156      { Display prompt }
+ 157      SetTextJustify ( LeftText, BottomText );
+ 158      SetTextStyle ( DefaultFont, HorizDir, 1 );
+ 159      OutTextXY ( 10, GetMaxY - 10,
+ 160        'Press Esc key to stop, any other key to continue editing.');
+ 161  
+ 162      SetFillPattern ( UserPattern, 3 );
+ 163      FillEllipse( GetMaxX div 2, GetMaxY div 2, 75, 75 );
+ 164  
+ 165      GetChar( KeyCode );
+ 166  
+ 167    until KeyCode = EscapeKey;
+ 168  
+ 169    CloseGraph;
+ 170    Write('Save pattern to file PATTERN? (Y/N=CR)? ');
+ 171    GetChar(KeyCode);
+ 172    if (KeyCode = Ord('Y')) or
+ 173       (KeyCode = Ord('y'))  then
+ 174    begin
+ 175      Assign ( F, 'PATTERN' );
+ 176      Rewrite( F );
+ 177      for X := 1 to 8 do
+ 178        Write( F, UserPattern[X] );
+ 179      Close ( F );
+ 180    end;
+ 181  
+ 182  end.
+
+Purpose:
+    Use SetFillPattern to establish a custom-design pattern for filling the
+interior of all filled graphic objects (FillPoly, FloodFill, Bar, Bar3D,
+PieSlice), and to select the color for that pattern (the interior color is set
+here or in SetFillStyle; the boundary color is set by SetColor).  The example
+program provides a custom-design editor that makes it easy to design your own
+patterns (its also a lot of fun to invent lots of new designs!)
+See SetFillStyle
+
+
+SetFillStyle procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetFillStyle ( Pattern : Word; Color : Word );
+
+Example:
+    SetFillStyle ( LtSlashFill, 3 );
+    PieSlice ( GetMaxX div 2, GetMaxY div 2, 0, 90, 100 );
+
+Purpose:
+    Use SetFillStyle to select one of the standard interior patterns for filled
+objects.  The patterns are selected using one of the constants from Table 7-. 
+You can create custom fill patterns using the SetFillPattern procedure (See
+SetFillPattern for a program to edit new pattern designs).  When the selected
+pattern is UserFill, SetFillStyle lets you select the previously registered
+custom fill pattern.  This way you can flip back and forth between a standard
+fill pattern and a custom fill pattern without having to rebuild the user
+defined  pattern each time.
+
+The following table shows the available pattern constants and a textual
+description of the pattern that they select:
+
+Constant   Description
+EmptyFill  
+               Uses the background color for a solid fill.
+SolidFill  
+               Uses the specified color as a solid fill.
+LineFill   
+               Outputs horizontal lines across the object.
+LtSlashFill             
+               Outputs slanted lines (to the right) across the object.
+SlashFill  
+               Outputs thick slanted lines (to the right) across the object.
+BkSlashFill             
+               Outputs thick slanted lines (to the left) across the object.
+LtBkSlashFill
+               Outputs slanted lines (to the left)across the object.
+HatchFill  
+               Displays a "cross hatch" pattern.
+XHatchFill 
+               Displays a thicker "cross hatch" pattern.
+InterleaveFill
+               Outputs a tightly spaced line fill.
+WideDotFill             
+               Outputs a dot fill pattern with the dots widely                 
+               spaced.
+CloseDotFill            
+               Closely spaced dot fill pattern.
+UserFill   
+               Selects the user defined fill pattern.
+
+See SetUserPattern
+
+
+SetGraphBufSize procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetGraphBufSize ( BufSize : Word );
+Example:
+    { Adjust buffer size BEFORE InitGraph }
+    SetGraphBufSize ( 8192 );     
+    GraphDriver := Detect;
+    InitGraph ( GraphDriver, GraphMode, '' );
+
+Purpose:
+    The internal algorithm used to fill an area on the screen using
+FillEllipse, Sector, PieSlice, FloodFill, and so on, requires the use of a
+memory buffer.  By default this buffer is set to 4,096 bytes, which is
+sufficient for fairly complicated polygon shapes (up to approximately 650
+vertices).  However, in the event that one of the filled object drawing
+procedures sets GraphResult to grNoScanMem or grNoFloodMem you should set the
+buffer area to a larger size by calling SetGraphBufSize and setting BufSize to
+the new size, in bytes.  The call to SetGraphBufSize must be made before
+calling InitGraph.
+See GraphResult
+
+
+SetGraphMode procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetGraphMode ( Mode : Integer );
+
+Example:
+    InitGraph ( GraphDriver, GraphMode, '' );
+    ...
+    { Switch back to text mode for a bit }
+    RestoreCrtMode;          
+    Write('Verify correct display (Y/N)? ');
+    Readln( Answer );
+    ...
+    { Switch back to graphics mode }
+    SetGraphMode( GetGraphMode ); 
+
+Purpose:
+     SetGraphMode is used to select a different graphics mode for the current
+driver (such as switching between VGAHi, VGAMed, or VGALo after the graphics
+program is executing).  As such, you must only call SetGraphMode after first
+calling InitGraph.  During program execution you can switch back and forth
+between text and graphics modes by calling RestoreCrtMode to switch to text
+mode, and then calling SetGraphMode(GetGraphMode) to switch back to the
+previous graphics mode.
+    See GetGraphMode for a complete list of available modes per driver.
+See DetectGraph, GetGraphMode, GetModeRange, GraphResult, InitGraph,
+RestoreCrtMode
+
+
+SetPalette procedure
+----------------------------------------------------------------
+Declaration:
+    procedure SetPalette ( ColorNum : Word; Color : ShortInt );
+
+Example:
+    { Changes 4th entry to Green color }
+    SetPalette ( 4, Green ); 
+
+Purpose:
+    SetPalette changes individual entries in the color palette (See
+SetAllPalette for a procedure that can change the entire palette in a single
+call).  ColorNum is a palette index from 0 to 15, although some graphics
+drivers support fewer than 16 entries.  Call GetMaxColor (or GetPaletteSize-1)
+to determine the maximum numbers of colors that are currently available.  See
+SetAllPalette and the section titled "Selecting Interior Color for Objects",
+earlier in this chapter for additional information.
+See GetMaxColor, GetPaletteSize, SetAllPalette, SetBkColor, SetColor,
+SetRGBPalette
+
+
+SetRGBPalette procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetRGBPalette
+       (ColorNum, RedValue, GreenValue, BlueValue : Integer );
+
+Example:
+
+    SetColor(3);
+    OutTextXY (100, 100, 'Here is some text in color #3');
+
+    { Change the value of palette entry #3 to every possible
+    color.  This will take a while! }
+    for I1 := 0 to 63 do
+       for I2 := 0 to 63 do
+          for I3 := 0 to 63 do
+            begin
+              SetRGBPalette( 3, I1, I2, I3 );
+              delay(50);
+            end;
+    Readln;
+
+Purpose:
+    For the IBM 8514 and VGA device drivers, the 16 basic palette entries are
+programmable.  Using SetRGBPalette you can precisely specify the amount of Red,
+Green or Blue color for each index in the palette, using ColorNum as the index
+value.
+    Each of the color values ranges in value from 0 to 63, with 0 being the
+lowest intensity and 63 being the brightest intensity.  By mixing various
+intensity values between the Red, Green and Blue, you can create custom colors,
+up to a maximum of 262,144 different combinations.  For example,
+    SetRGBPalette ( 0, 35, 20, 60 );
+changes the background color (palette entry #0) to whatever color is produced
+by mixing these combinations of Red (35), Green (20) and Blue (60).
+    For the IBM 8514 only, ColorNum may range from 0 to 255.
+
+
+SetTextJustify procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetTextJustify( Horiz, Vert : Word );
+
+Example:
+
+    { Center about X, Y }
+    SetTextJustify ( CenterText, CenterText ); 
+    OutTextXY ( 200, 100, 'Hello, World!' );
+
+Purpose:
+    When text is drawn on the screen using OutText or OutTextXY, the graphical
+representation of the text is drawn relative to (X, Y).  Think of the text as
+being like a rectangular region that just happens to be filled with text.  That
+region contains 4 corners,  By using SetTextJustify, any one of those 4 corners
+can be placed at (X, Y).  For example, if you output a text string to (0, 0),
+you want (0, 0) to mark the upper left corner of the text region.  On the other
+hand, if you display the string at the bottom of the screen, (0, GetMaxY), you
+want (X, Y) to mark the lower left corner of the string; if (X, Y) marked the
+upper left corner, the entire string would fall off the edge of the screen's
+bottom (and somebody would have to clean up the mess...)
+    Using SetTextJustify, you can select the position of the output text around
+the (X, Y) coordinate by passing predefined constant values to the Horiz and
+Vert parameters.  These constants are: LeftText, CenterText, RightText,
+BottomText, CenterText and TopText.
+You should use the LeftText, CenterText and RightText constants for the Horiz
+parameter, and the BottomText, CenterText and TopText parameters for the Vert
+parameter.  Each constant positions one axis of the text box, as shown in the
+following illustrations:
+***FIG5JUA.PCX***
+***FIG5JUB.PCX***
+The SetTextJustify settings remain in effect until the next call to
+SetTextJustify.
+See OutText, OutTextXY, SetTextStyle
+
+
+SetTextStyle procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetTextStyle 
+       ( Font : Word; Direction : Word; CharSize : Word );
+
+Example:
+    SetTextStyle ( TriplexFont, HorizDir, 3 );
+    SetTextJustify ( LeftText, BottomText );
+    OutTextXY ( GetMaxX div 2, GetMaxY div 2, 'Hello, World!');
+
+Purpose:
+    Before performing text ouptut with OutText or OutTextXY, you should call
+SetTextStyle to select a character font, display direction (either horizontal
+or vertical) and relative size of the graphical text.  If you do not call
+SetTextStyle, all output appears in the default 8x8 bitmap font and in the
+smallest size available (8 pixels by 8 pixels).  
+    The fonts are stored in a series of .CHR files, in the same directory as
+the .BGI driver files.   If SetTextStyle cannot locate the appropriate .CHR
+file for the font selected, GraphResult will retain an error code.  To insure
+program reliability, you should test the condition of GraphResult whenever you
+select a new font.
+    You select one of the 5 standard fonts by passing one of these constants to
+SetTextStyle:
+    DefaultFont     8x8 bitmapped font
+    TriplexFont     Stroked font
+    SmallFont Stroked font
+    SansSerifFont   Stroked font
+    GothicFont      Stroked font
+The DefaultFont is a simple an 8x8 bitmap font.  As a consequence, as the font
+is scaled upwards in size, it takes on a "chunky" appearance.  Hence, the
+default font is convenient for small text items such as prompts, messages and
+home brew graphical menu systems.  The remaining fonts are stroked fonts,
+meaning that internally they are stored as graphical vectors, rather than as
+bitmaps.  Stroked fonts can be enlarged significantly in size with no
+degradation in appearance.
+    The Direction parameter chooses whether output text is drawn in the
+horizonal direction, like normal text, or if the text will be drawn vertically
+on the screen.  By setting this parameter to HorizDir you select the horizontal
+direction, and using VertDir you select the vertical direction.
+    CharSize sets a scaling factor to be applied to the font.  For instance, a
+CharSize of 1 for the default font produces the smallest 8 x 8 pixel
+characters.  By setting the CharSize to 3, the font is displayed in a 24 x 24
+pixel array (but still with only 8x8 level resolution).  When using graphical
+fonts, you cannot rely on the usual Length ( aString ) function to determine
+the size of a string when it appears on the screen.  Instead, call the
+TextHeight and TextWidth functions to calculate the graphic item's actual pixel
+height and width, respectively.
+See SetTextJustify, SetUserCharSize, TextHeight, TextWidth
+
+
+SetUserCharSize procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetUserCharSize 
+       ( MultX, DivX, MultY, DivY : Word );
+
+Example:
+
+    TheText := 'First Graphics Program';
+    SetTextJustify (CenterText, CenterText);
+    SetTextStyle( TriplexFont, HorizDir, 3);
+    SetUserCharSize ( 3, 2, 1, 1 );
+    OutTextXY (GetMaxX div 2, GetMaxY div 2, TheText);
+    
+Purpose:
+    In addition to the CharSize scaling factor set with SetTextStyle, you can
+vary the character width and height of the stroked fonts in fine increments by
+calling SetUserCharSize.  The parameters MultX and DivX set a scaling ratio for
+setting character width, and MultY and DivY set a scaling ratio for character
+height.  For example, in the TriplexFont used in the sample program (Listing 7-
+) at the beginning of this chapter, you can make the characters 1.5 times wider
+than the normal font by writing:
+    SetUserCharSize ( 3, 2, 1, 1, );
+The ratio 3:2 is applied to the character width, so that each character becomes
+3/2 or 1.5 times wider.   By varying both values, you can produce remarkeably
+fine degrees of adjustment in the shape of the basic character set.   To make
+the characters small and skinny, you can write:
+    SetUserCharSize ( 1, 4, 1, 1);
+This produces a scaling multiplier of 1/4.  While not shown in these examples,
+scaling values apply similarly to the Y axis.  When both value values, MultX,
+DivX or MultY, DivY are set to 1, then no scaling adjustment is made to the
+respective axis.
+See OutText, OutTextXY, SetTextStyle, SetTextJustify
+
+
+SetViewPort procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetViewPort 
+       (X1, Y1, X2, Y2 : Integer; Clip : Boolean);
+
+Purpose:
+    By default, drawing coordinates are relative to the screen's coordinates,
+with (0, 0) at the upper left corner and (GetMaxX, GetMaxY) at the lower right
+corner.  (Actually, the default viewport is set to (0, 0) to (GetMaxX,
+GetMaxY).   However, using SetViewPort, a new viewing area may be defined as a
+subset of the existing screen.  Subsequent drawing commands arel then drawn
+relative to the location of the viewport region.  For example, to set a
+viewport covering the lower right quadrant of the screen, write:
+    SetViewPort ( GetMaxX div 2, GetMaxY div 2, GetMaxX, GetMaxY, ClipOn );
+This creates a viewport whose upper left corner as at the screen's midpoint and
+whose lower right corner as the screen's lower right corner.
+***FIG5VIE***
+    Subsequent drawing coordinates are all relative to this viewport
+definition.  As a result, the statement,
+    Line (0, 0, 50, 50 );
+draws a diagonal line from the screen's mid point towards the lower right
+corner of the screen.  This because the coordinates are now relative to the
+viewport.
+    The last parameter to SetViewPort,  Clip, determines what to do about lines
+and other objects that extend beyond the boundaries of the viewport.  When Clip
+is False, no action takes place.  If, using the above viewport, you draw a line
+with a negative X value, like this,
+    Line (-30, 0, 50, 50 );
+the line appears on the screen, extending to the left, as needed.  However,
+when Clip is set to True, the line is truncated at the viewport boundary so
+that the only portion of the line that is visible is that which falls inside
+the viewport.  Two predefined constants ClipOn=True and ClipOff=False make for
+easy readability of the setting of the Clip parameter on calls to SetViewPort. 
+Clipping affects all of the drawing commands, including the filled or solid
+object drawing procedures.
+    When a viewport is in effect, as shown above, you can pass negative
+coordinate values to the drawing commands.  This may be useful to your
+application, particularly if the graphics model you are producing assumes that
+(0, 0) should be positioned in the center of the screen (as is done in basic
+analytic geometry problems).  However, there's not much one can do about the
+coordinate system being upside down (negative Y values are above the 0 X axis,
+rather than below) other than to invert the value of Y before passing to a
+drawing procedure. 
+See ClearViewPort, GetViewPort, ViewPortType
+
+
+SetVisualPage procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetVisualPage ( Page : Word );
+
+Purpose:
+    Used in conjunction with SetActivePage, SetVisualPage enables you to draw
+images "off screen" in separate video memory pages (for those adaptors and
+modes that support multiple video pages).  See SetActivePage for complete
+details on using both SetVisualPage and SetActivePage to implement off screen
+drawing, which is useful for creating animated sequences.
+See SetActivePage
+
+
+SetWriteMode procedure
+----------------------------------------------------------------
+Declaration:  
+    procedure SetWriteMode (WriteMode : Integer);
+
+Example:
+
+    SetWriteMode ( XORPut );
+    { Draw the rectangle on the screen }
+    Rectangle ( X, Y, X + Width, Y + Height );
+    Delay ( 1000 );
+    { Still in XOR mode, the second drawing erases the first ! }
+    Rectangle ( X, Y, X + Width, Y + Height );
+
+Purpose:
+    Several of the drawing commands can be written directly to the screen in a
+destructive form, erasing any previously set pixels, or they can exclusive-or
+the pixels on to the screen.  In the latter case, an item that has been written
+with the exclusive-or (XOR) method, can be erased by writing it again.  This is
+a key method used to move some objects around the screen.
+    The drawing mode is selected by calling SetWriteMode, with the WriteMode
+parameter set to the the constant CopyPut, for a destructive copy to the
+screen, or XORPut for an exclusive-or'ing of pixels on the screen.  
+    Officially, SetWriteMode only affects DrawPoly, Line, LineRel, LineTo and
+Rectangle.  But in actual use I find that SetWriteMode affects some of the
+other drawing commands (PieSlice, OutTextXY), and not always in the way that
+you might like.  As a result, I recommend explicitly selecting
+SetWriteMode(CopyPut) for all drawing commands other than those appearing in
+the list above.
+See Line, LineRel, LineTo, PutImage
+
+
+TextHeight function
+----------------------------------------------------------------
+Declaration:  
+    function TextHeight( TextString : String );
+Example:
+
+    TheText := 'First Graphics Program';
+    SetTextJustify (CenterText, CenterText);
+    SetTextStyle( TriplexFont, HorizDir, 3);
+    OutTextXY (GetMaxX div 2, GetMaxY div 2, TheText);
+
+    { Underline the text we've put on the screen }
+    Line ( GetMaxX div 2 - TextWidth (TheText) div 2,
+          GetMaxY div 2 + TextHeight (TheText),
+          GetMaxX div 2 + TextWidth (TheText) div 2,
+          GetMaxY div 2 + TextHeight (TheText) );
+
+Purpose:
+    Use TextHeight, together with TextWidth, to calculate the height and width
+of graphic text items.  TextHeight computes the height, in pixels, of the
+graphic representation of a string and is useful for determing line spacing or
+distance from another graphic element.  These routines make their computation
+based on the current font and character size.
+See TextWidth
+
+
+TextSettingsType type
+----------------------------------------------------------------
+Declaration:
+
+    TextSettingsType = record
+       Font : Word;
+       Direction : Word;
+       CharSize : Word;
+       Horiz : Word;
+       Vert : Word;
+    end;
+
+See SetTextJustify, SetTextStyle
+
+
+TextWidth function
+----------------------------------------------------------------
+Declaration:  
+    function TextWidth ( TextString : String );
+
+Example:
+    TheText := 'First Graphics Program';
+    SetTextJustify (CenterText, CenterText);
+    SetTextStyle( TriplexFont, HorizDir, 3);
+    OutTextXY (GetMaxX div 2, GetMaxY div 2, TheText);
+
+    { Underline the text we've put on the screen }
+    Line ( GetMaxX div 2 - TextWidth (TheText) div 2,
+          GetMaxY div 2 + TextHeight (TheText),
+          GetMaxX div 2 + TextWidth (TheText) div 2,
+          GetMaxY div 2 + TextHeight (TheText) );
+
+Purpose:
+    Use TextWidth, together with TextHeight, to calculate the width and height
+of graphic text items.  TextWidth computes the width, in pixels, of the graphic
+representation of a string and is useful for determining the on-screen length
+of a text line.  These routines make their computation based on the current
+font and character size.
+See TextHeight
+
+
+ViewPortType
+----------------------------------------------------------------
+Declaration:
+
+    ViewPortType = record
+       X1, Y1, X2, Y2 : Integer;
+       Clip : Boolean;
+    end;
+
+See SetViewPort, GetViewSettings

@@ -1,0 +1,1625 @@
+				   Chapter 3
+				 - continued -
+			     - Part 2 of 3 parts -
+                                    of the
+                            Turbo Pascal Reference
+
+                           The Turbo Pascal Language
+
+
+This chapter is part of the Turbo Pascal Reference electronic freeware book (C)
+Copyright 1992 by Ed Mitchell.  This freeware book contains supplementary
+material to Borland Pascal Developer's Guide, published by Que Corporation,
+1992.  However, Que Corporation has no affiliation with nor responsibility for
+the content of this free book.  Please see Chapter 1 of the Turbo Pascal
+Reference for important information about your right to distribute and use this
+material freely.  If you find this material of use, I would appreciate your
+purchase of one my books, such as the Borland Pascal Developer's Guide or
+Secrets of the Borland C++ Masters, Sams Books, 1992.  Thank you.
+
+
+Pointers and Complex Data Structures
+     Turbo Pascal provides a large variety of built-in data types.  However, to
+create specific data structures such as list, queues, stacks, trees and so on,
+requires that you create and maintain the appropriate data structures yourself.
+Pointers are used extensively to create these types of data structures.
+     Figure 3.4 illustrates a list structure containing a list of filenames. 
+Each filename is stored in a record, together with pointers to the next and
+previous items in the list. 
+
+***03tpr04.pcx***
+Figure 3.4.  Pointers are often used in record structures to create list data
+structures, as shown here.  In a list, each element is linked, via a pointer,
+to another element in the list.
+
+     Such a list structure is represented as a Pascal record, containing space
+for the filename and other information, plus pointer values to the next and
+previous list entries.  Listing 3.6 shows a sample data record declared as the
+type TListEntry.  A pointer to TListEntry is defined as PListEntry.
+
+
+Listing 3.6.  A sample data record set up for use in a list data structure. 
+Note the use of the separate PListEntry, defined as a pointer to TListEntry.
+
+type
+     { Data record to create the list structure }
+     PListEntry = ^TListEntry;
+     TListEntry = record
+       DirInfo : SearchRec;
+       Next    : PListEntry;
+       Previous: PListEntry;
+     end; {TListEntry}
+
+A list is constructed out of these records by creating a pointer to the first
+item in the list, and storing the first pointer in a variable called ListHead,
+and using New ( PListEntry ) to create each entry.   The variable ListTail
+points to the last item in the list.
+
+     var
+       ListHead : PListEntry;
+       ListTail : PListEntry;
+
+     The Next field of the TListEntry record is used to point to the next
+succeeding item in the list.  Each time an item is added to the list, the
+previous item's Next field is set to point to the new item, and the new item's
+Next field, if its the last item in the list, is set to nil to mark the end of
+the list.
+     The Previous field is used to link the list of items in both directions. 
+In this way, the items in the list can be accessed in both the forward and the
+backwards directions.
+     Listing 3.7 presents a complete sample list program that reads the names
+of the files from the current subdirectory and places them into a list data
+structure.  The program then displays the list in both the forward and backward
+directions, using the Next or Previous pointer to reach the next or previous
+element in the list structure.
+
+Listing 3.7.  This program uses pointers to create and manipulate a list data
+structure.  
+   1  program DemoList;
+   2  {
+   3  Demonstrates the use of pointers to create a list structure, demonstrates
+how
+   4  list traversal is done in both forwards and backwards directions, and
+provides
+   5  routines to add (or insert) and delete items in the list.
+   6  
+   7  You can modify these routines for use as a general purpose list
+manipulation
+   8  tool, by changing the ListEntry data structure to hold other types of
+data.
+   9  
+  10  This demonstration program uses the Dos library routines FindFirst and
+  11  FindNext to read the default file subdirectory.
+  12  }
+  13  uses  Dos;
+  14  
+  15  type
+  16    { Data record to create the list structure }
+  17    PListEntry = ^TListEntry;
+  18    TListEntry = record
+  19      DirInfo : SearchRec;
+  20      Next    : PListEntry;
+  21      Previous: PListEntry;
+  22    end; {TListEntry}
+  23  
+  24  var
+  25    ListHead : PListEntry;
+  26    ListTail : PListEntry;
+  27  
+  28  
+  29  function LowerCase (S : String ) : String;
+  30  Var
+  31    I : Integer;
+  32  begin
+  33    for I := 1 to length(s)  do
+  34      if ((S[I]>='A') and (S[I]<='Z'))  then
+  35        S[I] :=  Chr( Ord( S[I] ) + 32 );
+  36    LowerCase := S;
+  37  end;
+  38  
+  39  
+  40  
+  41  procedure InitDirectoryList;
+  42  { Initialize the directory list structure.
+  43    For convenience, the first entry contains the default volumne name C:\.
+  44  }
+  45  begin
+  46    ListHead := New(PListEntry);
+  47    ListHead^.Next := NIL;
+  48    ListHead^.Previous := NIL;
+  49    ListTail := ListHead;
+  50    ListHead^.DirInfo.Name := 'C:\';
+  51  end; {InitDirectoryList}
+  52  
+  53  
+  54  
+  55  function  AddEntry (     Location : PListEntry;
+  56                       Var ListEntry : SearchRec ) : PListEntry;
+  57  Var
+  58    NewEntry  : PListEntry;
+  59    SavedNext : PListEntry;
+  60  
+  61  begin
+  62    NewEntry := New ( PListEntry );
+  63    NewEntry^.DirInfo := ListEntry;
+  64  
+  65    If  Location = ListTail  Then
+  66    {Adding an item on to the tail of the list}
+  67    begin
+  68      NewEntry^.Next := NIL;
+  69      NewEntry^.Previous := ListTail;
+  70      ListTail^.Next := NewEntry;
+  71      ListTail := NewEntry;
+  72    end
+  73    else
+  74    {inserting an item within the list}
+  75    begin
+  76      SavedNext := Location^.Next;
+  77      Location^.Next := NewEntry;
+  78  
+  79      NewEntry^.Next := SavedNext;
+  80      NewEntry^.Previous := Location;
+  81  
+  82      SavedNext^.Previous := NewEntry;
+  83      
+  84    end;{begin}
+  85  
+  86    AddEntry := NewEntry;
+  87  
+  88  end;{AddEntry}
+  89  
+  90  
+  91  
+  92  function  RemoveEntry ( Location : PListEntry;
+  93                          HowMany  : Integer ) : PListEntry;
+  94  
+  95  { Starting at the point in the list indicated by 'Location', delete
+  96    'HomeMany' entries from the list.
+  97    Return:  A pointer to the first item after those that were deleted.
+  98  }
+  99  
+ 100  var
+ 101    CountOfItems : Integer;
+ 102  
+ 103    function DeleteEntry ( Location : PListEntry ) : PListEntry;
+ 104    begin
+ 105      if  Location <> NIL  then
+ 106      begin
+ 107        If  Location^.Previous <> NIL  Then
+ 108          Location^.Previous^.Next := Location^.Next;
+ 109        If  Location^.Next <> NIL  Then
+ 110          Location^.Next^.Previous := Location^.Previous;
+ 111        DeleteEntry := Location^.Next;
+ 112        If  Location = ListTail  Then
+ 113          ListTail := Location^.Previous;
+ 114        Dispose(Location);
+ 115      end
+ 116      else
+ 117        DeleteEntry := NIL;
+ 118    end;
+ 119  
+ 120  begin {RemoveEntry}
+ 121    For  CountOfItems := 1 to HowMany Do
+ 122      Location := DeleteEntry ( Location );
+ 123    RemoveEntry := Location;
+ 124  end;{RemoveEntry}
+ 125  
+ 126  
+ 127  function Move_Fwd ( Location : PListEntry;
+ 128                      HowFar : Integer ) : PListEntry;
+ 129  {Starting from 'location' move ahead 'HowFar' items in the list
+ 130   and return the new location
+ 131  }
+ 132  Var
+ 133    I : Integer;
+ 134  begin
+ 135    For  I := 1 to HowFar  Do
+ 136      If  Location^.Next <> NIL  Then
+ 137        Location := Location^.Next;
+ 138    Move_Fwd := Location;
+ 139  end;{Move_Fwd}
+ 140  
+ 141  
+ 142  function Move_Bwd ( Location : PListEntry;
+ 143                      HowFar : Integer ) : PListEntry;
+ 144  {Starting from 'location' move backwards 'HowFar' items in the list
+ 145   and return that new location
+ 146  }
+ 147  var
+ 148    I : Integer;
+ 149  begin
+ 150    for  I := 1 to  HowFar  do
+ 151      if  Location^.Previous <> NIL  Then
+ 152        Location := Location^.Previous;
+ 153    Move_Bwd := Location;
+ 154  end;{Move_Bwd}
+ 155  
+ 156  
+ 157  Procedure DisplayFwdList;
+ 158  Var
+ 159    TempPtr : PListEntry;
+ 160  
+ 161  begin
+ 162    TempPtr := ListHead;
+ 163    While  TempPtr <> NIL  do
+ 164    begin
+ 165      writeln(TempPtr^.dirinfo.name);
+ 166      tempptr := TempPtr^.Next;
+ 167    end;
+ 168  end;
+ 169  
+ 170  procedure DisplayBwdList;
+ 171  Var
+ 172    TempPtr : PListEntry;
+ 173  
+ 174  begin
+ 175    TempPtr := ListTail;
+ 176    while  TempPtr <> NIL  do
+ 177    begin
+ 178      writeln (TempPtr^.dirinfo.name);
+ 179      tempptr := TempPtr^.Previous;
+ 180    end;
+ 181  end;
+ 182  
+ 183  
+ 184  
+ 185  procedure ReadDirectory
+ 186    ( StartingEntry : PListEntry );
+ 187  
+ 188  { Purpose:
+ 189    Reads the directory contents and inserts
+ 190    the list into the directory list beginning at 'StartingEntry'.
+ 191  
+ 192  }
+ 193  var
+ 194    ListEntry : SearchRec;  { Holds the contents of a directory entry
+ 195                             consisting of filename, size, etc }
+ 196    CurLocation : PListEntry;
+ 197    IsADirectory : Boolean;
+ 198  
+ 199  begin
+ 200    {Call FindFirst to locate all files.  The '*.*' matches all filenames,
+ 201     In this case we want to see ALL files so we use the AnyFile mask.
+ 202     Note that for the purpose of this example program we are not doing
+ 203     error checking.  We should check the DosError variable after each
+ 204     call to FindFirst and FindNext.  Also, its possible that AddEntry
+ 205     will run of memory and return a NIL value but we aren't checking
+ 206     for that in this simplified application example.
+ 207    }
+ 208  
+ 209    FindFirst( '*.*', AnyFile, ListEntry );
+ 210    while  DosError = 0  do
+ 211    begin
+ 212      if  ListEntry.Name[1] <> '.'  then
+ 213        {Add all names other than those beginning with '.'.  This
+ 214         eliminates our displaying the '.' and '..' names used by DOS}
+ 215      begin
+ 216        IsADirectory := (ListEntry.Attr and Directory) = Directory;
+ 217        if  not  IsADirectory  then
+ 218          ListEntry.Name := LowerCase (ListEntry.Name);
+ 219          {We convert file names to lowercase and leave directory names
+ 220           in upper case for ease of reading the directory listing}
+ 221        StartingEntry := AddEntry ( StartingEntry, ListEntry );
+ 222      end; { begin }
+ 223      FindNext( ListEntry );
+ 224    end; { begin }
+ 225  end; { ReadDirectory }
+ 226  
+ 227  begin
+ 228  
+ 229    InitDirectoryList;
+ 230  
+ 231    ReadDirectory ( ListHead );
+ 232  
+ 233  
+ 234    DisplayFwdList;
+ 235    Readln;
+ 236  
+ 237    DisplayBwdList;
+ 238    Readln;
+ 239  
+ 240  end.
+
+
+Pointers and the With Statement
+     As with the record statement, a pointer to a record structure can use the
+with statement to abbreviate the number of identifiers that need to be written.
+For example,
+
+type
+     { Data record to create the list structure }
+     PListEntry = ^TListEntry;
+     TListEntry = record
+       DirInfo : SearchRec;
+       Next    : PListEntry;
+       Previous: PListEntry;
+     end; {TListEntry}
+var
+     PersonInfo : PListEntry;
+     ...
+     New ( PersonInfo );
+     with PersonInfo^ do
+     begin
+       DirInfo := DataRecord;
+       Next := NextPointer;
+     end;
+     ...
+
+Turbo Pascal Arithmetic Operations
+     Pascal provides each of the following data and arithmetic operations:
+
+       Basic arithmetic operations: +, -, div, *, /, mod, unary + and -
+
+       Relational operations: <, <=, =, >=, >, <>
+
+       Logical or bit-level operations:  and, or, xor, not, shl, shr
+
+       Boolean operations: and, or, not, xor
+
+       String operations
+
+
+In addition, through procedures and functions available from the Turbo Pascal
+libraries, additional features, including trigonometric, logarithmic, square
+root and other functions are available.  These functions are described in
+chapter 5, "The System Library Reference", in this freeware book.  Chapter 4
+of the Turbo Pascal Reference includes definitions that you can use for
+arc-cosine and arc-sine, two popular functions that are, for unknown reasons,
+omitted from Borland's System Library.
+
+
+Basic Arithmetic Operators
+     Constants or variables are combined in arithmetic statements to calculate
+new values.  Turbo Pascal's built-in arithmetic operators are:
+
+       + Addition:  A + B to compute A plus B.
+
+       - Subtraction:  A - B to subtract B from A.
+
+       * Multiplication: A * B to multiple A times B.
+
+       / Real number division:  A / B to compute A divided by B.
+
+       div Truncated integer division:  A div B to compute A divided by B and
+       truncated the result towards zero.  For positive results, the truncation
+       is towards the next lower integer; for negative results, the truncation
+       is towards the next highest integer.  Example:  If the result is 3.7,
+       the A div B produces 3.
+
+       mod Modulus:  A mod B returns the remainder of the integer division
+       between A div B and is equivalent to A - ((A div B) * B).  Example:  10
+       mod 3 equals 1.
+
+
+When operators are mixed in an expression, such as A+B*C, the algebraic rules
+of hierachy apply, and B*C is evaluated first, before adding B.  Turbo Pascal's
+expression evaluation ordering is described below in the section titled
+Evaluation Hierarchy.
+     Note that division is indicated with the div operator for dividing Integer
+values, and the / division symbol when dividing Real values. 
+
+
+Mixing Data Types in Expressions
+     As a general rule, data types should be used consistently in an
+expression.  For example, if Ch is of type Char and R is of type Real, it does
+not make sense to write Ch * R, and in fact, is not allowed by Turbo Pascal. 
+However, it is possible to convert data types from one type to another, both
+implicitly and explictly.
+     If you mix types in an expression in an unacceptable manner, the Turbo
+Pascal compiler will issue an Error 26: Type mismatch error.                   
+Many programmer's encounter this error frequently and fortunately, it is not
+particularly difficult to fix.  If you see this error message, check your
+statements very carefullly, being certain that the data types are correct and
+that parentheses are placed in the proper locations.  
+
+
+Implicit Type Conversion
+     When you multiply a Real value times an Integer value, the result is a
+Real value that can be assigned to a real typed variable.  The conversion of
+the Integer value to a Real is implicit whenever at least one item in the
+expression is a real value.
+
+
+Explicit Type Conversion
+     You can also explicitly force a real type conversion of the data. 
+Converting an integer to a real can be done by adding 0.0 to the integer, since
+the result of an arithmetic operation involving an integer and a real value is
+a real value.  For instance,
+
+     R := (N+0.0) * 4578;
+
+You can convert Char values to Integer type values using a type cast, as in
+this example which uses the type Integer like a function,
+
+     N := Integer(Ch);
+
+or by referencing the ordinal function,
+
+     N := Ord(Ch);
+
+which returns the ASCII code of the character represented by Ch.  To convert an
+integer value back to a character, you can write,
+
+     Ch := Chr(N);
+
+where Chr converts an integer value back to a character type.
+     Changing the type of an expression with a type cast is limited to ordinal
+data types (Char, Byte, Shortint, Integer, Word, Longint) and to pointer types.
+A type rast only works when the internal memory size allocations are identical.
+Generally, type casting is used when accessing data that is pointed to by an
+untyped  pointer variable.
+     To convert a Real value to an Integer, use the Round(R) or Trunc(R)
+truncate function.  Round will round its parameter up or down to the nearest
+whole number.  Trunc disgards the fractional part and returns the mantissa. 
+When converting Real values to Integer, you must insure that the real value
+falls within the acceptable range for integers.
+
+
+Address-of @ operator
+     Turbo Pascal provides a special operator, the @ symbol, to compute the
+memory address of a particular object.  For example,
+
+     var I : Integer;
+       ...
+       APointer := @I;
+
+assigns the memory location of I to the variable APointer.  This operator is
+used often in pointer operations and for passing procedures as parameters to
+other procedures and functions.
+
+
+Comparision or Relational Operators
+     You can test how one variable or constant is related to another by using a
+relational operator.  The result of a relational expression is a boolean True
+or False. and may be assigned to a Boolean variable, used in if-then statements
+for testing a conditional value, and in while and repeat statements.  These
+statements are described later.
+
+       Equality:  A = B returns True if A and B have the same value, and A and
+       B are of any standard type.  Returns False if A is not equal to B.
+
+       Less than:  A < B returns True if A is less than B.  In the case of Char
+       and String values, the comparison is made according to the underlying
+       ASCII code representation of the characters.  Returns False if A is not
+       less than B.
+
+       Greater than:  A > B returns True if A is greater than B.  Returns False
+       if A is not greater than B.
+
+       Less than or equal: A <= B returns True if A <= B or A is less than B
+       returns False if A is neither equal to B nor less than B.
+
+       Greater than or equal:  A >= B returns True if A = B or A is greater
+       than B.  Returns False if A is not equal to B nor greater than B.
+
+       Not equal:  A <> B returns True if A is not equal to B, and False if
+       they are equal.
+
+
+      The values represented by A and B may be any valid Turbo Pascal
+expression.  You may write, for instance, 
+
+     I > (J+10) * 5;
+
+Since the result of a relational operator is either True or False, you may
+choose to assign this value to a declared Boolean variable, such as the boolean
+variable B, as shown here,
+
+     B := I > (J+10) * 5;
+
+     When comparing values, both operands should be compatible types, with the
+exception that if one operand is a Real value,  then it is permissible for the
+other operand to be an Integer type expression.  For example,  (I*J) < 45.0;
+     The relational operators = and <>. only, may also be used for comparing
+pointers to see if they are exactly equal or not equal, respecitvely.  No other
+comparisons are allowed directly on pointers (although you can freely compares
+the values that the pointers point to).
+
+
+Logical or Bit Level Operations
+     Logical operations may be applied to any scalar data type (Byte, Smallint,
+Integer, Word, Longint)  and perform a bit-wise logical test.  The table below
+describes each of the logical operators.  The data type of the result of a bit
+wise test is determined by the type of the operands.  
+
+          and:  A and B produces a resulting bit pattern that has bits set
+       where the corresponding bits in A and in B are both set.  If both
+       positions have a 1, then the resulting bit in the same position is a 1. 
+       If either position is a zero, then the resulting bit position is also a
+       zero.  Example:  If I is an integer having the decimal value 10 (binary
+       00001010), then I and 8 (binary 00001010) produces 00001000 since only
+       this bit is set in both values.
+
+       or:  A or B produces a bit result such that for each bit position in A
+       or B this a 1, the resulting bit position is set to 1.  If either of the
+       bits in A or B is 1, then the result is also 1.  If both bits are zero,
+       then resulting bit is a zero.  Example:  7 or 32 (binary 00000111 or
+       binary 0001000) produces 00010111.
+
+       not: not A inverts each bit in A.  1 becomes 0 and a zero becomes 1.
+
+       xor: A xor B produces the exclusive or of A and B.  xor is like the or
+       operation, except that the result of xor is a 1 only when 1 of the
+       operands is a 1.  If both operands are 1 or both operands are 0, then
+       the result is 0.
+
+       shl:  A shl <expression> shifts the bits of A to left the number of bits
+       specified by the value of the <expression>.  Example:  0000 0011 shl 3
+       produces 0001 1000
+
+       shr: A shr <expression> shifts the bits of A to right the number of bits
+       specified by the value of the <expression>.  Example:  0101 0010 shr 4
+       produces 0000 0101.
+
+
+Boolean Operations
+     Boolean expressions are written using the following boolean operators:
+
+       and:  A and B, where A and B are boolean valued expressions, produces
+       True if A and B are both True, and False if either A or B is False.
+
+       or:  A or B produces True if either A or B is True, and False only when
+       both A and B are False.
+
+       not:  not A returns False if A is True, or returns True if A is False.
+
+       xor:  A xor B returns True if either A or B is True, but returns False
+       if both A and B are True or both A and B are False.
+
+
+Boolean operators are frequently used when testing multiple conditions in a
+conditional expression, such as an if-then statement.  For example,
+
+     if (NumFiles > 10) and (DeleteFiles = 'YES')  then ...
+
+evaluates both relational expressions, each of which returns either True or
+False, then ands the two boolean values together.  If that result is True, the
+then part of the statement is executed.
+
+
+Short-Circuit versus Complete Evaluation
+     A special feature of Turbo Pascal is the option to use either complete
+boolean expression evaluation or short-circuit boolean expression evaluation. 
+In complete evaluation mode, the entire boolean expression is evaluated before
+testing the result.  In short-circuit mode, Turbo Pascal can optimize the
+expression evaluation, often generating less code and on average, executing in
+less time.  In the example, 
+
+     if (NumFiles > 10) and (DeleteFiles = 'YES')  then ...
+
+if short-circuit evaluation is used, Turbo Pascal will jump to the next
+statement if NumFiles is less than or equal to 10, since regardless of the
+following expression, the overall expression can not possibly be True if the
+first operand is already False.  Short-circuit evaluation is especially useful
+when checking to see if an array index is within the array bounds and then, in
+the same expression, referencing the index value.  For example, in the
+statement,
+
+     if (Index <= 20) and (DataItem[Index]=0)  then ...
+
+short-circuit evaluation ignores the DataItem[Index]=0 relational comparison if
+Index is greater than 20.  This is a convenient way to check for an out of
+bounds condition.  Without short-circuit evaluation, you would otherwise have
+to write this statement as,
+
+     if Index <= 20  then
+       if DataItem[Index] = 0  then ...
+
+to prevent a possible out of bounds array indexing operation to occur.
+     Complete evaluation is useful when the expression calls a function which,
+in turn, sets some other values elsewhere in the program.  In this instance,
+the complete evaluation mode insures that the entire expression is evaluated
+fully before making a conditional test.
+     The compiler's default operation is to use the short-circuit style of
+expression evaluation.  The choice of evaluation methods is made using the $B
+compiler directive ($B+ enables complete evaluation, $B- enables short-circuit
+evaluation).  See Compiler Directives, later in this chapter.
+
+
+String Operations
+     The standard data type, String, is a packed array of Char, where the size
+of the string is set to 255 by default, plus a length byte, for a total of 256
+bytes of memory.  By specifying a new string length in brackets, after String,
+a different maximum string length may be specified:  For example,
+
+     var
+       S1 : String;
+       S2 : String[80];
+
+S1 defines a default string of length 255; S2 is defined to hold up to a
+maximum of 80 characters.   A string variable may, and usually does make use of
+fewer bytes than its maximum length, however the allocated memory is always
+equal to the maximum length, plus 1.  Turbo Pascal tracks the string's current
+length by storing the number of characters in an invisible leading byte at the
+beginning of the string.  Since a string is just an array of Char, this puts
+the length byte in the zero'th position of the string (for example, S1[0]).
+     The normal method of referencing a string's length is to call the Length()
+function.  If  S1 contains 'THIS IS A STRING', then Length(S1) returns the
+value 16.  If the compiler's range checking option is off {$R-}, you can
+directly access the string's length byte, as S1[0], which returns a Char typed
+value.  To convert to an integer value, use Ord(S1[0])).  You may also manually
+assign a new string length to a string by writing,
+
+     S1[0] := Chr( NewLength );
+
+Even though referencing a string's length byte violates normal range checking,
+in practice it is a common occurrence in Turbo Pascal programs.  And by
+default, the Turbo Pascal compiler operates with range checking turned off.
+     You may concatenate two strings together (that is, add them together to
+make a longer string), using the + symbol.  If S1 contains 'THIS', you could
+write,
+
+     S1 := S1 + ' IS A TEST!';
+
+to assign S1 the new value 'THIS IS A TEST'.  The operand that is added to the
+first string may be a string constant, variable, expression or a character Char
+type.  The strings are concatenated together up to a maximum of 255 bytes in
+length, after which the excess characters are disgarded. 
+
+
+Evaluation Hierarchy
+     Turbo Pascal expressions can be written with their operands in any order
+(such as 3 + 5 * 8).  However, the actual evaluation of the expression does not
+occur in the order written.  Instead the expression's result is computed
+according to the standard rules of algebraic notation and hierachy.  Elements
+of such expressions are evaluated in this order:
+
+       The unary not operator has highest precedence,
+       Expressions within parantheses are evaluated first,
+
+       Then, *, /, div, mod, and the and operator,
+
+       Then, the unary + or -
+
+       Then, +, -, and the or operator
+
+       Lastly, the relational operators =, <, >, <>, <=, >= and the set in
+       operator.
+
+
+The short-circuit evaluation option (the normal mode of operation) may cause
+boolean expressions to terminate their evaluation before the entire expression
+is evaluated. 
+
+
+Pascal Statements
+     Turbo Pascal program statements describe the operations and flow of
+execution in the Pascal program.   Each program statement consists of a
+sequence of keywords, arithmetic expressions and identifiers, terminated by a
+semicolon. The maximum length of a Turbo Pascal line is 126 characters. 
+However, in most instances Pascal statements (between semicolons) may be
+extended across multiple lines with the only restriction being that character
+string constants must not be broken across lines.   If you need to enter a
+string constant longer than the maximum 126 character line length allowed by
+Turbo Pascal, use the + string concatenation operator and separate the string
+into two statements, like this:
+
+     S1 := 'This is going to be a really long character string '
+       + 'constant that spreads across two lines!';
+
+     The Pascal language syntax is often described using a graphic technique
+known as syntax diagram or "railroad diagrams" for their resemblence to a
+railroad switching yard.  In this format, a Turbo Pascal program statement is
+described visually.  An example syntax diagram for the if-then-else statement
+is shown in Figure 3.5.
+
+***03tpr05.pcx***
+Figure 3.5.  The Pascal syntax diagram for the if-then-else statement.
+
+     An alternative notation is to describe this statement as,
+
+     if <expression> then <statement>
+
+or
+
+     if <expression> then <statement> else <statement>
+
+     Both notations are used, where appropriate, in Turbo Pascal Reference.
+
+
+Program Comments
+     Program comments are enclosed within "curly brackets" like this,
+
+     { This is a program comment }
+
+The contents of a program comment are, with the exception of compiler
+directives, ignored by the compiler.  Alternately, you may enclosed comments
+using this notation,
+
+     (* This is a program comment *)
+
+During the process of developing your Turbo Pascal programs, you will find it
+convenient to standardize on one or the other comment statement formats.  Most
+programmers have gravitated towards use of the curly brackets.  An advantage of
+consistently using one or the other type is that while developing and testing
+sections of your program, you can comment out entire sections of code,
+including sections that already contain comments.  Listing 3.8 shows an example
+using the (* and *) notation to temporarily eliminate a section of the program.
+
+Listing 3.8.  Example use of the (* and *) to comment out an entire section of
+source code.
+
+(* COMMENT OUT THIS ENTIRE SECTION
+  if  StartEntry <> NIL  then
+  begin
+     { We still have more path to traverse }
+     StartEntry := Move_Fwd( StartEntry, 1);
+     if  StartEntry^.Level <= ThisLevel  then
+       { this subdirectory isn't open so we can't search any deeper }
+       SearchFor := NIL
+     else
+     if  PathName = ''  then
+       { Return the address of the subdirectory entry }
+       SearchFor := Move_Bwd( StartEntry, 1 )
+     else
+       {Continuing searching down the path.  Note that this uses
+       a recursive function.}
+     SearchFor := SearchFor ( PathName, StartEntry );
+  end; {begin }
+END OF COMMENTED OUT SECTION *)
+
+
+Assignment Statements:  :=
+Syntax:
+
+     <variable name> := <expression of the appropriate type>;
+
+Examples:
+     I := 10;
+     AllDone := True;
+     R := 213456.989;
+     J := I * 5 - N;
+     OkToPrint := (Answer='Y') and (PrintOption=10);
+
+Description:
+
+     A variable is given a value with an assignment statement.  Assignment
+statements are written as in this example,
+
+     R := 1345.78 * I;
+
+     The data type of the expression must be compatibile with the data type of
+the variable, or using techniques discussed previously, can be explicitly
+converted to the appropriate data type.  Assignment statements are also used to
+return a function result value, by assigning an expression to the function name
+as if it was a variable.  Functions are described later in this chapter.
+
+
+Conditional Statements:  If-then-else and case
+     Turbo Pascal has two conditional statements, the if-then-else statement
+and the case statement.  Both evaluate some condition and execute exactly one
+of their possible outcomes selected by the value of the condition.  The
+if-then-else statement is typically used for testing amongst a small number of
+selections, while the case statement compares one value against a large number
+of values or a range of values.
+
+
+The if-then and if-then-else statements
+Syntax:
+     if <expression> then <statement>
+
+and
+
+     if <expression> then <statement> else <statement>
+
+Examples:
+     if InputLine = '***END MARKER' then
+     begin
+       Close(F);
+       Close(OutFile);
+     end;
+
+     if  Cos(Angle)*Theta + DeltaValue > 0.78934  then ...
+
+     if  Outlining  then
+     begin
+       ThrowAway := FindPath ( Item, OutlineNumbers );
+       Move( OutlineNumbers[1],
+                    StrBuffer[2], Length( OutlineNumbers ));
+       Indent := Level*4 + 4;
+     end
+     else
+       Indent := Indent + 2;
+
+Description:
+
+     <expression> is any expression returning a boolean True or False value,
+ranging from a simple Boolean to a complex relational expression.  If the
+expression is True, the statement following then is executed next, while if the
+expression is False, the then part is ignored.  For example,
+
+     if  AllDone  then
+       Close( InputFile );
+
+In this statement, if AllDone is True, then the InputFile is closed.  If
+AllDone is False, then the InputFile is left open and the Close statement is
+not executed.
+     <statement> may be any Pascal statement, including a group of statements
+nestled between begin and end.
+     In the if-then-else form, if the expression is True, the then part is
+executed, but if False, the else part is executed.   if-then and if-then-else
+statements are often spread across multiple lines to improve readability.  For
+example,
+
+     if (Index <= MAXENTRIES) then
+       XArray[Index] := DataItem
+     else
+       Writeln('The list is now full and cannot hold more entries');
+
+The <statement> part of an if-then or if-then-else may itself contain
+additional if statements.  For example,
+
+     if condition1 then
+       if condition2  then
+          <statement>
+       else
+          <statement>
+
+When if-then-else statements are nested like this, the else binds together with
+the most recent if-then.  To use a different ordering, you may optionally
+enclose the statement within begin-end, like this:
+     
+     if condition1 then
+     begin
+       if condition2  then
+          <statement>
+     end
+     else
+       <statement>
+
+
+The case Statement
+Syntax:
+     case <expression> of
+       <constant> : <statement>;
+       <constant> : <statement>;
+       <constant> : <statement>;
+       ...
+     else
+       <statement>
+     end;
+
+The else part is optional.  <constant> may specify a range of values using ".."
+notation, as for example, "1..10" to specify values in the range of 1 to 10.
+
+Examples of case statements:
+     case EnteredChar of
+       'a'..'z' : EnteredChar := Chr( Ord(EnterChar) - 32 ); { convert to lower
+case }
+       'X' : DoExitCommand;
+       'O' : DoOpenFile;
+       else
+          writeln('Command entered is not recognized.');
+     end;
+
+     case Index of
+       -32768..0:   Writeln('Must use a positive valued index.');
+       1..10 :      DoIndexProcessing (Index);
+       11..15:      DoSpecialOperation (Index);
+       16..32767:   Writeln('Index must be between 1 to 15.');
+     end;
+
+Description:
+     The case statement contains an initial expression called the selector,
+which is used to choose from among a list of various outcomes.  When the
+selector matches an item in the list, the corresponding statement is executed. 
+Only one match per case statement is permitted.
+     The selector <expression> is any expression evaluating to a simple byte or
+word-sized result, such as an integer, word or char data type.  
+     The <constant> value should correspond to the type of the selector
+expression and may be either a single value or a range of values.  A value
+range is written as,
+
+     100..199:
+
+where .. is placed between the start and end values for the range.
+     Each <statement> may be any Turbo Pascal statement including a group of
+statements nested inside begin and end.
+     The else part of a case statement is optional, and specifies what to do in
+the event that no value in the case list matches the selector.  If there is no
+match in the case list and there is no else part, then no statements are
+executed.
+
+
+
+
+Looping Statements:  For, While and Repeat
+
+     Looping statements provide a mechanism for repeatedly executing
+one or more program statements. Turbo Pascal provides 3 looping
+constructs: the for loop, the while loop and the repeat-until loop.
+
+
+The for loop
+Syntax:
+	for <control variable> := 
+		<starting expression> to <ending expression> do				<statement>
+
+and
+
+	for <control variable> :=
+		<starting expression> downto <ending expression> do
+			<statement>
+
+Examples:
+	for I := 1 to 10 do
+		Writeln('Count = ', I);
+
+	{ Prints the alphabet from A to Z }
+	For Ch := 'A' to 'Z' do Write(Ch);
+
+	{ Convert string S to lower case letters }
+	for I := 1 to length(S)  do
+		if ((S[I]>='A') and (S[I]<='Z'))  then
+			S[I] :=  Chr( Ord( S[I] ) + 32 );
+
+Description:
+      The for loop repeatedly executes a sequence of
+statements while incrementing or decrementing a loop control variable
+during each repetition. ntrol variable> must be a simple ordinal type
+(Byte, Char, Smallint, Integer, Word or Longint) variable (not an
+array element, record field or real typed) defined locally to a
+procedure or function, or a global value only for loops located in the
+main body of the program. The control variable is given an initial
+value specified by <starting expression>.
+
+     If the control variable is within the range specified by the
+<starting expression> and the <ending expression>, then the
+<statement> part is executed. The <statement> part may include a group
+of statements between begin and end. he statements have executed, the
+control variable is incremented (or decremented in the case of the
+downto). If the new value of the control variable is still within the
+range of the starting and ending expression, the loop is executed
+again. On ce the control variable falls outside the range of the
+starting and ending expressions, program control resumes at the point
+immediately after the for statement. the loop, the control variable
+should be treated as read only meaning that you must not assign a new
+value to the control variable. While the compiler allows you to assign
+a new value, the result of this operation is undefined and should not
+be u sed. Similarly, the value of the control variable is undefined
+after the loop has completed and it should not be relied upon in any
+future expressions or conditional expressions. However, if a goto
+statement (see below) transfers control out of the for loop you may
+then reference the control variable outside the scope of the loop.
+
+
+
+While Loop
+Syntax:
+
+     while <expression> do <statement>
+
+Examples:
+     while not Eof(InputFile)  do
+     begin
+          Readln(InputFile, InputLine);
+          SaveLine(InputLine);
+     end;
+          
+     while (I>1)  and (S[I-1] <> ' ')  do
+     begin
+          Insert (',', S, I);
+          I := I - 3;
+     end;
+
+Description:
+     The while loop repeatedly executes a statement or group of statements as
+long the control expression is True.   The control expression must always
+return a boolean True or False value.  As soon as the expression is False, the
+loop terminates and the program resumes execution at the statement after the
+while loop.
+     The while loop always evaluates the expression at the beginning of the
+loop.  (See also the repeat-until loop for a loop that evaluates the expression
+at the end of the loop.)
+
+Repeat Loop
+
+Syntax:
+     repeat    <statement> until <expression>
+
+Examples:
+     I := 0;
+     repeat
+          I := I + 1;
+          Writeln(I);
+          I := I + 1;
+     until I = 10;
+
+     { Keep reading keyboard commands until user selects a Done
+       function }
+     MenusDone := False;
+     repeat
+       MenuCommand := GetKey;
+       Command := MenuCommand;  {Set up default value for
+                                        return'd command}
+       case  MenuCommand  of
+          KEY_LEFTARROW:
+          begin
+            ...     
+          end; { begin }
+          ...
+          KEY_ENTER:
+            begin
+            MenuPtr := FindItem(CurrentMenu, MenuIndex);
+            Command := MenuPtr^.CmdCode;
+            MenusDone := True;
+          end; { begin }
+          KEY_ESCAPE:        MenusDone := TRUE;
+          else begin  {all other keys} end;
+       End; { case }
+     Until  MenusDone;
+
+Description:
+     repeat-until repetitively executes one or more statements appearing
+between the repeat and the until keywords.  The statements are executed as long
+as the conditional expression after the until is False.  When the condition
+evaluates to True, the loop terminates and program execution resumes at the
+statement following until.
+     The repeat-until statement always executes the loop at least once since
+the conditional test is not performed until reaching the until statement.
+     Unlike the other looping statements, the repeat and until keywords suffice
+to delineate multiple statements, hence, you do not need to enclose multiple
+statements with begin-end.
+
+
+Labels and Goto
+Goto Syntax:
+     goto <label>
+
+Example goto:
+     goto 100;
+
+Label declaration Syntax:
+     label <list of labels>
+
+Example Label declaration:
+     label 100, 200, 300;
+
+Label usage Syntax:
+     <label>:
+
+Example label usage:
+     100:
+
+Example use of Label and Goto:
+     procedure LabelDemo;
+     label  999;
+     var    I : Integer;
+     begin
+       for I := 1 to MAXLINES do
+       begin
+          Writeln(Outfile, Lines[I] );
+          if IoResult <>  0 then
+          begin
+            Writeln('Error occurred while writing output
+                              file.');
+            goto 999;
+          end;
+       end;
+     999: Close(OutFile);
+     end;
+
+Description:
+     The goto statement transfers program execution directly to some other
+location in the program specified by a label, where <label> is an unsigned
+integer up to 4 digits in length and is located somewhere within the program or
+program unit.  Each label must be explicitly declared in a label declarations
+section at the beginning of the program, unit, procedure or function, just like
+any other identifier.  The actual location of the label is determined by
+placing the label, followed by a colon, somewhere within the program text.
+     A label and a goto statement are sometimes used within procedures to
+quickly transfer program execution to the end of the procedure.  An error
+condition or a user input request to finish up might prompt an early completion
+to execution of a sequence of statements.  The example label, shown as "999" in
+the example above, must be declared before use with the label statement, and
+then is positioned within the program text by writing "999:" at the beginning
+of a statement.  The label is referenced by the goto 999 statement.
+
+Important note:  Do not use Goto to jump into a lower level block
+     Do not use goto and a label to jump into the middle of a looping
+construct, such as,
+
+     for I := 1 to 30 do
+     begin
+       1: {Don't jump to the middle of a loop}
+       ...
+     end;
+
+     The compiler will not generate an error if you compile such code, however,
+the result is potentially random.  Never jump into a deeper nesting level, only
+to the same level or to a higher level.
+     The label and the goto statement that refers to it, should always be in
+the same program block.  That means you can not use goto to jump from within
+one procedure or function into another procedure or function.
+     Lastly, do not place a label directly after a then statement, such as,
+
+       if I = 10 then 1: ...
+
+although you may place a label within a begin-end block that follows a then
+statement.
+
+
+Procedures and Functions
+     Few Pascal programs consist of a single main program body.  Most are split
+into subtasks or subroutines, called procedures (or their close cousin, the
+function).  The use of procedures and functions is an essential part of Turbo
+Pascal programming, and through appropriate use of procedures you can use
+structured program techniques to create modular programs that are more reliable
+and  easier to maintain.  
+     Procedures provide a method of isolating portions of your program into
+separate, callable routines, which you can call or activate from anywhere
+within your program.  Procedures may have a list of parameters, which are used
+to pass values into the procedure, and to return results.
+     Functions are like procedures, except that a function is called from
+within an expression and directly returns a result to be used in evaluating the
+expression.
+     Turbo Pascal provides enhancements to the basic Pascal procedure to
+provide for support of the underlying 80x86 microprocessor, and the creation of
+Pascal language interrupt handlers and assembly language interfacing.  These
+features are specified with the keywords, near, far, and interrupt.  Assembly
+language statements are incorporated directly into the Pascal source using
+either the asm or inline facilities.
+
+Procedures
+Syntax:
+     procedure <identifier> <optional parameter list> <procedure body>
+
+     The <optional parameter list> defines the values and data types that may
+be passed to the procedure at the time the procedure is called, and if the
+procedure may return values to the caller.  Parameter lists are described in
+more detail, below.
+     The <procedure body>  normally consists of a paired begin-end statement,
+enclosing zero or more program statements.  In Turbo Pascal, the <procedure
+body> may be optionally prefaced with:
+
+near;       Use the 80x86 near procedure calling convention.
+
+far;        Use the 80x86 far calling convention.
+
+interrupt;  For creating special interrupt handler procedures.
+
+library;    To create a dynamic link library procedure.  See
+            Chapter 2, "Units and Dynamic Link Libraries" in
+            the Borland Pascal Developer's Guide, Que, 1992.
+
+Instead of the normal begin-end statement block, you may write: 
+
+     forward; 
+
+to specify that the procedure body  is specified later in the
+program.
+
+     Use external when the procedure body is defined in a separately compiled
+object module that has been written in assembly language.
+
+     Use inline() to incorporates machine code directly into the compiled code,
+rather than generating a call to the procedure.  See Chapter 6, "Assembly
+Language Programming" in the Borland Pascal Developer's Guide.
+
+
+The <Optional parameter list>
+     Parameters to a procedure or function are specified within parentheses,
+after the procedure or function identifier.  The parameter list specifies one
+or more parameters, their type, and if the parameter is passed by value (a
+value parameter) or by reference (a variable parameter).  When defining the
+parameter list, you create a list of variables (similar to a var declaration)
+assigning an identifier and data type to each parameter, and specifying whether
+the parameter is a value parameter or a variable parameter.  For example,
+
+     procedure PrintSum (A, B : Integer);
+     begin
+       Writeln('Sum of ',A,' + ',B, ' = ',A + B);
+     end;
+
+defines a procedure PrintSum having two integer parameters A and B, both passed
+by value.  The parameters A and B become local variables to the procedure
+PrintSum, and are undefined outside the scope of the procedure.
+     To use this procedure, you call the procedure by placing the procedure
+name and the values for the parameters in a statement, like this:
+     begin
+     PrintSum( 10, 20 );
+
+which results in this output:
+
+     Sum of 10 + 20 = 30
+
+The first parameter value, 10, is assigned to the parameter variable A, and the
+second parameter value, 20, is assigned to the parameter variable B.  In the
+case of value parameters such as A and B, you can use any expression, which
+will be evaluated during program execution at the time of the procedure call. 
+For example,
+
+     PrintSum( 10+30, 5*TotalSize );
+
+The expression 10+30 will evaluate to 40, and A will get the value of 40.  
+     Variable parameters provide a way for the procedure to modify the contents
+of a variable passed to it.  For example, by redefining PrintSum as shown
+below, the variable C becomes a var variable parameter.  Inside PrintSum, C is
+assigned the result of A+B.  
+
+     procedure PrintSum( A, B: Integer; var C: Integer);
+     begin
+       Writeln('Sum of ',A,' + ',B, ' = ',A + B);
+       C := A + B;
+     end;
+
+In this way, when PrintSum is called like this,
+
+     PrintSum( 10+30, 40, AValue );
+
+the local variable C gets assigned the sum, 80.  The variable passed as a
+parameter to PrintSum, AValue, also gets assigned the sum, 80.  A parameter
+defined as a var type, can only have a matching variable passed to it as a
+parameter, so that it can return a value.  You must not try to pass an
+expression to a matching variable parameter, only to a value parameter.
+
+
+Arrays as Parameters
+     Arrays and array elements may be passed to procedures as value parameters
+or as variable parameters.
+     To pass an individual array element requires only that the parameter
+expression match the data type of the defined value parameter.  For example,
+
+     var
+       AnArray : Array[1..10] of Integer;
+
+     procedure P ( X : Integer );
+     begin
+       ...
+     end;
+     ...
+     P ( AnArray[5] );
+
+Array elements may also be passed as variable parameters.  For example,
+
+     procedure P ( var X : Integer );
+     begin
+       ...
+     end;
+     ...
+     P ( AnArray[5] );
+
+     To pass an entire array to a procedure or function parameter requires that
+a user defined type be declared to describe the array.  For example, 
+
+     type
+       TArray : Array[1..10] of Integer;
+     var
+       AnArray : TArray;
+
+     procedure P ( X : TArray );
+     begin
+       ...
+     end;
+     ...
+     P ( AnArray );
+
+Turbo Pascal requires the parameter's type to be a simple identifier, so you
+cannot write:
+
+     procedure P ( X : Array[1..10] of Integer );
+
+Instead, you must always define a new type equivalent to the array definition,
+and use that to declare array parameters.
+     The example above passes an array by value.  Internally, this is
+implemented by copying the entire array onto the stack, and then call the
+procedure.  Not surprisingly, for large arrays this is both a time and memory
+consumer.  Instead, for large structures, such as arrays or large records, it
+is recommend that you pass arrays as var parameter types, like this:
+
+     procedure P ( var X : TArray );
+
+
+Strings as Parameters
+     Strings may be passed either by value or as variable parameters.  When a
+string is passed to a procedure parameter by value, any string expression may
+be used at the point of call.  The compiler will generate code to evaluate the
+expression and then make a copy of the result, which is then passed to the
+procedure.  In some instances, this extra overhead of making a copy of the
+string value may be prohibitive.  Instead, you may wish to pass the string as a
+variable parameter since the compiler will then reference the original string,
+rather than making a copy of the string.  For example,
+
+     Procedure StringDemo( var S : String );
+     begin
+       S := '/' + S + '/';
+     end;
+
+which is then called with,
+
+     var  AString : String;
+     ...
+     AString := 'TOOLS';
+     StringDemo( AString );
+
+results in AString getting the value, '/TOOLS/'.  When using a variable
+parameter, you must always pass a variable identifier when the procedure is
+called.  Using a string expression, such as,
+
+     StringDemo('TOOLS');
+
+will result in a compiler error message.  Keep in mind that any changes you
+make to the parameter variable within the procedure will be reflected in the
+string that was passed to the procedure.  
+
+Important Note:  Mixing String Types and Var Parameters
+     Normally Turbo Pascal will permit mixing of different string types when
+they passed as variable parameters.  For instance, if AString is defined as,
+
+     var  AString : String[30];
+
+then,
+
+     StringDemo( AString );
+
+will result in an error because the parameter variable S is defined as type
+String, which is equivalent to String[255].  Normally, Turbo Pascal performs
+"strict type checking" on parameter strings.  This means that the string type
+and length must be identical.  However, you can disable strict type checking
+for var-parameter strings, by using the {$V-} directive to disable
+var-parameter string type checking.  With {$V-} in effect, Turbo Pascal will
+allow you to mix different length strings for var-string parameters.  You must
+insure that you do not inadvertently access portions of the string parameter
+that are out of bounds.  See "Compiler Directives" later in this chapter for
+more information about the $V directive.
+     Another standard method of passing strings as var parameters is to create
+a user defined type and then to use that type consistently for string
+variables.  For instance,
+
+     type
+       String80 = String[80];
+     var
+       AString : String80;
+     procedure P ( var StringParam : String80 );
+     begin
+       ...
+     end;
+
+Now, when the statement P( AString) is executed, AString has exactly the same
+type P's StringParam parameter.
+
+
+Records as Parameters
+     To pass a record structure as either a value or variable parameter
+requires that you create a user defined data type equivalent to the record's
+definition.  Example:
+
+     type
+       TPersonInfo = record
+          Name : String[30];
+          Phone : String[14];
+          Age : Integer;
+       end;
+     var
+       PersonInfo : TPersonInfo;
+     
+     procedure P ( PersonRecord : TPersonInfo );
+     begin
+       ...
+     end;
+     ...
+     P ( PersonInfo );
+
+
+Summary of Using Parameter Values and Variables
+     To summarize, parameter variables define a list of local variables to the
+procedure, each of which is matched to a parameter value at the time the
+procedure is invoked.  Parameter variables may be either value parameters or
+variable parameters.  A value parameter may receive any expression, which will
+be evaluated at the time of the procedure call.  A variable parameter must only
+receive another variable as its parameter, and may be used by a procedure to
+return a value to the procedure's caller.
+     Structured data types must make use of a user defined type to specify the
+parameter's data type.
+
+
+The Procedure Body
+Syntax:
+     <optional variable declarations>
+     <optional procedure declarations>
+     begin
+       statements;
+     end;
+
+Example:
+Listing 3.8.  The DrawWindow procedure.
+
+Procedure DrawWindow (X1, Y1, X2, Y2 : Integer );
+{ Draws a window for a menu or dialog.  Essentially this declares
+a text viewport using the Turbo Window procedure and proceeds to
+draw a border "around" the window.  In this case, the border
+occupies one character on all sides of the requested area.}
+Var
+  Width : Integer;
+  S : String[80];
+  Y : Integer;
+
+Begin
+  {Create Window area on the screen}
+  Window (X1, Y1, X2, Y2+1);
+  Width := X2-X1+1;
+
+  {Draw border around the window}
+  {First draw the top line across the window border}
+  FillChar ( S, Width, Chr(196) );
+  S[0] := Chr(Width);
+  S[1] := Chr(218);
+  S[Width] := Chr(191);
+  WriteStr( 1, 1, S, LightGray, Black );
+
+  {Next, Draw the sides of the window border}
+  FillChar ( S, Width, ' ' );
+  S[0] := Chr(Width);
+  S[1] := Chr(179);
+  S[Width] := Chr(179);
+  For Y := 2 To Y2-Y1  Do
+     WriteStr(1, Y, S, LightGray, Black );
+
+  {Then Draw the bottom border}
+  FillChar ( S, Width, Chr(196) );
+  S[0] := Chr(Width);
+  S[1] := Chr(192);
+  S[Width] := Chr(217);
+  WriteStr( 1, Y2-Y1+1, S, LightGray, Black);
+End;
+
+Description:
+     The body of a procedure may contain additional identifier declarations,
+including local procedures and functions that are defined inside the procedure
+or function.  Such identifiers, including sub-procedures or functions, are
+available for use solely within the scope of the outer procedure.
+     The main body of the procedure consists of the keyword begin, followed by
+zero or more Pascal statements, and terminated by the keyword end.  Listing 3.8
+presents a sample procedure DrawWindow, which displays a rectangular window on
+the screen, complete with a border.  DrawWindow has 4 parameter variables, X1,
+Y1, and X2,Y2 which are integer values describing the screen coordinates of the
+upper left and lower right corner of the window.  DrawWindow also has 3 local
+variables, Width, S, and Y.  Both the parameters and the local variables are
+all local to procedure DrawWindow meaning that they are not defined nor
+available outside the procedure.
+
+
+Forward declared procedures
+
+Syntax:
+     procedure <identifier> <parameter list>; forward;
+     ...
+     procedure <identifier>; <procedure body> 
+       or external or asm keywords.
+
+Example:
+     The following is an illustration of a forward declared procedure named
+DoCommand.  DoCommand is declared as forward because it must be called by the
+DoStatement procedure; however, DoCommand may also need to call DoStatement so
+it would not be possible to define either before the other except to make one a
+forward declared procedure.
+
+Listing 3.9.  The use of forward declared procedures.
+
+procedure DoCommand ( TheCommand : Word ); forward;
+
+procedure DoStatement ( Location : Integer );
+begin
+  ...
+  if  InputLine[Location]= '.'  then
+     DoCommand ( HitPeriod );
+end;
+
+procedure DoCommand;
+begin
+  case TheCommand of
+     OnStatement :  DoStatement ( Location );
+     HitPeriod      :         DoPeriod;
+     ...
+  end;
+end;
+
+Description:
+     At times, a procedure identifier needs to be declared early in a program
+so that subsequently defined procedures can call it.  However, since this
+procedure, in turn, needs to call other procedures that have not yet been
+defined, the main body of the procedure must be defined after the declaration
+of those procedures that it needs to use.  Such a procedure is declared using
+the forward declaration instead of a procedure block.  The actual
+implementation then appears later in the program or unit.
+     The actual definition that appears later is not allowed to be another
+forward declaration, nor a near, far or inline declaration.  However, it may
+contain the external or asm assembly language directives.  Further, at the
+point that the forward declared procedure is actually implemented, it should
+not redefine the parameter list.
+     In between the procedure's forward declared header and the subsequent
+procedure definition, other procedures and functions may be defined.  In this
+way, procedures can be written that call each other as shown in Listing 3.9,
+above.
+
+
+Near and Far procedure call models
+Example:
+     Example of a procedure declared using the far declaration.  This example
+uses the Turbo Vision TCollection feature ForEach, which requires a pointer to
+a far procedure as a parameter, shown in the PhoneBook^.ForEach( @PrintEntry )
+statement.
+
+     procedure PrintEntry( OneEntry : PPersonInfo ); far;
+     begin
+       with  OneEntry^  do
+          Writeln(Name,Address,City,State,Zip,Age);
+     end; { PrintEntry }
+
+     begin
+       PhoneBook^.ForEach( @PrintEntry );
+     end;
+
+Description:
+     The 80x86 CPU architecture divides memory in to 64k byte chunks called
+segments.  Procedures may be called within a segment or across segment
+boundaries.  When a procedure call is made within a segment, it is a near
+procedure call.  When a procedure call is made across segment boundaries, it is
+a far procedure call.
+     A near procedure call requires fewer machine instructions, hence it
+requires less memory and executes slightly faster than a far call.  However,
+near procedures can only be called from within the same module (or unit) that
+they are defined, while a far defined procedure can be called from any code
+module.
+     Turbo Pascal automatically determines if a procedure or function should
+use the near or far call memory model.  Normally, all procedures or functions
+declared in the Interface section of a program unit are far declared.  All
+procedures or functions defined within the program or implementation section of
+a unit are near model calls.
+     Using the near or far declarations, you can override the automatically
+determined procedure call type.   Some examples of procedure or functions that
+you might override are:
+
+       Procedures or functions which are themselves passed as variable
+       parameters must be declared as far procedures.
+
+       Overlay procedures (those that are swappable out of memory) must be far
+       procedures.
+
+In addition to using the far directive, you can force the compiler to generate
+far calls for all procedures and functions by using the {$F+} compiler
+directive.  The normal state is {$F-}, meaning that the compiler will
+automatically choose either near or far as appropriate.  In the {$F+} state,
+the compiler will always generate far calls.
+
+
+Interrupt Procedures
+     Interrupt declarations specify that the procedure is an interrupt handler
+procedure.  Interrupt handlers in Turbo Pascal are fully explained in Chapter
+11.  The basic interrupt procedure must follow this format:
+
+procedure Handler
+  (Flags, CS, IP, AX, BX, CX, DX, SI, DI, DS, ES, BP : Word);
+interrupt;
+begin
+     ...
+end;
+
+     The procedure header must be specified as shown, so that all of the CPU
+registers may be accessed as if they were parameter variables (even though the
+var keyword is not specified).
+     Interrupt procedures should be activated only by an interrupt condition
+and cannot be called from within your Turbo Pascal program as if they were a
+normal procedure.  Chapter 11 provides additional details and examples of
+interrupt procedures.
+
+
+Assembly language procedures:  External, Inline and Asm
+     Turbo Pascal provides 3 types of assembly language interfacing.  
+       Assembly language routines can be written and assembled using an
+       external assembler such as Turbo Assembler, and then linked to your
+       Turbo Pascal programs.  Such routines are made visible to the Turbo
+       Pascal code by defining a corresponding procedure or function header
+       within your Turbo Pascal source and declaring it as external.  The
+       external assembly language routine is then linked from the assembled
+       object module.
+       Turbo Pascal contains a built-in assembler that let's you write complete
+       assembly language routines without leaving the Turbo Pascal compiler. 
+       Such routines are written using the asm keyword.
+       Lastly, you can embed values, such as machine code or data values
+       directly into the generated code using the inline statement.
+Turbo Pascal's built-in assembly language features and the Turbo Assembler are
+described in Chapter 6, "Assembly Language Programming" in the Borland Pascal
+Developer's Guide, Que Books, 1992.
+
+
