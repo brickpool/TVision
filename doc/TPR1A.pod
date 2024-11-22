@@ -1,0 +1,207 @@
+=head1 TPR-BOOK
+
+The Turbo Pascal Reference by Ed Mitchell
+
+First edition, Nov 1992. (C) Copyright 1992 by Ed Mitchell, author of the
+Borland Pascal Developer's Guide, Que Corporation, 1992.
+
+=head1 CHAPTER 1 - A Freeware Book
+
+Chapter 1 - Part 1 of 3 parts - of the Turbo Pascal Reference
+
+=head2 Introduction
+
+Welcome to the electronic edition of the Turbo Pascal Reference. This reference
+provides approximately 400 single-spaced pages of reference information about
+the Turbo Pascal IDE, the Turbo Pascal language, all of the System and Graph
+libraries, plus a comprehensive 150+ page reference to Turbo Vision.
+
+This book is intended to be used as a reference - not as a tutorial. If you
+have no programming experience whatsoever, you should consult a Turbo Pascal
+programming tutorial first. If you have a minor amount of programming
+experience, you will find a complete discussion of Turbo Pascal in Chapter 3,
+"The Turbo Pascal Language".
+
+The Turbo Vision Reference section, Chapters 6 through 10, is unique in that it
+provides many examples and highlights the most commonly used features. If you
+have programmed in Turbo Vision you already know that you do not need to use
+all of the methods described for each object type. Unfortunately, it is
+difficult, using Borland's documentation, to discern those that are needed and
+those that you can safely ignore. This means that learning Turbo Vision using
+the Borland documentation is much more difficult than it needs to be. And that
+is why you will want to use the reference information I've provided in this
+freeware book.
+
+If you have never programmed in Turbo Vision, I recommend that you consult
+Chapter 11, "Turbo Vision Tutorial", continuing though Chapter 16, of the
+Borland Pascal Developer's Guide, published by Que Books.
+
+This Turbo Pascal Reference, a 400 page book, is available to you, for free.
+Subject to the copyright and distribution rights described below, you are free
+to copy this book and give it to others.
+
+=head2 Why am I giving this book away?
+
+When I wrote Borland Pascal Developer's Guide (Que Books, 1992), my publisher
+asked for a comprehensive book that would cover every feature of Turbo Pascal.
+Obviously, such a volume would take a lot more than could fit within the
+approximately 1,000 page limitation of a printed book.
+
+Because there is not room in a single volume to hold all of this material, I am
+giving away the extra 400 pages that it takes to flesh out the entire topic. I
+want you, my reader, to have access to this text, to help you in your
+development of Pascal applications. There is a great deal of valuable insight,
+tutorials and sample code within this text and I very much want these
+techniques to get into your hands and to be used by you.
+
+Please note that while the material presented here complements the Borland
+Pascal Developer's Guide, this electronic book is not in any way affiliated
+with the Que Corporation.
+
+This electronic book is completely free. However, if you find this information
+of value to you, I would greatly appreciate your purchase of Borland Pascal
+Developer's Guide, published by Que Corporation, 1992. (Or, alternately, my
+Secrets of the Borland C++ Masters (Sams Books, 1992) or Using Microsoft C/C++
+(Que, 1992)).
+
+This freeware book does not duplicate the material in the Borland Pascal
+Developer's Guide. The Borland Pascal Developer's Guide and the Turbo Pascal
+Reference are completely independent of one another - yet strongly complement
+each other - so it is to your advantage to have access to both. If your book
+store does not stock Borland Pascal Developer's Guide, you can ask your
+retailer to order them directly from Que Corporation, or call Que at
+317-573-2500 or 1-800-428-5331.
+
+Because the material in the Turbo Pascal Reference was originally intended as
+extra chapters in the Borland Pascal Developer's Guide, you will find cross
+references to the Developer's Guide. For example, in the reference section on
+the Turbo Vision TCollection object, I will point you to chapter 14,
+"Collections" in the Borland Pascal Developer's Guide for additional examples.
+
+=head2 About the Author
+
+I am the author of Borland Pascal Developer's Guide (Que Books, 1992), coauthor
+of Using Microsoft C/C++ 7.0 (Que Books, 1992), Secrets of the Borland C++
+Masters (Sams Books, 1992), and author of, under a pseudonym, Software
+Construction Set for the IBM PC (Hayden Books, 1984).
+
+As a past employee of Software Publishing Corporation, I was the project
+manager of the best selling PFS First Choice integrated software product, and
+coauthor of the original PFS Write which was one of the first word processors
+for the IBM PC (and was also a best seller). Both PFS Write and PFS First
+Choice were written in Pascal. In the case of First Choice, the source ran to
+over 125,000 lines of Pascal code. I've been writing Pascal code since my first
+use of an LSI-II Terak Microcomputer in 1978.
+
+=head2 How to Contact the Author
+
+You can contact me via electronic mail to Compuserve 73317,2513 or via the
+Internet to 73317.2513@compuserve.com. I promise to read all mail that I
+receive; realistically I cannot promise to respond to all enquiries.
+
+=head2 Copyright Notice
+
+This text is copyrighted, which means that I retain ownership and control over
+the right to make copies of this electronic book. However, I give you
+permission to copy this electronic text and give it away, free, to others,
+subject to the following rules and restrictions:
+
+=over 4
+
+=item 1. 
+This electronic book may only be copied in its entirety, unless
+separate permission is received from the author.
+
+=item 2. 
+Each copy of this material, whether electronic or printed, must not be
+modified by you. In particular, each copy must include this introduction, my
+copyright statement and the reference to Borland Pascal Developer's Guide (Que,
+1992).
+
+=item 3. 
+You may print out copies of this electronic text for your own use.
+
+=item 4. 
+Teachers and instructors are encouraged to copy, or to print and use
+this material in their classroom; however, if material is extracted for use in
+a classroom setting, the extracted material must bear the following notice:
+
+    From Turbo Pascal Reference, (C) Copyright 1992 by Ed
+    Mitchell, author of Borland Pascal Developer's Guide, Que
+    Corporation, 1992.
+
+=item 5. 
+Bona fide shareware distributors may charge a "nominal" fee for the
+costs of duplication and distribution. By "nominal", I mean a low fee such as
+$5.00 per disk.
+
+=item 6. 
+You may not sell copies of the Turbo Pascal Reference in electronic,
+printed or any other form, for profit or not-for profit.
+
+=item 7. 
+You may not give this material away or distribute this freeware text
+as a promotion for any other product without the express written permission of
+Ed Mitchell.
+
+=item 8. 
+Turbo Pascal, Turbo Pascal for Windows, and Borland Pascal are
+trademarks of Borland International, Inc.
+
+=back
+
+=head2 Disclaimer: There are No Warranties
+
+The material in this electronic book has not been professionally edited. In
+particular, Turbo Pascal Reference is not produced by nor sanctioned by the Que
+Corporation. Que Corporation has no affiliation with nor responsibility for the
+content of Turbo Pascal Reference. Ed Mitchell is solely responsible for the
+content of Turbo Pascal Reference.
+
+This means that the text has NOT been reviewed by one or more copy editors and
+a technical editor, which is typical of the material that you read in a
+published book. As such, you may find typographical or grammatical errors.
+There may also be technical errors of the type that crop up during any big
+project as large as this one. If you find a problem, please notify me directly,
+via electronic mail, and I will fix the problem for a subsequent release of
+this electronic book.
+
+The text and sample programs are intended solely for educational purposes.
+While the programs are believed to reasonably accurate and functional, they
+have not been subjected to the standards of a professional software quality
+assurance department. No warranties, expressed or implied, are given. This
+material is used by you "as is". You may use the sample code in your own
+applications but you must subject the sample code to the same testing that you
+would give to your own code.
+
+=head2 About Borland Pascal Developer's Guide
+
+The Borland Pascal Developer's Guide is aimed at the intermediate to advanced
+Pascal programmer, although it contains an enormous amount of information that
+will be of value to those who have just learned Turbo Pascal. The Guide covers
+Turbo Pascal 6.0, Turbo Pascal 7.0, Borland Pascal, including the new
+protected-mode features, and Turbo Pascal for Windows. The book includes a
+companion disk containing all of the source code from the book, plus several
+shareware utilities. A detailed outline of the Borland Pascal Developer's Guide
+is presented after the Table of Contents for the Turbo Pascal Reference.
+
+=head2 About the Illustrations and Sample Source Code
+
+In some of the chapters you will see reference to "figures", such as "Figure
+3.2". Above the Figure caption you will see a notation similar to:
+
+    ***03tpr02.pcx***
+
+This notation means that the illustration is contained in "pcx" format graphics
+file named 03TPR02.PCX. You can read and print .pcx files using the Microsoft
+PaintBrush program that comes with Microsoft Windows. Many other graphics
+programs can also display and print these .pcx format files. All of the .pcx
+files are included in this electronic book.
+
+The text contains many program listings. Some of these are also provided as
+separate source code files to make it easy for you to use the sample code in
+your own programs. Whenever you see a listing in the text that contains "line
+numbers" on the left hand side, the topmost line of the listing will show the
+name of the file containing the source code. The sample files are included in
+this electronic book. The line numbers are for reference only; if you choose to
+type in any of the sample programs, do not type the line numbers.
