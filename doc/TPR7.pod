@@ -179,7 +179,7 @@ plus Okay and Cancel buttons. The Title parameter becomes the dialog box title,
 and the input field is given ALabel as a prompt line. The input field is set to
 Limit bytes in length. inputBox returns either cmOk or cmCancel. 
 
-B<B<See>:> Listing DMSGBOX3.PAS for an example of using the message box.
+B<B<See>:> Listing C<DMSGBOX3> for an example of using the message box.
 
 =head2 inputBoxRect
 
@@ -291,14 +291,14 @@ keystrokes such as function and Alt keys.
 =head3 Keyboard Shift State constants
 
     Constant        Value   Usage
-    kbRightShift   0x0001   Bit set if the right shift key down
-    kbLeftShift    0x0002   Bit set if the left shift key down
-    kbCtrlShift    0x0004   Bit set if the Ctrl key is down
-    kbAltShift     0x0008   Bit set if the Alt key is down
-    kbScrollState  0x0010   Bit set if the Scroll Lock is down
-    kbNumState     0x0020   Bit set if the Num Lock is down
-    kbCapsState    0x0040   Bit set if the Caps Lock down
-    kbInsState     0x0080   Bit set if keyboard is in Ins Lock state
+    kbRightShift    0x0001  Bit set if the right shift key down
+    kbLeftShift     0x0002  Bit set if the left shift key down
+    kbCtrlShift     0x0004  Bit set if the Ctrl key is down
+    kbAltShift      0x0008  Bit set if the Alt key is down
+    kbScrollState   0x0010  Bit set if the Scroll Lock is down
+    kbNumState      0x0020  Bit set if the Num Lock is down
+    kbCapsState     0x0040  Bit set if the Caps Lock down
+    kbInsState      0x0080  Bit set if keyboard is in Ins Lock state
 
 The keyboard shift state constants are used as a bit mask to test a location in
 low memory at 0x40:0x17 for the status of various keyboard keys, such as the 
@@ -529,7 +529,7 @@ vertical scroll bar. Whenever the scroller position is adjusted (using the
 mouse or keyboard controls), the scroller sends a message informing the world
 that it has changed,
 
-    nessage( TopView, evBroadcast, cmScrollBarChanged, $self );
+    message( TopView, evBroadcast, cmScrollBarChanged, $self );
 
 where TopView is a TView function returning the current modal view (hence, the 
 view that owns the scrollbar), and cmScrollBarChanged is a standard message 
@@ -568,11 +568,11 @@ into the $msg string (see the description of sprintf for more information on
 the type of formatting that may be performed).
 
 For example, if a problem occurs renaming a file, you might display an error
-message using the sample code shown in Listing DMSGBOX2.PAS.
+message using the sample code shown in Listing C<DMSGBOX2>.
 
-=head3 Listing dmsgbox2.pl
+=head3 Listing DMSGBOX2
 
-    # dmsgbox2.pl
+    # DMSGBOX2.pl
     # Demonstrates use of the messageBox function
     #
     sub TShell::demoMessageBox {
@@ -902,7 +902,7 @@ position to 0 disables the indicated attributes.
     ofSelectable    0x0001  If this bit is set, then the view can be selected 
                             with a mouse. While most views are normally 
                             selectable, this bit gives the option to make the 
-                            item unselectable. An example of an unselectable 
+                            item non-selectable. An example of an non-selectable 
                             view is TStaticText items.
     ofTopSelect     0x0002  When set, this view will move to the topmost view 
                             whenever it is selected. This option should normally
@@ -918,12 +918,12 @@ position to 0 disables the indicated attributes.
     ofPreProcess    0x0010  This option enables views other than the focused 
                             view to have a chance at processing an $event. 
                             Normally, events are passed down the focus-chain, 
-                            however, events are also sent to any subviews 
+                            however, events are also sent to any sub-views 
                             (in Z-order) that have this bit set, giving them a 
                             chance to process the $event. See Chapter 13, 
                             "More Turbo Vision Features" in the Borland Pascal 
                             Developer's Guide.
-    ofPostProcess   0x0020  When this bit is set, subviews are given a chance 
+    ofPostProcess   0x0020  When this bit is set, sub-views are given a chance 
                             after the focused view, to process events that have 
                             not yet cleared.
     ofBuffered      0x0040  Views can optionally store an image of themselves in
@@ -940,10 +940,10 @@ position to 0 disables the indicated attributes.
                             ofBuffered option. If you set the ofBuffered option,
                             be sure to call the TGroup method's lock and unlock 
                             to prevent copying of the screen image to the 
-                            display until all of the subview's have drawn 
+                            display until all of the sub-view's have drawn 
                             themselves.
     ofTileable      0x0080  Generally, you will want window objects to be either
-                            tileable or cascadeable so that the desktop can 
+                            tileable or cascadable so that the desktop can 
                             automatically rearrange the windows, if desired. 
                             If you wish to disable this function for a 
                             particular view, clear this bit position in the 
