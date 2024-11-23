@@ -34,16 +34,17 @@ __PACKAGE__
   ->mk_constructor
   ->mk_accessors;
 
-sub BUILDARGS {    # \%args (\&cBackground)
-  my ( $class, $cBackground ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  return { createBackground => $cBackground };
+  assert ( ref $args{cBackground} );
+  $args{createBackground} = delete $args{cBackground};
+  return { %args };
 }
 
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  assert ( ref $self->{createBackground} eq 'CODE' );
   return;
 }
 
@@ -51,6 +52,7 @@ sub createBackground {    # $background ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
   assert ( blessed $r );
+  assert ( ref $self->{createBackground} eq 'CODE' );
   return $self->{createBackground}->($r);
 }
 

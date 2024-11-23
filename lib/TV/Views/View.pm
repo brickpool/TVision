@@ -136,10 +136,16 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
+sub BUILDARGS {    # \%args (%args)
+  my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
+  assert ( blessed $args{bounds} );
+  return { %args };
+}
+
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
-  assert( blessed $self );
-  assert( blessed $args->{bounds} );
+  assert ( blessed $self );
   my %default = (
     owner     => undef,
     next      => undef,

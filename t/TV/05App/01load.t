@@ -8,12 +8,14 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::App::Background';
   use_ok 'TV::App::DeskInit';
+  use_ok 'TV::App::DeskTop';
 }
 
-isa_ok( TDeskInit->new( sub { } ), TDeskInit );
-isa_ok( 
+isa_ok(
   TBackground->new( bounds => TRect->new(), aPattern => '#' ),
-	TBackground
+  TBackground
 );
+isa_ok( TDeskInit->new( cBackground => sub { } ), TDeskInit );
+isa_ok( TDeskTop->new( bounds => TRect->new() ),  TDeskTop );
 
 done_testing;

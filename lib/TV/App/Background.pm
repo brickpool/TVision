@@ -35,7 +35,7 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   assert ( $args{aPattern} and !ref $args{aPattern} );
   $args{pattern} = delete $args{aPattern};
-  return { %args };
+  return $class->SUPER::BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)
@@ -48,7 +48,7 @@ sub BUILD {    # void (| \%args)
 sub draw {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  my $b    = TDrawBuffer->new();
+  my $b = TDrawBuffer->new();
 
   $b->moveChar( 0, $self->{pattern}, $self->getColor(0x01), $self->{size}{x} );
   $self->writeLine( 0, 0, $self->{size}{x}, $self->{size}{y}, $b );
