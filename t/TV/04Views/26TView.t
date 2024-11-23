@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<getColor>, 
 I<getPalette>, I<mapColor>, I<getState>, I<select>, I<setState>, I<keyEvent>, 
@@ -17,9 +17,9 @@ use Test::Exception;
 BEGIN {
   use_ok 'TV::Objects::Point';
   use_ok 'TV::Objects::Rect';
-  use_ok 'TV::Drivers::Const', qw( EV_MOUSE_DOWN );
+  use_ok 'TV::Drivers::Const', qw( evMouseDown );
   use_ok 'TV::Drivers::Event';
-  use_ok 'TV::Views::Const', qw( SF_VISIBLE );
+  use_ok 'TV::Views::Const', qw( sfVisible );
   use_ok 'TV::Views::Palette';
   use_ok 'TV::Views::View';
 }
@@ -31,7 +31,7 @@ BEGIN {
   my $toggle = 1;
   sub getEvent { 
     $toggle = 1 - $toggle; 
-    $_[1]->{what} = 1 << 4 * $toggle; # $toogle ? EV_MOUSE_DOWN : EV_KEY_DOWN
+    $_[1]->{what} = 1 << 4 * $toggle; # $toogle ? evMouseDown : evKeyDown
   }
   $INC{"MyOwner.pm"} = 1;
 }
@@ -70,7 +70,7 @@ subtest 'getColor method' => sub {
 # Test the getState method
 subtest 'getState method' => sub {
   my $view = TView->new( bounds => $bounds );
-  ok( $view->getState( SF_VISIBLE ), 'getState method returns true' );
+  ok( $view->getState( sfVisible ), 'getState method returns true' );
 };
 
 # Test the select method
@@ -83,8 +83,8 @@ subtest 'select method' => sub {
 # Test the setState method
 subtest 'setState method' => sub {
   my $view = TView->new( bounds => $bounds );
-  $view->setState( SF_VISIBLE, 1 );
-  ok( $view->{state} & SF_VISIBLE, 'state is set correctly after setState' );
+  $view->setState( sfVisible, 1 );
+  ok( $view->{state} & sfVisible, 'state is set correctly after setState' );
 };
 
 # Test the keyEvent method
@@ -101,7 +101,7 @@ subtest 'mouseEvent method' => sub {
   my $view  = TView->new( bounds => $bounds );
   my $event = TEvent->new();
   $view->owner( $owner );
-  ok( $view->mouseEvent( $event, EV_MOUSE_DOWN ),
+  ok( $view->mouseEvent( $event, evMouseDown ),
     'mouseEvent method returns true' );
 };
 

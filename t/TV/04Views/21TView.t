@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<sizeLimits>, 
 I<getBounds>, I<getExtent>, I<getClipRect>, I<mouseInView>, I<containsMouse>, 
@@ -39,12 +39,15 @@ subtest 'new object creation' => sub {
   isa_ok( $view->{size},   TPoint );
   isa_ok( $view->{origin}, TPoint );
   isa_ok( $view->{cursor}, TPoint );
-  is( $view->{state},    SF_VISIBLE,    'state is set correctly' );
-  is( $view->{growMode}, 0,             'growMode is set correctly' );
-  is( $view->{dragMode}, DM_LIMIT_LO_Y, 'dragMode is set correctly' );
-  is( $view->{helpCtx},  HC_NO_CONTEXT, 'helpCtx is set correctly' );
-  is( $view->{eventMask}, EV_MOUSE_DOWN | EV_KEY_DOWN | EV_COMMAND,
-    'eventMask is set correctly' );
+  is( $view->{state},    sfVisible,   'state is set correctly' );
+  is( $view->{growMode}, 0,           'growMode is set correctly' );
+  is( $view->{dragMode}, dmLimitLoY,  'dragMode is set correctly' );
+  is( $view->{helpCtx},  hcNoContext, 'helpCtx is set correctly' );
+  is(
+    $view->{eventMask},
+    evMouseDown | evKeyDown | evCommand,
+    'eventMask is set correctly'
+  );
 }; #/ 'new object creation' => sub
 
 # Test the sizeLimits method
@@ -105,10 +108,10 @@ subtest 'mouseInView method' => sub {
 # Test the containsMouse method
 subtest 'containsMouse method' => sub {
 	my $view  = TView->new( bounds => $bounds );
-	my $event = TEvent->new( what => EV_MOUSE,
+	my $event = TEvent->new( what => evMouse,
 		mouse => { where => TPoint->new( x => 5, y => 5 ) } );
 	ok( $view->containsMouse( $event ), 'mouse is contained in view' );
-	$event = TEvent->new( what => EV_MOUSE,
+	$event = TEvent->new( what => evMouse,
 		mouse => { where => TPoint->new( x => 15, y => 15 ) } );
 	ok( !$view->containsMouse( $event ), 'mouse is not contained in view' );
 }; #/ 'containsMouse method' => sub
@@ -131,7 +134,7 @@ subtest 'calcBounds method' => sub {
   my $new_bounds = TRect->new( ax => 0, ay => 0, bx => 20, by => 20 );
   my $owner = TView->new( bounds => $new_bounds );
   $view->owner( $owner );
-  $view->{growMode} = GF_GROW_ALL;
+  $view->{growMode} = gfGrowAll;
   my $delta = TPoint->new( x => 5, y => 5 );
   $view->calcBounds( $new_bounds, $delta );
   is( $new_bounds->{b}{x}, 15, 'bounds.b.x is set correctly after calcBounds' );
@@ -186,9 +189,9 @@ subtest 'setBounds method' => sub {
 # Test the getHelpCtx method
 subtest 'getHelpCtx method' => sub {
   my $view = TView->new( bounds => $bounds );
-  is( $view->getHelpCtx(), HC_NO_CONTEXT, 'helpCtx is set correctly' );
-  $view->{state} |= SF_DRAGGING;
-  is( $view->getHelpCtx(), HC_DRAGGING,
+  is( $view->getHelpCtx(), hcNoContext, 'helpCtx is set correctly' );
+  $view->{state} |= sfDragging;
+  is( $view->getHelpCtx(), hcDragging,
     'helpCtx is set correctly when dragging' );
 };
 

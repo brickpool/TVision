@@ -32,7 +32,10 @@ use Data::Alias;
 use TV::Drivers::HardwareInfo;
 use TV::Drivers::HWMouse;
 use TV::Drivers::Screen;
-use TV::Views::Const qw( :sfXXXX );
+use TV::Views::Const qw(
+  sfVisible
+  sfShadow
+);
 use TV::Views::View;
 
 alias my $shadowSize = TView->{shadowSize};
@@ -86,7 +89,7 @@ sub L0 {
 sub L10 {
   my ( $dest ) = @_;
   my $owner = $dest->owner();
-  if ( ( $dest->{state} & SF_VISIBLE ) && $owner ) {
+  if ( ( $dest->{state} & sfVisible ) && $owner ) {
     $Target = $dest;
     $Y       += $dest->{origin}{y};
     $X       += $dest->{origin}{x};
@@ -111,7 +114,7 @@ sub L20 {
     L40( $next );
   }
   else {
-    if ( ( $next->{state} & SF_VISIBLE ) && $next->{origin}{y} <= $Y ) {
+    if ( ( $next->{state} & sfVisible ) && $next->{origin}{y} <= $Y ) {
       do {
         $esi = $next->{origin}{y} + $next->{size}{y};
         if ( $Y < $esi ) {
@@ -133,7 +136,7 @@ sub L20 {
               return;
             }
           }
-          if ( ( $next->{state} & SF_SHADOW )
+          if ( ( $next->{state} & sfShadow )
             && $next->{origin}{y} + $shadowSize->{y} <= $Y )
           {
             $esi += $shadowSize->{x};
@@ -142,7 +145,7 @@ sub L20 {
             last;
           }
         } #/ if ( $Y < $esi )
-        elsif ( ( $next->{state} & SF_SHADOW ) 
+        elsif ( ( $next->{state} & sfShadow ) 
           && $Y < $esi + $shadowSize->{y}
         ) {
           $esi = $next->{origin}{x} + $shadowSize->{x};

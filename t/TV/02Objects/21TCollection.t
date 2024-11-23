@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In this test plan, we use L<Test::More> and I<Test::Exception> to test various 
 aspects of the I<TCollection> class. 

@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<hide>, I<show>, 
 I<draw>, I<drawView>, I<exposed>, I<focus>, I<hideCursor>, I<drawHide>, 
@@ -49,15 +49,15 @@ isa_ok( $owner, 'MyOwner' );
 subtest 'hide method' => sub {
   my $view = TView->new( bounds => $bounds );
   $view->hide();
-  ok( !( $view->{state} & SF_VISIBLE ), 'state is set correctly after hide' );
+  ok( !( $view->{state} & sfVisible ), 'state is set correctly after hide' );
 };
 
 # Test the show method
 subtest 'show method' => sub {
   my $view = TView->new( bounds => $bounds );
-  $view->{state} &= ~SF_VISIBLE;
+  $view->{state} &= ~sfVisible;
   $view->show();
-  ok( $view->{state} & SF_VISIBLE, 'state is set correctly after show' );
+  ok( $view->{state} & sfVisible, 'state is set correctly after show' );
 };
 
 # Test the draw method
@@ -75,7 +75,7 @@ subtest 'drawView method' => sub {
 # Test the exposed method
 subtest 'exposed method' => sub {
   my $view = TView->new( bounds => $bounds );
-  $view->{state} |= SF_EXPOSED;
+  $view->{state} |= sfExposed;
   ok( $view->exposed(), 'exposed method returns true' );
 };
 
@@ -89,7 +89,7 @@ subtest 'focus method' => sub {
 subtest 'hideCursor method' => sub {
   my $view = TView->new( bounds => $bounds );
   $view->hideCursor();
-  ok( !( $view->{state} & SF_CURSOR_VIS ),
+  ok( !( $view->{state} & sfCursorVis ),
     'state is set correctly after hideCursor' );
 };
 

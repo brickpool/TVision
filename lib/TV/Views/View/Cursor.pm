@@ -56,7 +56,7 @@ sub resetCursor {    # void ($p)
 } #/ sub resetCursor
 
 sub computeCaretSize {    # $int ()
-  if ( !( ~$self->{state} & ( SF_VISIBLE | SF_CURSOR_VIS | SF_FOCUSED ) ) ) {
+  if ( !( ~$self->{state} & ( sfVisible | sfCursorVis | sfFocused ) ) ) {
     my $v = $self;
     while ( $y >= 0 && $y < $v->{size}->{y} 
          && $x >= 0 && $x < $v->{size}->{x} 
@@ -64,7 +64,7 @@ sub computeCaretSize {    # $int ()
       $y += $v->{origin}->{y};
       $x += $v->{origin}->{x};
       if ( $v->owner() ) {
-        if ( $v->owner()->{state} & SF_VISIBLE ) {
+        if ( $v->owner()->{state} & sfVisible ) {
           if ( caretCovered( $v ) ) {
             last;
           }
@@ -86,7 +86,7 @@ sub caretCovered {    # $bool ($v)
   my ( $v ) = @_;
   my $u = $v->owner()->last()->next();
   for ( ; $u != $v ; $u = $u->next() ) {
-    if ( ( $u->{state} & SF_VISIBLE )
+    if ( ( $u->{state} & sfVisible )
       && ( $u->{origin}->{y} <= $y && $y < $u->{origin}->{y} + $u->{size}->{y} )
       && ( $u->{origin}->{x} <= $x && $x < $u->{origin}->{x} + $u->{size}->{x} ) 
     ) {
@@ -97,7 +97,7 @@ sub caretCovered {    # $bool ($v)
 } #/ sub caretCovered
 
 sub decideCaretSize {    # $int()
-  if ( $self->{state} & SF_CURSOR_INS ) {
+  if ( $self->{state} & sfCursorIns ) {
     return 100;
   }
   return TScreen->{cursorLines} & 0x0f;

@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 Special tests to check the successful processing of weak with cyclic references.
 

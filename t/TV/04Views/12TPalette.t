@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In these test cases, the I<TPalette> class is tested in various ways:
 

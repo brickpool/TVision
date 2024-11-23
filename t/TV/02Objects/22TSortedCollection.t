@@ -1,7 +1,7 @@
 
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In this test plan, we use L<Test::More> to test various aspects of the 
 I<TSortedCollection> class. The tests check the methods I<new>, I<insert>, 

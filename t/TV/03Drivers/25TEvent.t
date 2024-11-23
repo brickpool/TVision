@@ -19,12 +19,12 @@ BEGIN {
   use Exporter 'import';
   our @EXPORT = qw( THardwareInfo );
   use TV::Drivers::Const qw(
-    EV_KEY_DOWN
-    KB_ALT_SHIFT
-    KB_DEL
-    KB_CTRL_SHIFT
-    KB_INS
-    KB_SHIFT
+    evKeyDown
+    kbAltShift
+    kbDel
+    kbCtrlShift
+    kbIns
+    kbShift
   );
   sub THardwareInfo (){__PACKAGE__ }
   my $hit;
@@ -32,21 +32,21 @@ BEGIN {
     my ( $class, $ev ) = @_;
     $hit++;
     if ( $hit == 1 ) {
-      $ev->{what}                     = EV_KEY_DOWN;
+      $ev->{what}                     = evKeyDown;
       $ev->{keyDown}{keyCode}         = ord( ' ' );
-      $ev->{keyDown}{controlKeyState} = KB_ALT_SHIFT;
+      $ev->{keyDown}{controlKeyState} = kbAltShift;
       return 1;
     }
     elsif ( $hit == 2 ) {
-      $ev->{what}                     = EV_KEY_DOWN;
-      $ev->{keyDown}{keyCode}         = KB_DEL;
-      $ev->{keyDown}{controlKeyState} = KB_CTRL_SHIFT;
+      $ev->{what}                     = evKeyDown;
+      $ev->{keyDown}{keyCode}         = kbDel;
+      $ev->{keyDown}{controlKeyState} = kbCtrlShift;
       return 1;
     }
     elsif ( $hit == 3 ) {
-      $ev->{what}                     = EV_KEY_DOWN;
-      $ev->{keyDown}{keyCode}         = KB_INS;
-      $ev->{keyDown}{controlKeyState} = KB_SHIFT;
+      $ev->{what}                     = evKeyDown;
+      $ev->{keyDown}{keyCode}         = kbIns;
+      $ev->{keyDown}{controlKeyState} = kbShift;
       return 1;
     }
     return 0;
@@ -59,11 +59,11 @@ BEGIN {
   use_ok 'TV::Drivers::Event';
   use_ok 'TV::Drivers::Const', qw(
     :evXXXX
-    KB_ALT_SPACE
-    KB_CTRL_DEL
-    KB_SHIFT_DEL
-    KB_CTRL_INS
-    KB_SHIFT_INS
+    kbAltSpace
+    kbCtrlDel
+    kbShiftDel
+    kbCtrlIns
+    kbShiftIns
   );
   use_ok 'TV::Drivers::HardwareInfo';
 }
@@ -74,7 +74,7 @@ use_ok 'MessageEvent';
 
 # Test object creation for mouse event
 my $mouse_event = TEvent->new(
-  what  => EV_MOUSE,
+  what  => evMouse,
   mouse => {
     where           => [ 10, 20 ],
     eventFlags      => 1,
@@ -84,7 +84,7 @@ my $mouse_event = TEvent->new(
 );
 
 isa_ok( $mouse_event, TEvent, 'Object is of class TEvent' );
-is( $mouse_event->{what}, EV_MOUSE, 'Mouse event type is set correctly' );
+is( $mouse_event->{what}, evMouse, 'Mouse event type is set correctly' );
 is_deeply(
   $mouse_event->{mouse},
   my $me = MouseEventType->new(
@@ -101,7 +101,7 @@ is_deeply(
 
 # Test object creation for keyboard event
 my $key_event = TEvent->new(
-  what    => EV_KEYBOARD,
+  what    => evKeyboard,
   keyDown => {
     charScan => CharScanType->new(
       charCode => 1,
@@ -112,7 +112,7 @@ my $key_event = TEvent->new(
 );
 
 isa_ok( $key_event, TEvent, 'Object is of class TEvent' );
-is( $key_event->{what}, EV_KEYBOARD, 'Keyboard event type is set correctly' );
+is( $key_event->{what}, evKeyboard, 'Keyboard event type is set correctly' );
 is_deeply(
   $key_event->{keyDown},
   KeyDownEvent->new(
@@ -124,7 +124,7 @@ is_deeply(
 
 # Test object creation for message event
 my $message_event = TEvent->new(
-  what    => EV_MESSAGE,
+  what    => evMessage,
   message => {
     command  => 1,
     infoLong => 0x12345678,
@@ -132,7 +132,7 @@ my $message_event = TEvent->new(
 );
 
 isa_ok( $message_event, TEvent, 'Object is of class TEvent' );
-is( $message_event->{what}, EV_MESSAGE, 'Message event type is set correctly' );
+is( $message_event->{what}, evMessage, 'Message event type is set correctly' );
 is_deeply(
   $message_event->{message},
   MessageEvent->new(
@@ -145,24 +145,24 @@ is_deeply(
 # Test getKeyEvent method
 subtest 'getKeyEvent method' => sub {
   plan tests => 5;
-  my $key_event_test = TEvent->new( what => EV_KEYBOARD );
+  my $key_event_test = TEvent->new( what => evKeyboard );
   is( ref($key_event_test->{keyDown}), 'KeyDownEvent',
     'Keyboard event data is set correctly' );
 
   $key_event_test->getKeyEvent();
-  is( $key_event_test->{keyDown}{keyCode}, KB_ALT_SPACE,
+  is( $key_event_test->{keyDown}{keyCode}, kbAltSpace,
     'getKeyEvent handles Alt-Space correctly' );
 
   $key_event_test->getKeyEvent();
-  is( $key_event_test->{keyDown}{keyCode}, KB_CTRL_DEL,
+  is( $key_event_test->{keyDown}{keyCode}, kbCtrlDel,
     'getKeyEvent handles Ctrl-Del correctly' );
 
   $key_event_test->getKeyEvent();
-  is( $key_event_test->{keyDown}{keyCode}, KB_SHIFT_INS,
+  is( $key_event_test->{keyDown}{keyCode}, kbShiftIns,
     'getKeyEvent handles Shift-Ins correctly' );
 
   $key_event_test->getKeyEvent();
-  is( $key_event_test->{what}, EV_NOTHING,
+  is( $key_event_test->{what}, evNothing,
     'getKeyEvent handles no event correctly' );
 };
 

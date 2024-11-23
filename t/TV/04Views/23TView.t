@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<dataSize>, 
 I<getData>, I<setData>, I<awaken>, I<blockCursor>, I<normalCursor>, 
@@ -54,7 +54,7 @@ subtest 'blockCursor method' => sub {
   my $view = TView->new( bounds => $bounds );
   $view->blockCursor();
   ok(
-    $view->{state} & SF_CURSOR_INS,
+    $view->{state} & sfCursorIns,
     'state is set correctly after blockCursor'
   );
 };
@@ -64,7 +64,7 @@ subtest 'normalCursor method' => sub {
   my $view = TView->new( bounds => $bounds );
   $view->normalCursor();
   ok(
-    !( $view->{state} & SF_CURSOR_INS ),
+    !( $view->{state} & sfCursorIns ),
     'state is set correctly after normalCursor'
   );
 };
@@ -89,7 +89,7 @@ subtest 'showCursor method' => sub {
   my $view = TView->new( bounds => $bounds );
   $view->showCursor();
   ok( 
-    $view->{state} & SF_CURSOR_VIS, 
+    $view->{state} & sfCursorVis, 
     'state is set correctly after showCursor' 
   );
 };
@@ -97,7 +97,7 @@ subtest 'showCursor method' => sub {
 # Test the drawCursor method
 subtest 'drawCursor method' => sub {
   my $view = TView->new( bounds => $bounds );
-  $view->{state} |= SF_FOCUSED;
+  $view->{state} |= sfFocused;
   lives_ok { $view->drawCursor() }
     'drawCursor method executed without errors';
 };

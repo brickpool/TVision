@@ -111,20 +111,20 @@ can_ok( $event_queue, 'getMouseEvent' );
 my $event = TEvent->new();
 
 $event_queue->getMouseEvent( $event );
-is( $event->{what}, EV_NOTHING, 'TEvent initialized correctly' );
+is( $event->{what}, evNothing, 'TEvent initialized correctly' );
 
 # Test mouse event handling
 $event_queue->getMouseEvent( $event = TEvent->new() );
-is( $event->{what}, EV_MOUSE_AUTO, 'Mouse auto event handled correctly' );
+is( $event->{what}, evMouseAuto, 'Mouse auto event handled correctly' );
 
 $event_queue->getMouseEvent( $event = TEvent->new() );
-is( $event->{what}, EV_MOUSE_UP, 'Mouse up event handled correctly' );
+is( $event->{what}, evMouseUp, 'Mouse up event handled correctly' );
 
 $event_queue->getMouseEvent( $event = TEvent->new() );
-is( $event->{what}, EV_MOUSE_DOWN, 'Mouse down event handled correctly' );
+is( $event->{what}, evMouseDown, 'Mouse down event handled correctly' );
 
 $event_queue->getMouseEvent( $event = TEvent->new() );
-is( $event->{what}, EV_MOUSE_MOVE, 'Mouse move event handled correctly' );
+is( $event->{what}, evMouseMove, 'Mouse move event handled correctly' );
 
 # Test some global variables
 is TEventQueue->{doubleDelay}, 8, 'TEventQueue->{doubleDelay} is set correctly';

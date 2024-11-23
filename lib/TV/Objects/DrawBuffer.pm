@@ -18,7 +18,7 @@ use Scalar::Util qw(
 
 sub TDrawBuffer() { __PACKAGE__ }
 
-use TV::Const qw( MAX_VIEW_WIDTH );
+use TV::Views::Const qw( maxViewWidth );
 
 my $setAttr = sub {    # void ($cell, $attr)
   $_[0] = ( ( $_[1] & 0xff ) << 8 ) | $_[0] & 0xff;
@@ -42,7 +42,7 @@ my $setCell = sub {    # void ($cell, $ch, $attr)
 sub new {    # $obj ()
   my $class = shift;
   assert ( $class and !ref $class );
-  my $self  = [ ( 0 ) x MAX_VIEW_WIDTH ];
+  my $self  = [ ( 0 ) x maxViewWidth ];
   return bless $self, $class;
 }
 

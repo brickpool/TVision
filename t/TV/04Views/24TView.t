@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<clearEvent>, 
 I<eventAvail>, I<getEvent>, I<handleEvent> and I<putEvent>.
@@ -29,7 +29,7 @@ subtest 'clearEvent method' => sub {
   my $event = TEvent->new();
   $view->clearEvent( $event );
   is(
-    $event->{what}, EV_NOTHING,
+    $event->{what}, evNothing,
     'event.what is set correctly after clearEvent'
   );
   isa_ok(
@@ -55,7 +55,7 @@ subtest 'getEvent method' => sub {
 # Test the handleEvent method
 subtest 'handleEvent method' => sub {
   my $view  = TView->new( bounds => $bounds );
-  my $event = TEvent->new( what => EV_MOUSE_DOWN );
+  my $event = TEvent->new( what => evMouseDown );
   lives_ok { $view->handleEvent( $event ) }
     'handleEvent method executed without errors';
 };

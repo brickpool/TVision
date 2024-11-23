@@ -5,7 +5,7 @@ use Test::More;
 use Test::Exception;
 
 BEGIN {
-  use_ok 'TV::App::Const', qw( CP_BACKGROUND );
+  use_ok 'TV::App::Const', qw( cpBackground );
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Views::Palette';
   use_ok 'TV::App::Background';
@@ -24,9 +24,9 @@ can_ok( $background, 'getPalette' );
 my $palette = $background->getPalette();
 isa_ok( $palette, TPalette, 'getPalette returns a TPalette object' );
 is(
-  substr($$palette, 1, length( CP_BACKGROUND) ),
-  CP_BACKGROUND, 
-  'getPalette returns corrent content'
+  substr($$palette, 1, length( cpBackground) ),
+  cpBackground, 
+  'getPalette returns correct content'
 );
 
 done_testing;

@@ -21,7 +21,7 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-use TV::Drivers::Const qw( EV_NOTHING );
+use TV::Drivers::Const qw( evNothing );
 use TV::Drivers::Event;
 
 sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
@@ -44,7 +44,7 @@ sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
 
   $receiver->handleEvent( $event );
 
-  if ( $event->{what} == EV_NOTHING ) {
+  if ( $event->{what} == evNothing ) {
     return $event->{message}{infoPtr};
   }
   else {

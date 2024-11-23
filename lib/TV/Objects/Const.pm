@@ -3,7 +3,8 @@ package TV::Objects::Const;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
-  CC_NOT_FOUND
+  ccNotFound
+  maxCollectionSize
 );
 
 our %EXPORT_TAGS = (
@@ -22,8 +23,17 @@ our %EXPORT_TAGS = (
       @EXPORT_OK;
 }
 
+use Config;
+use TV::Const qw( UINT_MAX );
+
 use constant {
-  CC_NOT_FOUND => -1
+  ccNotFound => -1
+};
+
+# The calculation of 'maxCollectionSize' uses the size of a pointer to 
+# determine the maximum number of elements in the collection. 
+use constant {
+  maxCollectionSize => int( ( UINT_MAX - 16 ) / $Config{ptrsize} ),
 };
 
 1

@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TGroup> cover the methods I<new>, 
 I<DESTROY>, I<shutDown>, I<execView>, I<execute> and I<awaken>.
@@ -15,7 +15,7 @@ use Test::Exception;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
-  use_ok 'TV::Views::Const', qw( CM_CANCEL );
+  use_ok 'TV::Views::Const', qw( cmCancel );
   use_ok 'TV::Views::View';
   use_ok 'TV::Views::Group';
 }
@@ -51,7 +51,7 @@ lives_ok { $group->shutDown() }
 # Test execView method
 can_ok( $group, 'execView' );
 my $view = TView->new( bounds => $bounds );
-is( $group->execView( $view ), CM_CANCEL, 'execView returns correct value' );
+is( $group->execView( $view ), cmCancel, 'execView returns correct value' );
 
 # Test execute method
 $group = MyGroup->new( bounds => $bounds );

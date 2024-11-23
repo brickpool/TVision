@@ -28,10 +28,7 @@ use Scalar::Util qw(
   readonly
 );
 
-use TV::Const qw(
-  INT_MAX
-  MAX_VIEW_WIDTH
-);
+use TV::Const qw( INT_MAX );
 use TV::Util qw( message );
 use TV::Objects::Object;
 use TV::Objects::DrawBuffer;
@@ -43,6 +40,7 @@ use TV::Drivers::Const qw(
 );
 use TV::Drivers::Event;
 use TV::Views::Const qw(
+  maxViewWidth
   :cmXXXX
   :dmXXXX
   :gfXXXX
@@ -86,11 +84,11 @@ my $initCommands = sub {
   for ( my $i = 0 ; $i < 256 ; $i++ ) {
     $temp->enableCmd( $i );
   }
-  $temp->disableCmd( CM_ZOOM );
-  $temp->disableCmd( CM_CLOSE );
-  $temp->disableCmd( CM_RESIZE );
-  $temp->disableCmd( CM_NEXT );
-  $temp->disableCmd( CM_PREV );
+  $temp->disableCmd( cmZoom );
+  $temp->disableCmd( cmClose );
+  $temp->disableCmd( cmResize );
+  $temp->disableCmd( cmNext );
+  $temp->disableCmd( cmPrev );
   return $temp;
 }; #/ $initCommands = sub
 
@@ -146,11 +144,11 @@ sub BUILD {    # void (| \%args)
     owner     => undef,
     next      => undef,
     options   => 0,
-    state     => SF_VISIBLE,
+    state     => sfVisible,
     growMode  => 0,
-    dragMode  => DM_LIMIT_LO_Y,
-    helpCtx   => HC_NO_CONTEXT,
-    eventMask => EV_MOUSE_DOWN | EV_KEY_DOWN | EV_COMMAND,
+    dragMode  => dmLimitLoY,
+    helpCtx   => hcNoContext,
+    eventMask => evMouseDown | evKeyDown | evCommand,
     size      => TPoint->new(),
     origin    => TPoint->new(),
     cursor    => TPoint->new(), # $cursor->{x} = $cursor->{y} = 0;
@@ -178,7 +176,7 @@ sub sizeLimits {    # void ($min, $max)
   assert ( blessed $min );
   assert ( blessed $max );
   $min->{x} = $min->{y} = 0;
-  if ( !( $self->{growMode} & GF_FIXED ) && $self->{owner} ) {
+  if ( !( $self->{growMode} & gfFixed ) && $self->{owner} ) {
     $max->{x} = $self->{owner}{size}{x};
     $max->{y} = $self->{owner}{size}{y};
   }
@@ -232,7 +230,7 @@ sub containsMouse {    # $bool ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  return ( $self->{state} & SF_VISIBLE )
+  return ( $self->{state} & sfVisible )
     && $event->{mouse}
     && $self->mouseInView( $event->{mouse}{where} );
 }
@@ -256,8 +254,8 @@ sub locate {    # void ($bounds)
   my $r = $self->getBounds();
   if ( $bounds != $r ) {
     $self->changeBounds( $bounds );
-    if ( $self->{owner} && ( $self->{state} & SF_VISIBLE ) ) {
-      if ( $self->{state} & SF_SHADOW ) {
+    if ( $self->{owner} && ( $self->{state} & sfVisible ) ) {
+      if ( $self->{state} & sfShadow ) {
         $r->Union( $bounds );
         $r->{b} += $shadowSize;
       }
@@ -280,10 +278,10 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
   my $saveBounds;
 
   my ( $p, $s );
-  $self->setState( SF_DRAGGING, !!1 );
+  $self->setState( sfDragging, !!1 );
 
-  if ( $event->{what} == EV_MOUSE_DOWN ) {
-    if ( $mode & DM_DRAG_MOVE ) {
+  if ( $event->{what} == evMouseDown ) {
+    if ( $mode & dmDragMove ) {
       $p = $self->{origin} - $event->{mouse}{where};
       do {
         $event->{mouse}{where} += $p;
@@ -291,8 +289,8 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
           $event->{mouse}{where}, $self->{size}, $limits, $minSize,
           $maxSize, $mode
         );
-      } while ( $self->mouseEvent( $event, EV_MOUSE_MOVE ) );
-    } #/ if ( $mode & DM_DRAG_MOVE)
+      } while ( $self->mouseEvent( $event, evMouseMove ) );
+    } #/ if ( $mode & dmDragMove)
     else {
       $p = $self->{size} - $event->{mouse}{where};
       do {
@@ -301,8 +299,8 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
           $self->{origin}, $event->{mouse}{where}, $limits, $minSize,
           $maxSize,        $mode
         );
-      } while ( $self->mouseEvent( $event, EV_MOUSE_MOVE ) );
-    } #/ else [ if ( $mode & DM_DRAG_MOVE)]
+      } while ( $self->mouseEvent( $event, evMouseMove ) );
+    } #/ else [ if ( $mode & dmDragMove)]
   } #/ if ( $event->{what} ==...)
   else {
     $goLeft      ||= TPoint->new( x => -1, y =>  0 );
@@ -318,66 +316,66 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
       $s = $self->{size}->clone();
       $self->keyEvent( $event );
       SWITCH: for ( $event->{keyDown}{keyCode} & 0xff00 ) {
-        $_ == KB_LEFT and do {
+        $_ == kbLeft and do {
           $self->$change( $mode, $goLeft, $p, $s, 
             $event->{keyDown}{controlKeyState} );
           last;
         };
-        $_ == KB_RIGHT and do {
+        $_ == kbRight and do {
           $self->$change( $mode, $goRight, $p, $s, 
             $event->{keyDown}{controlKeyState} );
           last;
         };
-        $_ == KB_UP and do {
+        $_ == kbUp and do {
           $self->$change( $mode, $goUp, $p, $s, 
             $event->{keyDown}{controlKeyState} );
           last;
         };
-        $_ == KB_DOWN and do {
+        $_ == kbDown and do {
           $self->$change( $mode, $goDown, $p, $s, 
             $event->{keyDown}{controlKeyState} );
           last;
         };
-        $_ == KB_CTRL_LEFT and do {
+        $_ == kbCtrlLeft and do {
           $self->$change(
             $mode, $goCtrlLeft, $p, $s,
             $event->{keyDown}{controlKeyState}
           );
           last;
         };
-        $_ == KB_CTRL_RIGHT and do {
+        $_ == kbCtrlRight and do {
           $self->$change(
             $mode, $goCtrlRight, $p, $s,
             $event->{keyDown}{controlKeyState}
           );
           last;
         };
-        $_ == KB_HOME and do {
+        $_ == kbHome and do {
           $p->{x} = $limits->{a}{x};
           last;
         };
-        $_ == KB_END and do {
+        $_ == kbEnd and do {
           $p->{x} = $limits->{b}{x} - $s->{x};
           last;
         };
-        $_ == KB_PG_UP and do {
+        $_ == kbPgUp and do {
           $p->{y} = $limits->{a}{y};
           last;
         };
-        $_ == KB_PG_DN and do {
+        $_ == kbPgDn and do {
           $p->{y} = $limits->{b}{y} - $s->{y};
           last;
         };
       }
       $self->$moveGrow( $p, $s, $limits, $minSize, $maxSize, $mode );
-    } while ( $event->{keyDown}{keyCode} != KB_ESC
-           && $event->{keyDown}{keyCode} != KB_ENTER 
+    } while ( $event->{keyDown}{keyCode} != kbEsc
+           && $event->{keyDown}{keyCode} != kbEnter 
           );
-    if ( $event->{keyDown}{keyCode} == KB_ESC ) {
+    if ( $event->{keyDown}{keyCode} == kbEsc ) {
       $self->locate( $saveBounds );
     }
   } #/ else [ if ( $event->{what} ==...)]
-  $self->setState( SF_DRAGGING, !!0 );
+  $self->setState( sfDragging, !!0 );
 } #/ sub dragView
 
 my $grow;
@@ -392,7 +390,7 @@ sub calcBounds {    # void ($bounds, $delta);
   my ( $s, $d );
 
   $grow ||= sub {
-    if ( $self->{growMode} & GF_GROW_REL ) {
+    if ( $self->{growMode} & gfGrowRel ) {
       $_[0] = ( $_[0] * $s + ( ( $s - $d ) >> 1 ) ) / ( $s - $d );
     }
     else {
@@ -405,22 +403,22 @@ sub calcBounds {    # void ($bounds, $delta);
   $s = $self->{owner}{size}{x};
   $d = $delta->{x};
 
-  if ( $self->{growMode} & GF_GROW_LO_X ) {
+  if ( $self->{growMode} & gfGrowLoX ) {
     $grow->( $bounds->{a}{x} );
   }
 
-  if ( $self->{growMode} & GF_GROW_HI_X ) {
+  if ( $self->{growMode} & gfGrowHiX ) {
     $grow->( $bounds->{b}{x} );
   }
 
   $s = $self->{owner}{size}{y};
   $d = $delta->{y};
 
-  if ( $self->{growMode} & GF_GROW_LO_Y ) {
+  if ( $self->{growMode} & gfGrowLoY ) {
     $grow->( $bounds->{a}{y} );
   }
 
-  if ( $self->{growMode} & GF_GROW_HI_Y ) {
+  if ( $self->{growMode} & gfGrowHiY ) {
     $grow->( $bounds->{b}{y} );
   }
 
@@ -484,8 +482,8 @@ sub setBounds {    # void ($bounds)
 sub getHelpCtx {    # $int ()
   my $self = shift;
   assert ( blessed $self );
-  if ( $self->{state} & SF_DRAGGING ) {
-    return HC_DRAGGING;
+  if ( $self->{state} & sfDragging ) {
+    return hcDragging;
   }
   return $self->{helpCtx};
 }
@@ -499,8 +497,8 @@ sub valid {    # $bool ($command)
 sub hide {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  if ( $self->{state} & SF_VISIBLE ) {
-    $self->setState( SF_VISIBLE, !!0 );
+  if ( $self->{state} & sfVisible ) {
+    $self->setState( sfVisible, !!0 );
   }
   return;
 }
@@ -508,8 +506,8 @@ sub hide {    # void ()
 sub show {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  if ( ( $self->{state} & SF_VISIBLE ) == 0 ) {
-    $self->setState( SF_VISIBLE, !!1 );
+  if ( ( $self->{state} & sfVisible ) == 0 ) {
+    $self->setState( sfVisible, !!1 );
   }
   return;
 }
@@ -545,13 +543,13 @@ sub focus {    # $bool ()
   assert ( blessed $self );
   my $result = !!1;
 
-  if ( !( $self->{state} & ( SF_SELECTED | SF_MODAL ) ) ) {
+  if ( !( $self->{state} & ( sfSelected | sfModal ) ) ) {
     if ( $self->{owner} ) {
       $result = $self->{owner}->focus();
       if ( $result ) {
         if ( !$self->{owner}{current}
-          || !( $self->{owner}{current}{options} & OF_VALIDATE )
-          || $self->{owner}{current}->valid( CM_RELEASED_FOCUS ) )
+          || !( $self->{owner}{current}{options} & ofValidate )
+          || $self->{owner}{current}->valid( cmReleasedFocus ) )
         {
           $self->select();
         }
@@ -567,7 +565,7 @@ sub focus {    # $bool ()
 sub hideCursor {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->setState( SF_CURSOR_VIS, !!0 );
+  $self->setState( sfCursorVis, !!0 );
   return;
 }
 
@@ -577,7 +575,7 @@ sub drawHide {    # void ($lastView|undef)
   assert ( !defined $lastView or blessed $lastView );
   assert ( @_ == 2 );
   $self->drawCursor();
-  $self->drawUnderView( ($self->{state} & SF_SHADOW) != 0, $lastView );
+  $self->drawUnderView( ($self->{state} & sfShadow) != 0, $lastView );
   return;
 }
 
@@ -587,7 +585,7 @@ sub drawShow {    # void ($lastView|undef)
   assert ( !defined $lastView or blessed $lastView );
   assert ( @_ == 2 );
   $self->drawView();
-  if ( $self->{state} & SF_SHADOW ) {
+  if ( $self->{state} & sfShadow ) {
     $self->drawUnderView( !!1, $lastView );
   }
   return;
@@ -641,14 +639,14 @@ sub awaken {    # void ()
 
 sub blockCursor {    # void ()
   my $self = shift;
-  $self->setState( SF_CURSOR_INS, !!1 );
+  $self->setState( sfCursorIns, !!1 );
   return;
 }
 
 sub normalCursor {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->setState( SF_CURSOR_INS, !!0 );
+  $self->setState( sfCursorIns, !!0 );
   return;
 }
 
@@ -673,14 +671,14 @@ sub setCursor {    # void ($x, $y)
 sub showCursor {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->setState( SF_CURSOR_VIS, !!1 );
+  $self->setState( sfCursorVis, !!1 );
   return;
 }
 
 sub drawCursor {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  if ( $self->{state} & SF_FOCUSED ) {
+  if ( $self->{state} & sfFocused ) {
     $self->resetCursor();
   }
   return;
@@ -690,7 +688,7 @@ sub clearEvent {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  $event->{what}    = EV_NOTHING;
+  $event->{what}    = evNothing;
   $event->{message} = MessageEvent->new( infoPtr => $self );
   return;
 }
@@ -700,10 +698,10 @@ sub eventAvail {    # $bool ()
   assert ( blessed $self );
   my $event = TEvent->new();
   $self->getEvent( $event );
-  if ( $event->{what} != EV_NOTHING ) {
+  if ( $event->{what} != evNothing ) {
     $self->putEvent( $event );
   }
-  return $event->{what} != EV_NOTHING;
+  return $event->{what} != evNothing;
 }
 
 sub getEvent {    # void ($event)
@@ -720,11 +718,11 @@ sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );
-  if ( $event->{what} == EV_MOUSE_DOWN ) {
-    if ( !( $self->{state} & ( SF_SELECTED | SF_DISABLED ) )
-      && ( $self->{options} & OF_SELECTABLE )
+  if ( $event->{what} == evMouseDown ) {
+    if ( !( $self->{state} & ( sfSelected | sfDisabled ) )
+      && ( $self->{options} & ofSelectable )
     ) {
-      if ( !$self->focus() || !( $self->{options} & OF_FIRST_CLICK ) ) {
+      if ( !$self->focus() || !( $self->{options} & ofFirstClick ) ) {
         $self->clearEvent( $event );
       }
     }
@@ -826,7 +824,7 @@ sub endModal {    # void ($command)
 
 sub execute {    # void ()
   assert ( blessed shift );
-  return CM_CANCEL;
+  return cmCancel;
 }
 
 sub getColor {    # $int ($color)
@@ -888,12 +886,12 @@ sub select {    # void ()
   my $self = shift;
   assert ( blessed $self );
   return
-    unless $self->{options} & OF_SELECTABLE;
-  if ( $self->{options} & OF_TOP_SELECT ) {
+    unless $self->{options} & ofSelectable;
+  if ( $self->{options} & ofTopSelect ) {
     $self->makeFirst();
   }
   elsif ( $self->{owner} ) {
-    $self->{owner}->setCurrent( $self, NORMAL_SELECT );
+    $self->{owner}->setCurrent( $self, normalSelect );
   }
   return;
 } #/ sub select
@@ -916,9 +914,9 @@ sub setState {    # void ($aState, $enable)
     unless $self->{owner};
 
   SWITCH: for ( $aState ) {
-    $_ == SF_VISIBLE and do {
-      if ( $self->{owner}{state} & SF_EXPOSED ) {
-        $self->setState( SF_EXPOSED, $enable );
+    $_ == sfVisible and do {
+      if ( $self->{owner}{state} & sfExposed ) {
+        $self->setState( sfExposed, $enable );
       }
       if ( $enable ) {
         $self->drawShow( undef );
@@ -926,25 +924,25 @@ sub setState {    # void ($aState, $enable)
       else {
         $self->drawHide( undef );
       }
-      if ( $self->{options} & OF_SELECTABLE ) {
+      if ( $self->{options} & ofSelectable ) {
         $self->{owner}->resetCurrent();
       }
       last;
     };
-    $_ == SF_CURSOR_VIS || $_ == SF_CURSOR_INS and do {
+    $_ == sfCursorVis || $_ == sfCursorIns and do {
       $self->drawCursor();
       last;
     };
-    $_ == SF_SHADOW and do {
+    $_ == sfShadow and do {
       $self->drawUnderView( !!1, undef );
       last;
     };
-    $_ == SF_FOCUSED and do {
+    $_ == sfFocused and do {
       $self->resetCursor();
       message(
         $self->{owner},
-        EV_BROADCAST,
-        $enable ? CM_RECEIVED_FOCUS : CM_RELEASED_FOCUS,
+        evBroadcast,
+        $enable ? cmReceivedFocus : cmReleasedFocus,
         $self
       );
       last;
@@ -959,7 +957,7 @@ sub keyEvent {    # void ($event)
   assert ( blessed $event );
   do {
     $self->getEvent( $event );
-  } while ( $event->{what} != EV_KEY_DOWN );
+  } while ( $event->{what} != evKeyDown );
   return;
 }
 
@@ -970,9 +968,9 @@ sub mouseEvent { # bool ($event, $mask)
   assert ( looks_like_number $mask );
   do {
     $self->getEvent( $event );
-  } while ( !( $event->{what} & ( $mask | EV_MOUSE_UP ) ) );
+  } while ( !( $event->{what} & ( $mask | evMouseUp ) ) );
 
-  return $event->{what} != EV_MOUSE_UP;
+  return $event->{what} != evMouseUp;
 }
 
 sub makeGlobal {    # $point ($source)
@@ -1063,7 +1061,7 @@ sub putInFrontOf {    # void ($target|undef)
     && $target != $self->nextView()
     && ( !$target || $target->{owner} == $self->{owner} ) )
   {
-    if ( !( $self->{state} & SF_VISIBLE ) ) {
+    if ( !( $self->{state} & sfVisible ) ) {
       $self->{owner}->removeView( $self );
       $self->{owner}->insertView( $self, $target );
     }
@@ -1075,16 +1073,16 @@ sub putInFrontOf {    # void ($target|undef)
       }
       $lastView = $target
         if !$p;
-      $self->{state} &= ~SF_VISIBLE;
+      $self->{state} &= ~sfVisible;
       $self->drawHide( $lastView )
         if $lastView == $target;
       $self->{owner}->removeView( $self );
       $self->{owner}->insertView( $self, $target );
-      $self->{state} |= SF_VISIBLE;
+      $self->{state} |= sfVisible;
       $self->drawShow( $lastView )
         if $lastView != $target;
       $self->{owner}->resetCurrent()
-        if $self->{options} & OF_SELECTABLE;
+        if $self->{options} & ofSelectable;
     } #/ else [ if ( !( $self->{state}...))]
   } #/ if ( $self->{owner} &&...)
   return;
@@ -1097,7 +1095,7 @@ sub TopView {    # $view ()
     if $TheTopView;
 
   my $p = $self;
-  while ( $p && !( $p->{state} & SF_MODAL ) ) {
+  while ( $p && !( $p->{state} & sfModal ) ) {
     $p = $p->{owner};
   }
   return $p;
@@ -1164,7 +1162,7 @@ sub writeStr {    # void ($x, $y, $str, $color)
     my $length = length( $str );
     if ( $length > 0 ) {
       my $attr = $self->mapColor( $color );
-      my $buf  = [ ( 0 ) x MAX_VIEW_WIDTH ];
+      my $buf  = [ ( 0 ) x maxViewWidth ];
       my $i    = 0;
       foreach my $c ( split //, $str ) {
         $setCell->( $buf->[$i], ord( $c ), $attr );
@@ -1217,16 +1215,16 @@ $moveGrow = sub {
     $limits->{b}{y} - 1
   );
 
-  if ( $mode & DM_LIMIT_LO_X ) {
+  if ( $mode & dmLimitLoX ) {
     $p->{x} = max( $p->{x}, $limits->{a}{x} );
   }
-  if ( $mode & DM_LIMIT_LO_Y ) {
+  if ( $mode & dmLimitLoY ) {
     $p->{y} = max( $p->{y}, $limits->{a}{y} );
   }
-  if ( $mode & DM_LIMIT_HI_X ) {
+  if ( $mode & dmLimitHiX ) {
     $p->{x} = min( $p->{x}, $limits->{b}{x} - $s->{x} );
   }
-  if ( $mode & DM_LIMIT_HI_Y ) {
+  if ( $mode & dmLimitHiY ) {
     $p->{y} = min( $p->{y}, $limits->{b}{y} - $s->{y} );
   }
 
@@ -1242,10 +1240,10 @@ $moveGrow = sub {
 
 $change = sub {    # void ($mode, $delta, $p, $s, $ctrlState)
   my ( $self, $mode, $delta, $p, $s, $ctrlState ) = @_;
-  if ( ( $mode & DM_DRAG_MOVE ) && !( $ctrlState & !KB_SHIFT ) ) {
+  if ( ( $mode & dmDragMove ) && !( $ctrlState & !kbShift ) ) {
     $p += $delta;
   }
-  elsif ( ( $mode & DM_DRAG_GROW ) && ( $ctrlState & KB_SHIFT ) ) {
+  elsif ( ( $mode & dmDragGrow ) && ( $ctrlState & kbShift ) ) {
     $s += $delta;
   }
   return;

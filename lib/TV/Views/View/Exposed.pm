@@ -27,7 +27,10 @@ package TV::Views::View::Exposed;
 use strict;
 use warnings;
 
-use TV::Views::Const qw( :sfXXXX );
+use TV::Views::Const qw(
+  sfExposed
+  sfVisible
+);
 
 my $eax = 0;
 my $ebx = 0;
@@ -51,7 +54,7 @@ use subs qw(
 sub L0 {    # $bool ($dest)
   my ( $dest ) = @_;
   return !!0
-    unless $dest->{state} & SF_EXPOSED;
+    unless $dest->{state} & sfExposed;
   return !!0
     if $dest->{size}{x} <= 0
     || $dest->{size}{y} <= 0;
@@ -126,7 +129,7 @@ sub L20 {    # $bool ($dest)
 sub L21 {    # $bool ($next)
   my ( $next ) = @_;
   return L20( $next )
-    unless $next->{state} & SF_VISIBLE;
+    unless $next->{state} & sfVisible;
   $esi = $next->{origin}{y};
   return L20( $next )
     if $eax < $esi;

@@ -5,7 +5,7 @@
 
 TV::Objects::NSSortedCollection - defines the class TNSSortedCollection
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In this Perl module, the class I<TNSSortedCollection> is created, which inherits
 from I<TNSCollection>. 
@@ -41,7 +41,7 @@ use Scalar::Util qw(
   readonly
 );
 
-use TV::Objects::Const qw( CC_NOT_FOUND );
+use TV::Objects::Const qw( ccNotFound );
 use TV::Objects::NSCollection;
 
 sub TNSSortedCollection() { __PACKAGE__ }
@@ -95,7 +95,7 @@ sub indexOf {    # $index ($item|undef)
   assert ( @_ == 2 );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) ) {
-    return CC_NOT_FOUND;
+    return ccNotFound;
   }
   else {
     if ( $self->{duplicates} ) {
@@ -103,7 +103,7 @@ sub indexOf {    # $index ($item|undef)
         $i++;
       }
     }
-    return $i < $self->{count} ? $i : CC_NOT_FOUND;
+    return $i < $self->{count} ? $i : ccNotFound;
   }
 } #/ sub indexOf
 

@@ -95,7 +95,7 @@ my $getMouseState = sub {    # $bool ($class, $ev)
   my ( $class, $ev ) = @_;
   assert ( $class and !ref $class );
   assert ( ref $ev );
-  $ev->{what} = EV_NOTHING;
+  $ev->{what} = evNothing;
 
   return !!0 unless THardwareInfo->getMouseEvent( $curMouse );
 
@@ -121,7 +121,7 @@ sub getMouseEvent {    # void ($class, $ev)
     $ev->{mouse}{eventFlags} = 0;
 
     if ( !$ev->{mouse}{buttons} && $lastMouse->{buttons} ) {
-      $ev->{what} = EV_MOUSE_UP;
+      $ev->{what} = evMouseUp;
       $lastMouse = $ev->{mouse}->clone();
       return;
     }
@@ -130,9 +130,9 @@ sub getMouseEvent {    # void ($class, $ev)
       if ( $ev->{mouse}{buttons} == $downMouse->{buttons}
         && $ev->{mouse}{where} == $downMouse->{where}
         && $ticks - $downTicks <= $doubleDelay
-        && !( $downMouse->{eventFlags} & ME_DOUBLE_CLICK ) )
+        && !( $downMouse->{eventFlags} & meDoubleClick ) )
       {
-        $ev->{mouse}{eventFlags} |= ME_DOUBLE_CLICK;
+        $ev->{mouse}{eventFlags} |= meDoubleClick;
       }
 
       $downMouse  = $ev->{mouse};
@@ -140,7 +140,7 @@ sub getMouseEvent {    # void ($class, $ev)
       $downTicks  = $ticks;
       $ticks      = 0;
       $autoDelay  = $repeatDelay;
-      $ev->{what} = EV_MOUSE_DOWN;
+      $ev->{what} = evMouseDown;
       $lastMouse = $ev->{mouse}->clone();
       return;
     } #/ if ( $ev->{mouse}{buttons...})
@@ -148,8 +148,8 @@ sub getMouseEvent {    # void ($class, $ev)
     $ev->{mouse}{buttons} = $lastMouse->{buttons};
 
     if ( $ev->{mouse}{where} != $lastMouse->{where} ) {
-      $ev->{what} = EV_MOUSE_MOVE;
-      $ev->{mouse}{eventFlags} |= ME_MOUSE_MOVED;
+      $ev->{what} = evMouseMove;
+      $ev->{mouse}{eventFlags} |= meMouseMoved;
       $lastMouse = $ev->{mouse}->clone();
       return;
     }
@@ -158,13 +158,13 @@ sub getMouseEvent {    # void ($class, $ev)
       $autoTicks  = $ticks;
       $ticks      = 0;
       $autoDelay  = 1;
-      $ev->{what} = EV_MOUSE_AUTO;
+      $ev->{what} = evMouseAuto;
       $lastMouse = $ev->{mouse}->clone();
       return;
     }
   } #/ if ( $mouseEvents )
 
-  $ev->{what} = EV_NOTHING;
+  $ev->{what} = evNothing;
 } #/ sub getMouseEvent
 
 1

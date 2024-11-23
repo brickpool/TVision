@@ -97,7 +97,7 @@ sub BUILD {    # void (| \%args)
   assert ( defined $self->{options} );
   my %default = (
     last      => undef,
-    phase     => PH_FOCUSED,
+    phase     => phFocused,
     current   => undef,
     buffer    => undef,
     lockFlag  => 0,
@@ -107,7 +107,7 @@ sub BUILD {    # void (| \%args)
   map { $self->{$_} = $default{$_} }
     grep { !defined $self->{$_} }
       keys %default;
-  $self->{options} |= OF_SELECTABLE | OF_BUFFERED;
+  $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} ||= $self->getExtent();
   $lock_value->( $self->{current} ) if STRICT;
   return;
@@ -149,7 +149,7 @@ sub execView {    # $int ()
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
   assert ( @_ == 2 );
-  return CM_CANCEL
+  return cmCancel
     unless $p;
 
   my $saveOptions  = $p->{options};
@@ -159,16 +159,16 @@ sub execView {    # $int ()
   my $saveCommands = TCommandSet->new();
   $self->getCommands( $saveCommands );
   $TheTopView = $p;
-  $p->{options} &= ~OF_SELECTABLE;
-  $p->setState( SF_MODAL, !!1 );
-  $self->setCurrent( $p, ENTER_SELECT );
+  $p->{options} &= ~ofSelectable;
+  $p->setState( sfModal, !!1 );
+  $self->setCurrent( $p, enterSelect );
   $self->insert( $p )
     unless $saveOwner;
   my $retval = $p->execute();
   $self->remove( $p )
     unless $saveOwner;
-  $self->setCurrent( $saveCurrent, LEAVE_SELECT );
-  $p->setState( SF_MODAL, !!0 );
+  $self->setCurrent( $saveCurrent, leaveSelect );
+  $p->setState( sfModal, !!0 );
   $p->{options} = $saveOptions;
   $TheTopView = $saveTopView;
   $self->setCommands( $saveCommands );
@@ -184,7 +184,7 @@ sub execute {    # $int ()
       my $e = TEvent->new();
       $self->getEvent( $e );
       $self->handleEvent( $e );
-      if ( $e->{what} != EV_NOTHING ) {
+      if ( $e->{what} != evNothing ) {
         $self->eventError( $e );
       }
     } while ( !$self->{endState} );
@@ -248,7 +248,7 @@ sub remove {    # void ($p)
     $self->removeView( $p );
     $p->owner( undef );
     $p->next( undef );
-    if ( $saveState & SF_VISIBLE ) {
+    if ( $saveState & sfVisible ) {
       $p->show();
     }
   } #/ if ( $p )
@@ -293,8 +293,8 @@ sub removeView {    # void ($p)
 sub resetCurrent {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->setCurrent( $self->firstMatch( SF_VISIBLE, OF_SELECTABLE ),
-    NORMAL_SELECT );
+  $self->setCurrent( $self->firstMatch( sfVisible, ofSelectable ),
+    normalSelect );
   return;
 }
 
@@ -309,13 +309,13 @@ sub setCurrent {    # void ($p, $mode)
 
   $self->lock();
   $self->$focusView( $self->current(), 0 );
-  $self->current()->setState( SF_SELECTED, 0 )
-    if $mode != ENTER_SELECT 
+  $self->current()->setState( sfSelected, 0 )
+    if $mode != enterSelect 
     && $self->current();
-  $p->setState( SF_SELECTED, 1 ) 
-    if $mode != LEAVE_SELECT && $p;
-  $p->setState( SF_FOCUSED,  1 ) 
-    if ( $self->{state} & SF_FOCUSED ) && $p;
+  $p->setState( sfSelected, 1 ) 
+    if $mode != leaveSelect && $p;
+  $p->setState( sfFocused,  1 ) 
+    if ( $self->{state} & sfFocused ) && $p;
   $self->current( $p );
   $self->unlock();
   return;
@@ -398,16 +398,16 @@ sub insertBefore {    # void ($self, $p, $Target|undef)
   assert ( @_ == 3 );
   if ( $p && !$p->{owner} && ( !$Target || $Target->{owner} == $self ) ) {
     $p->{origin}{x} = ( $self->{size}{x} - $p->{size}{x} ) >> 1
-      if $p->{options} & OF_CENTER_X;
+      if $p->{options} & ofCenterX;
     $p->{origin}{y} = ( $self->{size}{y} - $p->{size}{y} ) >> 1
-      if $p->{options} & OF_CENTER_Y;
+      if $p->{options} & ofCenterY;
     my $saveState = $p->{state};
     $p->hide();
     $self->insertView( $p, $Target );
     $p->show()
-      if $saveState & SF_VISIBLE;
-    $p->setState( SF_ACTIVE, !!1 )
-      if $saveState & SF_ACTIVE;
+      if $saveState & sfVisible;
+    $p->setState( sfActive, !!1 )
+      if $saveState & sfActive;
   } #/ if ( $p && !$p->owner(...))
 } #/ sub insertBefore
 
@@ -484,8 +484,8 @@ sub first {    # $view|undef ()
 
 my $doExpose = sub {    # void ($p, \$enable)
   my ( $p, $enable ) = @_;
-  $p->setState( SF_EXPOSED, $$enable )
-    if $p->state & SF_VISIBLE;
+  $p->setState( sfExposed, $$enable )
+    if $p->state & sfVisible;
   return;
 };
 
@@ -508,18 +508,18 @@ sub setState {    # void ($aState, $enable)
 
   $self->SUPER::setState( $aState, $enable );
 
-  if ( $aState & ( SF_ACTIVE | SF_DRAGGING ) ) {
+  if ( $aState & ( sfActive | sfDragging ) ) {
     $self->lock();
     $self->forEach( $doSetState, $sb );
     $self->unlock();
   }
 
-  if ( $aState & SF_FOCUSED ) {
-    $self->current()->setState( SF_FOCUSED, $enable ) 
+  if ( $aState & sfFocused ) {
+    $self->current()->setState( sfFocused, $enable ) 
       if $self->current();
   }
 
-  if ( $aState & SF_EXPOSED ) {
+  if ( $aState & sfExposed ) {
     $self->forEach( $doExpose, \$enable );
     $self->freeBuffer() 
       unless $enable;
@@ -531,18 +531,18 @@ my $doHandleEvent = sub {    # void ($p, \%s)
   my ( $p, $s ) = @_;
   return unless $p;
   return
-    if ( $p->{state} & SF_DISABLED )
-    && ( $s->{event}{what} & ( POSITIONAL_EVENTS | FOCUSED_EVENTS ) );
+    if ( $p->{state} & sfDisabled )
+    && ( $s->{event}{what} & ( positionalEvents | focusedEvents ) );
 
   SWITCH: for ( $s->{grp}{phase} ) {
-    $_ == PH_PRE_PROCESS and do {
+    $_ == phPreProcess and do {
       return
-        unless $p->{options} & OF_PRE_PROCESS;
+        unless $p->{options} & ofPreProcess;
       last;
     };
-    $_ == PH_POST_PROCESS and do {
+    $_ == phPostProcess and do {
       return
-        unless $p->{options} & OF_POST_PROCESS;
+        unless $p->{options} & ofPostProcess;
       last;
     };
   } #/ SWITCH: for ( $s->{grp}{phase} )
@@ -567,26 +567,26 @@ sub handleEvent { # void ($event)
     grp => $self
   };
 
-  if ( $event->{what} & FOCUSED_EVENTS ) {
-    $self->{phase} = PH_PRE_PROCESS;
+  if ( $event->{what} & focusedEvents ) {
+    $self->{phase} = phPreProcess;
     $self->forEach( $doHandleEvent, $hs );
 
-    $self->{phase} = PH_FOCUSED;
+    $self->{phase} = phFocused;
     $doHandleEvent->( $self->current(), $hs );
 
-    $self->{phase} = PH_POST_PROCESS;
+    $self->{phase} = phPostProcess;
     $self->forEach( $doHandleEvent, $hs );
   } #/ if ( $event->{what} & ...)
   else {
-    $self->{phase} = PH_FOCUSED;
-    if ( $event->{what} & POSITIONAL_EVENTS ) {
+    $self->{phase} = phFocused;
+    if ( $event->{what} & positionalEvents ) {
       # get pointer to topmost view holding mouse
       my $p = $self->firstThat( $hasMouse, $event );
       if ( $p ) {
         # we have a view; send event to it
         $doHandleEvent->( $p, $hs );
       }
-      elsif ( $event->{what} == EV_MOUSE_DOWN ) {
+      elsif ( $event->{what} == evMouseDown ) {
         # it was a mouse click and we don't have a view,
         # so sound a beep.
         if ( eval { require Win32::Sound } ) {
@@ -753,7 +753,7 @@ sub endModal {    # void ($command)
   my ( $self, $command ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $command );
-  if ( $self->{state} & SF_MODAL ) {
+  if ( $self->{state} & sfModal ) {
     $self->{endState} = $command;
   }
   else {
@@ -775,11 +775,11 @@ sub eventError {    # void ($event)
 sub getHelpCtx {    # $int ()
   my $self = shift;
   assert ( blessed $self );
-  my $h = HC_NO_CONTEXT;
+  my $h = hcNoContext;
   $h = $self->current()->getHelpCtx()
     if $self->current();
   $h = $self->SUPER::getHelpCtx()
-    if $h == HC_NO_CONTEXT;
+    if $h == hcNoContext;
   return $h;
 } #/ sub getHelpCtx
 
@@ -790,10 +790,10 @@ my $isInvalid = sub {    # $bool ($p, \$command)
 
 sub valid {    # $bool ($command)
   my ( $self, $command ) = @_;
-  if ( $command == CM_RELEASED_FOCUS ) {
+  if ( $command == cmReleasedFocus ) {
     return $self->current()->valid( $command )
       if $self->current()
-      && ( $self->current()->{options} & OF_VALIDATE );
+      && ( $self->current()->{options} & ofValidate );
   }
   return !$self->firstThat( $isInvalid, \$command );
 }
@@ -801,7 +801,7 @@ sub valid {    # $bool ($command)
 sub freeBuffer {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  if ( ( $self->{options} & OF_BUFFERED ) && $self->{buffer} ) {
+  if ( ( $self->{options} & ofBuffered ) && $self->{buffer} ) {
     $self->{buffer} = undef;
   }
   return;
@@ -811,8 +811,8 @@ sub getBuffer {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $self->{buffer} = [ (0) x ( $self->{size}{x} * $self->{size}{y} * 2 ) ]
-    if ( $self->{state} & SF_EXPOSED )
-      && ( $self->{options} & OF_BUFFERED )
+    if ( $self->{state} & sfExposed )
+      && ( $self->{options} & ofBuffered )
       && !$self->{buffer};
   return;
 } #/ sub getBuffer
@@ -823,8 +823,8 @@ $invalid = sub {    # $bool ($p, $command)
 
 $focusView = sub {    # void ($p, $enable)
   my ( $self, $p, $enable ) = @_;
-  $p->setState( SF_FOCUSED, $enable ) 
-    if ( $self->{state} & SF_FOCUSED ) && $p;
+  $p->setState( sfFocused, $enable ) 
+    if ( $self->{state} & sfFocused ) && $p;
   return;
 };
 
@@ -834,7 +834,7 @@ $selectView = sub {    # void ($p, $enable)
   assert ( blessed $p );
   assert ( !defined $enable or !ref $enable );
   assert ( @_ == 3 );
-  $p->setState( SF_SELECTED, $enable )
+  $p->setState( sfSelected, $enable )
     if $p;
   return;
 }; #/ sub _selectView
@@ -848,8 +848,8 @@ $findNext = sub {
       $p = $forwards ? $p->{next} : $p->prev();
     } while (
       !(
-        ( ( $p->{state} & ( SF_VISIBLE | SF_DISABLED ) ) == SF_VISIBLE )
-        && ( $p->{options} & OF_SELECTABLE )
+        ( ( $p->{state} & ( sfVisible | sfDisabled ) ) == sfVisible )
+        && ( $p->{options} & ofSelectable )
       )
       && ( $p != $self->current() )
     );

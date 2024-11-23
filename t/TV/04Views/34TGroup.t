@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TGroup> cover the methods I<draw>, 
 I<redraw>, I<lock>, I<unlock>, I<resetCursor>, I<endModal>, I<eventError>, 
@@ -18,9 +18,9 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Drivers::Event';
   use_ok 'TV::Views::Const', qw(
-    CM_RELEASED_FOCUS
-    HC_NO_CONTEXT
-    SF_EXPOSED
+    cmReleasedFocus
+    hcNoContext
+    sfExposed
   );
   use_ok 'TV::Views::Group';
 }
@@ -44,7 +44,7 @@ can_ok( $group, 'redraw' );
 lives_ok { $group->redraw() } 'redraw works correctly';
 
 # Test getBuffer method
-$group->{state} |= SF_EXPOSED;
+$group->{state} |= sfExposed;
 $group->{size}{x} = $group->{size}{y} = 1;
 can_ok( $group, 'getBuffer' );
 lives_ok { $group->getBuffer() } 'getBuffer works correctly';
@@ -77,10 +77,10 @@ lives_ok { $group->eventError( $event ) } 'eventError works correctly';
 
 # Test getHelpCtx method
 can_ok( $group, 'getHelpCtx' );
-is( $group->getHelpCtx(), HC_NO_CONTEXT, 'getHelpCtx returns correct value' );
+is( $group->getHelpCtx(), hcNoContext, 'getHelpCtx returns correct value' );
 
 # Test valid method
 can_ok( $group, 'valid' );
-is( $group->valid( CM_RELEASED_FOCUS ), 1, 'valid returns correct value' );
+is( $group->valid( cmReleasedFocus ), 1, 'valid returns correct value' );
 
 done_testing;

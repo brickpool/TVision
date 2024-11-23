@@ -12,11 +12,11 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-use TV::App::Const qw( CP_BACKGROUND );
+use TV::App::Const qw( cpBackground );
 use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
-  GF_GROW_HI_X
-  GF_GROW_HI_Y
+  gfGrowHiX
+  gfGrowHiY
 );
 use TV::Views::Palette;
 use TV::Views::View;
@@ -41,7 +41,7 @@ sub BUILDARGS {    # \%args (%args)
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
-  $self->{growMode} = GF_GROW_HI_X | GF_GROW_HI_Y;
+  $self->{growMode} = gfGrowHiX | gfGrowHiY;
   return;
 }
 
@@ -60,8 +60,8 @@ sub getPalette {    # $palette ()
   my $self = shift;
   assert ( blessed $self );
   $palette ||= TPalette->new(
-    data => CP_BACKGROUND, 
-    size => length( CP_BACKGROUND )
+    data => cpBackground, 
+    size => length( cpBackground )
   );
   return $palette->clone();
 }

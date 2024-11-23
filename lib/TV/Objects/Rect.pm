@@ -4,7 +4,7 @@
 
 TV::Objects::Rect - defines the class TRect
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In this Perl module, the I<TRect> class is created, which contains the same 
 methods as the Borland C++ class. 

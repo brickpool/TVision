@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<commandEnabled>, 
 I<disableCommands>, I<enableCommands>, I<disableCommand>, I<enableCommand>, 
@@ -28,7 +28,7 @@ isa_ok( $bounds, TRect );
 subtest 'commandEnabled method' => sub {
   my $view = TView->new( bounds => $bounds );
   ok(
-    $view->commandEnabled( CM_CANCEL ), 
+    $view->commandEnabled( cmCancel ), 
     'commandEnabled method returns true'
   );
 };
@@ -52,10 +52,10 @@ subtest 'enableCommands method' => sub {
 # Test the disableCommand method
 subtest 'disableCommand method' => sub {
   my $view = TView->new( bounds => $bounds );
-  lives_ok { $view->disableCommand( CM_CANCEL ) }
+  lives_ok { $view->disableCommand( cmCancel ) }
     'disableCommand method executed without errors';
   ok(
-    !$view->commandEnabled( CM_CANCEL ),
+    !$view->commandEnabled( cmCancel ),
     'commandEnabled method returns false'
   );
 };
@@ -64,13 +64,13 @@ subtest 'disableCommand method' => sub {
 subtest 'enableCommand method' => sub {
   my $view = TView->new( bounds => $bounds );
   ok(
-    !$view->commandEnabled( CM_ZOOM ),
+    !$view->commandEnabled( cmZoom ),
     'commandEnabled method returns false'
   );
-  lives_ok { $view->enableCommand( CM_ZOOM ) }
+  lives_ok { $view->enableCommand( cmZoom ) }
     'enableCommand method executed without errors';
   ok(
-    $view->commandEnabled( CM_ZOOM ),
+    $view->commandEnabled( cmZoom ),
     'commandEnabled method returns true'
   );
 };
@@ -109,7 +109,7 @@ subtest 'endModal method' => sub {
 # Test the execute method
 subtest 'execute method' => sub {
   my $view = TView->new( bounds => $bounds );
-  is( $view->execute(), CM_CANCEL, 'execute method returns CM_CANCEL' );
+  is( $view->execute(), cmCancel, 'execute method returns cmCancel' );
 };
 
 done_testing;

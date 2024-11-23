@@ -1,12 +1,20 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN {
-  use_ok 'TV::Objects::Const', qw( CC_NOT_FOUND );
+  use_ok 'TV::Objects::Const', qw(
+    ccNotFound 
+    maxCollectionSize
+  );
 }
 
-is( CC_NOT_FOUND, -1, 'CC_NOT_FOUND is -1' );
+is( ccNotFound, -1, 'ccNotFound is -1' );
+is(
+  maxCollectionSize,
+  int( ( ~0 - 16 ) / length( pack( 'P', 0 ) ) ),
+  'maxCollectionSize is calculated correctly' 
+);
 
 done_testing();

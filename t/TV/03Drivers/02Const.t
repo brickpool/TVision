@@ -1,32 +1,35 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 BEGIN {
-  use_ok 'TV::Drivers::Const', qw( 
+  use_ok 'TV::Drivers::Const', qw(
+    eventQSize
     :evXXXX
     :mbXXXX
     :meXXXX
   );
 }
 
-is( EV_MOUSE_DOWN,   0x0001, 'EV_MOUSE_DOWN is 0x0001' );
-is( EV_MOUSE_UP,     0x0002, 'EV_MOUSE_UP is 0x0002' );
-is( EV_MOUSE_MOVE,   0x0004, 'EV_MOUSE_MOVE is 0x0004' );
-is( EV_MOUSE_AUTO,   0x0008, 'EV_MOUSE_AUTO is 0x0008' );
-is( EV_KEY_DOWN,     0x0010, 'EV_KEY_DOWN is 0x0010' );
-is( EV_COMMAND,      0x0100, 'EV_COMMAND is 0x0100' );
-is( EV_BROADCAST,    0x0200, 'EV_BROADCAST is 0x0200' );
-is( EV_NOTHING,      0x0000, 'EV_NOTHING is 0x0000' );
-is( EV_MOUSE,        0x000f, 'EV_MOUSE is 0x000f' );
-is( EV_KEYBOARD,     0x0010, 'EV_KEYBOARD is 0x0010' );
-is( EV_MESSAGE,      0xFF00, 'EV_MESSAGE is 0xFF00' );
+is( eventQSize,    16,     'eventQSize is 16' );
 
-is( MB_LEFT_BUTTON,  0x01,   'MB_LEFT_BUTTON is 0x01' );
-is( MB_RIGHT_BUTTON, 0x02,   'MB_RIGHT_BUTTON is 0x02' );
+is( evMouseDown,   0x0001, 'evMouseDown is 0x0001' );
+is( evMouseUp,     0x0002, 'evMouseUp is 0x0002' );
+is( evMouseMove,   0x0004, 'evMouseMove is 0x0004' );
+is( evMouseAuto,   0x0008, 'evMouseAuto is 0x0008' );
+is( evKeyDown,     0x0010, 'evKeyDown is 0x0010' );
+is( evCommand,     0x0100, 'evCommand is 0x0100' );
+is( evBroadcast,   0x0200, 'evBroadcast is 0x0200' );
+is( evNothing,     0x0000, 'evNothing is 0x0000' );
+is( evMouse,       0x000f, 'evMouse is 0x000f' );
+is( evKeyboard,    0x0010, 'evKeyboard is 0x0010' );
+is( evMessage,     0xFF00, 'evMessage is 0xFF00' );
 
-is( ME_MOUSE_MOVED,  0x01,   'ME_MOUSE_MOVED is 0x01' );
-is( ME_DOUBLE_CLICK, 0x02,   'ME_DOUBLE_CLICK is 0x02' );
+is( mbLeftButton,  0x01,   'mbLeftButton is 0x01' );
+is( mbRightButton, 0x02,   'mbRightButton is 0x02' );
+
+is( meMouseMoved,  0x01,   'meMouseMoved is 0x01' );
+is( meDoubleClick, 0x02,   'meDoubleClick is 0x02' );
 
 done_testing;

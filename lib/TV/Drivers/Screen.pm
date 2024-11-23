@@ -90,11 +90,11 @@ sub fixCrtMode {    # $mode ($class, $mode)
   assert ( $class and !ref $class );
   assert ( looks_like_number $mode );
   if ( THardwareInfo->getPlatform() eq 'Windows' ) {
-    $mode = ( $mode & SM_FONT_8X8 ) ? SM_CO80 | SM_FONT_8X8 : SM_CO80;
+    $mode = ( $mode & smFont8x8 ) ? smCO80 | smFont8x8 : smCO80;
     return $mode;
   }
-  if ( ( $mode & 0xff ) == SM_MONO ) {    # Strip SM_FONT_8X8 if necessary.
-    return SM_MONO;
+  if ( ( $mode & 0xff ) == smMono ) {    # Strip smFont8x8 if necessary.
+    return smMono;
   }
   return $mode;
 } #/ sub fixCrtMode

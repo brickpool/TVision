@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 In this test plan, we test various aspects of the I<TCommandSet> class. The 
 tests check the methods I<new>, I<has>, I<disableCmd>, I<enableCmd>, 

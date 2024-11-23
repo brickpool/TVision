@@ -3,7 +3,7 @@ package TV::App::Const;
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
-  CP_BACKGROUND
+  cpBackground
 );
 
 our %EXPORT_TAGS = (
@@ -22,6 +22,6 @@ our %EXPORT_TAGS = (
       @EXPORT_OK;
 }
 
-use constant CP_BACKGROUND => "\x01";    # background palette
+use constant cpBackground => "\x01";    # background palette
 
 1

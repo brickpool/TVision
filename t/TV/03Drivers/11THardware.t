@@ -82,7 +82,7 @@ BEGIN {
 }
 
 BEGIN {
-  use_ok 'TV::Drivers::Const', qw( SM_CO80 );
+  use_ok 'TV::Drivers::Const', qw( smCO80 );
   use_ok 'TV::Drivers::HardwareInfo';
 }
 
@@ -128,8 +128,8 @@ is( THardwareInfo->getScreenCols(), 80,
 # Test getScreenMode and setScreenMode methods
 can_ok( THardwareInfo, 'getScreenMode' );
 can_ok( THardwareInfo, 'setScreenMode' );
-THardwareInfo->setScreenMode( SM_CO80 );
-is( THardwareInfo->getScreenMode(), ( SM_CO80 ),
+THardwareInfo->setScreenMode( smCO80 );
+is( THardwareInfo->getScreenMode(), ( smCO80 ),
   'getScreenMode and setScreenMode work correctly' );
 
 # Test clearScreen method

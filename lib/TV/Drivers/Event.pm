@@ -19,16 +19,16 @@ use Tie::Hash;
 
 use TV::Drivers::Const qw( 
   :evXXXX
-  KB_ALT_SHIFT
-  KB_ALT_SPACE
-  KB_DEL
-  KB_CTRL_SHIFT
-  KB_CTRL_DEL
-  KB_SHIFT
-  KB_SHIFT_DEL
-  KB_INS
-  KB_CTRL_INS
-  KB_SHIFT_INS
+  kbAltShift
+  kbAltSpace
+  kbDel
+  kbCtrlShift
+  kbCtrlDel
+  kbShift
+  kbShiftDel
+  kbIns
+  kbCtrlIns
+  kbShiftIns
 );
 use TV::Drivers::HardwareInfo;
 
@@ -291,15 +291,15 @@ our %FIELDS = (
     if ( @_ > 1 ) {
       assert ( looks_like_number $what );
       no warnings 'uninitialized';
-      $what += EV_NOTHING;
+      $what += evNothing;
       my $type = ref $this->[1];
-      if ( ( $what & EV_MOUSE ) && $type !~ /mouse/i ) {
+      if ( ( $what & evMouse ) && $type !~ /mouse/i ) {
         @$this = ( $what, MouseEventType->new() );
       }
-      elsif ( ( $what & EV_KEYBOARD ) && $type !~ /keyDown/i ) {
+      elsif ( ( $what & evKeyboard ) && $type !~ /keyDown/i ) {
         @$this = ( $what, KeyDownEvent->new() );
       }
-      elsif ( ( $what & EV_MESSAGE ) && $type !~ /message/i ) {
+      elsif ( ( $what & evMessage ) && $type !~ /message/i ) {
         @$this = ( $what, MessageEvent->new() );
       }
       else {
@@ -339,7 +339,7 @@ sub new {    # $obj (%args)
   tie %$self, $class;
   my $this = tied %$self;
   assert ( !exists $args{what} or looks_like_number $args{what} );
-  if ( $args{what} & EV_MOUSE ) {
+  if ( $args{what} & evMouse ) {
     $this->[0] = $args{what},
     $this->[1] = MouseEventType->new(
       map { $_ => $args{mouse}{$_} }
@@ -347,7 +347,7 @@ sub new {    # $obj (%args)
           qw( where eventFlags controlKeyState buttons )
     );
   }
-  elsif ( $args{what} & EV_KEYBOARD ) {
+  elsif ( $args{what} & evKeyboard ) {
     $this->[0] = $args{what},
     $this->[1] = KeyDownEvent->new( 
       map { $_ => $args{keyDown}{$_} }
@@ -355,7 +355,7 @@ sub new {    # $obj (%args)
           qw( keyCode charScan controlKeyState )
     );
   }
-  elsif ( $args{what} & EV_MESSAGE ) {
+  elsif ( $args{what} & evMessage ) {
     $this->[0] = $args{what},
     $this->[1] = MessageEvent->new( 
       map { $_ => $args{message}{$_} }
@@ -366,7 +366,7 @@ sub new {    # $obj (%args)
   return $self;
 } #/ sub new
 
-sub TIEHASH  { bless [ EV_NOTHING, undef ], $_[0] }
+sub TIEHASH  { bless [ evNothing, undef ], $_[0] }
 sub STORE    { $FIELDS{ $_[1] }->( $_[0], $_[2] ) }
 sub FETCH    { $FIELDS{ $_[1] }->( $_[0] ) }
 sub FIRSTKEY { my $a = scalar keys %FIELDS; each %FIELDS }
@@ -393,33 +393,33 @@ sub getKeyEvent {    # void ($self)
 
     SWITCH: for ( $self->{keyDown}{keyCode} ) {
       $_ == ord(' ') and do {
-        if ( $self->{keyDown}{controlKeyState} & KB_ALT_SHIFT ) {
-          $self->{keyDown}{keyCode} = KB_ALT_SPACE;
+        if ( $self->{keyDown}{controlKeyState} & kbAltShift ) {
+          $self->{keyDown}{keyCode} = kbAltSpace;
         }
         last;
       };
-      $_ == KB_DEL and do {
-        if ( $self->{keyDown}{controlKeyState} & KB_CTRL_SHIFT ) {
-          $self->{keyDown}{keyCode} = KB_CTRL_DEL;
+      $_ == kbDel and do {
+        if ( $self->{keyDown}{controlKeyState} & kbCtrlShift ) {
+          $self->{keyDown}{keyCode} = kbCtrlDel;
         }
-        elsif ( $self->{keyDown}{controlKeyState} & KB_SHIFT ) {
-          $self->{keyDown}{keyCode} = KB_SHIFT_DEL;
+        elsif ( $self->{keyDown}{controlKeyState} & kbShift ) {
+          $self->{keyDown}{keyCode} = kbShiftDel;
         }
         last;
       };
-      $_ == KB_INS and do {
-        if ( $self->{keyDown}{controlKeyState} & KB_CTRL_SHIFT ) {
-          $self->{keyDown}{keyCode} = KB_CTRL_INS;
+      $_ == kbIns and do {
+        if ( $self->{keyDown}{controlKeyState} & kbCtrlShift ) {
+          $self->{keyDown}{keyCode} = kbCtrlIns;
         }
-        elsif ( $self->{keyDown}{controlKeyState} & KB_SHIFT ) {
-          $self->{keyDown}{keyCode} = KB_SHIFT_INS;
+        elsif ( $self->{keyDown}{controlKeyState} & kbShift ) {
+          $self->{keyDown}{keyCode} = kbShiftIns;
         }
         last;
       };
     } #/ SWITCH: for ( $self->{keyDown}{...})
   } #/ if ( THardwareInfo->getKeyEvent...)
   else {
-    $_[0]->{what} = EV_NOTHING;
+    $_[0]->{what} = evNothing;
   }
   return;
 } #/ sub getKeyEvent

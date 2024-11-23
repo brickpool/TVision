@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<nextView>, 
 I<prevView>, I<prev>, I<next>, I<makeFirst>, I<putInFrontOf>, I<TopView>, 

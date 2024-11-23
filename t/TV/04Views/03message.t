@@ -5,7 +5,7 @@ use Test::More tests => 10;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
-  use_ok 'TV::Drivers::Const', qw( EV_COMMAND );
+  use_ok 'TV::Drivers::Const', qw( evCommand );
   use_ok 'TV::Views::View';
   use_ok 'TV::Util', qw( message );
 }
@@ -34,15 +34,15 @@ my $receiver = MyTView->new( bounds => $bounds );
 isa_ok( $receiver, TView );
 
 # Test case 1: Valid Input
-my $result = message( $receiver, EV_COMMAND, 2, \'info' );
+my $result = message( $receiver, evCommand, 2, \'info' );
 isa_ok( $result, 'MyTView' );
 
-# Test case 2: Non-EV_NOTHING Event
-$result = message( $receiver, EV_COMMAND, 2, \'info' );
-is( $result, undef, 'Non-EV_NOTHING event test' );
+# Test case 2: Non-evNothing Event
+$result = message( $receiver, evCommand, 2, \'info' );
+is( $result, undef, 'Non-evNothing event test' );
 
 # Test case 3: Undefined Receiver
-$result = message( undef, EV_COMMAND, 2, \'info' );
+$result = message( undef, evCommand, 2, \'info' );
 is( $result, undef, 'Undefined receiver test' );
 
 done_testing;

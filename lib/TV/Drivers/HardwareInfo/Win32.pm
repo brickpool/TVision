@@ -23,14 +23,14 @@ use Win32::Console::PatchForRT33513;
 use Win32API::File;
 
 use TV::Drivers::Const qw(
-  :evXXXX
+  evKeyDown
   :smXXXX
-  KB_ALT_SHIFT
-  KB_CTRL_SHIFT
-  KB_SHIFT
-  KB_INS
-  KB_INS_STATE
-  KB_CTRL_C
+  kbAltShift
+  kbCtrlShift
+  kbShift
+  kbIns
+  kbInsState
+  kbCtrlC
 );
 
 sub THardwareInfo() { __PACKAGE__ }
@@ -349,10 +349,10 @@ sub getScreenMode {    # $mode ($class)
   assert ( $class and !ref $class );
   my $mode  = 0;
   if ( $platform eq 'Windows' ) {
-    $mode = SM_CO80;    # B/W, mono not supported if running on Windows
+    $mode = smCO80;    # B/W, mono not supported if running on Windows
   }
   if ( $class->getScreenRows() > 25 ) {
-    $mode |= SM_FONT_8X8;
+    $mode |= smFont8x8;
   }
   return $mode;
 } #/ sub getScreenMode
@@ -364,7 +364,7 @@ sub setScreenMode {    # void ($class, $mode)
   my %newSize = ( X => 80, Y => 25 );
   my %rect    = ( Left => 0, Top => 0, Right => 79, Bottom => 24 );
 
-  if ( $mode & SM_FONT_8X8 ) {
+  if ( $mode & smFont8x8 ) {
     $newSize{Y}   = 50;
     $rect{Bottom} = 49;
   }
@@ -377,7 +377,7 @@ sub setScreenMode {    # void ($class, $mode)
     }
   }
 
-  if ( $mode & SM_FONT_8X8 ) {
+  if ( $mode & smFont8x8 ) {
     $consoleHandle[cnOutput]->Size( @newSize{qw(X Y)} );
     $consoleHandle[cnOutput]->Window( @rect{qw(Left Top Right Bottom)} );
   }
@@ -501,28 +501,28 @@ sub getKeyEvent {    # $bool ($class, $event)
 
   if ( $pendingEvent ) {
     if ( $irBuffer[EventType] == KEY_EVENT && $irBuffer[bKeyDown] ) {
-      $event->{what}                        = EV_KEY_DOWN;
+      $event->{what}                        = evKeyDown;
       $event->{keyDown}{charScan}{scanCode} = $irBuffer[wVirtualScanCode];
       $event->{keyDown}{charScan}{charCode} = $irBuffer[uChar];
       $event->{keyDown}{controlKeyState}    = $irBuffer[dwControlKeyState1];
 
       # Convert Windows style virtual scan codes to PC BIOS codes.
       if ( $event->{keyDown}{controlKeyState} &
-        ( KB_SHIFT | KB_ALT_SHIFT | KB_CTRL_SHIFT ) 
+        ( kbShift | kbAltShift | kbCtrlShift ) 
       ) {
         my $index = $irBuffer[wVirtualScanCode];
 
-        if ( ( $event->{keyDown}{controlKeyState} & KB_SHIFT )
+        if ( ( $event->{keyDown}{controlKeyState} & kbShift )
           && $ShiftCvt[$index] 
         ) {
           $event->{keyDown}{keyCode} = $ShiftCvt[$index];
         }
-        elsif ( ( $event->{keyDown}{controlKeyState} & KB_CTRL_SHIFT )
+        elsif ( ( $event->{keyDown}{controlKeyState} & kbCtrlShift )
           && $CtrlCvt[$index] 
         ) {
           $event->{keyDown}{keyCode} = $CtrlCvt[$index];
         }
-        elsif ( ( $event->{keyDown}{controlKeyState} & KB_ALT_SHIFT )
+        elsif ( ( $event->{keyDown}{controlKeyState} & kbAltShift )
           && $AltCvt[$index] 
         ) {
           $event->{keyDown}{keyCode} = $AltCvt[$index];
@@ -530,15 +530,15 @@ sub getKeyEvent {    # $bool ($class, $event)
       } #/ if ( $event->{keyDown}...)
 
       # Set/Reset insert flag.
-      if ( $event->{keyDown}{keyCode} == KB_INS ) {
+      if ( $event->{keyDown}{keyCode} == kbIns ) {
         $insertState = !$insertState;
       }
 
       if ( $insertState ) {
-        $event->{keyDown}{controlKeyState} |= KB_INS_STATE;
+        $event->{keyDown}{controlKeyState} |= kbInsState;
       }
 
-      if ( $event->{keyDown}{keyCode} == KB_CTRL_C ) {
+      if ( $event->{keyDown}{keyCode} == kbCtrlC ) {
         no warnings 'once';
         $TSystemError::ctrlBreakHit = !!1;
       }

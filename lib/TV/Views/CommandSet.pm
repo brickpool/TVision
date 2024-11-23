@@ -15,14 +15,6 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-use TV::Views::Const qw(
-  CM_ZOOM
-  CM_CLOSE
-  CM_RESIZE
-  CM_NEXT
-  CM_PREV
-);
-
 sub TCommandSet() { __PACKAGE__ }
 
 my $loc = sub {    # $int ( $cmd )

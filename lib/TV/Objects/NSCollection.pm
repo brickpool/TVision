@@ -43,8 +43,10 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-use TV::Const qw( MAX_COLLECTION_SIZE );
-use TV::Objects::Const qw( CC_NOT_FOUND );
+use TV::Objects::Const qw( 
+  ccNotFound 
+  maxCollectionSize
+);
 use TV::Objects::Object;
 
 sub TNSCollection() { __PACKAGE__ }
@@ -215,7 +217,7 @@ sub indexOf {    # $index ($item|undef)
     return $i if $self->{items}->[$i] eq $id;
   }
   $self->error( EFAULT, "Item not found" );
-  return CC_NOT_FOUND;
+  return ccNotFound;
 }
 
 sub insert {    # $index ($item|undef)
@@ -298,7 +300,7 @@ sub setLimit {    # void ($aLimit)
   assert ( blessed $self );
   assert ( looks_like_number $aLimit );
   $aLimit = $self->{count} if $aLimit < $self->{count};
-  $aLimit = MAX_COLLECTION_SIZE if $aLimit > MAX_COLLECTION_SIZE;
+  $aLimit = maxCollectionSize if $aLimit > maxCollectionSize;
   if ( $aLimit != $self->{limit} ) {
     my $size = @{ $self->{items} };
     if ( $aLimit > $size ) {

@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TGroup> cover the methods I<insertView>, 
 I<remove>, I<removeView>, I<resetCurrent>, I<setCurrent>, I<selectNext>, 
@@ -17,7 +17,7 @@ use Test::Exception;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
-  use_ok 'TV::Views::Const', qw( CM_CANCEL );
+  use_ok 'TV::Views::Const', qw( cmCancel );
   use_ok 'TV::Views::View';
   use_ok 'TV::Views::Group';
 }

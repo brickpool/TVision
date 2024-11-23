@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
 
 The following test cases of class I<TView> cover the methods I<writeBuf>, 
 I<writeChar>, I<writeLine> and I<writeStr>. 

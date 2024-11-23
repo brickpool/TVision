@@ -1,6 +1,6 @@
 =pod
 
-=head1 DECRIPTION
+=head1 DESCRIPTION
  
 These test cases cover the creation of the object I<TGroup>, the setting and 
 retrieval of some fields as well as the behavior of the methods I<setState>, 
@@ -19,8 +19,8 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Drivers::Event';
   use_ok 'TV::Views::Const', qw( 
-    CM_CANCEL
-    SF_ACTIVE
+    cmCancel
+    sfActive
   );
   use_ok 'TV::Views::View';
   use_ok 'TV::Views::Group';
@@ -52,7 +52,7 @@ isa_ok( $group, TGroup, 'Object is of class TGroup' );
 
 # Test setState method
 can_ok( $group, 'setState' );
-lives_ok { $group->setState( SF_ACTIVE, !!1 ) }
+lives_ok { $group->setState( sfActive, !!1 ) }
   'setState works correctly';
 
 # Test handleEvent method
