@@ -37,7 +37,7 @@ sub TDeskTop() { __PACKAGE__ }
 sub name() { 'TDeskTop' }
 
 use base TGroup;
-use base TDeskInit;
+use parent TDeskInit;
 
 # predeclare global variables
 our $defaultBkgrnd = "\xB0";

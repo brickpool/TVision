@@ -113,7 +113,7 @@ sub BUILD {    # void (| \%args)
   return;
 } #/ sub BUILD
 
-sub DESTROY {    # void ()
+sub DEMOLISH {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $unlock_value->( $self->{current} ) if STRICT;

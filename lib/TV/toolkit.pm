@@ -107,7 +107,7 @@ sub has_slot {    # $bool ($target, $name)
 }
 
 # Returns an hash reference to represent the field of the given name, 
-# if one exists. If not 'false' is returned.
+# if one exists. If not FALSE is returned.
 sub get_slot {    # \%metafield ($target, $name)
   my ( $proto, $name ) = @_;
   assert( $proto );
@@ -262,13 +262,15 @@ sub create_constructor {    # void ($target, | $name)
     Class::Tiny->prepare_class( $target );
   }
   else {
-    # pragma fields and classic Perl OOP have no default contructor
+    # pragma fields and classic Perl OOP have no default constructor
     no strict 'refs';
-    my $fullname = "$target\::$name";
-    return    # constructor already exists
-      if exists &$fullname;
+
     # The constructor for TObject is created as follows ..
-    *$fullname = sub {    # $obj (@)
+    my $new = "$target\::$name";
+    return    # constructor already exists
+      if exists &$new;
+
+    *$new = sub {    # $obj (@)
       my $self  = shift;
       my $class = ref $self || $self;
       my $args;
@@ -308,12 +310,27 @@ sub create_constructor {    # void ($target, | $name)
         } all_slots( $class );
       # Call all BUILD methods starting with TObject up to the derived classes.
       map {
-        my $pkg   = ref $_ || $_;
-        my $build = "$pkg\::BUILD";
+        my $super = ref $_ || $_;
+        my $build = "$super\::BUILD";
         $build->( $self, $args ) if exists( &$build )
       } reverse @{ mro::get_linear_isa( $class ) };
       return $self;
     }; #/ sub new
+
+    # The destructor for TObject is created as follows ..
+    my $DESTROY = "$target\::DESTROY";
+    return    # destructor already exists
+      if exists &$DESTROY;
+
+    *$DESTROY = sub {
+      my $self = $_[0];
+      # Call all DEMOLISH methods starting with the derived classes.
+      map {
+        my $super    = ref $_ || $_;
+        my $demolish = "$super\::DEMOLISH";
+        $demolish->( $self ) if exists( &$demolish )
+      } @{ mro::get_linear_isa( $class ) };
+    };
   }
 
   return;
