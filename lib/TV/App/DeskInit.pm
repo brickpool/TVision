@@ -37,7 +37,6 @@ __PACKAGE__
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  assert ( ref $args{cBackground} );
   $args{createBackground} = delete $args{cBackground};
   return { %args };
 }

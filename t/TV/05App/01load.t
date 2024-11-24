@@ -11,6 +11,7 @@ BEGIN {
   use_ok 'TV::App::Background';
   use_ok 'TV::App::DeskInit';
   use_ok 'TV::App::DeskTop';
+  use_ok 'TV::App::ProgInit';
 }
 
 isa_ok(
@@ -19,3 +20,8 @@ isa_ok(
 );
 isa_ok( TDeskInit->new( cBackground => sub { } ), TDeskInit );
 isa_ok( TDeskTop->new( bounds => TRect->new() ),  TDeskTop );
+isa_ok( TProgInit->new(
+  cStatusLine => sub { },
+  cMenuBar    => sub { },
+  cDeskTop    => sub { },
+), TProgInit );
