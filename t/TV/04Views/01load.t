@@ -1,7 +1,9 @@
+#!perl
+
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More qw( no_plan );
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -19,5 +21,3 @@ isa_ok( TCommandSet->new(), TCommandSet );
 isa_ok( TPalette->new(), TPalette );
 isa_ok( TView->new( bounds => TRect->new() ), TView );
 isa_ok( TGroup->new( bounds => TRect->new() ), TGroup );
-
-done_testing;

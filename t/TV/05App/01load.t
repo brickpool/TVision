@@ -1,7 +1,9 @@
+#!perl
+
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More qw( no_plan );
 
 BEGIN {
   use_ok 'TV::App::Const';
@@ -17,5 +19,3 @@ isa_ok(
 );
 isa_ok( TDeskInit->new( cBackground => sub { } ), TDeskInit );
 isa_ok( TDeskTop->new( bounds => TRect->new() ),  TDeskTop );
-
-done_testing;
