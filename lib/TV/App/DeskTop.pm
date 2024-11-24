@@ -55,7 +55,8 @@ use fields qw(
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  $args{cBackground} ||= \&initBackground;
+  $args{createBackground} = delete $args{cBackground};
+  $args{createBackground} ||= \&initBackground;
   return $class->SUPER::BUILDARGS( %args );
 }
 

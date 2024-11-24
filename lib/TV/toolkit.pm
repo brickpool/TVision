@@ -6,7 +6,6 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Module::Loaded ();
 use mro ();
 
-require base;
 require Errno;
 require fields;
 
@@ -38,25 +37,28 @@ sub all_slots {    # @metafields ($target)
   assert ( $proto );
   my $target = ref $proto || $proto;
   my @fields;
-  if ( base::has_attr( $target ) ) {
+  if ( exists $fields::attr{$target} ) {
     # The following code is taken from fields::_dump()
     no strict 'refs';
-    my %FIELDS = %{"$target\::FIELDS"};
+    my %FIELDS = ();
+    for my $pkg ( reverse @{ mro::get_linear_isa( $target ) } ) {
+      %FIELDS = ( %FIELDS, %{"${pkg}::FIELDS"} );
+    }
     for my $name ( sort { $FIELDS{$a} <=> $FIELDS{$b} } keys %FIELDS ) {
       my $no    = $FIELDS{$name} || next;
-      my $fattr = base::get_attr( $target )->[$no];
+      my $fattr = $fields::attr{$target}[$no];
       push(
         @fields,
         {
-          name => $name,
+          name        => $name,
           initializer => {
             is       => $target->can( $name ) ? 'bare' : 'rw',
             init_arg => $name,
           }
         }
       ) if defined $fattr;
-    }
-  } #/ if ( base::has_attr( $target...))
+    } #/ for my $name ( sort { $FIELDS...})
+  } #/ if ( exists $fields::attr...)
   return @fields;
 }
 
@@ -67,28 +69,28 @@ sub slots {    # @metafields ($target)
   assert ( $proto );
   my $target = ref $proto || $proto;
   my @fields;
-  if ( base::has_attr( $target ) ) {
+  if ( exists $fields::attr{$target} ) {
     # The following code is taken from fields::_dump()
     no strict 'refs';
     my %FIELDS = %{"$target\::FIELDS"};
     for my $name ( sort { $FIELDS{$a} <=> $FIELDS{$b} } keys %FIELDS ) {
       my $no    = $FIELDS{$name} || next;
-      my $fattr = base::get_attr( $target )->[$no];
+      my $fattr = $fields::attr{$target}[$no];
       # we only want to have the newly defined %FIELDS of $target
-      if ( defined $fattr && !( $fattr & base::INHERITED ) ) {
+      if ( defined $fattr && !( $fattr & fields::INHERITED ) ) {
         push(
           @fields,
           {
-            name => $name,
+            name        => $name,
             initializer => {
-              is       => $target->can($name) ? 'bare' : 'rw',
+              is       => $target->can( $name ) ? 'bare' : 'rw',
               init_arg => $name,
             }
           }
         );
-      }
-    }
-  } #/ if ( base::has_attr( $target...))
+      } #/ if ( defined $fattr &&...)
+    } #/ for my $name ( sort { $FIELDS...})
+  } #/ if ( exists $fields::attr...)
   return @fields;
 } #/ sub slots
 
@@ -98,12 +100,13 @@ sub has_slot {    # $bool ($target, $name)
   assert( $proto );
   assert( $name && !ref $name );
   my $target = ref $proto || $proto;
-  return 
-    unless base::has_attr( $target );
+  return
+    unless exists $fields::attr{$target};
   no strict 'refs';
   my %FIELDS = %{"$target\::FIELDS"};
   my $no     = $FIELDS{$name} || return;
-  return defined base::get_attr( $target )->[$no];
+  my $fattr  = $fields::attr{$target}[$no];
+  return defined $fattr;
 }
 
 # Returns an hash reference to represent the field of the given name, 
@@ -114,11 +117,11 @@ sub get_slot {    # \%metafield ($target, $name)
   assert( $name && !ref $name );
   my $target = ref $proto || $proto;
   return
-    unless base::has_attr( $target );
+    unless exists $fields::attr{$target};
   no strict 'refs';
   my %FIELDS = %{"$target\::FIELDS"};
   my $no     = $FIELDS{$name} || return;
-  my $fattr  = base::get_attr( $target )->[$no];
+  my $fattr  = $fields::attr{$target}[$no];
   return
     unless defined $fattr;
   return {

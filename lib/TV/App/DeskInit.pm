@@ -45,6 +45,7 @@ sub BUILDARGS {    # \%args (%args)
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
+  assert ( ref $self->{createBackground} eq 'CODE' );
   return;
 }
 
@@ -52,8 +53,7 @@ sub createBackground {    # $background ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
   assert ( blessed $r );
-  assert ( ref $self->{createBackground} eq 'CODE' );
-  return $self->{createBackground}->($r);
+  return $self->{createBackground}->( bounds => $r );
 }
 
 1

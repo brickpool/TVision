@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 18;
 use Test::Exception;
 
 BEGIN {
@@ -15,10 +15,8 @@ BEGIN {
 my $desktop = TDeskTop->new( bounds => TRect->new() );
 isa_ok( $desktop, TDeskTop, 'Object is of class TDeskTop' );
 
-# Test shutDown method
-can_ok( $desktop, 'shutDown' );
-lives_ok { $desktop->shutDown() }
-  'shutDown works correctly';
+# Test background field
+isa_ok( $desktop->{background}, TBackground, 'Object is of class TBackground' );
 
 # Test cascade method
 can_ok( $desktop, 'cascade' );
@@ -46,5 +44,10 @@ lives_ok { $desktop->tile( TRect->new() ) }
 can_ok( $desktop, 'tileError' );
 lives_ok { $desktop->tileError() }
    'tileError works correctly';
+
+# Test shutDown method
+can_ok( $desktop, 'shutDown' );
+lives_ok { $desktop->shutDown() }
+  'shutDown works correctly';
 
 done_testing;
