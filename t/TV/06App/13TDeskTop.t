@@ -31,7 +31,7 @@ lives_ok { $desktop->handleEvent( $event ) }
 
 # Test initBackground method
 can_ok( $desktop, 'initBackground' );
-my $background = $desktop->initBackground( TRect->new() );
+my $background = TDeskTop->initBackground( TRect->new() );
 isa_ok( $background, TBackground,
 	'initBackground returns a TBackground object' );
 
