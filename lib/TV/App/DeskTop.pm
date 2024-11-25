@@ -60,8 +60,8 @@ sub BUILDARGS {    # \%args (%args)
   return $class->SUPER::BUILDARGS( %args );
 }
 
-sub BUILD {
-  my ( $self, $args ) = @_;
+sub BUILD {    # void (| \%args)
+  my $self = shift;
   assert ( blessed $self );
   $self->{growMode}         = gfGrowHiX | gfGrowHiY;
   $self->{tileColumnsFirst} = 0;
@@ -74,7 +74,7 @@ sub BUILD {
   return;
 }
 
-my $Tileable = sub {
+my $Tileable = sub {    # void ($p)
   my $p = shift;
   return ( $p->{options} & ofTileable ) && ( $p->{state} & sfVisible );
 };
@@ -82,7 +82,7 @@ my $Tileable = sub {
 my $cascadeNum;
 my $lastView;
 
-my $doCount = sub { # void ($p, @)
+my $doCount = sub {    # void ($p, @)
   my $p = shift;
   if ( $p->$Tileable() ) {
     $cascadeNum++;
@@ -91,7 +91,7 @@ my $doCount = sub { # void ($p, @)
   return;
 };
 
-my $doCascade = sub { # void ($p, $r)
+my $doCascade = sub {    # void ($p, $r)
   my ( $p, $r ) = @_;
   if ( $p->$Tileable() && $cascadeNum >= 0 ) {
     my $NR = $r;
@@ -103,7 +103,7 @@ my $doCascade = sub { # void ($p, $r)
   return;
 }; #/ $doCascade = sub
 
-sub cascade {
+sub cascade {    # void ($r)
   my ( $self, $r ) = @_;
   my $min = TPoint->new();
   my $max = TPoint->new();
@@ -125,7 +125,7 @@ sub cascade {
   } #/ if ( $cascadeNum > 0 )
 } #/ sub cascade
 
-sub handleEvent {
+sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evCommand ) {
@@ -155,7 +155,7 @@ sub initBackground {    # $background ($r)
 
 my ( $numCols, $numRows, $numTileable, $leftOver, $tileNum );
 
-my $iSqr = sub { # void ($i)
+my $iSqr = sub {    # void ($i)
   my $i = shift;
   my ( $res1, $res2 ) = ( 2, int( $i / 2 ) );
   while ( abs( $res1 - $res2 ) > 1 ) {
@@ -224,7 +224,7 @@ my $calcTileRect = sub {    # $rect ($pos, $r)
   return $nRect;
 }; #/ $calcTileRect = sub
 
-my $doTile = sub {
+my $doTile = sub {    # void ($p, $r)
   my ( $p, $r ) = @_;
   if ( $p->$Tileable() ) {
     my $rect = $calcTileRect->( $tileNum, $r );
@@ -234,7 +234,7 @@ my $doTile = sub {
   return;
 };
 
-sub tile {
+sub tile {    # void ($r)
   my ( $self, $r ) = @_;
   $numTileable = 0;
   $self->forEach( $doCountTileable, undef );
@@ -263,7 +263,7 @@ sub tileError {    # void ()
   return;
 }
 
-sub shutDown {
+sub shutDown {    # void ()
   my $self = shift;
   $self->{background} = undef;
   $self->SUPER::shutDown();

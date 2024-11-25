@@ -556,7 +556,7 @@ my $hasMouse = sub {    # $bool ($p, $s)
   return $p->containsMouse( $s );
 };
 
-sub handleEvent { # void ($event)
+sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
   assert ( blessed $self );
   assert ( blessed $event );

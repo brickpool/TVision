@@ -326,7 +326,7 @@ sub create_constructor {    # void ($target, | $name)
       if exists &$DESTROY;
 
     *$DESTROY = sub {
-      my $self = $_[0];
+      my $self = shift;
       # Call all DEMOLISH methods starting with the derived classes.
       map {
         my $super    = ref $_ || $_;
