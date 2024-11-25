@@ -27,8 +27,6 @@ package TV::Views::View::Write;
 use strict;
 use warnings;
 
-use Data::Alias;
-
 use TV::Drivers::HardwareInfo;
 use TV::Drivers::HWMouse;
 use TV::Drivers::Screen;
@@ -38,8 +36,16 @@ use TV::Views::Const qw(
 );
 use TV::Views::View;
 
-alias my $shadowSize = TView->{shadowSize};
-alias my $shadowAttr = TView->{shadowAttr};
+# import global variables
+use vars qw(
+  $shadowSize
+  $shadowAttr
+);
+{
+  no strict 'refs';
+  *shadowSize = \${ TView . '::shadowSize' };
+  *shadowAttr = \${ TView . '::shadowAttr' };
+}
 
 use constant HIDEMOUSE => 0;
 

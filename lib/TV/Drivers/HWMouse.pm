@@ -27,7 +27,6 @@ our @EXPORT = qw(
   THWMouse
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 
@@ -39,12 +38,6 @@ sub THWMouse() { __PACKAGE__ }
 our $buttonCount      = 0;
 our $handlerInstalled = !!0;
 our $noMouse          = !!0;
-{
-  no warnings 'once';
-  alias THWMouse->{buttonCount}      = $buttonCount;
-  alias THWMouse->{handlerInstalled} = $handlerInstalled;
-  alias THWMouse->{noMouse}          = $noMouse;
-}
 
 INIT: {
   THWMouse->resume();

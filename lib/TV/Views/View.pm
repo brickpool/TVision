@@ -17,7 +17,6 @@ our @EXPORT = qw(
   TView
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
@@ -62,24 +61,13 @@ sub name() { 'TView' }
 
 use base TObject;
 
-# predeclare global variables
+# declare global variables
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
 our $shadowAttr        = 0x08;
 our $showMarkers       = !!0;
 our $errorAttr         = 0xcf;
 our $commandSetChanged = !!0;
-{
-  no warnings 'once';
-  alias TView->{shadowSize}        = $shadowSize;
-  alias TView->{shadowAttr}        = $shadowAttr;
-  alias TView->{showMarkers}       = $showMarkers;
-  alias TView->{errorAttr}         = $errorAttr;
-  alias TView->{commandSetChanged} = $commandSetChanged;
-}
-
-alias my $TheTopView = $TV::Views::Group::TheTopView;
-
-my $initCommands = sub {
+our $curCommandSet     = do {    # initCommands
   my $temp = TCommandSet->new();
   for ( my $i = 0 ; $i < 256 ; $i++ ) {
     $temp->enableCmd( $i );
@@ -89,13 +77,16 @@ my $initCommands = sub {
   $temp->disableCmd( cmResize );
   $temp->disableCmd( cmNext );
   $temp->disableCmd( cmPrev );
-  return $temp;
-}; #/ $initCommands = sub
+  $temp;
+};
 
-our $curCommandSet = $initCommands->();
+# import global variables
+use vars qw(
+  $TheTopView
+); 
 {
-  no warnings 'once';
-  alias TView->{curCommandSet} = $curCommandSet;
+  no strict 'refs';
+  *TheTopView = \$TV::Views::Group::TheTopView;
 }
 
 # predeclare attributes
@@ -388,7 +379,7 @@ my $grow;
 
 sub calcBounds {    # void ($bounds, $delta);
   my ( $self, undef, $delta ) = @_;
-  alias my $bounds = $_[1];
+  alias: for my $bounds ($_[1]) {
   assert ( blessed $self );
   assert ( blessed $bounds );
   assert ( blessed $delta );
@@ -435,6 +426,7 @@ sub calcBounds {    # void ($bounds, $delta);
   $bounds->{b}{y} = $bounds->{a}{y} +
     $range->( $bounds->{b}{y} - $bounds->{a}{y}, $minLim->{y}, $maxLim->{y} );
   return;
+  } #/ alias
 } #/ sub calcBounds
 
 sub changeBounds {    # void ($bounds)
@@ -1117,7 +1109,7 @@ sub writeBuf {    # void ($x, $y, $w, $h, $b)
   assert ( ref $b );
   while ( $h-- > 0 ) {
     $self->$writeView( $x, $y++, $w, $b );
-    $b = alias [ @$b[ $w .. $#$b ] ];
+	  alias: $b = sub { \@_ }->( @$b[ $w .. $#$b ] );
   }
   return;
 }

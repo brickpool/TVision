@@ -7,6 +7,7 @@ use Test::More qw( no_plan );
 
 BEGIN {
   use_ok 'TV::Drivers::Const';
+  use_ok 'TV::Drivers::Util';
   use_ok 'TV::Drivers::HardwareInfo';
   use_ok 'TV::Drivers::Display';
   use_ok 'TV::Drivers::Screen';
@@ -34,7 +35,7 @@ isa_ok( TEvent->new(),         TEvent );
 
 SKIP: {
   skip 'No mouse available', 3 unless THardwareInfo->getButtonCount();
-  ok( THWMouse->present(),       'THWMouse is present' );
-  ok( TMouse->present(),         'TMouse is present' );
-  ok( TEventQueue->{mouseEvents}, 'TEventQueue use mouse events' );
+  ok( THWMouse->present(), 'THWMouse is present' );
+  ok( TMouse->present(),   'TMouse is present' );
+  ok( $TV::Drivers::EventQueue::mouseEvents, 'TEventQueue use mouse events' );
 }

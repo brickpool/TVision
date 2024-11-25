@@ -33,7 +33,6 @@ our @EXPORT = qw(
   TNSSortedCollection
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
@@ -48,7 +47,14 @@ sub TNSSortedCollection() { __PACKAGE__ }
 
 use base TNSCollection;
 
-alias our %ITEMS = %TV::Objects::NSCollection::ITEMS;
+# import global variables
+use vars qw(
+  %ITEMS 
+);
+{
+	no strict 'refs';
+	*ITEMS = \%{ TNSCollection . '::ITEMS' };
+}
 
 # predeclare attributes
 use fields qw(

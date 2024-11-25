@@ -127,7 +127,11 @@ $event_queue->getMouseEvent( $event = TEvent->new() );
 is( $event->{what}, evMouseMove, 'Mouse move event handled correctly' );
 
 # Test some global variables
-is TEventQueue->{doubleDelay}, 8, 'TEventQueue->{doubleDelay} is set correctly';
-isa_ok TEventQueue->{lastMouse}, 'MouseEventType';
+is(
+  $TV::Drivers::EventQueue::doubleDelay,
+  8,
+	'TEventQueue->{doubleDelay} is set correctly'
+);
+isa_ok( $TV::Drivers::EventQueue::lastMouse, 'MouseEventType' );
 
 done_testing;

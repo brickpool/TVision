@@ -39,7 +39,7 @@ sub new {    # $obj (%args)
   if ( $args{data} && $args{size} ) {
     my $d   = $args{data} . '';
     my $len = $args{size} || 0;
-    $data = pack( 'C'.'a' x $len, $len, unpack( '(a1)*', $d ) );
+    $data = pack( 'C'.'a' x $len, $len, unpack( '(a)*', $d ) );
   }
   elsif ( $args{copy_from} ) {
     my $tp = $args{copy_from};

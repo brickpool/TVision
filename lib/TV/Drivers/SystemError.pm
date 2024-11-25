@@ -31,7 +31,6 @@ our @EXPORT = qw(
   TSystemError
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 
@@ -42,11 +41,6 @@ sub TSystemError() { __PACKAGE__ }
 # Global variables
 our $ctrlBreakHit  = !!0;
 our $saveCtrlBreak = !!0;
-{
-  no warnings 'once';
-  alias TSystemError->{ctrlBreakHit}  = $ctrlBreakHit;
-  alias TSystemError->{saveCtrlBreak} = $saveCtrlBreak;
-}
 
 INIT: {
   TSystemError->resume();

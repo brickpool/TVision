@@ -7,7 +7,7 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Drivers::Const', qw( evCommand );
   use_ok 'TV::Views::View';
-  use_ok 'TV::Util', qw( message );
+  use_ok 'TV::Views::Util', qw( message );
 }
 
 BEGIN {

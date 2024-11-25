@@ -8,7 +8,6 @@ our @EXPORT_OK = qw(
   THardwareInfo
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use English qw( -no_match_vars );
@@ -103,7 +102,7 @@ PRIVATE: {
   sub dwEventFlags        (){ 5 }
 }
 
-# predeclare global variable names
+# declare global variables
 our $insertState   = !!1;
 our $platform      = '';
 our @consoleHandle = ();
@@ -113,18 +112,6 @@ our $pendingEvent  = 0;
 our @irBuffer      = ();
 our @crInfo        = ();
 our @sbInfo        = ();
-{
-  no warnings 'once';
-  alias THardwareInfo->{insertState}   = $insertState;
-  alias THardwareInfo->{platform}      = $platform;
-  alias THardwareInfo->{consoleHandle} = @consoleHandle;
-  alias THardwareInfo->{ownsConsole}   = $ownsConsole;
-  alias THardwareInfo->{consoleMode}   = $consoleMode;
-  alias THardwareInfo->{pendingEvent}  = $pendingEvent;
-  alias THardwareInfo->{irBuffer}      = @irBuffer;
-  alias THardwareInfo->{crInfo}        = @crInfo;
-  alias THardwareInfo->{sbInfo}        = @sbInfo;
-}
 
 my @ShiftCvt = (
          0,      0,      0,      0,      0,      0,      0,      0,

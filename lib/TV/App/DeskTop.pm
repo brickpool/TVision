@@ -8,7 +8,6 @@ our @EXPORT = qw(
   TDeskTop
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
@@ -39,12 +38,8 @@ sub name() { 'TDeskTop' }
 use base TGroup;
 use parent TDeskInit;
 
-# predeclare global variables
+# declare global variables
 our $defaultBkgrnd = "\xB0";
-{
-  no warnings 'once';
-  alias TDeskTop->{defaultBkgrnd} = $defaultBkgrnd;
-}
 
 # predeclare attributes
 use fields qw(
@@ -167,7 +162,8 @@ my $iSqr = sub {    # void ($i)
 
 my $mostEqualDivisors = sub {    # void ($n, $x, $y, $favorY)
   my ( $n, undef, undef, $favorY ) = @_;
-  alias my ( $x, $y ) = $_[ 1 .. 2 ];
+  alias: for my $x ( $_[1] ) {
+  alias: for my $y ( $_[2] ) {
   my $i = $iSqr->( $n );
   $i++
     if $n % $i != 0 && $n % ( $i + 1 ) == 0;
@@ -183,6 +179,7 @@ my $mostEqualDivisors = sub {    # void ($n, $x, $y, $favorY)
     $x = $i;
   }
   return;
+  }} # /alias
 }; #/ $mostEqualDivisors = sub
 
 my $doCountTileable = sub {    # void ($p, @)

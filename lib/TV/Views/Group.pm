@@ -16,7 +16,6 @@ our @EXPORT = qw(
   TGroup
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
@@ -48,14 +47,9 @@ sub name() { 'TGroup' }
 
 use base TView;
 
-# predeclare global variables
+# declare global variables
 our $TheTopView;
 our $ownerGroup;
-{
-  no warnings 'once';
-  alias TGroup->{TheTopView} = $TheTopView;
-  alias TGroup->{ownerGroup} = $ownerGroup;
-}
 
 # predeclare attributes
 use fields qw(
@@ -672,7 +666,8 @@ sub getData {    # void (\@rec)
   if ( $self->{last} ) {
     my $v = $self->{last};
     do {
-      $v->getData( alias [ @$rec[ $i .. $#$rec ] ] );
+		  alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
+      $v->getData( $rec );
       $i += $v->dataSize();
       $v = $v->prev();
     } while ( $v != $self->{last} );
@@ -688,7 +683,8 @@ sub setData {    # void (\@rec)
   if ( $self->{last} ) {
     my $v = $self->{last};
     do {
-      $v->setData( alias [ @$rec[ $i .. $#$rec ] ] );
+		  alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
+      $v->setData( $rec );
       $i += $v->dataSize();
       $v = $v->prev();
     } while ( $v != $self->{last} );

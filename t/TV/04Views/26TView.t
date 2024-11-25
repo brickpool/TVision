@@ -62,7 +62,7 @@ subtest 'getColor method' => sub {
   my $view = TView->new( bounds => $bounds );
   is( 
     $view->getColor( 0x100 ), 
-    ( 0x100 | TView->{errorAttr} ),
+    ( 0x100 | $TV::Views::View::errorAttr ),
     'getColor method returns correct color'
   );
 };

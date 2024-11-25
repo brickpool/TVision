@@ -8,7 +8,6 @@ our @EXPORT = qw(
   TScreen
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( looks_like_number );
@@ -32,19 +31,6 @@ our $checkSnow      = !!1;
 our $screenBuffer   = [];
 our $cursorLines    = 0;
 our $clearOnSuspend = !!1;
-{
-  no warnings 'once';
-  alias TScreen->{startupMode}    = $startupMode;
-  alias TScreen->{startupCursor}  = $startupCursor;
-  alias TScreen->{screenMode}     = $screenMode;
-  alias TScreen->{screenWidth}    = $screenWidth;
-  alias TScreen->{screenHeight}   = $screenHeight;
-  alias TScreen->{hiResScreen}    = $hiResScreen;
-  alias TScreen->{checkSnow}      = $checkSnow;
-  alias TScreen->{screenBuffer}   = $screenBuffer;
-  alias TScreen->{cursorLines}    = $cursorLines;
-  alias TScreen->{clearOnSuspend} = $clearOnSuspend;
-}
 
 INIT: {
   $startupMode   = TScreen->getCrtMode();

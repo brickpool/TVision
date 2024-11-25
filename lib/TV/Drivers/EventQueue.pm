@@ -8,7 +8,6 @@ our @EXPORT = qw(
   TEventQueue
 );
 
-use Data::Alias;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 
@@ -37,22 +36,6 @@ our $mouse     = TMouse;
 our $lastMouse = MouseEventType->new();
 our $curMouse  = MouseEventType->new();
 our $downMouse = MouseEventType->new();
-{
-  no warnings 'once';
-  alias TEventQueue->{downTicks} = $downTicks;
-
-  alias TEventQueue->{mouseEvents}  = $mouseEvents;
-  alias TEventQueue->{mouseReverse} = $mouseReverse;
-  alias TEventQueue->{doubleDelay}  = $doubleDelay;
-  alias TEventQueue->{repeatDelay}  = $repeatDelay;
-  alias TEventQueue->{autoTicks}    = $autoTicks;
-  alias TEventQueue->{autoDelay}    = $autoDelay;
-
-  alias TEventQueue->{mouse}     = $mouse;
-  alias TEventQueue->{lastMouse} = $lastMouse;
-  alias TEventQueue->{curMouse}  = $curMouse;
-  alias TEventQueue->{downMouse} = $downMouse;
-}
 
 INIT: {
   TEventQueue->resume();
@@ -78,7 +61,10 @@ sub resume {    # void ($class)
 
   $mouseEvents = !!1;
   eval {
-    TMouse->setRange( TScreen->{screenWidth} - 1, TScreen->{screenHeight} - 1 )
+    TMouse->setRange( 
+      $TV::Drivers::Screen::screenWidth - 1, 
+      $TV::Drivers::Screen::screenHeight - 1 
+    )
   };
   return;
 } #/ sub resume
