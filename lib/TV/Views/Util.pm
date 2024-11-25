@@ -6,7 +6,7 @@ defines various utility functions used throughout Turbo Vision
 
 =cut
 
-package TV::Util;
+package TV::Views::Util;
 
 use Exporter 'import';
 
@@ -25,6 +25,7 @@ use TV::Drivers::Const qw( evNothing );
 use TV::Drivers::Event;
 
 sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
+  assert ( @_ == 4 );
   my ( $receiver, $what, $command, $infoPtr ) = @_;
   assert ( !defined $self or blessed $self );
   assert ( looks_like_number $what );

@@ -29,7 +29,6 @@ use Scalar::Util qw(
 );
 
 use TV::Const qw( INT_MAX );
-use TV::Util qw( message );
 use TV::Objects::Object;
 use TV::Objects::DrawBuffer;
 use TV::Objects::Point;
@@ -52,6 +51,7 @@ use TV::Views::Const qw(
 );
 use TV::Views::CommandSet;
 use TV::Views::Palette;
+use TV::Views::Util qw( message );
 
 require TV::Views::View::Cursor;
 require TV::Views::View::Exposed;
