@@ -44,8 +44,6 @@ BEGIN {
 is $TV::toolkit::name, 'fields', 'Toolkit is fields';
 ok TV::toolkit::is_fields(), 'TV::toolkit::fields is set to true';
 
-use Data::Dumper;
-
 subtest 'Slots' => sub {
   is_deeply(
     [ TV::toolkit::all_slots( 'Point' ) ], 

@@ -277,7 +277,7 @@ sub create_constructor {    # void ($target, | $name)
       my $self  = shift;
       my $class = ref $self || $self;
       my $args;
-      if ( $class->can('BUILDARGS' ) ) {
+      if ( $class->can( 'BUILDARGS' ) ) {
         # If BUILDARGS exists, we use this ..
         $args = $class->BUILDARGS( @_ );
       } 
@@ -331,7 +331,7 @@ sub create_constructor {    # void ($target, | $name)
       map {
         my $super    = ref $_ || $_;
         my $demolish = "$super\::DEMOLISH";
-        $demolish->( $self ) if exists( &$demolish )
+        $demolish->( $self ) if exists( &$demolish );
       } @{ mro::get_linear_isa( $class ) };
     };
   }
