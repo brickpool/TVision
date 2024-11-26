@@ -100,6 +100,8 @@ my $doCascade = sub {    # void ($p, $r)
 
 sub cascade {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( ref $r );
   my $min = TPoint->new();
   my $max = TPoint->new();
   $cascadeNum = 0;
@@ -122,6 +124,8 @@ sub cascade {    # void ($r)
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evCommand ) {
     SWITCH: for ( $event->{message}{command} ) {
@@ -145,6 +149,8 @@ sub handleEvent {    # void ($event)
 
 sub initBackground {    # $background ($r)
   my ( $class, $r ) = @_;
+  assert ( $class );
+  assert ( ref $r );
   return TBackground->new( bounds => $r, aPattern => $defaultBkgrnd );
 }
 
@@ -233,6 +239,8 @@ my $doTile = sub {    # void ($p, $r)
 
 sub tile {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( blessed $self );
+  assert ( ref $r );
   $numTileable = 0;
   $self->forEach( $doCountTileable, undef );
   if ( $numTileable > 0 ) {
@@ -262,6 +270,7 @@ sub tileError {    # void ()
 
 sub shutDown {    # void ()
   my $self = shift;
+  assert ( blessed $self );
   $self->{background} = undef;
   $self->SUPER::shutDown();
   return;

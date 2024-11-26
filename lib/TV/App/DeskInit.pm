@@ -51,7 +51,7 @@ sub BUILD {    # void (| \%args)
 sub createBackground {    # $background ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return $self->{createBackground}->( bounds => $r );
 }
 

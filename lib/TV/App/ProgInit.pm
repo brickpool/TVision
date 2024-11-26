@@ -59,21 +59,21 @@ sub BUILD {    # void (| \%args)
 sub createStatusLine {    # $statusLine ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return $self->{createStatusLine}->( bounds => $r );
 }
 
 sub createMenuBar {    # $menuBar ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return $self->{createMenuBar}->( bounds => $r );
 }
 
 sub createDeskTop {    # $deskTop ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return $self->{createDeskTop}->( bounds => $r );
 }
 
