@@ -39,14 +39,14 @@ use TV::Drivers::Const qw(
 use TV::Drivers::Event;
 use TV::Views::Const qw(
   maxViewWidth
+  :phaseType
+  :selectMode
   :cmXXXX
   :dmXXXX
   :gfXXXX
   :hcXXXX
   :ofXXXX
-  :phXXXX
   :sfXXXX
-  :smXXXX
 );
 use TV::Views::CommandSet;
 use TV::Views::Palette;
@@ -130,13 +130,13 @@ my $unlock_value = sub {
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  assert ( blessed $args{bounds} );
   return { %args };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
+  assert ( blessed $args->{bounds} );
   my %default = (
     owner     => undef,
     next      => undef,
@@ -241,8 +241,8 @@ my $range = sub {    # $ ($val, $min, $max)
 sub locate {    # void ($bounds)
   my ( $self, $bounds ) = @_;
   assert ( blessed $self );
-  assert ( blessed $bounds );
-  my ( $min,  $max )    = ( TPoint->new(), TPoint->new() );
+  assert ( ref $bounds );
+  my ( $min,  $max ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $min, $max );
   $bounds->{b}{x} = $bounds->{a}{x} +
     $range->( $bounds->{b}{x} - $bounds->{a}{x}, $min->{x}, $max->{x} );
@@ -379,10 +379,10 @@ my $grow;
 
 sub calcBounds {    # void ($bounds, $delta);
   my ( $self, undef, $delta ) = @_;
-  alias: for my $bounds ($_[1]) {
+  alias: for my $bounds ( $_[1] ) {
   assert ( blessed $self );
-  assert ( blessed $bounds );
-  assert ( blessed $delta );
+  assert ( ref $bounds );
+  assert ( ref $delta );
 
   my ( $s, $d );
 
@@ -432,7 +432,7 @@ sub calcBounds {    # void ($bounds, $delta);
 sub changeBounds {    # void ($bounds)
   my ( $self, $bounds ) = @_;
   assert ( blessed $self );
-  assert ( blessed $bounds );
+  assert ( ref $bounds );
   $self->setBounds( $bounds );
   $self->drawView();
   return;
@@ -592,7 +592,7 @@ sub drawShow {    # void ($lastView|undef)
 sub drawUnderRect {    # void ($r, $lastView|undef)
   my ( $self, $r, $lastView ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   assert ( !defined $lastView or blessed $lastView );
   assert ( @_ == 3 );
   $self->{owner}{clip}->intersect( $r );
@@ -820,7 +820,7 @@ sub endModal {    # void ($command)
   return;
 }
 
-sub execute {    # void ()
+sub execute {    # $cmd ()
   assert ( blessed shift );
   return cmCancel;
 }

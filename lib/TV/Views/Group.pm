@@ -31,13 +31,13 @@ use TV::Drivers::Const qw(
 );
 use TV::Drivers::Event;
 use TV::Views::Const qw(
+  :phaseType
+  :selectMode
   :cmXXXX
   :evXXXX
   :hcXXXX
   :ofXXXX
-  :phXXXX
   :sfXXXX
-  :smXXXX
 );
 use TV::Views::CommandSet;
 use TV::Views::View;
@@ -624,7 +624,7 @@ my $doCalcChange = sub {    # void ($p, $d)
 sub changeBounds {    # void ($self, $bounds)
   my ( $self, $bounds ) = @_;
   assert ( blessed $self );
-  assert ( blessed $bounds );
+  assert ( ref $bounds );
   my $d = TPoint->new(
     x => ( $bounds->{b}{x} - $bounds->{a}{x} ) - $self->{size}{x},
     y => ( $bounds->{b}{y} - $bounds->{a}{y} ) - $self->{size}{y},

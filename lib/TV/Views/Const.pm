@@ -22,13 +22,13 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
 
-  phXXXX => [qw(
+  phaseType => [qw(
     phFocused
     phPreProcess
     phPostProcess
   )],
 
-  smXXXX => [qw(
+  selectMode => [qw(
     normalSelect
     enterSelect
     leaveSelect
