@@ -8,9 +8,13 @@ defines various utility functions used throughout Turbo Vision
 
 package TV::Drivers::Util;
 
+use strict;
+use warnings;
+
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
+  ctrlToArrow
   getAltChar
   getAltCode
   getCtrlChar
@@ -23,8 +27,46 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+use TV::Drivers::Const qw(
+  /^kbCtrl[A-X]$/
+  kbLeft kbRight kbUp  kbDown kbHome
+  kbEnd  kbDel   kbIns kbPgUp kbPgDn kbBack
+);
+
+my @ctrlCodes = (
+  kbCtrlS, kbCtrlD, kbCtrlE, kbCtrlX, kbCtrlA,
+  kbCtrlF, kbCtrlG, kbCtrlV, kbCtrlR, kbCtrlC, kbCtrlH
+);
+
+my @arrowCodes = (
+  kbLeft, kbRight, kbUp, kbDown, kbHome,
+  kbEnd,  kbDel,   kbIns,kbPgUp, kbPgDn, kbBack
+);
+
+if ( STRICT && exists &Internals::SvREADONLY ) {
+  map { Internals::SvREADONLY $ctrlCodes[$_]  => 1 } 0 .. $#ctrlCodes;
+  map { Internals::SvREADONLY $arrowCodes[$_] => 1 } 0 .. $#arrowCodes;
+}
+
+sub ctrlToArrow {    # $keyCode ($keyCode)
+  assert( @_ == 1 );
+  my $keyCode = shift;
+  assert( looks_like_number $keyCode );
+
+  for my $i ( 0 .. $#ctrlCodes ) {
+    return $arrowCodes[$i]
+      if ( $keyCode & 0x00ff ) == $ctrlCodes[$i];
+  }
+  return $keyCode;
+} #/ sub ctrlToArrow
+
 my @altCodes1 = unpack '(a)*', "QWERTYUIOP\0\0\0\0ASDFGHJKL\0\0\0\0\0ZXCVBNM";
 my @altCodes2 = unpack '(a)*', "1234567890-=";
+
+if ( STRICT && exists &Internals::SvREADONLY ) {
+  map { Internals::SvREADONLY $altCodes1[$_] => 1 } 0 .. $#altCodes1;
+  map { Internals::SvREADONLY $altCodes2[$_] => 1 } 0 .. $#altCodes2;
+}
 
 sub getAltChar {    # $char ($keyCode)
   assert ( @_ == 1 );
@@ -36,10 +78,10 @@ sub getAltChar {    # $char ($keyCode)
     if ( $tmp == 2 ) {
       return "\xF0";    # special case to handle alt-Space
     }
-    elsif ( $tmp >= 0x10 && tmp <= 0x32 ) {
+    elsif ( $tmp >= 0x10 && $tmp <= 0x32 ) {
       return $altCodes1[ $tmp - 0x10 ];    # alt-letter
     }
-    elsif ( $tmp >= 0x78 && tmp <= 0x83 ) {
+    elsif ( $tmp >= 0x78 && $tmp <= 0x83 ) {
       return $altCodes2[ $tmp - 0x78 ];    # alt-number
     }
 

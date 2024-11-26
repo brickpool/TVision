@@ -2,23 +2,40 @@
 
 =head1 DESCRIPTION
 
-These test cases cover the functions C<getAltCode>, C<getCtrlChar> and 
-C<getCtrlCode>. 
+These test cases cover the functions C<ctrlToArrow>, C<getAltCode>, 
+C<getCtrlChar> and C<getCtrlCode>. 
 
 =cut
 
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 BEGIN {
+  use_ok 'TV::Drivers::Const', qw(
+    kbCtrlS
+    kbCtrlD
+    kbCtrlZ
+    kbLeft
+    kbRight
+  );
   use_ok 'TV::Drivers::Util', qw(
+    ctrlToArrow
     getAltCode
     getCtrlChar
     getCtrlCode
   );
 }
+
+# Test ctrlToArrow function
+subtest 'ctrlToArrow' => sub {
+  is( ctrlToArrow( kbCtrlS ), kbLeft,
+    'kbCtrlS is correctly converted to kbLeft' );
+  is( ctrlToArrow( kbCtrlD ), kbRight,
+    'kbCtrlD is correctly converted to kbRight' );
+  is( ctrlToArrow( kbCtrlZ ), kbCtrlZ, 'kbCtrlZ remains unchanged' );
+};
 
 # Test getAltCode function
 subtest 'getAltCode' => sub {
