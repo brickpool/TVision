@@ -28,7 +28,7 @@ sub TPoint() { __PACKAGE__ }
 
 our %FIELDS = (
   x => 1,
-  y => 1,
+  y => 2,
 );
 
 sub new {    # $obj (%args)

@@ -41,7 +41,7 @@ sub TRect() { __PACKAGE__ }
 
 our %FIELDS = (
   a => 1,
-  b => 1,
+  b => 2,
 );
 
 # This method creates a new I<TRect> object. It accepts a variable number of 
@@ -112,7 +112,7 @@ sub grow {    # void ($aDX, $aDY)
 sub intersect {    # void ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   $self->{a}{x} = max( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = max( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = min( $self->{b}{x}, $r->{b}{x} );
@@ -123,7 +123,7 @@ sub intersect {    # void ($r)
 sub Union {    # void ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   $self->{a}{x} = min( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = min( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = max( $self->{b}{x}, $r->{b}{x} );
@@ -145,7 +145,7 @@ sub contains {    # $bool ($p)
 sub equal {    # $bool ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return
        $self->{a}{x} == $r->{a}{x}
     && $self->{a}{y} == $r->{a}{y}
@@ -156,7 +156,7 @@ sub equal {    # $bool ($r)
 sub not_equal {    # $bool ($r)
   my ( $self, $r ) = @_;
   assert ( blessed $self );
-  assert ( blessed $r );
+  assert ( ref $r );
   return !$self->equal( $r );
 }
 
