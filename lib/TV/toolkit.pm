@@ -141,7 +141,7 @@ sub install_slots {    # void ($target, | @fields)
   my $target = ref $proto || $proto;
   unless ( @fields ) {
     # If no fields are specified, take the slots from $target.
-  	push( @fields, $_->{name} ) for slots( $target );
+    push( @fields, $_->{name} ) for slots( $target );
   }
   return 
     unless @fields;
@@ -206,7 +206,7 @@ sub install_slots {    # void ($target, | @fields)
         my $access = $slot->{initializer}{is};
         assert ( $access );
         $access ||= 'rw';
-		    if ( $access ne 'bare' ) {
+        if ( $access ne 'bare' ) {
           no strict 'refs';
           my $fullname = "$target\::$field";
           *$fullname =

@@ -31,14 +31,11 @@ sub TSubMenu() { __PACKAGE__ }
 
 use base TMenuItem;
 
-sub new {    # $obj ($nm, $key, $helpCtx)
-	no warnings 'uninitialized';
-	my ( $class, $nm, $key, $helpCtx ) = @_;
-	assert ( $class and !ref $class );
-	assert ( defined $nm and !ref $nm );
-	assert ( looks_like_number $key );
-	assert ( !defined $helpCtx or looks_like_number $helpCtx );
-	return $class->SUPER::new( ''. $nm, 0, 0+ $key, 0+ $helpCtx );
+sub BUILDARGS {    # \%args (@|%)
+  my ( $class, @args ) = @_;
+  assert( $class and !ref $class );
+  splice( @args, 2, 0, 0 ) if @_ <= 4;
+  return $class->SUPER::BUILDARGS( @args );
 }
 
 sub add_menu_item {

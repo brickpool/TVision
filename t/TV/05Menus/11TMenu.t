@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Exception;
 
 BEGIN {
@@ -31,6 +31,11 @@ my $menu_item2        = TMenuItem->new();
 my $menu_with_default = TMenu->new( $menu_item1, $menu_item2 );
 isa_ok( $menu_with_default, TMenu,
 	'Object is of class TMenu with items and default' );
+
+# Test object creation with hash
+my $menu_with_hash = TMenu->new( items => $menu_item1, default => $menu_item2 );
+isa_ok( $menu_with_hash, TMenu,
+	'Object is of class TMenu with hash' );
 
 # Test DESTROY method
 can_ok( $menu_with_items, 'DESTROY' );

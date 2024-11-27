@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Exception;
 
 BEGIN {
@@ -13,11 +13,14 @@ BEGIN {
 }
 
 # Test object creation
-my $submenu1 = TSubMenu->new( 'File', 0x1234 );
+my $submenu1 = TSubMenu->new( 'One', 0x1234 );
 isa_ok( $submenu1, TSubMenu, 'Object is of class TSubMenu' );
 
-my $submenu2 = TSubMenu->new( 'Edit', 0x5678, 0 );
+my $submenu2 = TSubMenu->new( 'Two', 0x5678, 0 );
 isa_ok( $submenu2, TSubMenu, 'Object is of class TSubMenu' );
+
+my $submenu3 = TSubMenu->new( name => 'Three', keyCode => 0x5678 );
+isa_ok( $submenu3, TSubMenu, 'Object is of class TSubMenu' );
 
 # Test add_menu_item method
 can_ok( $submenu1, 'add_menu_item' );

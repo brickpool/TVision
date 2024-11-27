@@ -127,7 +127,7 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILDARGS {    # \%args (%args)
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   # 'required' arguments
@@ -1110,7 +1110,7 @@ sub writeBuf {    # void ($x, $y, $w, $h, $b)
   assert ( ref $b );
   while ( $h-- > 0 ) {
     $self->$writeView( $x, $y++, $w, $b );
-	  alias: $b = sub { \@_ }->( @$b[ $w .. $#$b ] );
+    alias: $b = sub { \@_ }->( @$b[ $w .. $#$b ] );
   }
   return;
 }

@@ -27,7 +27,7 @@ BEGIN {
 subtest 'constructor with menu' => sub {
   my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
   my $menu     = TMenu->new();
-  my $menu_bar = TMenuBar->new( bounds => $bounds, menu => $menu );
+  my $menu_bar = TMenuBar->new( $bounds, $menu );
   isa_ok( $menu_bar, TMenuBar, 'TMenuBar object created' );
 };
 
@@ -35,11 +35,11 @@ subtest 'constructor with menu' => sub {
 subtest 'constructor with submenu' => sub {
   my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
   my $submenu  = TSubMenu->new( "One", 1 );
-  my $menu_bar = TMenuBar->new( bounds => $bounds, menu => $submenu );
+  my $menu_bar = TMenuBar->new( $bounds, $submenu );
   isa_ok( $menu_bar, TMenuBar, 'TMenuBar object with submenu created' );
 };
 
-# Test draw method
+# Test draw method and constructor with hash
 subtest 'draw method' => sub {
   my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
   my $menu     = TMenu->new();

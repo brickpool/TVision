@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Test::Exception;
 
 BEGIN {
@@ -12,12 +12,18 @@ BEGIN {
 }
 
 # Test object creation with command
-my $menu_item = TMenuItem->new( 'File', 1, 0x1234, 0, 'param' );
+my $menu_item = TMenuItem->new( 'Item', 1, 0x1234, 0, 'param' );
 isa_ok( $menu_item, TMenuItem, 'Object is of class TMenuItem' );
 
 # Test object creation with submenu
-my $submenu = TMenuItem->new( 'Edit', 0x5678, undef );
+my $submenu = TMenuItem->new( 'Sub', 0x5678, undef );
 isa_ok( $submenu, TMenuItem, 'Object is of class TMenuItem' );
+
+# Test object creation with hash
+my $menu_hash = TMenuItem->new(
+  name => 'Hash', keyCode => 0x9ABC, subMenu => undef
+);
+isa_ok( $menu_hash, TMenuItem, 'Object is of class TMenuItem' );
 
 # Test append method
 can_ok( $menu_item, 'append' );

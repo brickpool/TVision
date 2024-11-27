@@ -34,7 +34,7 @@ __PACKAGE__
   ->mk_constructor
   ->mk_accessors;
 
-sub BUILDARGS {    # \%args (%args)
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   # 'init_arg' is not equal to the field name

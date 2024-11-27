@@ -665,7 +665,7 @@ sub getData {    # void (\@rec)
   if ( $self->{last} ) {
     my $v = $self->{last};
     do {
-		  alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
+      alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
       $v->getData( $rec );
       $i += $v->dataSize();
       $v = $v->prev();
@@ -682,7 +682,7 @@ sub setData {    # void (\@rec)
   if ( $self->{last} ) {
     my $v = $self->{last};
     do {
-		  alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
+      alias: $rec = sub { \@_ }->( @$rec[ $i .. $#$rec ] );
       $v->setData( $rec );
       $i += $v->dataSize();
       $v = $v->prev();

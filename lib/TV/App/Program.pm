@@ -63,7 +63,7 @@ use vars qw(
   *screenWidth       = \${ TScreen . '::screenWidth' };
 }
 
-sub BUILDARGS {    # \%args (%args)
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   # 'init_arg' is not the same as the field name.

@@ -30,7 +30,7 @@ use fields qw(
   pattern
 );
 
-sub BUILDARGS {    # \%args (%args)
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   # 'required' arguments

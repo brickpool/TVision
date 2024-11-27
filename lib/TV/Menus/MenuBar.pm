@@ -39,12 +39,26 @@ sub name() { TMenuView }
 
 use base TMenuView;
 
-sub BUILDARGS {    # \%args (%args)
-  my ( $class, %args ) = @_;
-  assert( $class and !ref $class );
+sub BUILDARGS {    # \%args (@|%)
+  my $class = shift;
+  assert ( $class and !ref $class );
+
+  # predefining %args
+  my %args = @_ % 2 ? () : @_; 
+
+  # Check %args, and copy @_ to %args if 'bounds' and 'menu' are not present
+  my @params = qw( bounds menu );
+  my $notall = grep( exists $args{$_} => @params ) != @params;
+  if ( $notall ) {
+    %args = ();
+    @args{@params} = @_;
+  }
+
   # 'required' arguments
+  assert ( blessed $args{bounds} );
   assert ( blessed $args{menu} );
-  return $class->SUPER::BUILDARGS( %args );
+
+  return \%args;
 }
 
 sub BUILD {    # void (\%args)

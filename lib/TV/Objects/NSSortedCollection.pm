@@ -52,8 +52,8 @@ use vars qw(
   %ITEMS 
 );
 {
-	no strict 'refs';
-	*ITEMS = \%{ TNSCollection . '::ITEMS' };
+  no strict 'refs';
+  *ITEMS = \%{ TNSCollection . '::ITEMS' };
 }
 
 # predeclare attributes
