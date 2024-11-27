@@ -30,7 +30,8 @@ BEGIN {
 BEGIN {
   package MyMenuView;
   use TV::Drivers::Const qw( evKeyDown kbEsc );
-  use parent 'TV::Menus::MenuView';
+  require TV::Menus::MenuView;
+  use base 'TV::Menus::MenuView';
   sub getEvent {
     $_[1]->{what} = evKeyDown;
     $_[1]->{keyDown}{keyCode} = kbEsc;

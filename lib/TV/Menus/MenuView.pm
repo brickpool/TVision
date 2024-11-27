@@ -79,19 +79,9 @@ my (
   $findHotKey,
 );
 
-sub BUILDARGS {    # \%args (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  $args{menu}       = delete $args{aMenu};
-  $args{parentMenu} = delete $args{aParent};
-  return $class->SUPER::BUILDARGS( %args );
-}
-
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  assert ( !defined $self->{menu}       or blessed $self->{menu} );
-  assert ( !defined $self->{parentMenu} or blessed $self->{parentMenu} );
   $self->{eventMask} |= evBroadcast;
   return;
 }
@@ -316,7 +306,7 @@ sub findItem {    # $menuItem|undef ($ch)
   return undef;
 } #/ sub findItem
 
-sub getItemRect {    # $rect ($menuItem)
+sub getItemRect {    # $rect ($item)
   assert ( @_ == 2 );
   assert ( blessed $_[0] );
   assert ( !defined $_[1] or blessed $_[1] );
@@ -459,20 +449,20 @@ $mouseInMenus = sub {    # $bool ($e)
 };
 
 $trackMouse = sub {    # void ($e, $mouseActive)
-	my ( $self, $e, $mouseActive ) = @_;
-	my $mouse = $self->makeLocal( $e->{mouse}{where} );
-	for (
-		$self->{current} = $self->{menu}{items};
-		$self->{current};
-		$self->{current} = $self->{current}{next}
-		)
-	{
-		my $r = $self->getItemRect( $self->{current} );
-		if ( $r->contains( $mouse ) ) {
-			$mouseActive = !!1;
-			return;
-		}
-	} #/ for ( $self->{current} ...)
+  my ( $self, $e, $mouseActive ) = @_;
+  my $mouse = $self->makeLocal( $e->{mouse}{where} );
+  for (
+    $self->{current} = $self->{menu}{items};
+    $self->{current};
+    $self->{current} = $self->{current}{next}
+    )
+  {
+    my $r = $self->getItemRect( $self->{current} );
+    if ( $r->contains( $mouse ) ) {
+      $mouseActive = !!1;
+      return;
+    }
+  } #/ for ( $self->{current} ...)
   return;
 }; #/ sub
 
@@ -545,5 +535,7 @@ $findHotKey = sub {    # $menuItem|undef ($p, $keyCode)
   } #/ while ( $p )
   return undef;
 }; #/ sub $findHotKey
+
+__PACKAGE__->mk_accessors();
 
 1
