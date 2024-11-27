@@ -40,11 +40,13 @@ use TV::Views::View;
 use vars qw(
   $shadowSize
   $shadowAttr
+  $screenBuffer
 );
 {
   no strict 'refs';
-  *shadowSize = \${ TView . '::shadowSize' };
-  *shadowAttr = \${ TView . '::shadowAttr' };
+  *shadowSize   = \${ TView . '::shadowSize' };
+  *shadowAttr   = \${ TView . '::shadowAttr' };
+  *screenBuffer = \${ TScreen . '::screenBuffer' };
 }
 
 use constant HIDEMOUSE => 0;
@@ -208,7 +210,8 @@ sub L40 {
   my ( $dest ) = @_;
   my $owner = $dest->owner();
   if ( $owner->{buffer} ) {
-    if ( $owner->{buffer} != TScreen->{screenBuffer} ) {
+    no warnings 'uninitialized';
+    if ( $owner->{buffer} != $screenBuffer ) {
       L50( $owner );
     }
     else {
@@ -223,10 +226,11 @@ sub L40 {
 } #/ sub L40
 
 sub L50 {
+  no warnings 'uninitialized';
   my ( $owner ) = @_;
   my $dst = $owner->{buffer}->[ $Y * $owner->{size}{x} + $X ];
   my $src = $Buffer->[ $X - $wOffset ];
-  if ( $owner->{buffer} != TScreen->{screenBuffer} ) {
+  if ( $owner->{buffer} != $screenBuffer ) {
     copyShort( $dst, $src );
   }
   else {

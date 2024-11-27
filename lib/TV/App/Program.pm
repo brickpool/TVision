@@ -50,39 +50,47 @@ our $pending;
 use vars qw(
   $shadowSize
   $commandSetChanged
+  $screenBuffer
+  $screenHeight
+  $screenWidth
 );
 {
   no strict 'refs';
   *shadowSize        = \${ TView . '::shadowSize' };
   *commandSetChanged = \${ TView . '::commandSetChanged' };
+  *screenBuffer      = \${ TScreen . '::screenBuffer' };
+  *screenHeight      = \${ TScreen . '::screenHeight' };
+  *screenWidth       = \${ TScreen . '::screenWidth' };
 }
 
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
+  # 'init_arg' is not the same as the field name.
   $args{createStatusLine} = delete $args{cStatusLine};
   $args{createMenuBar}    = delete $args{cMenuBar};
   $args{createDeskTop}    = delete $args{cDeskTop};
-  $args{createStatusLine} ||= \&initStatusLine;
-  $args{createMenuBar}    ||= \&initMenuBar;
-  $args{createDeskTop}    ||= \&initDeskTop;
-  $args{bounds}           ||= TRect->new(
-    ax => 0,
-    ay => 0,
-    bx => TScreen->{screenWidth},
-    by => TScreen->{screenHeight}
-  );
+  # TProgInit->BUILDARGS is not called because arguments are not 'required'
   return $class->SUPER::BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
+  $self->{createStatusLine} ||= \&initStatusLine;
+  $self->{createMenuBar}    ||= \&initMenuBar;
+  $self->{createDeskTop}    ||= \&initDeskTop;
+  $self->{bounds}           ||= TRect->new(
+    ax => 0,
+    ay => 0,
+    bx => $screenWidth,
+    by => $screenHeight,
+  );
   $application = $self;
   $self->initScreen();
-  $self->{state} = sfVisible | sfSelected | sfFocused | sfModal | sfExposed;
+  $self->{state}   = sfVisible | sfSelected | sfFocused | sfModal | sfExposed;
   $self->{options} = 0;
-  $self->{buffer} = TScreen->{screenBuffer};
+  $self->{buffer}  = $screenBuffer;
 
   if ( $self->{createDeskTop}
     && ( $deskTop = $self->createDeskTop( $self->getExtent() ) ) 

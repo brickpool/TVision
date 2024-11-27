@@ -39,9 +39,10 @@ use Scalar::Util qw(
 
 sub TRect() { __PACKAGE__ }
 
-our %FIELDS = (
-  a => 1,
-  b => 2,
+# predeclare attributes
+use fields qw(
+  a
+  b
 );
 
 # This method creates a new I<TRect> object. It accepts a variable number of 
@@ -172,10 +173,11 @@ use overload
   '!=' => \&not_equal,
   fallback => 1;
 
-my $_mk_accessors = sub {
+my $mk_accessors = sub {
   my $pkg = shift;
+  no strict 'refs';
+  my %FIELDS = %{"${pkg}::FIELDS"};
   for my $field ( keys %FIELDS ) {
-    no strict 'refs';
     my $fullname = "${pkg}::$field";
     *$fullname = sub {
       assert( blessed $_[0] );
@@ -186,8 +188,8 @@ my $_mk_accessors = sub {
       $_[0]->{$field};
     };
   } #/ for my $field ( keys %FIELDS)
-}; #/ $_mk_accessors = sub
+}; #/ $mk_accessors = sub
 
-__PACKAGE__->$_mk_accessors();
+__PACKAGE__->$mk_accessors();
 
 1

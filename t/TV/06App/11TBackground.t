@@ -12,7 +12,7 @@ BEGIN {
 }
 
 # Test object creation
-my $background = TBackground->new( bounds => TRect->new(), aPattern => '#' );
+my $background = TBackground->new( bounds => TRect->new(), pattern => '#' );
 isa_ok( $background, TBackground, 'Object is of class TBackground' );
 
 # Test draw method

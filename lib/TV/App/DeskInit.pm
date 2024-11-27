@@ -37,15 +37,11 @@ __PACKAGE__
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
+  # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
-  return { %args };
-}
-
-sub BUILD {    # void (| \%args)
-  my ( $self, $args ) = @_;
-  assert ( blessed $self );
-  assert ( ref $self->{createBackground} eq 'CODE' );
-  return;
+  # 'required' arguments
+  assert ( ref $args{createBackground} eq 'CODE' );
+  return \%args;
 }
 
 sub createBackground {    # $background ($r)

@@ -130,13 +130,14 @@ my $unlock_value = sub {
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  return { %args };
+  # 'required' arguments
+  assert ( blessed $args{bounds} );
+  return \%args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  assert ( blessed $args->{bounds} );
   my %default = (
     owner     => undef,
     next      => undef,

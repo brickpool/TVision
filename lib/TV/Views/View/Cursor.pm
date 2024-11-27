@@ -42,6 +42,15 @@ use subs qw(
   decideCaretSize
 );
 
+# import global variables
+use vars qw(
+  $cursorLines
+);
+{
+  no strict 'refs';
+  *cursorLines = \${ TScreen . '::cursorLines' };
+}
+
 sub resetCursor {    # void ($p)
   my ( $p ) = @_;
   $self = $p;
@@ -100,7 +109,7 @@ sub decideCaretSize {    # $int()
   if ( $self->{state} & sfCursorIns ) {
     return 100;
   }
-  return TScreen->{cursorLines} & 0x0f;
+  return $cursorLines & 0x0f;
 }
 
 1

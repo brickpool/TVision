@@ -41,20 +41,16 @@ __PACKAGE__
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert( $class and !ref $class );
+  # 'init_arg' is not equal to the field name
   $args{createStatusLine} = delete $args{cStatusLine};
   $args{createMenuBar}    = delete $args{cMenuBar};
   $args{createDeskTop}    = delete $args{cDeskTop};
-  return {%args};
+  # 'required' arguments
+  assert ( ref $args{createStatusLine} eq 'CODE' );
+  assert ( ref $args{createMenuBar} eq 'CODE' );
+  assert ( ref $args{createDeskTop} eq 'CODE' );
+  return \%args;
 } #/ sub BUILDARGS
-
-sub BUILD {    # void (| \%args)
-  my ( $self, $args ) = @_;
-  assert ( blessed $self );
-  assert ( ref $self->{createStatusLine} eq 'CODE' );
-  assert ( ref $self->{createMenuBar} eq 'CODE' );
-  assert ( ref $self->{createDeskTop} eq 'CODE' );
-  return;
-}
 
 sub createStatusLine {    # $statusLine ($r)
   my ( $self, $r ) = @_;

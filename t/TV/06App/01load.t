@@ -16,7 +16,7 @@ BEGIN {
 }
 
 isa_ok(
-  TBackground->new( bounds => TRect->new(), aPattern => '#' ),
+  TBackground->new( bounds => TRect->new(), pattern => '#' ),
   TBackground
 );
 isa_ok( TDeskInit->new( cBackground => sub { } ), TDeskInit );

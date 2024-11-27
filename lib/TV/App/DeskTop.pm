@@ -50,14 +50,16 @@ use fields qw(
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
+  # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
-  $args{createBackground} ||= \&initBackground;
+  # TDeskInit->BUILDARGS is not called because arguments are not 'required'
   return $class->SUPER::BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
+  $self->{createBackground} ||= \&initBackground;
   $self->{growMode}         = gfGrowHiX | gfGrowHiY;
   $self->{tileColumnsFirst} = 0;
 
@@ -151,7 +153,7 @@ sub initBackground {    # $background ($r)
   my ( $class, $r ) = @_;
   assert ( $class );
   assert ( ref $r );
-  return TBackground->new( bounds => $r, aPattern => $defaultBkgrnd );
+  return TBackground->new( bounds => $r, pattern => $defaultBkgrnd );
 }
 
 my ( $numCols, $numRows, $numTileable, $leftOver, $tileNum );

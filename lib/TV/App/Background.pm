@@ -33,8 +33,8 @@ use fields qw(
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  assert ( $args{aPattern} and !ref $args{aPattern} );
-  $args{pattern} = delete $args{aPattern};
+  # 'required' arguments
+  assert ( $args{pattern} and !ref $args{pattern} );
   return $class->SUPER::BUILDARGS( %args );
 }
 

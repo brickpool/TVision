@@ -88,7 +88,6 @@ my $unlock_value = sub {
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  assert ( defined $self->{options} );
   my %default = (
     last      => undef,
     phase     => phFocused,
