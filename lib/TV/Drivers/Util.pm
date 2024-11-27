@@ -15,6 +15,7 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw(
   ctrlToArrow
+  cstrlen
   getAltChar
   getAltCode
   getCtrlChar
@@ -59,6 +60,10 @@ sub ctrlToArrow {    # $keyCode ($keyCode)
   }
   return $keyCode;
 } #/ sub ctrlToArrow
+
+sub cstrlen {    # $len ($s)
+  $_[0] =~ tr/~//c;
+}
 
 my @altCodes1 = unpack '(a)*', "QWERTYUIOP\0\0\0\0ASDFGHJKL\0\0\0\0\0ZXCVBNM";
 my @altCodes2 = unpack '(a)*', "1234567890-=";

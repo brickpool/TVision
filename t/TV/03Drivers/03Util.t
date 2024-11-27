@@ -10,7 +10,7 @@ C<getCtrlChar> and C<getCtrlCode>.
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 BEGIN {
   use_ok 'TV::Drivers::Const', qw(
@@ -22,6 +22,7 @@ BEGIN {
   );
   use_ok 'TV::Drivers::Util', qw(
     ctrlToArrow
+    cstrlen
     getAltCode
     getCtrlChar
     getCtrlCode
@@ -36,6 +37,9 @@ subtest 'ctrlToArrow' => sub {
     'kbCtrlD is correctly converted to kbRight' );
   is( ctrlToArrow( kbCtrlZ ), kbCtrlZ, 'kbCtrlZ remains unchanged' );
 };
+
+# Test cstrlen function
+is( cstrlen( "~H~ello" ), 5, 'cstrlen returns the correct length' );
 
 # Test getAltCode function
 subtest 'getAltCode' => sub {
