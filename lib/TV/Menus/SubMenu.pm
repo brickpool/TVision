@@ -38,7 +38,7 @@ sub BUILDARGS {    # \%args (@|%)
   return $class->SUPER::BUILDARGS( @args );
 }
 
-sub add_menu_item {
+sub add_menu_item {    # $s ($s, $i)
   my ( $s, $i ) = @_;
   assert ( blessed $s );
   assert ( blessed $i and $i->isa( TMenuItem ) );
@@ -60,7 +60,7 @@ sub add_menu_item {
   return $s;
 } #/ sub add_menu_item
 
-sub add_sub_menu {
+sub add_sub_menu {    # $s1 ($s1, $s2)
   my ( $s1, $s2 ) = @_;
   assert ( blessed $s1 );
   assert ( blessed $s2 and $s2->isa( TSubMenu ) );
@@ -72,7 +72,7 @@ sub add_sub_menu {
   return $s1;
 }
 
-sub add {
+sub add {    # $s ($s, $s2|$i)
   assert ( blessed $_[0] );
   assert ( blessed $_[1] );
   assert ( not $_[2] );    # test if operands have been swapped

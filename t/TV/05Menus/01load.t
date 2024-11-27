@@ -14,6 +14,7 @@ BEGIN {
   use_ok 'TV::Menus::MenuView';
   use_ok 'TV::Menus::MenuBar';
   use_ok 'TV::Menus::StatusItem';
+  use_ok 'TV::Menus::StatusDef';
 }
 
 isa_ok( TMenu->new(), TMenu );
@@ -25,3 +26,4 @@ isa_ok(
 	TMenuBar 
 );
 isa_ok( TStatusItem->new( 'One', 0x1234, 1 ), TStatusItem );
+isa_ok( TStatusDef->new( 1, 2 ), TStatusDef );
