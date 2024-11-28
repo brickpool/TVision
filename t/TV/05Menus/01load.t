@@ -15,6 +15,7 @@ BEGIN {
   use_ok 'TV::Menus::MenuBar';
   use_ok 'TV::Menus::StatusItem';
   use_ok 'TV::Menus::StatusDef';
+  use_ok 'TV::Menus::StatusLine';
 }
 
 isa_ok( TMenu->new(), TMenu );

@@ -9,6 +9,7 @@ our %EXPORT_TAGS = (
 
   cpXXXX => [qw(
     cpMenuView
+    cpStatusLine
   )],
 
   menuAction => [qw(
@@ -33,6 +34,8 @@ our %EXPORT_TAGS = (
 }
 
 use constant cpMenuView => "\x02\x03\x04\x05\x06\x07";
+
+use constant cpStatusLine => "\x02\x03\x04\x05\x06\x07";
 
 # Constants for menuAction
 use constant {
