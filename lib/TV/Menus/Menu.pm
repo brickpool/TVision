@@ -18,11 +18,16 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Hash::Util;
 use Scalar::Util qw(
   blessed
   looks_like_number
 );
+
+BEGIN {
+  require TV::Objects::Object;
+  *mk_constructor = \&TV::Objects::Object::mk_constructor;
+  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
+}
 
 sub TMenu() { __PACKAGE__ }
 
@@ -31,19 +36,6 @@ use fields qw(
   items
   deflt
 );
-
-sub new {    # $obj (@|%)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  my $args = $class->BUILDARGS( @_ );
-  my $self = {
-    items => $args->{items} || undef,
-    deflt => $args->{deflt} || $args->{items} || undef,
-  };
-  bless $self, $class;
-  Hash::Util::lock_keys( %$self ) if STRICT;
-  return $self;
-} #/ sub new
 
 sub BUILDARGS {    # \%args (@|%)
   my $class = shift;
@@ -70,7 +62,14 @@ sub BUILDARGS {    # \%args (@|%)
   return \%args;
 }
 
-sub DESTROY {    # void ()
+sub BUILD {    # void (| \%args)
+  my $self = shift;
+  assert( blessed $self );
+  $self->{deflt} ||= $self->{items};
+  return;
+}
+
+sub DEMOLISH {    # void ()
   my $self = shift;
   assert( blessed $self );
   while ( $self->{items} ) {
@@ -80,21 +79,8 @@ sub DESTROY {    # void ()
   }
 }
 
-my $mk_accessors = sub {
-  my $pkg = shift;
-  no strict 'refs';
-  my %FIELDS = %{"${pkg}::FIELDS"};
-  for my $field ( keys %FIELDS ) {
-    no strict 'refs';
-    my $fullname = "${pkg}::$field";
-    *$fullname = sub {
-      assert( blessed $_[0] );
-      $_[0]->{$field} = $_[1] if @_ > 1;
-      $_[0]->{$field};
-    };
-  }
-}; #/ $mk_accessors = sub
-
-__PACKAGE__->$mk_accessors();
+__PACKAGE__
+  ->mk_constructor
+  ->mk_accessors;
 
 1

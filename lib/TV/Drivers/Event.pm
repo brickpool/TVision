@@ -77,10 +77,9 @@ package MouseEventType {
   sub clone {    # $obj ()
     my $self = shift;
     assert ( blessed $self );
-    my $clone = { %$self };
-    $clone->{where} = $self->{where}->clone();
-    bless $clone, ref $self;
+    my $clone = bless { %$self }, ref $self;
     Hash::Util::lock_keys( %$clone ) if STRICT;
+    $clone->{where} = $self->{where}->clone();
     return $clone;
   }
 

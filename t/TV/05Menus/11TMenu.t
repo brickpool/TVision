@@ -37,9 +37,9 @@ my $menu_with_hash = TMenu->new( items => $menu_item1, default => $menu_item2 );
 isa_ok( $menu_with_hash, TMenu,
 	'Object is of class TMenu with hash' );
 
-# Test DESTROY method
-can_ok( $menu_with_items, 'DESTROY' );
-lives_ok { $menu_with_items->DESTROY() }
-  'DESTROY works correctly';
+# Test DEMOLISH method
+can_ok( $menu_with_items, 'DEMOLISH' );
+lives_ok { $menu_with_items->DEMOLISH() }
+  'DEMOLISH works correctly';
 
 done_testing;

@@ -15,7 +15,7 @@ these classes for use by the rest of the library.
 
 =head2 Methods
 
-The methods I<new>, I<DESTROY>, I<shutDown>, I<at>, I<atRemove>, I<atFree>, 
+The methods I<new>, I<DEMOLISH>, I<shutDown>, I<at>, I<atRemove>, I<atFree>, 
 I<atInsert>, I<atPut>, I<remove>, I<removeAll>, I<free>, I<freeAll>, 
 I<freeItem>, I<indexOf>, I<insert>, I<error>, I<firstThat>, I<lastThat>, 
 I<forEach>, I<pack> and I<setLimit> are implemented to provide the same behavior
@@ -91,7 +91,7 @@ sub BUILD {    # void (| \%args)
   return;
 } #/ sub BUILD
 
-sub DESTROY {    # void ($shift)
+sub DEMOLISH {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $self->shutDown();

@@ -55,8 +55,7 @@ subtest 'getItemRect method' => sub {
   my $menu     = TMenu->new( $item );
   my $menu_bar = TMenuBar->new( bounds => $bounds, menu => $menu );
   can_ok( $menu_bar, 'getItemRect' );
-  is $menu->{items}, $item;
-#  lives_ok { $menu_bar->getItemRect( $item ) } 'getItemRect works correctly';
+  lives_ok { $menu_bar->getItemRect( $item ) } 'getItemRect works correctly';
 };
 
 done_testing;

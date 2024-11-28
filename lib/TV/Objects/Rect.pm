@@ -37,6 +37,10 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+BEGIN {
+  require TV::toolkit;
+}
+
 sub TRect() { __PACKAGE__ }
 
 # predeclare attributes

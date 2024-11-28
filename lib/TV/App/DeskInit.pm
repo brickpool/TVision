@@ -12,6 +12,12 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
+BEGIN {
+  require TV::Objects::Object;
+  *mk_constructor = \&TV::Objects::Object::mk_constructor;
+  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
+}
+
 sub TDeskInit() { __PACKAGE__ }
 
 # predeclare attributes
@@ -23,16 +29,6 @@ use fields qw(
 use subs qw(
   createBackground
 );
-
-{
-  require TV::Objects::Object;
-  *mk_accessors = \&TV::Objects::Object::mk_accessors;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-}
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
@@ -50,5 +46,9 @@ sub createBackground {    # $background ($r)
   assert ( ref $r );
   return $self->{createBackground}->( bounds => $r );
 }
+
+__PACKAGE__
+  ->mk_constructor
+  ->mk_accessors;
 
 1

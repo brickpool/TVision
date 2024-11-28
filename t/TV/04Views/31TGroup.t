@@ -3,7 +3,7 @@
 =head1 DESCRIPTION
 
 The following test cases of class I<TGroup> cover the methods I<new>, 
-I<DESTROY>, I<shutDown>, I<execView>, I<execute> and I<awaken>.
+I<DEMOLISH>, I<shutDown>, I<execView>, I<execute> and I<awaken>.
 
 =cut
 
@@ -38,10 +38,10 @@ isa_ok( $bounds, TRect );
 my $group = TGroup->new( bounds => $bounds );
 isa_ok( $group, TGroup, 'Object is of class TGroup' );
 
-# Test DESTROY method
-can_ok( $group, 'DESTROY' );
-lives_ok { $group->DESTROY() }
-  'DESTROY method works correctly';
+# Test DEMOLISH method
+can_ok( $group, 'DEMOLISH' );
+lives_ok { $group->DEMOLISH() }
+  'DEMOLISH method works correctly';
 
 # Test shutDown method
 can_ok( $group, 'shutDown' );

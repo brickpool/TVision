@@ -20,9 +20,9 @@ my $status_item2 = TStatusItem->new(
 );
 isa_ok( $status_item2, TStatusItem, 'Object is of class TStatusItem' );
 
-# Test DESTROY method
-can_ok( $status_item1, 'DESTROY' );
-lives_ok { $status_item1->DESTROY() }
-  'DESTROY works correctly';
+# Test DEMOLISH method
+can_ok( $status_item1, 'DEMOLISH' );
+lives_ok { $status_item1->DEMOLISH() }
+  'DEMOLISH works correctly';
 
 done_testing;

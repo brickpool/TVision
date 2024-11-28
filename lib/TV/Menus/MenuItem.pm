@@ -19,7 +19,6 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Hash::Util;
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -27,6 +26,12 @@ use Scalar::Util qw(
 
 use TV::Views::Const qw( hcNoContext );
 use TV::Views::View;
+
+BEGIN {
+  require TV::Objects::Object;
+  *mk_constructor = \&TV::Objects::Object::mk_constructor;
+  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
+}
 
 sub TMenuItem() { __PACKAGE__ }
 
@@ -41,26 +46,6 @@ use fields qw(
   param
   subMenu
 );
-
-sub new {    # $obj (@)
-  no warnings 'uninitialized';
-  my $class = shift;
-  assert ( $class and !ref $class );
-  my $args = $class->BUILDARGS( @_ );
-  my $self = {
-    next     =>     $args->{next},
-    name     => ''. $args->{name},
-    command  => 0+  $args->{command},
-    disabled =>   ! TView->commandEnabled( 0+ $args->{command} ),
-    keyCode  => 0+  $args->{keyCode},
-    helpCtx  => 0+  $args->{helpCtx},
-    param    => ''. $args->{param},
-    subMenu  =>     $args->{subMenu},
-  };
-  bless $self, $class;
-  Hash::Util::lock_keys( %$self ) if STRICT;
-  return $self;
-}
 
 sub BUILDARGS {    # \%args (@|%)
   my $class = shift;
@@ -97,6 +82,13 @@ sub BUILDARGS {    # \%args (@|%)
   return \%args;
 }
 
+sub BUILD {    # void (| \%args)
+  my $self = shift;
+  assert( blessed $self );
+  $self->{disabled} = !TView->commandEnabled( $self->{command} );
+  return;
+}
+
 sub append {    # void ($aNext)
   my ( $self, $aNext ) = @_;
   assert ( blessed $self );
@@ -110,7 +102,7 @@ sub newLine {    # $menuItem ()
   return TMenuItem->new( '', 0, 0, hcNoContext, '', undef );
 }
 
-sub DESTROY {    # void ()
+sub DEMOLISH {    # void ()
   my $self = shift;
   assert ( blessed $self );
   undef $self->{name};
@@ -121,22 +113,10 @@ sub DESTROY {    # void ()
     undef $self->{param};
   }
   return;
-} #/ sub DESTROY
+} #/ sub DEMOLISH
 
-my $mk_accessors = sub {
-  my $pkg = shift;
-  no strict 'refs';
-  my %FIELDS = %{"${pkg}::FIELDS"};
-  for my $field ( keys %FIELDS ) {
-    my $fullname = "${pkg}::$field";
-    *$fullname = sub {
-      assert( blessed $_[0] );
-      $_[0]->{$field} = $_[1] if @_ > 1;
-      $_[0]->{$field};
-    };
-  }
-}; #/ $mk_accessors = sub
-
-__PACKAGE__->$mk_accessors();
+__PACKAGE__
+  ->mk_constructor
+  ->mk_accessors;
 
 1

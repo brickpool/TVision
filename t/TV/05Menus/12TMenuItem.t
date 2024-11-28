@@ -35,9 +35,9 @@ can_ok( TMenuItem, 'newLine' );
 my $newline = newLine();
 isa_ok( $newline, TMenuItem, 'newLine returns a TMenuItem object' );
 
-# Test DESTROY method
-can_ok( $menu_item, 'DESTROY' );
-lives_ok { $menu_item->DESTROY() }
-  'DESTROY works correctly';
+# Test DEMOLISH method
+can_ok( $menu_item, 'DEMOLISH' );
+lives_ok { $menu_item->DEMOLISH() }
+  'DEMOLISH works correctly';
 
 done_testing;
