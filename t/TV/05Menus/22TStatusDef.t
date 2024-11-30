@@ -12,10 +12,10 @@ BEGIN {
 }
 
 # Test object creation
-my $s1 = TStatusDef->new( 1, 1 );
+my $s1 = TStatusDef->init( 1, 1 );
 isa_ok( $s1, TStatusDef, 'Object is of class TStatusDef' );
 
-my $s2 = TStatusDef->new( 2, 2 );
+my $s2 = TStatusDef->init( 2, 2 );
 isa_ok( $s2, TStatusDef, 'Object is of class TStatusDef' );
 
 my $s3 = TStatusDef->new( min => 3, max => 3 );
@@ -23,8 +23,8 @@ isa_ok( $s3, TStatusDef, 'Object is of class TStatusDef' );
 
 # Test add_status_item method
 can_ok( $s1, 'add_status_item' );
-my $i1 = TStatusItem->new( 'One', 0x1234, 1 );
-my $i2 = TStatusItem->new( 'Two', 0x2345, 2 );
+my $i1 = TStatusItem->init( 'One', 0x1234, 1 );
+my $i2 = TStatusItem->init( 'Two', 0x2345, 2 );
 isa_ok( $i1, TStatusItem, 'Object is of class TStatusItem' );
 isa_ok( $i2, TStatusItem, 'Object is of class TStatusItem' );
 lives_ok { 
@@ -44,11 +44,11 @@ is( $s1->{next}, $s3, 'TStatusDef correctly added to TStatusDef' );
 my $status_def;
 lives_ok {
   $status_def =
-    TStatusDef->new( 0, 1 ) +
-      TStatusItem->new( "One", 0x1000, 1 ) +
-    TStatusDef->new( 2, 3 ) +
-      TStatusItem->new( "Two", 0x2000, 2 ) +
-      TStatusItem->new( "Three", 0x3000, 2 );
+    TStatusDef->init( 0, 1 ) +
+      TStatusItem->init( "One", 0x1000, 1 ) +
+    TStatusDef->init( 2, 3 ) +
+      TStatusItem->init( "Two", 0x2000, 2 ) +
+      TStatusItem->init( "Three", 0x3000, 2 );
 } 'operator "+" adds status items correctly';
 isa_ok( $status_def, TStatusDef, 'Object is of class TStatusDef' );
 isa_ok( $status_def->{next}, TStatusDef, 'TStatusDef correctly added' );

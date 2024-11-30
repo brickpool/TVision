@@ -25,23 +25,23 @@ BEGIN {
 
 # Test case for the constructor
 subtest 'constructor with menu' => sub {
-  my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
+  my $bounds   = TRect->init( 0, 0, 10, 10 );
   my $menu     = TMenu->new();
-  my $menu_bar = TMenuBar->new( $bounds, $menu );
+  my $menu_bar = TMenuBar->init( $bounds, $menu );
   isa_ok( $menu_bar, TMenuBar, 'TMenuBar object created' );
 };
 
 # Test case for the constructor with submenu
 subtest 'constructor with submenu' => sub {
-  my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
-  my $submenu  = TSubMenu->new( "One", 1 );
-  my $menu_bar = TMenuBar->new( $bounds, $submenu );
+  my $bounds   = TRect->init( 0, 0, 10, 10 );
+  my $submenu  = TSubMenu->init( "One", 1 );
+  my $menu_bar = TMenuBar->init( $bounds, $submenu );
   isa_ok( $menu_bar, TMenuBar, 'TMenuBar object with submenu created' );
 };
 
 # Test draw method and constructor with hash
 subtest 'draw method' => sub {
-  my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
+  my $bounds   = TRect->init( 0, 0, 10, 10 );
   my $menu     = TMenu->new();
   my $menu_bar = TMenuBar->new( bounds => $bounds, menu => $menu );
   can_ok( $menu_bar, 'draw' );
@@ -50,9 +50,9 @@ subtest 'draw method' => sub {
 
 # Test getItemRect method
 subtest 'getItemRect method' => sub {
-  my $bounds   = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
-  my $item     = TMenuItem->new( "~T~wo", 2 );
-  my $menu     = TMenu->new( $item );
+  my $bounds   = TRect->init( 0, 0, 10, 10 );
+  my $item     = TMenuItem->init( "~T~wo", 2, 0x2345 );
+  my $menu     = TMenu->init( $item );
   my $menu_bar = TMenuBar->new( bounds => $bounds, menu => $menu );
   can_ok( $menu_bar, 'getItemRect' );
   lives_ok { $menu_bar->getItemRect( $item ) } 'getItemRect works correctly';

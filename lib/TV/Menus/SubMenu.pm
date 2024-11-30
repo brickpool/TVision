@@ -31,11 +31,13 @@ sub TSubMenu() { __PACKAGE__ }
 
 use base TMenuItem;
 
-sub BUILDARGS {    # \%args (@|%)
-  my ( $class, @args ) = @_;
+sub init {    # $obj ($nm, $key, $helpCtx)
+  my $class = shift;
   assert( $class and !ref $class );
-  splice( @args, 2, 0, 0 ) if @_ <= 4;
-  return $class->SUPER::BUILDARGS( @args );
+  assert ( @_ >= 2 && @_ <= 3 );
+  return $class->new(
+    name => $_[0], command => 0, keyCode => $_[1], helpCtx => $_[2]
+  );
 }
 
 sub add_menu_item {    # $s ($s, $i)
@@ -48,7 +50,7 @@ sub add_menu_item {    # $s ($s, $i)
   }
 
   if ( !$sub->{subMenu} ) {
-    $sub->{subMenu} = TMenu->new( $i );
+    $sub->{subMenu} = TMenu->new( items => $i );
   }
   else {
     my $cur = $sub->{subMenu}{items};

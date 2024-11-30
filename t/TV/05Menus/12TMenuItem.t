@@ -12,11 +12,11 @@ BEGIN {
 }
 
 # Test object creation with command
-my $menu_item = TMenuItem->new( 'Item', 1, 0x1234, 0, 'param' );
+my $menu_item = TMenuItem->init( 'Item', 1, 0x1234, 0, 'param' );
 isa_ok( $menu_item, TMenuItem, 'Object is of class TMenuItem' );
 
 # Test object creation with submenu
-my $submenu = TMenuItem->new( 'Sub', 0x5678, undef );
+my $submenu = TMenuItem->init( 'Sub', 0x5678, undef );
 isa_ok( $submenu, TMenuItem, 'Object is of class TMenuItem' );
 
 # Test object creation with hash

@@ -40,9 +40,9 @@ BEGIN {
 }
 
 # Test object creation with menu and parent
-my $menu = TMenu->new(
-  TMenuItem->new( 'One', 1, 0x1234 ),
-	TMenuItem->new( 'Two', 2, 0x5678 ) 
+my $menu = TMenu->init(
+  TMenuItem->init( 'One', 1, 0x1234 ),
+	TMenuItem->init( 'Two', 2, 0x5678 ) 
 );
 my $parent_menu = TMenuView->new(
   bounds => TRect->new(), menu => $menu, parentMenu => undef 
@@ -67,7 +67,7 @@ is( $menu_view->findItem( 'A' ), undef, 'findItem returns correct value' );
 
 # Test getItemRect method
 can_ok( $menu_view, 'getItemRect' );
-is_deeply( $menu_view->getItemRect( TMenuItem->new( 'Three', 3, 0x9ABC ) ),
+is_deeply( $menu_view->getItemRect( TMenuItem->init( 'Three', 3, 0x9ABC ) ),
   TRect->new(), 'getItemRect returns correct value' );
 
 # Test getHelpCtx method

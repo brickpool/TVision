@@ -39,31 +39,25 @@ use fields qw(
   command
 );
 
-sub BUILDARGS {    # \%args (@|%)
-  my $class = shift;
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-
-  # predefining %args
-  my %args = @_ % 2 ? () : @_; 
-
-  # Check %args, and copy @_ to %args if 'text'..'command' are not present
-  my @params = qw( text keyCode command );
-  my $notall = grep( exists $args{$_} => @params ) != @params;
-  if ( $notall ) {
-    %args = ();
-    push @params, 'next';    # add optional parameter
-    @args{@params} = @_;
-  }
-
   # 'required' arguments
   assert ( defined $args{text} and !ref $args{text} );
   assert ( looks_like_number $args{keyCode} );
   assert ( looks_like_number $args{command} );
-
   # 'isa' is undef or TStatusItem
   assert ( !defined $args{next} or blessed $args{next} );
-
   return \%args;
+}
+
+sub init {    # $obj ($aText, $key, $cmd, | $aNext)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 3 && @_ <= 4 );
+  return $class->new( 
+    text => $_[0], keyCode => $_[1], command => $_[2], next => $_[3]
+  );
 }
 
 sub DEMOLISH {    # void ()

@@ -25,7 +25,8 @@ use Scalar::Util qw(
 );
 
 BEGIN {
-  require TV::toolkit;
+  require TV::Objects::Object;
+  *mk_constructor = \&TV::Objects::Object::mk_constructor;
 }
 
 sub TPoint() { __PACKAGE__ }
@@ -36,17 +37,28 @@ use fields qw(
   y
 );
 
-sub new {    # $obj (%args)
-  no warnings 'uninitialized';
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  my $self = {
-    x => 0+ $args{x},
-    y => 0+ $args{y},
-  };
-  bless $self, $class;
+  assert ( keys( %args ) % 2 == 0 );
+  assert ( grep( looks_like_number( $_ ), values( %args ) ) == keys( %args ) );
+  return \%args;
+} #/ sub new
+
+sub BUILD {    # void (| \%args)
+  my $self = shift;
+  assert( blessed $self );
+  $self->{x} ||= 0;
+  $self->{y} ||= 0;
   Hash::Util::lock_keys( %$self ) if STRICT;
-  return $self;
+  return;
+}
+
+sub init {    # $obj ($x, $y)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 2 );
+  return $class->new( x => $_[0], y => $_[1] );
 }
 
 sub clone {    # $p ($self)
@@ -131,6 +143,8 @@ my $mk_accessors = sub {
   } #/ for my $field ( keys %FIELDS)
 }; #/ $mk_accessors = sub
 
-__PACKAGE__->$mk_accessors();
+__PACKAGE__
+  ->mk_constructor
+  ->$mk_accessors();
 
 1

@@ -39,36 +39,29 @@ sub name() { TMenuView }
 
 use base TMenuView;
 
-sub BUILDARGS {    # \%args (@|%)
-  my $class = shift;
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args) = @_;
   assert ( $class and !ref $class );
-
-  # predefining %args
-  my %args = @_ % 2 ? () : @_; 
-
-  # Check %args, and copy @_ to %args if 'bounds' and 'menu' are not present
-  my @params = qw( bounds menu );
-  my $notall = grep( exists $args{$_} => @params ) != @params;
-  if ( $notall ) {
-    %args = ();
-    @args{@params} = @_;
-  }
-
-  # 'required' arguments
   assert ( blessed $args{bounds} );
   assert ( blessed $args{menu} );
-
   return \%args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  $self->{menu} = TMenu->new( $self->{menu} )
+  $self->{menu} = TMenu->new( items => $self->{menu} )
     if $self->{menu}->isa(TSubMenu);
   $self->{growMode} = gfGrowHiX;
   $self->{options} |= ofPreProcess;
   return;
+}
+
+sub init {    # $obj ($bounds, $aMenu)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 2 );
+  return $class->new( bounds => $_[0], menu => $_[1] );
 }
 
 sub DEMOLISH {    # void ()

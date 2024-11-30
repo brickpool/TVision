@@ -41,64 +41,56 @@ use fields qw(
   items
 );
 
-sub BUILDARGS {    # \%args (@|%)
-  my $class = shift;
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-
-  # predefining %args
-  my %args = @_ % 2 ? () : @_; 
-
-  # Check %args, and copy @_ to %args if 'min' and 'max' are not present
-  my @params = qw( min max );
-  my $notall = grep( exists $args{$_} => @params ) != @params;
-  if ( $notall ) {
-    %args = ();
-    push @params, qw( items next );    # add optional parameter
-    @args{@params} = @_;
-  }
-
   # 'required' arguments
   assert ( looks_like_number $args{min} );
   assert ( looks_like_number $args{max} );
-
   # check 'isa' (note: 'next' and 'items' can be undefined)
   assert( !defined $args{next}  or blessed $args{next} );
   assert( !defined $args{items} or blessed $args{items} );
-
   return \%args;
 }
 
+sub init {    # $obj ($aMin, $aMax, | $someItems, | $aNext)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 2 && @_ <= 4 );
+  return $class->new( min => $_[0], max => $_[1] );
+}
+
 sub add_status_item {    # $s1 ($s1, $s2)
-	my ( $s1, $s2 ) = @_;
+  my ( $s1, $s2 ) = @_;
   assert ( blessed $s1 );
   assert ( blessed $s2 and $s2->isa( TStatusItem ) );
-	my $def = $s1;
-	while ( $def->{next} ) {
-		$def = $def->{next};
-	}
-	if ( !$def->{items} ) {
-		$def->{items} = $s2;
-	}
-	else {
-		my $cur = $def->{items};
-		while ( $cur->{next} ) {
-			$cur = $cur->{next};
-		}
-		$cur->{next} = $s2;
-	}
-	return $s1;
+  my $def = $s1;
+  while ( $def->{next} ) {
+    $def = $def->{next};
+  }
+  if ( !$def->{items} ) {
+    $def->{items} = $s2;
+  }
+  else {
+    my $cur = $def->{items};
+    while ( $cur->{next} ) {
+      $cur = $cur->{next};
+    }
+    $cur->{next} = $s2;
+  }
+  return $s1;
 } #/ sub add_status_item
 
 sub add_status_def {    # $s1 ($s1, $s2)
-	my ( $s1, $s2 ) = @_;
+  my ( $s1, $s2 ) = @_;
   assert ( blessed $s1 );
   assert ( blessed $s2 and $s2->isa( TStatusDef ) );
-	my $cur = $s1;
-	while ( $cur->{next} ) {
-		$cur = $cur->{next};
-	}
-	$cur->{next} = $s2;
-	return $s1;
+  my $cur = $s1;
+  while ( $cur->{next} ) {
+    $cur = $cur->{next};
+  }
+  $cur->{next} = $s2;
+  return $s1;
 }
 
 sub add {    # $s1 ($s1, $s2)

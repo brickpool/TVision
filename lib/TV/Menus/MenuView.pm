@@ -79,11 +79,29 @@ my (
   $findHotKey,
 );
 
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args ) = @_;
+  assert ( $class and !ref $class );
+  # 'required' arguments
+  assert ( exists $args{bounds} );
+  # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
+  assert( !defined $args{menu}       or blessed $args{menu} );
+  assert( !defined $args{parentMenu} or blessed $args{parentMenu} );
+  return $class->SUPER::BUILDARGS( %args );
+}
+
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{eventMask} |= evBroadcast;
   return;
+}
+
+sub init {    # $obj ($bounds, | $aMenu|undef, | $aParent );
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 1 && @_ <= 3 );
+  return $class->new( bounds => $_[0], menu => $_[1], parentMenu => $_[3] );
 }
 
 sub execute {    # $cmd ()
@@ -316,7 +334,7 @@ sub getItemRect {    # $rect ($item)
 sub getHelpCtx {    # $int ()
   my $self = shift;
   assert ( blessed $self );
-  my $c    = $self;
+  my $c = $self;
 
   while ( $c && ( !$c->{current}
                || $c->{current}{helpCtx} == hcNoContext
@@ -340,6 +358,8 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $event );
   if ( $self->{menu} ) {
     if ( $event->{what} == evMouseDown ) {
       $self->$do_a_select( $event );

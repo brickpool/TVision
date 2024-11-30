@@ -37,35 +37,33 @@ use fields qw(
   deflt
 );
 
-sub BUILDARGS {    # \%args (@|%)
-  my $class = shift;
-  assert ( $class and !ref $class );
-
-  # predefining %args
-  my %args = @_ % 2 ? () : @_;
-
-  # Check @_ for ref, and copy @_ to %args if all entries are ref's
-  my @params = qw( items default );
-  my $all = grep( ref $_ => @_ ) == @_;
-  if ( @_ && $all ) {
-    %args = ();
-    @args{@params} = @_;
-  }
-
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args ) = @_;
   # 'init_arg' is not the same as the field name.
   $args{deflt} = delete $args{default};
-
   # 'isa' is undef or TMenuItem
   assert ( !defined $args{items} or blessed $args{items} );
   assert ( !defined $args{deflt} or blessed $args{deflt} );
-
   return \%args;
 }
 
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert( blessed $self );
+  $self->{items} ||= undef;
   $self->{deflt} ||= $self->{items};
+  return;
+}
+
+sub init {    # $obj (| $itemList, | $TheDefault)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 0 && @_ <= 2 );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 0 and return $class->new();
+    $_ == 1 and return $class->new( items => $_[0], default => $_[0] );
+    $_ == 2 and return $class->new( items => $_[0], default => $_[1] );
+  }
   return;
 }
 

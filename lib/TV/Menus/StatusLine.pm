@@ -59,29 +59,14 @@ my (
 # declare local variables
 my $hintSeparator;
 
-sub BUILDARGS {    # \%args (@|%)
-  my $class = shift;
+sub BUILDARGS {    # \%args (%)
+  my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-
-  # predefining %args
-  my %args = @_ % 2 ? () : @_; 
-
-  # Check %args, and copy @_ to %args if 'bounds' and 'defs' are not present
-  my @params = qw( bounds defs );
-  my $notall = grep( exists $args{$_} => @params ) != @params;
-  if ( $notall ) {
-    assert ( @_ == 2 );
-    %args = ();
-    @args{@params} = @_;
-  }
-
   # 'required' arguments
-  assert ( exists $args{bounds} );
+  assert ( blessed $args{bounds} );
   assert ( exists $args{defs} );
-
   # 'isa' is undef or TStatusDef
   assert( !defined $args{defs} or blessed $args{defs} );
-
   return $class->SUPER::BUILDARGS( %args );
 }
 
@@ -94,6 +79,13 @@ sub BUILD {    # void (\%args)
   $self->$findItems();
   return;
 } #/ sub new
+
+sub init {    # $obj ($bounds, $aDefs);
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 2 );
+  return $class->new( bounds => $_[0], defs => $_[1] );
+}
 
 sub DEMOLISH {    # void ()
   my $self = shift;

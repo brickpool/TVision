@@ -32,13 +32,16 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use if STRICT => 'Hash::Util';
 use Scalar::Util qw( 
   blessed 
   looks_like_number
+  reftype
 );
 
 BEGIN {
-  require TV::toolkit;
+  require TV::Objects::Object;
+  *mk_constructor = \&TV::Objects::Object::mk_constructor;
 }
 
 sub TRect() { __PACKAGE__ }
@@ -49,8 +52,7 @@ use fields qw(
   b
 );
 
-# This method creates a new I<TRect> object. It accepts a variable number of 
-# arguments:
+# This method accepts a variable number of arguments:
 #
 # If four arguments I<(ax, ay, bx, by)> are provided, it creates two I<TPoint> 
 # objects for points I<a> and I<b> with the specified coordinates.
@@ -60,23 +62,42 @@ use fields qw(
 #
 # If no or any other number of arguments are provided, it initializes points 
 # I<a> and I<b> with new I<TPoint> objects with default values.
-sub new {    # $obj (%args)
+sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
-  my $self = bless {}, $class;
-  if ( keys( %args ) == 4 ) {
-    $self->{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
-    $self->{b} = TPoint->new( x => $args{bx}, y => $args{by} );
+  assert ( keys( %args ) % 2 == 0 );
+  if ( keys( %args ) == 2 ) {
+    my @params = qw( p1 p2 );
+    assert( grep( ref $args{$_} => @params ) == @params );
+    $args{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
+    $args{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
+    delete @args{@params};
   }
-  elsif ( keys( %args ) == 2 ) {
-    $self->{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
-    $self->{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
+  elsif ( keys( %args ) == 4 ) {
+    my @params = qw( ax ay bx by );
+    assert( grep( looks_like_number $args{$_} => @params ) == 4 );
+    $args{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
+    $args{b} = TPoint->new( x => $args{bx}, y => $args{by} );
+    delete @args{@params};
   }
+  return \%args;
+} #/ sub new
+
+sub BUILD  {    # void (| \%args)
+  my $self = shift;
+  assert ( blessed $self );
   $self->{a} ||= TPoint->new();
   $self->{b} ||= TPoint->new();
   Hash::Util::lock_keys( %$self ) if STRICT;
-  return $self;
-} #/ sub new
+  return;
+}
+
+sub init {    # $obj ($ax, $ay, $bx, $by)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 4 );
+  return $class->new( ax => $_[0], ay => $_[1], bx => $_[2], by => $_[3] );
+}
 
 sub clone {    # $p ($self)
   my $self = shift;
@@ -194,6 +215,8 @@ my $mk_accessors = sub {
   } #/ for my $field ( keys %FIELDS)
 }; #/ $mk_accessors = sub
 
-__PACKAGE__->$mk_accessors();
+__PACKAGE__
+  ->mk_constructor
+  ->$mk_accessors();
 
 1
