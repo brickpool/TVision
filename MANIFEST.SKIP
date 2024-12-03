@@ -29,3 +29,7 @@ MANIFEST.SKIP
 lib/_t*
 t/_t*
 test.bin
+.cspell/*
+TVision.code-workspace
+TVision.komodoproject
+xt/win*
