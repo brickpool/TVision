@@ -35,13 +35,24 @@ print $mo->text_simpletable;
 
 my $table = Text::SimpleTable->new(16, 60);
 my @fields = ();
-for my $class ( reverse @{ mro::get_linear_isa( $target ) } ) {
-  my %FIELDS = %{ base::get_fields( $class ) };
+# check if we use %FIELDS (see 'base') and store all keys in @fields
+for my $isa ( reverse @{ mro::get_linear_isa( $target ) } ) {
+  my %FIELDS = %{ base::get_fields( $isa ) };
   for my $name ( sort { $FIELDS{$a} <=> $FIELDS{$b} } keys %FIELDS ) {
     my $no = $FIELDS{$name} || next;
-    my $fattr = base::get_attr( $class )->[$no];
+    my $fattr = base::get_attr( $isa )->[$no];
 	  next if !$fattr || ( $fattr & base::INHERITED );
-    push @fields, $target ne $class ? "$name [$class]" : $name;
+    push @fields, $target ne $isa ? "$name [$isa]" : $name;
+  }
+}
+# check if we use %HAS (see 'UNIVERSAL::Object') and store all keys in @fields
+my %seen;
+for my $isa ( reverse @{ mro::get_linear_isa( $target ) } ) {
+  no strict 'refs';
+  my %HAS = %{"${isa}::HAS"};
+  for my $name ( sort keys %HAS ) {
+	  next if $seen{$name}++;
+    push @fields, $target ne $isa ? "$name [$isa]" : $name;
   }
 }
 $table->row( 'fields', join "\n" => @fields );
