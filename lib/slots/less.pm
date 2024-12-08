@@ -6,66 +6,64 @@ use warnings;
 no strict 'refs';
 no warnings 'once';
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
-require fields;
-
-use constant XS => do { eval q[ use Class::XSAccessor ]; !$@ };
+BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
 BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
 
 sub import {
-  shift;
-  my $pkg = caller(0);
-  my %slots = @_;
-  return 
-    unless %slots 
-    && $pkg->isa('UNIVERSAL::Object');
+  shift; # me
+  my $caller = caller(0);
 
-  # create %FIELDS via pragma 'fields'
-  $_ = join ' ' => keys %slots;
-  eval qq[
-      package $pkg;
-      use fields qw( $_ );
-      return 1;
-    ] or Carp::confess( $@ );
+  # Only if UNIVERSAL::Object was used as the base class
+  if ( $caller->isa( 'UNIVERSAL::Object' ) ) {
+    # initialize %HAS variable
+    _init_has( $caller );
 
-  # assign 'slots' to %HAS and create the accessor
-  my $fields = \%{"${pkg}::FIELDS"};
-  if ( %$fields ) {
-    _add_slot( $pkg, $_, $slots{$_} )
-      for sort { $fields->{$a} <=> $fields->{$b} } keys %slots;
-  }
+    # assign 'slots' to %HAS and create the accessor
+    if ( @_ ) {
+      my %slots  = @_;
+      my @fields = do { my $i; grep { not $i++ % 2 } @_ };
+      _add_slot( $caller, $_, $slots{$_} ) for @fields;
+    }
+  } #/ if ( $caller->isa( 'UNIVERSAL::Object'...))
 
   $^H{'slots::less/%HAS'} = 1;
 }
 
-sub _add_slot {
-  my ( $class, $name, $initializer ) = @_;
+sub _init_has {
+  my ( $class ) = @_;
 
-  my $fields = \%{"${class}::FIELDS"};
-  my $no     = $fields->{$name}           || return;
-  my $fattr  = $fields::attr{$class}[$no] || return;
-
-  # create %HAS if necessary
-  my $has = \%{"${class}::HAS"};
-  unless ( %$has ) {
-    %$has = ();
+  # %HAS should only be created if necessary
+  my $HAS = \%{"${class}::HAS"};
+  unless ( %$HAS ) {
+    %{"${class}::HAS"} = ();
+    $HAS = \%{"${class}::HAS"};
     for my $isa ( reverse @{ mro::get_linear_isa( $class ) } ) {
-      %$has = ( %$has, %{"${isa}::HAS"} );
+      if ( my $isa_HAS = \%{"${isa}::HAS"} ) {
+        map { $HAS->{$_} = $isa_HAS->{$_} } keys %$isa_HAS;
+      }
     }
   }
 
+  return;
+} #/ sub _init_has
+
+sub _add_slot {
+  my ( $class, $name, $initializer ) = @_;
+
   # store key/value in %HAS
-  $has->{$name} = ref $initializer eq 'CODE' 
-                ? $initializer 
+  my $HAS = \%{"${class}::HAS"};
+  $HAS->{$name} = ref $initializer eq 'CODE'
+                ? $initializer
                 : sub { };
 
-  # create public accessors and use the XS version if available
-  if ( $fattr & fields::PUBLIC() && !( $fattr & fields::INHERITED() ) ) {
+  # create the accessor and use the XS version if available
+  unless ( $class->can($name) ) {
     if ( XS ) {
+      require Carp;
       eval qq[
               use Class::XSAccessor
                 class => '$class',
@@ -74,11 +72,11 @@ sub _add_slot {
             ] or Carp::confess( $@ );
     }
     else {
-      my $subname = "${class}::${name}";
-      *$subname = sub { $#_ ? $_[0]->{$name} = $_[1] : $_[0]->{$name} };
+      no warnings 'redefine';
+      my $full_name = "${class}::${name}";
+      *$full_name = sub { $#_ ? $_[0]->{$name} = $_[1] : $_[0]->{$name} };
     }
-  } #/ if ( $fattr & fields::PUBLIC...)
-
+  }
   return;
 }
 
@@ -107,22 +105,22 @@ added the pragma L<slots> for practical use, which is based on the L<MOP>
 distribution. In my opinion, this combination made the usage not as 
 I<light-footed> as originally started. 
 
-This is why this pragma was developed, which does not require L<MOP> 
-distribution, but does require and supplement the perl core pragmas L<base> 
-and L<fields>.
+This is why this pragma was developed, which does not require the L<MOP> 
+distribution.
 
-Similar to the L<slots> pragma, C<slot::less> declares individual fields and 
-accessors for a class that based on L<UNIVERSAL::Object>.
+Similar to the L<fields> pragma, C<slot::less> declares individual fields 
+(stored in a global variable %HAS) and create accessors if a class based 
+L<UNIVERSAL::Object> is in use.
 
 When available, L<Class::XSAccessor> is used to generate the class accessors.
 
 =head1 DEPENDENCIES
 
-L<UNIVERSAL::Object>, L<Carp> and L<MRO::Compat> when using perl < v5.10.
+L<UNIVERSAL::Object> and L<MRO::Compat> when using perl < v5.10.
 
 =head1 SEE ALSO
 
-L<slots>, L<fields>.
+L<fields>, L<slots>.
 
 =head1 AUTHOR
 
