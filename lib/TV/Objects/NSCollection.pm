@@ -60,13 +60,13 @@ our %ITEMS = ();
   TNSCollection->{ITEMS} = \%ITEMS;
 }
 
-# predeclare attributes
-use fields qw(
-  items
-  count
-  limit
-  delta
-  shouldDelete
+# declare attributes
+use slots::less (
+  items        => sub { [] },
+  count        => sub { 0 },
+  limit        => sub { 0 },
+  delta        => sub { 0 },
+  shouldDelete => sub { !!1 },
 );
 
 # predeclare private methods
@@ -77,16 +77,6 @@ my (
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert( blessed $self );
-  my %default = (
-    items        => [],
-    count        => 0,
-    limit        => 0,
-    delta        => 0,
-    shouldDelete => !!1,
-  );
-  map { $self->{$_} = $default{$_} }
-    grep { !defined $self->{$_} }
-      keys %default;
   $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD
@@ -320,7 +310,5 @@ $freeItem = sub {
   delete $ITEMS{ $id } if $id;
   return;
 };
-
-__PACKAGE__->mk_accessors();
 
 1

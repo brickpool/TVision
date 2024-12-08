@@ -89,25 +89,25 @@ use vars qw(
   *TheTopView = \$TV::Views::Group::TheTopView;
 }
 
-# predeclare attributes
-use fields qw(
-  owner
-  next
-  options
-  state
-  growMode
-  dragMode
-  helpCtx
-  eventMask
-  size
-  origin
-  cursor
-);
-
 # use own accessors
 use subs qw(
   owner
   next
+);
+
+# declare attributes
+use slots::less (
+  owner     => sub { undef },
+  next      => sub { undef },
+  options   => sub { 0 },
+  state     => sub { sfVisible },
+  growMode  => sub { 0 },
+  dragMode  => sub { dmLimitLoY },
+  helpCtx   => sub { hcNoContext },
+  eventMask => sub { evMouseDown | evKeyDown | evCommand },
+  size      => sub { TPoint->new() },
+  origin    => sub { TPoint->new() },
+  cursor    => sub { TPoint->new() },
 );
 
 # predeclare private methods
@@ -132,28 +132,12 @@ sub BUILDARGS {    # \%args (%)
   assert ( $class and !ref $class );
   # 'required' arguments
   assert ( blessed $args{bounds} );
-  return \%args;
+  return $class->next::method( %args );
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  my %default = (
-    owner     => undef,
-    next      => undef,
-    options   => 0,
-    state     => sfVisible,
-    growMode  => 0,
-    dragMode  => dmLimitLoY,
-    helpCtx   => hcNoContext,
-    eventMask => evMouseDown | evKeyDown | evCommand,
-    size      => TPoint->new(),
-    origin    => TPoint->new(),
-    cursor    => TPoint->new(), # $cursor->{x} = $cursor->{y} = 0;
-  );
-  map { $self->{$_} = $default{$_} }
-    grep { !defined $self->{$_} }
-      keys %default;
   $lock_value->( $self->{owner} ) if STRICT;
   $lock_value->( $self->{next} )  if STRICT;
   $self->setBounds( $args->{bounds} );
@@ -1253,7 +1237,5 @@ $writeView = sub {    # void ($x, $y, $count, $b)
   TV::Views::View::Write::L0( $self, $x, $y, $count, $b );
   return;
 };
-
-__PACKAGE__->mk_accessors();
 
 1

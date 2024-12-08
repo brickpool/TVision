@@ -12,22 +12,18 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TDeskInit() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  createBackground
-);
+use parent 'UNIVERSAL::Object';
 
 # use own accessors
 use subs qw(
   createBackground
+);
+
+# declare attributes
+use slots::less (
+  createBackground => sub { die 'required' },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -35,9 +31,7 @@ sub BUILDARGS {    # \%args (%)
   assert ( $class and !ref $class );
   # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
-  # 'required' arguments
-  assert ( ref $args{createBackground} eq 'CODE' );
-  return \%args;
+  return $class->next::method( %args );
 }
 
 sub createBackground {    # $background ($r)
@@ -46,9 +40,5 @@ sub createBackground {    # $background ($r)
   assert ( ref $r );
   return $self->{createBackground}->( bounds => $r );
 }
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1

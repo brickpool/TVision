@@ -15,6 +15,8 @@ sub name() { 'TSortedCollection' };
 
 use base TNSSortedCollection;
 
+use slots::less;
+
 sub compare {    # $cmp ($self, $key1, $key2)
   return 0;
 }

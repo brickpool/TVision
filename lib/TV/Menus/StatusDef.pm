@@ -25,20 +25,16 @@ use Scalar::Util qw(
 
 use TV::Menus::StatusItem;
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TStatusDef() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  next
-  min
-  max
-  items
+use parent 'UNIVERSAL::Object';
+
+# declare attributes
+use slots::less (
+  next  => sub { },
+  min   => sub { 0 },
+  max   => sub { 0 },
+  items => sub { },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -53,7 +49,7 @@ sub BUILDARGS {    # \%args (%)
   return \%args;
 }
 
-sub init {    # $obj ($aMin, $aMax, | $someItems, | $aNext)
+sub from {    # $obj ($aMin, $aMax, | $someItems, | $aNext)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 4 );
@@ -105,9 +101,5 @@ sub add {    # $s1 ($s1, $s2)
 use overload
   '+' => \&add,
   fallback => 1;
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1

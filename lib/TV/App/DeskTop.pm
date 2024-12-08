@@ -41,10 +41,10 @@ use parent TDeskInit;
 # declare global variables
 our $defaultBkgrnd = "\xB0";
 
-# predeclare attributes
-use fields qw(
-  background
-  tileColumnsFirst
+# declare attributes
+use slots::less (
+  background        => sub { },
+  tileColumnsFirst  => sub { 0 },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -53,7 +53,7 @@ sub BUILDARGS {    # \%args (%)
   # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
   # TDeskInit->BUILDARGS is not called because arguments are not 'required'
-  return $class->SUPER::BUILDARGS( %args );
+  return $class->next::method( %args );
 }
 
 sub BUILD {    # void (| \%args)
@@ -61,7 +61,6 @@ sub BUILD {    # void (| \%args)
   assert ( blessed $self );
   $self->{createBackground} ||= \&initBackground;
   $self->{growMode}         = gfGrowHiX | gfGrowHiY;
-  $self->{tileColumnsFirst} = 0;
 
   if ( $self->{createBackground}
     && ( $self->{background} = $self->createBackground( $self->getExtent() ) ) 

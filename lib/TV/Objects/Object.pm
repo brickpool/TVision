@@ -24,16 +24,9 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-use TV::toolkit;
-
 sub TObject() { __PACKAGE__ }
 
-use fields qw();
-
-sub DESTROY {    # void ($self)
-  assert ( blessed shift );
-  return;
-}
+use parent 'UNIVERSAL::Object';
 
 sub destroy {    # void ($class|$self, $o|undef)
   my $class = shift;
@@ -50,19 +43,5 @@ sub shutDown {    # void ($self)
   assert ( blessed shift );
   return;
 }
-
-sub mk_constructor {
-  my $this = shift;
-  TV::toolkit::create_constructor( $this, @_ );
-  return $this;    # for chaining
-}
-
-sub mk_accessors {
-  my $this = shift;
-  TV::toolkit::install_slots( $this, @_ );
-  return $this;    # for chaining
-}
-
-__PACKAGE__->mk_constructor();
 
 1

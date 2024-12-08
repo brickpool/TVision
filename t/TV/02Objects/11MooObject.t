@@ -4,7 +4,8 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-BEGIN{
+BEGIN {
+  plan skip_all => 'Test irrelevant without toolkit support';
   unless ( eval { require Moo } ) {
     plan skip_all => 'Test irrelevant without Moo';
   }

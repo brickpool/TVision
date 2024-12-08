@@ -25,18 +25,10 @@ sub TBackground() { __PACKAGE__ }
 
 use base TView;
 
-# predeclare attributes
-use fields qw(
-  pattern
+# declare attributes
+use slots::less (
+  pattern => sub { die 'required' },
 );
-
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( $args{pattern} and !ref $args{pattern} );
-  return $class->SUPER::BUILDARGS( %args );
-}
 
 sub BUILD {    # void (| \%args)
   my $self = shift;

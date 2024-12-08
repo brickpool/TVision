@@ -58,11 +58,11 @@ sub name() { TMenuView }
 
 use base TView;
 
-# predeclare attributes
-use fields qw(
-  parentMenu
-  menu
-  current
+# declare attributes
+use slots::less (
+  parentMenu => sub { },
+  menu       => sub { },
+  current    => sub { },
 );
 
 # predeclare private methods
@@ -97,7 +97,7 @@ sub BUILD {    # void (\%args)
   return;
 }
 
-sub init {    # $obj ($bounds, | $aMenu|undef, | $aParent );
+sub from {    # $obj ($bounds, | $aMenu|undef, | $aParent );
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 1 && @_ <= 3 );
@@ -555,7 +555,5 @@ $findHotKey = sub {    # $menuItem|undef ($p, $keyCode)
   } #/ while ( $p )
   return undef;
 }; #/ sub $findHotKey
-
-__PACKAGE__->mk_accessors();
 
 1

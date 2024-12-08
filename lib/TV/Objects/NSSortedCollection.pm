@@ -56,17 +56,10 @@ use vars qw(
   *ITEMS = \%{ TNSCollection . '::ITEMS' };
 }
 
-# predeclare attributes
-use fields qw(
-  duplicates
+# declare attributes
+use slots::less (
+  duplicates => sub { !!0 },
 );
-
-sub BUILD {    # void (| \%args)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->{duplicates} ||= !!0;
-  return;
-}
 
 sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;
@@ -136,7 +129,5 @@ sub compare {    # $cmd ($key1, $key2)
   assert ( @_ == 3 );
   return 0;
 }
-
-__PACKAGE__->mk_accessors();
 
 1

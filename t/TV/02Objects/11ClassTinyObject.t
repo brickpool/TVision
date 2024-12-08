@@ -4,7 +4,8 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-BEGIN{
+BEGIN {
+  plan skip_all => 'Test irrelevant without toolkit support';
   unless ( eval { require Class::Tiny } ) {
     plan skip_all => 'Test irrelevant without Class::Tiny';
   }

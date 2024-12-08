@@ -15,4 +15,6 @@ sub name() { 'TCollection' };
 
 use base TNSCollection;
 
+use slots::less;
+
 1

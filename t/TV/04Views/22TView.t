@@ -26,13 +26,11 @@ BEGIN {
   use TV::Objects::Rect;
   require TV::Views::View;
   use base 'TV::Views::View';
-  use fields qw( last clip );
+  use slots::less ( 
+    last => sub { },
+    clip => sub { TRect->new() },
+  );
 
-  sub BUILD { 
-    my $self = shift;
-    $self->{clip} = TRect->new();
-    return;
-  }
   sub drawSubViews { }
   $INC{"MyOwner.pm"} = 1;
 }

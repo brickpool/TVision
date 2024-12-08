@@ -24,37 +24,31 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-}
-
 sub TPoint() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  x
-  y
-);
+# declare attributes
+our %HAS; BEGIN {
+  %HAS = ( 
+    x => sub { 0 },
+    y => sub { 0 },
+  );
+}
 
-sub BUILDARGS {    # \%args (%)
+sub new {    # \$obj (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   assert ( keys( %args ) % 2 == 0 );
   assert ( grep( looks_like_number( $_ ), values( %args ) ) == keys( %args ) );
-  return \%args;
+  my $self = {
+    x => $args{x} || $HAS{x}->(),
+    y => $args{y} || $HAS{y}->(),
+  };
+  bless $self, $class;
+  Hash::Util::lock_keys( %$self ) if STRICT;
+  return $self;
 } #/ sub new
 
-sub BUILD {    # void (| \%args)
-  my $self = shift;
-  assert( blessed $self );
-  $self->{x} ||= 0;
-  $self->{y} ||= 0;
-  Hash::Util::lock_keys( %$self ) if STRICT;
-  return;
-}
-
-sub init {    # $obj ($x, $y)
+sub from {    # $obj ($x, $y)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
@@ -64,9 +58,8 @@ sub init {    # $obj ($x, $y)
 sub clone {    # $p ($self)
   my $self = shift;
   assert ( blessed $self );
-  my $clone = bless { %$self }, ref $self;
-  Hash::Util::lock_keys( %$clone ) if STRICT;
-  return $clone;
+  my $class = ref $self || $self;
+  return $class->new( %$self );
 }
 
 sub add {    # $p ($one, $two)
@@ -129,10 +122,10 @@ use overload
 my $mk_accessors = sub {
   my $pkg = shift;
   no strict 'refs';
-  my %FIELDS = %{"${pkg}::FIELDS"};
-  for my $field ( keys %FIELDS ) {
-    my $fullname = "${pkg}::$field";
-    *$fullname = sub {
+  my %HAS = %{"${pkg}::HAS"};
+  for my $field ( keys %HAS ) {
+    my $full_name = "${pkg}::$field";
+    *$full_name = sub {
       assert( blessed $_[0] );
       if ( @_ > 1 ) {
         assert( looks_like_number $_[1] );
@@ -140,11 +133,9 @@ my $mk_accessors = sub {
       }
       $_[0]->{$field};
     };
-  } #/ for my $field ( keys %FIELDS)
+  } #/ for my $field ( keys %HAS)
 }; #/ $mk_accessors = sub
 
-__PACKAGE__
-  ->mk_constructor
-  ->$mk_accessors();
+__PACKAGE__->$mk_accessors();
 
 1

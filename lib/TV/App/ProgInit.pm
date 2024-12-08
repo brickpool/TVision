@@ -12,26 +12,22 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TProgInit() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  createStatusLine
-  createMenuBar
-  createDeskTop
-);
+use parent 'UNIVERSAL::Object';
 
 # use own accessors
 use subs qw(
   createStatusLine
   createMenuBar
   createDeskTop
+);
+
+# declare attributes
+use slots::less (
+  createStatusLine => sub { die 'required' },
+  createMenuBar    => sub { die 'required' },
+  createDeskTop    => sub { die 'required' },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -68,9 +64,5 @@ sub createDeskTop {    # $deskTop ($r)
   assert ( ref $r );
   return $self->{createDeskTop}->( bounds => $r );
 }
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1

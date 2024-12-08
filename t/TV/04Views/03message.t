@@ -14,7 +14,7 @@ BEGIN {
   package MyTView;
   require TV::Views::View;
   use base 'TV::Views::View';
-
+  use slots::less;
   my $toggle = 1;
   sub handleEvent {
     my ( $self, $event ) = @_;

@@ -27,24 +27,20 @@ use Scalar::Util qw(
 use TV::Views::Const qw( hcNoContext );
 use TV::Views::View;
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TMenuItem() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  next
-  name
-  command
-  disabled
-  keyCode
-  helpCtx
-  param
-  subMenu
+use parent 'UNIVERSAL::Object';
+
+# declare attributes
+use slots::less (
+  next     => sub { },
+  name     => sub { die 'required' },
+  command  => sub { 0 },
+  disabled => sub { !!0 },
+  keyCode  => sub { die 'required' },
+  helpCtx  => sub { hcNoContext },
+  param    => sub { '' },
+  subMenu  => sub { },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -65,17 +61,11 @@ sub BUILDARGS {    # \%args (%)
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert( blessed $self );
-  # set default values if not defined
-  $self->{command} ||= 0;
   $self->{disabled} = !TView->commandEnabled( $self->{command} );
-  $self->{helpCtx} ||= hcNoContext;
-  $self->{param}   ||= '';
-  $self->{next}    ||= undef;
-  $self->{subMenu} ||= undef;
   return;
 }
 
-sub init {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $param, $next)
+sub from {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $param, $next)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 3 && @_ <= 6 );
@@ -119,9 +109,5 @@ sub DEMOLISH {    # void ()
   }
   return;
 } #/ sub DEMOLISH
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1

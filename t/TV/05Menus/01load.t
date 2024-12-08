@@ -19,10 +19,10 @@ BEGIN {
 }
 
 isa_ok( TMenu->new(), TMenu );
-isa_ok( TMenuItem->init( 'One', 1, 0x1234 ), TMenuItem );
-isa_ok( TSubMenu->init( 'Two', 0x2345 ), TSubMenu );
-isa_ok( TMenuView->init( TRect->new() ), TMenuView );
-isa_ok( TMenuBar->init( TRect->new(), TMenu->new() ), TMenuBar );
-isa_ok( TStatusItem->init( 'One', 0x1234, 1 ), TStatusItem );
-isa_ok( TStatusDef->init( 1, 2 ), TStatusDef );
-isa_ok( TStatusLine->init( TRect->new(), undef ), TStatusLine );
+isa_ok( TMenuItem->from( 'One', 1, 0x1234 ), TMenuItem );
+isa_ok( TSubMenu->from( 'Two', 0x2345 ), TSubMenu );
+isa_ok( TMenuView->from( TRect->new() ), TMenuView );
+isa_ok( TMenuBar->from( TRect->new(), TMenu->new() ), TMenuBar );
+isa_ok( TStatusItem->from( 'One', 0x1234, 1 ), TStatusItem );
+isa_ok( TStatusDef->from( 1, 2 ), TStatusDef );
+isa_ok( TStatusLine->from( TRect->new(), undef ), TStatusLine );

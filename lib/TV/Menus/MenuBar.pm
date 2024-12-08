@@ -38,6 +38,7 @@ sub TMenuBar() { __PACKAGE__ }
 sub name() { TMenuView }
 
 use base TMenuView;
+use slots::less;
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args) = @_;
@@ -57,7 +58,7 @@ sub BUILD {    # void (\%args)
   return;
 }
 
-sub init {    # $obj ($bounds, $aMenu)
+sub from {    # $obj ($bounds, $aMenu)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );

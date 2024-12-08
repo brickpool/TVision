@@ -23,20 +23,16 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TStatusItem() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  next
-  text
-  keyCode
-  command
+use parent 'UNIVERSAL::Object';
+
+# declare attributes
+use slots::less (
+  next    => sub { },
+  text    => sub { '' },
+  keyCode => sub { 0 },
+  command => sub { 0 },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -51,7 +47,7 @@ sub BUILDARGS {    # \%args (%)
   return \%args;
 }
 
-sub init {    # $obj ($aText, $key, $cmd, | $aNext)
+sub from {    # $obj ($aText, $key, $cmd, | $aNext)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 3 && @_ <= 4 );
@@ -66,9 +62,5 @@ sub DEMOLISH {    # void ()
   undef $self->{text};
   return;
 }
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1

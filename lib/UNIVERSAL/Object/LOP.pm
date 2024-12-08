@@ -4,7 +4,7 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
@@ -141,7 +141,7 @@ sub _add_attribute { # void ($class, $attr, \&default)
   my $HAS = \%{"${class}::HAS"};
 
   # if %HAS does not exist, it is a base class for which %HAS must be created.
-  unless ( $HAS ) {
+  unless ( %$HAS ) {
     %{"${class}::HAS"} = ();
     $HAS = \%{"${class}::HAS"};
     for my $isa ( reverse $self->superclasses() ) {

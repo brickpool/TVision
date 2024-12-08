@@ -32,6 +32,7 @@ BEGIN {
   use TV::Drivers::Const qw( evKeyDown kbEsc );
   require TV::Menus::MenuView;
   use base 'TV::Menus::MenuView';
+  use slots::less;
   sub getEvent {
     $_[1]->{what} = evKeyDown;
     $_[1]->{keyDown}{keyCode} = kbEsc;
@@ -40,9 +41,9 @@ BEGIN {
 }
 
 # Test object creation with menu and parent
-my $menu = TMenu->init(
-  TMenuItem->init( 'One', 1, 0x1234 ),
-	TMenuItem->init( 'Two', 2, 0x5678 ) 
+my $menu = TMenu->from(
+  TMenuItem->from( 'One', 1, 0x1234 ),
+	TMenuItem->from( 'Two', 2, 0x5678 ) 
 );
 my $parent_menu = TMenuView->new(
   bounds => TRect->new(), menu => $menu, parentMenu => undef 
@@ -67,7 +68,7 @@ is( $menu_view->findItem( 'A' ), undef, 'findItem returns correct value' );
 
 # Test getItemRect method
 can_ok( $menu_view, 'getItemRect' );
-is_deeply( $menu_view->getItemRect( TMenuItem->init( 'Three', 3, 0x9ABC ) ),
+is_deeply( $menu_view->getItemRect( TMenuItem->from( 'Three', 3, 0x9ABC ) ),
   TRect->new(), 'getItemRect returns correct value' );
 
 # Test getHelpCtx method

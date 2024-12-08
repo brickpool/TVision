@@ -39,18 +39,15 @@ use Scalar::Util qw(
   reftype
 );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-}
-
 sub TRect() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  a
-  b
-);
+# declare attributes
+our %HAS; BEGIN {
+  %HAS = ( 
+    a => sub { TPoint->new() },
+    b => sub { TPoint->new() },
+  );
+}
 
 # This method accepts a variable number of arguments:
 #
@@ -62,7 +59,7 @@ use fields qw(
 #
 # If no or any other number of arguments are provided, it initializes points 
 # I<a> and I<b> with new I<TPoint> objects with default values.
-sub BUILDARGS {    # \%args (%)
+sub new {    # \$obj (%)
   my ( $class, %args ) = @_;
   assert ( $class and !ref $class );
   assert ( keys( %args ) % 2 == 0 );
@@ -80,19 +77,16 @@ sub BUILDARGS {    # \%args (%)
     $args{b} = TPoint->new( x => $args{bx}, y => $args{by} );
     delete @args{@params};
   }
-  return \%args;
+  my $self = {
+    a => $args{a} || $HAS{a}->(),
+    b => $args{b} || $HAS{b}->(),
+  };
+  bless $self, $class;
+  Hash::Util::lock_keys( %$self ) if STRICT;
+  return $self;
 } #/ sub new
 
-sub BUILD  {    # void (| \%args)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->{a} ||= TPoint->new();
-  $self->{b} ||= TPoint->new();
-  Hash::Util::lock_keys( %$self ) if STRICT;
-  return;
-}
-
-sub init {    # $obj ($ax, $ay, $bx, $by)
+sub from {    # $obj ($ax, $ay, $bx, $by)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 4 );
@@ -102,13 +96,11 @@ sub init {    # $obj ($ax, $ay, $bx, $by)
 sub clone {    # $p ($self)
   my $self = shift;
   assert ( blessed $self );
-  my $clone = {
-    a => $self->{a}->clone(),
-    b => $self->{b}->clone(),
-  };
-  bless $clone, ref $self;
-  Hash::Util::lock_keys( %$clone ) if STRICT;
-  return $clone;
+  my $class = ref $self || $self;
+  return $class->new(
+    p1 => $self->{a}->clone(),
+    p2 => $self->{b}->clone(),
+  );
 }
 
 sub move {    # void ($aDX, $aDY)
@@ -201,10 +193,10 @@ use overload
 my $mk_accessors = sub {
   my $pkg = shift;
   no strict 'refs';
-  my %FIELDS = %{"${pkg}::FIELDS"};
-  for my $field ( keys %FIELDS ) {
-    my $fullname = "${pkg}::$field";
-    *$fullname = sub {
+  my %HAS = %{"${pkg}::HAS"};
+  for my $field ( keys %HAS ) {
+    my $full_name = "${pkg}::$field";
+    *$full_name = sub {
       assert( blessed $_[0] );
       if ( @_ > 1 ) {
         assert( blessed $_[1] );
@@ -212,11 +204,9 @@ my $mk_accessors = sub {
       }
       $_[0]->{$field};
     };
-  } #/ for my $field ( keys %FIELDS)
+  } #/ for my $field ( keys %HAS)
 }; #/ $mk_accessors = sub
 
-__PACKAGE__
-  ->mk_constructor
-  ->$mk_accessors();
+__PACKAGE__->$mk_accessors();
 
 1

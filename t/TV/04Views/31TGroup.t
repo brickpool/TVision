@@ -25,6 +25,7 @@ BEGIN {
   package MyGroup;
   require TV::Views::Group;
   use base 'TV::Views::Group';
+  use slots::less;
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }

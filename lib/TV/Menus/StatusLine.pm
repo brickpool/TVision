@@ -43,10 +43,10 @@ sub name() { TStatusLine }
 
 use base TView;
 
-# predeclare attributes
-use fields qw(
-  items
-  defs
+# declare attributes
+use slots::less (
+  items => sub { },
+  defs  => sub { },
 );
 
 # predeclare private methods
@@ -80,7 +80,7 @@ sub BUILD {    # void (\%args)
   return;
 } #/ sub new
 
-sub init {    # $obj ($bounds, $aDefs);
+sub from {    # $obj ($bounds, $aDefs);
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
@@ -276,7 +276,5 @@ $itemMouseIsIn = sub {    # $statusItem|undef ($mouse)
   }
   return undef;
 }; #/ sub itemMouseIsIn
-
-__PACKAGE__->mk_accessors();
 
 1

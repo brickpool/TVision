@@ -44,14 +44,23 @@ package MouseEventType {
   use Scalar::Util qw( blessed );
   use TV::Objects::Point;
 
+  our %HAS; BEGIN {
+    %HAS = ( 
+		  eventFlags      => sub { 0 },
+			controlKeyState => sub { 0 },
+			buttons         => sub { 0 },
+			where           => sub { TPoint->new() },
+    );
+  }
+
   sub new {    # $obj (%args)
     no warnings 'uninitialized';
     my ( $class, %args ) = @_;
     assert ( $class and !ref $class );
     my $self = {
-      eventFlags      => 0+ $args{eventFlags},
-      controlKeyState => 0+ $args{controlKeyState},
-      buttons         => 0+ $args{buttons},
+      eventFlags      => 0+ $args{eventFlags}      || $HAS{eventFlags}->(),
+      controlKeyState => 0+ $args{controlKeyState} || $HAS{controlKeyState}->(),
+      buttons         => 0+ $args{buttons}         || $HAS{buttons}->(),
     };
     my $type = ref $args{where};
     if ( $type eq 'HASH' || $type eq TPoint ) {
@@ -67,7 +76,7 @@ package MouseEventType {
       );
     } 
     else {
-      $self->{where} = TPoint->new();
+      $self->{where} = $HAS{where}->();
     }
     bless $self, $class;
     Hash::Util::lock_keys( %$self ) if STRICT;
@@ -97,7 +106,7 @@ package CharScanType {
   use Hash::Util qw( lock_hash );
   use Tie::Hash;
 
-  our %FIELDS = (
+  our %HAS = (
     scanCode => sub {
       no warnings 'uninitialized';
       my ( $this, $code ) = @_;
@@ -111,7 +120,7 @@ package CharScanType {
       $$this & 0xff;
     },
   );
-  lock_hash( %FIELDS );
+  lock_hash( %HAS );
 
   use parent 'Tie::Hash';
 
@@ -122,19 +131,19 @@ package CharScanType {
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
       grep { exists $args{$_} }
-        keys %FIELDS;
+        keys %HAS;
     return $self;
   }
 
   sub TIEHASH  { bless \( my $data ), $_[0] }
-  sub STORE    { $FIELDS{ $_[1] }->( $_[0], $_[2] ) }
-  sub FETCH    { $FIELDS{ $_[1] }->( $_[0] ) }
-  sub FIRSTKEY { my $a = scalar keys %FIELDS; each %FIELDS }
-  sub NEXTKEY  { each %FIELDS }
-  sub EXISTS   { exists $FIELDS{ $_[1] } }
-  sub DELETE   { delete $FIELDS{ $_[1] } }  # raise an exception
-  sub CLEAR    { %FIELDS = () }             # raise an exception
-  sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
+  sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }
+  sub FETCH    { $HAS{ $_[1] }->( $_[0] ) }
+  sub FIRSTKEY { my $a = scalar keys %HAS; each %HAS }
+  sub NEXTKEY  { each %HAS }
+  sub EXISTS   { exists $HAS{ $_[1] } }
+  sub DELETE   { delete $HAS{ $_[1] } }  # raise an exception
+  sub CLEAR    { %HAS = () }             # raise an exception
+  sub SCALAR   { scalar keys %HAS }      # return number of elements (> 5.24)
 
   $INC{"CharScanType.pm"} = 1;
 }
@@ -150,7 +159,7 @@ package KeyDownEvent {
   use Hash::Util qw( lock_hash );
   use Tie::Hash;
 
-  our %FIELDS = (
+  our %HAS = (
     keyCode => sub {
       no warnings 'uninitialized';
       my ( $this, $code ) = @_;
@@ -170,7 +179,7 @@ package KeyDownEvent {
       $this->[1];
     },
   );
-  lock_hash( %FIELDS );
+  lock_hash( %HAS );
 
   use parent 'Tie::Hash';
 
@@ -181,19 +190,19 @@ package KeyDownEvent {
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
       grep { exists $args{$_} }
-        keys %FIELDS;
+        keys %HAS;
     return $self;
   }
 
   sub TIEHASH  { bless [ CharScanType->new(), 0 ], $_[0] }
-  sub STORE    { $FIELDS{ $_[1] }->( $_[0], $_[2] ) }
-  sub FETCH    { $FIELDS{ $_[1] }->( $_[0] ) }
-  sub FIRSTKEY { my $a = scalar keys %FIELDS; each %FIELDS }
-  sub NEXTKEY  { each %FIELDS }
-  sub EXISTS   { exists $FIELDS{ $_[1] } }
-  sub DELETE   { delete $FIELDS{ $_[1] } }  # raise an exception
-  sub CLEAR    { %FIELDS = () }             # raise an exception
-  sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
+  sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }
+  sub FETCH    { $HAS{ $_[1] }->( $_[0] ) }
+  sub FIRSTKEY { my $a = scalar keys %HAS; each %HAS }
+  sub NEXTKEY  { each %HAS }
+  sub EXISTS   { exists $HAS{ $_[1] } }
+  sub DELETE   { delete $HAS{ $_[1] } }  # raise an exception
+  sub CLEAR    { %HAS = () }             # raise an exception
+  sub SCALAR   { scalar keys %HAS }      # return number of elements (> 5.24)
 
   $INC{"KeyDownEvent.pm"} = 1;
 }
@@ -209,7 +218,7 @@ package MessageEvent {
   use Hash::Util qw( lock_hash );
   use Tie::Hash;
 
-  our %FIELDS = (
+  our %HAS = (
     command => sub {
       no warnings 'uninitialized';
       my ( $this, $cmd ) = @_;
@@ -254,7 +263,7 @@ package MessageEvent {
       chr( 0+$this->[1] );
     },
   );
-  lock_hash( %FIELDS );
+  lock_hash( %HAS );
 
   use parent 'Tie::Hash';
 
@@ -265,26 +274,26 @@ package MessageEvent {
     tie %$self, $class;
     map { $self->{$_} = $args{$_} }
       grep { exists $args{$_} }
-        keys %FIELDS;
+        keys %HAS;
     return $self;
   } #/ sub new
 
   sub TIEHASH  { bless [ 0, 0 ], $_[0] }
-  sub STORE    { $FIELDS{ $_[1] }->( $_[0], $_[2] ) }
-  sub FETCH    { $FIELDS{ $_[1] }->( $_[0] ) }
-  sub FIRSTKEY { my $a = scalar keys %FIELDS; each %FIELDS }
-  sub NEXTKEY  { each %FIELDS }
-  sub EXISTS   { exists $FIELDS{ $_[1] } }
-  sub DELETE   { delete $FIELDS{ $_[1] } }  # raise an exception
-  sub CLEAR    { %FIELDS = () }             # raise an exception
-  sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
+  sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }
+  sub FETCH    { $HAS{ $_[1] }->( $_[0] ) }
+  sub FIRSTKEY { my $a = scalar keys %HAS; each %HAS }
+  sub NEXTKEY  { each %HAS }
+  sub EXISTS   { exists $HAS{ $_[1] } }
+  sub DELETE   { delete $HAS{ $_[1] } }  # raise an exception
+  sub CLEAR    { %HAS = () }             # raise an exception
+  sub SCALAR   { scalar keys %HAS }      # return number of elements (> 5.24)
 
   $INC{"MessageEvent.pm"} = 1;
 }
 
 sub TEvent() { __PACKAGE__ }
 
-our %FIELDS = (
+our %HAS = (
   what => sub {
     my ( $this, $what ) = @_;
     if ( @_ > 1 ) {
@@ -326,7 +335,7 @@ our %FIELDS = (
     $type =~ /message/i ? $this->[1] : undef;
   },
 );
-lock_hash( %FIELDS );
+lock_hash( %HAS );
 
 use parent 'Tie::Hash';
 
@@ -366,14 +375,14 @@ sub new {    # $obj (%args)
 } #/ sub new
 
 sub TIEHASH  { bless [ evNothing, undef ], $_[0] }
-sub STORE    { $FIELDS{ $_[1] }->( $_[0], $_[2] ) }
-sub FETCH    { $FIELDS{ $_[1] }->( $_[0] ) }
-sub FIRSTKEY { my $a = scalar keys %FIELDS; each %FIELDS }
-sub NEXTKEY  { each %FIELDS }
-sub EXISTS   { exists $FIELDS{ $_[1] } }
-sub DELETE   { delete $FIELDS{ $_[1] } }  # raise an exception
-sub CLEAR    { %FIELDS = () }             # raise an exception
-sub SCALAR   { scalar keys %FIELDS }      # return number of elements (> 5.24)
+sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }
+sub FETCH    { $HAS{ $_[1] }->( $_[0] ) }
+sub FIRSTKEY { my $a = scalar keys %HAS; each %HAS }
+sub NEXTKEY  { each %HAS }
+sub EXISTS   { exists $HAS{ $_[1] } }
+sub DELETE   { delete $HAS{ $_[1] } }  # raise an exception
+sub CLEAR    { %HAS = () }             # raise an exception
+sub SCALAR   { scalar keys %HAS }      # return number of elements (> 5.24)
 
 sub getMouseEvent {    # void ($self)
   assert ( blessed $_[0] );

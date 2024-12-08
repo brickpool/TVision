@@ -1,12 +1,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 14;
 use Test::Exception;
 use Hash::Util;
 
 BEGIN {
-  use_ok 'fields';
+  use_ok 'UNIVERSAL::Object';
   use_ok 'TV::Objects::Object';
 }
 
@@ -14,10 +14,10 @@ BEGIN {
   package Derived;
   require TV::Objects::Object;
   use base 'TV::Objects::Object';
-  use fields qw(
-    x y
+  use slots::less (
+    x => sub { 0 },
+    y => sub { 0 },
   );
-  __PACKAGE__->mk_accessors;
   $INC{"Derived.pm"} = 1;
 }
 
@@ -47,8 +47,7 @@ ok( !defined $obj, 'destroy() undefines the object' );
 use_ok 'Derived';
 
 $obj = Derived->new();
-isa_ok( $obj, 'Derived', 'Derived class of TObject' );
-ok( Hash::Util::hash_locked( %$obj ), 'Object uses fields pragma' );
+isa_ok( $obj, 'UNIVERSAL::Object' );
 
 can_ok( $obj, 'x' );
 lives_ok { $obj->x() } 'x works correctly';

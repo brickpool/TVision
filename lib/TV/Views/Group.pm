@@ -51,20 +51,21 @@ use base TView;
 our $TheTopView;
 our $ownerGroup;
 
-# predeclare attributes
-use fields qw(
-  last
-  phase
-  current
-  buffer
-  lockFlag
-  endState
-  clip
-);
-
 # use own accessors
 use subs qw(
   current
+);
+
+# declare attributes
+use slots::less (
+  last      => sub { undef },
+  clip      => sub { undef },
+  phase     => sub { phFocused },
+  current   => sub { undef },
+  buffer    => sub { undef },
+  lockFlag  => sub { 0 },
+  endState  => sub { 0 },
+  eventMask => sub { 0xffff },
 );
 
 # predeclare private methods
@@ -88,18 +89,6 @@ my $unlock_value = sub {
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
-  my %default = (
-    last      => undef,
-    phase     => phFocused,
-    current   => undef,
-    buffer    => undef,
-    lockFlag  => 0,
-    endState  => 0,
-    eventMask => 0xffff,
-  );
-  map { $self->{$_} = $default{$_} }
-    grep { !defined $self->{$_} }
-      keys %default;
   $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} ||= $self->getExtent();
   $lock_value->( $self->{current} ) if STRICT;
@@ -853,7 +842,5 @@ $findNext = sub {
   } #/ if ( $p )
   return $result;
 }; #/ sub findNext
-
-__PACKAGE__->mk_accessors();
 
 1

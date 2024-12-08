@@ -30,8 +30,9 @@ use TV::Menus::MenuItem;
 sub TSubMenu() { __PACKAGE__ }
 
 use base TMenuItem;
+use slots::less;
 
-sub init {    # $obj ($nm, $key, $helpCtx)
+sub from {    # $obj ($nm, $key, $helpCtx)
   my $class = shift;
   assert( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 3 );

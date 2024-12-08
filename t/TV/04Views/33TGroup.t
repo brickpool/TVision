@@ -31,6 +31,7 @@ BEGIN {
   package MyView;
   require TV::Views::View;
   use base 'TV::Views::View';
+  use slots::less;
   sub dataSize { 1 }
   $INC{"MyView.pm"} = 1;
 }

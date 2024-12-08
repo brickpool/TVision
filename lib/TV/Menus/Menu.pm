@@ -23,18 +23,14 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-BEGIN {
-  require TV::Objects::Object;
-  *mk_constructor = \&TV::Objects::Object::mk_constructor;
-  *mk_accessors   = \&TV::Objects::Object::mk_accessors;
-}
-
 sub TMenu() { __PACKAGE__ }
 
-# predeclare attributes
-use fields qw(
-  items
-  deflt
+use parent 'UNIVERSAL::Object';
+
+# declare attributes
+use slots::less (
+  items => sub { },
+  deflt => sub { },
 );
 
 sub BUILDARGS {    # \%args (%)
@@ -55,7 +51,7 @@ sub BUILD {    # void (| \%args)
   return;
 }
 
-sub init {    # $obj (| $itemList, | $TheDefault)
+sub from {    # $obj (| $itemList, | $TheDefault)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 0 && @_ <= 2 );
@@ -76,9 +72,5 @@ sub DEMOLISH {    # void ()
     undef $temp;
   }
 }
-
-__PACKAGE__
-  ->mk_constructor
-  ->mk_accessors;
 
 1
