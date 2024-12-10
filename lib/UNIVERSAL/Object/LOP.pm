@@ -4,8 +4,10 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
+
+require Carp;
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
@@ -15,34 +17,42 @@ use parent 'Class::LOP';
 use parent 'UNIVERSAL::Object';
 
 our %HAS; BEGIN {
-    %HAS = ( 
-      _name => sub { die 'required' },
-      classes => sub { [] },
+    %HAS = (
+      _name       => sub { die 'required' },
+      classes     => sub { [] },
+      _attributes => sub { {} },
     );
 }
 
-sub new { # $self (%args)
-  goto &UNIVERSAL::Object::new;
+sub new {    # $self ($class)
+  my ( $self, $class ) = @_;
+  $self = $self->init( $class ) unless ref $self;
+  $class->create_constructor()
+    unless $self->class_exists( $class );
+  return $self;
 }
 
-sub init { # $self ($class)
-  return __PACKAGE__->new( _name => $_[1] );
+sub init {    # $self ($class)
+  my ( $self, $class ) = @_;
+  $self = $self->UNIVERSAL::Object::new( _name => $class ) unless ref $self;
+  return $self;
 }
 
-sub superclasses { # \@array ()
+sub superclasses {    # \@array ()
   my $self = shift;
-  my $class = $self->{_name};
-  return @{ mro::get_linear_isa( $class ) };
+  my $class = $self->name;
+  my $isa = mro::get_linear_isa( $class );
+  return @$isa[ 1 .. $#$isa ];
 }
 
-sub extend_class {  # $self|undef (@mothers)
+sub extend_class {    # $self|undef (@mothers)
   my $self = shift;
   return unless @_;
   $self->SUPER::extend_class( @_ );
 
   # We may have new parent classes, so %HAS must be regenerated.
   no strict 'refs';
-  my $class = $self->{_name};
+  my $class = $self->name;
   %{"${class}::HAS"} = () unless %{"${class}::HAS"};
   my $HAS = \%{"${class}::HAS"};
   for my $isa ( reverse $self->superclasses() ) {
@@ -54,9 +64,9 @@ sub extend_class {  # $self|undef (@mothers)
   return $self;
 }
 
-sub have_accessors { # $self|undef ($name)
+sub have_accessors {    # $self|undef ($name)
   my ( $self, $name ) = @_;
-  my $class = $self->{_name};
+  my $class = $self->name;
   if ( $self->class_exists( $class ) ) {
     no strict 'refs';
     my $slot = "${class}::${name}";
@@ -75,67 +85,77 @@ sub have_accessors { # $self|undef ($name)
       if ( XS ) {
         my $mutator = $is eq 'ro' ? 'getters' : 'accessors';
         eval qq[
-                use Class::XSAccessor
-                  replace => 1,
-                  class => '$class',
-                  $mutator => { '$attr' => '$attr' };
-                return 1;
-              ] or warn "Can't create accessor in class '$class': $@";
+          use Class::XSAccessor
+            replace => 1,
+            class => '$class',
+            $mutator => { '$attr' => '$attr' };
+          return 1;
+        ] or Carp::confess( "Can't create accessor in class '$class': $@" );
       }
       else {
-        require Carp;
         no warnings 'redefine';
         my $acc = "${class}::${attr}";
         *{$acc} = $is eq 'ro'
-                ? sub { $#_
-                        ? Carp::croak "Usage: ${class}::$attr(self)"
+                ? sub { 
+                    $#_ ? Carp::confess("Usage: ${class}::$attr(self)")
                         : $_[0]->{$attr}
                   }
-                : sub { $#_
-                        ? $_[0]->{$attr} = $_[1]
+                : sub { 
+                    $#_ ? $_[0]->{$attr} = $_[1]
                         : $_[0]->{$attr} 
                   }
       }
     }; #/ sub
     return $self;
   }
-  else {
-    warn "Can't create accessors in class '$class', because it doesn't exist";
-    return;
-  }
+  Carp::confess( "Can't create accessors in class '$class', ".
+    "because it doesn't exist" );
 } #/ sub have_accessors
 
-sub create_constructor { # $self ()
+sub create_constructor {    # $self ()
   my ( $self ) = @_;
-  my $caller = $self->{_name};
-  if ( !$caller->isa( 'UNIVERSAL::Object' ) ) {
-    warn "constructor is already implemented" 
-      if $caller->can('new');
+  my $class = $self->name;
+  unless ( $class->isa( 'UNIVERSAL::Object' ) ) {
+    Carp::carp( "constructor is already implemented" )
+      if $class->can('new');
     $self->extend_class( qw( UNIVERSAL::Object ) );
   }
   return $self;
 }
 
-sub create_class { # $self ($class)
+sub create_class {    # $bool ($class)
   my ( $self, $class ) = @_;
-  my $caller = $self->{_name};
-  if ( $self->class_exists( $caller ) ) {
-    warn "Can't create class '$class'. Already exists";
+  if ( $self->class_exists( $self->name ) ) {
+    Carp::carp( "Can't create class '$class'. Already exists" );
     return !!0;
   }
-  elsif ( !$caller->isa( 'UNIVERSAL::Object' ) ) {
-    $self->extend_class( qw( UNIVERSAL::Object ) );
+  else {
+    $self->create_constructor();
+    return !!1;
   }
-  return !!1;
 } #/ sub create_class
 
-sub get_attributes { # \%has ()
+# Returns the local %HAS entries without those inherited from the parents.
+sub get_attributes {    # \%has ()
   my $self  = shift;
-  my $class = $self->{_name};
-  return { $class->SLOTS() };
+  my $class = $self->name;
+
+  # get %HAS from this $class (which includes the superclasses)
+  my %a = $class->SLOTS();
+
+  # get only %HAS from the superclasses
+  my %b = ();
+  %b = ( %b, $_->SLOTS() ) 
+    for $self->superclasses();
+
+  # determine %HAS from this $class that are not contained in the superclasses
+  my %has = map { $_ => $a{$_} } 
+    grep { !exists $b{$_} } keys %a;
+
+  return \%has;
 }
 
-sub _add_attribute { # void ($class, $attr, \&default)
+sub _add_attribute {    # void ($class, $attr, \&value)
   my ( $self, $class, $attr, $value ) = @_;
   no strict 'refs';
   my $HAS = \%{"${class}::HAS"};
@@ -152,6 +172,7 @@ sub _add_attribute { # void ($class, $attr, \&default)
   }
 
   $HAS->{$attr} = $value;
+  $self->SUPER::_add_attribute( $class, $attr, $value );
   return;
 }
 
@@ -167,7 +188,7 @@ UNIVERSAL::Object::LOP - The Lightweight Object Protocol for UNIVERSAL::Object
 
 =head1 VERSION
 
-version 0.01
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -192,7 +213,7 @@ The following L<Class::LOP> methods have been overwritten:
 
 =head2 new
 
-  my $self = $self->new(%args);
+  my $self = $self->new($class);
 
 =head2 create_class
 
@@ -223,6 +244,8 @@ The following L<Class::LOP> methods have been overwritten:
   my \@array = $self->superclasses();
 
 =head1 REQUIRES
+
+L<Carp>
 
 L<Class::LOP>
 

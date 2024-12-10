@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 use Test::Exception;
 use Data::Dumper;
 
@@ -67,6 +67,11 @@ BEGIN {
     [ qw( x y ) ],
     'keys %Point::HAS is equal to fields'
   );
+  is_deeply(
+    [ sort keys %{ UNIVERSAL::Object::LOP->init('Point')->get_attributes() } ],
+    [ qw( x y ) ],
+    'get_attributes() for Point3D works correctly'
+  );
   $_ = Dumper { Point->SLOTS() };
   s/\$VAR1/*{'Point::HAS'}{HASH}/;
   note $_;
@@ -79,6 +84,11 @@ BEGIN {
     [ sort keys %Point3D::HAS ],
     [ qw( x y z ) ],
     'keys %Point3D::HAS is equal to fields'
+  );
+  is_deeply(
+    [ keys %{ UNIVERSAL::Object::LOP->init('Point3D')->get_attributes() } ],
+    [ qw( z ) ],
+    'get_attributes() for Point works correctly'
   );
   $_ = Dumper { Point3D->SLOTS() };
   s/\$VAR1/*{'Point3D::HAS'}{HASH}/;
