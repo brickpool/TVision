@@ -170,10 +170,6 @@ The following L<Class::LOP> methods have been overwritten:
 
   my $self = $self->init($class);
 
-=head2 superclasses
-
-  my @list = $self->superclasses();
-
 =head1 REQUIRES
 
 L<Carp>

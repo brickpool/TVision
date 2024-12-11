@@ -82,7 +82,6 @@ BEGIN {
   $_ = Dumper( Class::Tiny::LOP->init('Point')->get_attributes() );
   s/\$VAR1/*{'Point::'}{CODE}/;
   note $_;
-
 }
 
 {
@@ -119,11 +118,11 @@ BEGIN {
 {
   my $point = Point3D->new( z => 4 );
   isa_ok( $point, 'Point' );
-  is( $point->x, 1,  "Point3D->new sets x correctly" );
-  is( $point->y, 2,  "Point3D->new sets y correctly" );
+  is( $point->x, 1, "Point3D->new sets x correctly" );
+  is( $point->y, 2, "Point3D->new sets y correctly" );
 
   dies_ok { $point->z(3) } 'Access to attribute z works correctly';
-  is( $point->z, 4,  "Point3D->new sets z correctly" );
+  is( $point->z, 4, "Point3D->new sets z correctly" );
 
   is_deeply(
     [ sort keys %$point ],

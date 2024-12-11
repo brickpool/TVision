@@ -103,9 +103,9 @@ BEGIN {
 
 {
   my $point = Point3D->new( z => 4 );
-  is( $point->x, 0,  "Point3D->new sets x correctly" );
-  is( $point->y, 0,  "Point3D->new sets y correctly" );
-  is( $point->z, 4,  "Point3D->new sets z correctly" );
+  is( $point->x, 0, "Point3D->new sets x correctly" );
+  is( $point->y, 0, "Point3D->new sets y correctly" );
+  is( $point->z, 4, "Point3D->new sets z correctly" );
 
   isa_ok( $point, 'UNIVERSAL::Object' );
   dies_ok { $point->z(5) } 'Access to attribute z works correctly';

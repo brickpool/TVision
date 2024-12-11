@@ -4,7 +4,7 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
@@ -38,28 +38,32 @@ sub init {    # $self ($class)
   return $self;
 }
 
-sub superclasses {    # \@array ()
-  my $self = shift;
-  my $class = $self->name;
-  my $isa = mro::get_linear_isa( $class );
-  return @$isa[ 1 .. $#$isa ];
-}
-
 sub extend_class {    # $self|undef (@mothers)
   my $self = shift;
   return unless @_;
+
+  # get reference to %HAS (create new %HAS if necessary)
+  my $class = $self->name;
+  no strict 'refs';
+  %{"${class}::HAS"} = () unless %{"${class}::HAS"};
+  my $has = \%{"${class}::HAS"};
+
+  # %a: %HAS from this $class (without parents)
+  my %b = ();
+  %b = ( %b, %{$_.'::HAS'} ) 
+    for reverse $self->superclasses();
+  my %a = map { $_ => $has->{$_} } 
+    grep { !exists $b{$_} } keys %$has;
+
   $self->SUPER::extend_class( @_ );
 
-  # We may have new parent classes, so %HAS must be regenerated.
-  no strict 'refs';
-  my $class = $self->name;
-  %{"${class}::HAS"} = () unless %{"${class}::HAS"};
-  my $HAS = \%{"${class}::HAS"};
-  for my $isa ( reverse $self->superclasses() ) {
-    if ( my $isa_HAS = \%{"${isa}::HAS"} ) {
-      map { $HAS->{$_} = $isa_HAS->{$_} } keys %$isa_HAS;
-    }
-  }
+  # %b: %HAS from all superclasses (including new parents)
+  %b = ();
+  %b = ( %b, %{$_.'::HAS'} ) 
+    for reverse $self->superclasses();
+
+  # We have new parent classes, so %HAS must be regenerated
+  %$has = ( %b, %a );
 
   return $self;
 }
@@ -86,29 +90,30 @@ sub have_accessors {    # $self|undef ($name)
         my $mutator = $is eq 'ro' ? 'getters' : 'accessors';
         eval qq[
           use Class::XSAccessor
-            replace => 1,
             class => '$class',
             $mutator => { '$attr' => '$attr' };
           return 1;
-        ] or Carp::confess( "Can't create accessor in class '$class': $@" );
+        ] or Carp::croak( "Can't create accessor in class '$class': $@" );
       }
       else {
-        no warnings 'redefine';
         my $acc = "${class}::${attr}";
-        *{$acc} = $is eq 'ro'
-                ? sub { 
-                    $#_ ? Carp::confess("Usage: ${class}::$attr(self)")
-                        : $_[0]->{$attr}
-                  }
-                : sub { 
-                    $#_ ? $_[0]->{$attr} = $_[1]
-                        : $_[0]->{$attr} 
-                  }
+        unless ( exists &$acc ) {
+          *{$acc} = $is eq 'ro'
+                  ? sub { 
+                      $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
+                          : $_[0]->{$attr}
+                    }
+                  : sub { 
+                      $#_ ? $_[0]->{$attr} = $_[1]
+                          : $_[0]->{$attr} 
+                    }
+        }
       }
+      return;
     }; #/ sub
     return $self;
   }
-  Carp::confess( "Can't create accessors in class '$class', ".
+  Carp::croak( "Can't create accessors in class '$class', ".
     "because it doesn't exist" );
 } #/ sub have_accessors
 
@@ -135,43 +140,43 @@ sub create_class {    # $bool ($class)
   }
 } #/ sub create_class
 
-# Returns the local %HAS entries without those inherited from the parents.
-sub get_attributes {    # \%has ()
+# Returns the %slots without those inherited from the parents.
+sub get_attributes {    # \%slots ()
   my $self  = shift;
   my $class = $self->name;
 
-  # get %HAS from this $class (which includes the superclasses)
+  # %a: %slots from this $class (which includes parents)
   my %a = $class->SLOTS();
 
-  # get only %HAS from the superclasses
+  # %b: %slots from the superclasses (only the parents)
   my %b = ();
   %b = ( %b, $_->SLOTS() ) 
-    for $self->superclasses();
+    for reverse $self->superclasses();
 
-  # determine %HAS from this $class that are not contained in the superclasses
-  my %has = map { $_ => $a{$_} } 
+  # build %slots that are not contained the entries from the parents
+  my %slots = map { $_ => $a{$_} } 
     grep { !exists $b{$_} } keys %a;
 
-  return \%has;
+  return \%slots;
 }
 
 sub _add_attribute {    # void ($class, $attr, \&value)
   my ( $self, $class, $attr, $value ) = @_;
   no strict 'refs';
-  my $HAS = \%{"${class}::HAS"};
+  my $has = *{"${class}::HAS"}{HASH};
 
   # if %HAS does not exist, it is a base class for which %HAS must be created.
-  unless ( %$HAS ) {
+  unless ( $has ) {
+    # Create empty %HAS and get the reference
     %{"${class}::HAS"} = ();
-    $HAS = \%{"${class}::HAS"};
-    for my $isa ( reverse $self->superclasses() ) {
-      if ( my $isa_HAS = \%{"${isa}::HAS"} ) {
-        map { $HAS->{$_} = $isa_HAS->{$_} } keys %$isa_HAS;
-      }
-    }
+    $has = \%{"${class}::HAS"};
+
+    # copy all superclass entries to %HAS
+    %$has = ( %$has, %{$_.'::HAS'} ) 
+      for reverse $self->superclasses();
   }
 
-  $HAS->{$attr} = $value;
+  $has->{$attr} = $value;
   $self->SUPER::_add_attribute( $class, $attr, $value );
   return;
 }
@@ -188,7 +193,7 @@ UNIVERSAL::Object::LOP - The Lightweight Object Protocol for UNIVERSAL::Object
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 DESCRIPTION
 
@@ -229,7 +234,7 @@ The following L<Class::LOP> methods have been overwritten:
 
 =head2 get_attributes
 
-  my \%has = $self->get_attributes();
+  my \%slots = $self->get_attributes();
 
 =head2 have_accessors
 
@@ -239,15 +244,13 @@ The following L<Class::LOP> methods have been overwritten:
 
   my $self = $self->init($class);
 
-=head2 superclasses
-
-  my \@array = $self->superclasses();
-
 =head1 REQUIRES
 
 L<Carp>
 
 L<Class::LOP>
+
+L<parent>
 
 L<UNIVERSAL::Object>
 

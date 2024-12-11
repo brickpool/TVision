@@ -6,7 +6,7 @@ use warnings;
 no strict 'refs';
 no warnings 'once';
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
@@ -22,7 +22,7 @@ sub import {
     # initialize %HAS variable
     _init_has( $caller );
 
-    # assign 'slots' to %HAS and create the accessor
+    # assign 'slots' to %HAS and create the accessors
     if ( @_ ) {
       my %slots  = @_;
       my @fields = do { my $i; grep { not $i++ % 2 } @_ };
@@ -37,16 +37,17 @@ sub _init_has {
   my ( $class ) = @_;
 
   # %HAS should only be created if necessary
+  return if *{"${class}::HAS"}{HASH};
+
+  # Create empty %HAS and get the reference
+  %{"${class}::HAS"} = ();
   my $HAS = \%{"${class}::HAS"};
-  unless ( %$HAS ) {
-    %{"${class}::HAS"} = ();
-    $HAS = \%{"${class}::HAS"};
-    for my $isa ( reverse @{ mro::get_linear_isa( $class ) } ) {
-      if ( my $isa_HAS = \%{"${isa}::HAS"} ) {
-        map { $HAS->{$_} = $isa_HAS->{$_} } keys %$isa_HAS;
-      }
-    }
-  }
+
+  # copy all superclass entries to %HAS
+  my $superclasses = sub { shift; \@_ }
+    ->( @{ mro::get_linear_isa( $class ) } );
+  %$HAS = ( %$HAS, %{$_.'::HAS'} ) 
+    for reverse @$superclasses;
 
   return;
 } #/ sub _init_has
@@ -65,11 +66,12 @@ sub _add_slot {
     if ( XS ) {
       require Carp;
       eval qq[
-              use Class::XSAccessor
-                class => '$class',
-                accessors => { '$name' => '$name' };
-              return 1;
-            ] or Carp::confess( $@ );
+        use Class::XSAccessor
+          replace => 1,
+          class => '$class',
+          accessors => { '$name' => '$name' };
+        return 1;
+      ] or Carp::confess( $@ );
     }
     else {
       no warnings 'redefine';
@@ -96,7 +98,7 @@ slots::less - A simple pragma for UNIVERSAL::Object without MOP dependency
 
 =head1 VERSION
 
-version 0.01
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -117,6 +119,16 @@ When available, L<Class::XSAccessor> is used to generate the class accessors.
 =head1 DEPENDENCIES
 
 L<UNIVERSAL::Object> and L<MRO::Compat> when using perl < v5.10.
+
+=head1 BUGS, CAVETS
+
+This pragma creates the global variable C<%HAS> used by C<UNIVERSAL::Objects>. 
+This means that all derived classes will require C<%HAS> (including inherited 
+entries), even if no new I<slots> are added. 
+
+The simplest way to achieve this is by consistently using C<use slots::less;>. 
+The import routine creates the global variable C<%HAS> and initializes the 
+necessary entries.
 
 =head1 SEE ALSO
 

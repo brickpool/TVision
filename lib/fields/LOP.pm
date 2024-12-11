@@ -4,7 +4,7 @@ package fields::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
@@ -33,19 +33,12 @@ sub new {    # $self ($class)
 sub init {    # $self ($class)
   my ( $self, $class ) = @_;
   $self = fields::new( $self ) unless ref $self;
-  Carp::confess( "No class specified" ) 
+  Carp::croak( "No class specified" ) 
     unless $class;
   $self->{_name} = $class;
   $self->{classes} = [];
   $self->{_attributes} = \%_attributes;
   return $self;
-}
-
-sub superclasses {    # \@array ()
-  my $self = shift;
-  my $class = $self->name;
-  my $isa = mro::get_linear_isa( $class );
-  return @$isa[ 1 .. $#$isa ];
 }
 
 sub extend_class {    # $self|undef (@mothers)
@@ -57,12 +50,12 @@ sub extend_class {    # $self|undef (@mothers)
     package $class; 
     use base qw( $mothers );
     return 1;
-  } or Carp::confess( $@ );
+  } or Carp::croak( $@ );
   push @{ $self->{classes} }, $class;
   return $self;
 } #/ sub extend_class
 
-sub have_accessors {
+sub have_accessors {    # $self|undef ($name)
   my ( $self, $name ) = @_;
   my $class = $self->name;
   if ( $self->class_exists( $class ) ) {
@@ -90,30 +83,31 @@ sub have_accessors {
         my $mutator = $is eq 'ro' ? 'getters' : 'accessors';
         eval qq[
           use Class::XSAccessor
-            replace => 1,
             class => '$class',
             $mutator => { '$attr' => '$attr' };
           return 1;
-        ] or Carp::confess( "Can't create accessor in class '$class': $@" );
+        ] or Carp::croak( "Can't create accessor in class '$class': $@" );
       }
       else {
-        no warnings 'redefine';
         my $acc = "${class}::${attr}";
-        *$acc = $is eq 'ro'
-              ? sub { 
-                  $#_ ? Carp::confess("Usage: ${class}::$attr(self)")
-                      : $_[0]->{$attr}
-                }
-              : sub { 
-                  $#_ ? $_[0]->{$attr} = $_[1]
-                      : $_[0]->{$attr} 
-                }
+        unless ( exists &$acc ) {
+          *$acc = $is eq 'ro'
+                ? sub { 
+                    $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
+                        : $_[0]->{$attr}
+                  }
+                : sub { 
+                    $#_ ? $_[0]->{$attr} = $_[1]
+                        : $_[0]->{$attr} 
+                  }
+        }
       }
+      return;
     }; #/ sub
 
     return $self;
   }
-  Carp::confess( "Can't create accessors in class '$class', ".
+  Carp::croak( "Can't create accessors in class '$class', ".
     "because it doesn't exist" );
 } #/ sub have_accessors
 
@@ -141,13 +135,13 @@ sub create_constructor {    # $self ()
         if ( @_ == 1 && ref $_[0] ) {
           my $arg = shift;
           my $ref = ref $arg;
-          Carp::confess( 'Unable to coerce to HASH reference from unknown '.
+          Carp::croak( 'Unable to coerce to HASH reference from unknown '.
             "reference type ($ref)" ) 
               if ( ref $arg || '' ) ne 'HASH';
           $proto = $arg;
         } #/ if ( @_ == 1 && ref $_...)
         else {
-          Carp::confess( 'Unable to coerce to HASH reference from LIST with '.
+          Carp::croak( 'Unable to coerce to HASH reference from LIST with '.
             'odd number of elements' ) 
               if @_ % 2 == 1;
           $proto = +{ @_ };
@@ -163,10 +157,8 @@ sub create_constructor {    # $self ()
       
       my %slots = ();
       SLOTS: {
-        foreach my $super ( reverse @{ mro::get_linear_isa( $class ) } ) {
-          map { $slots{$_} = $this->{_attributes}{$super}{$_} }
-            keys %{ $this->{_attributes}{$super} };
-        }
+        %slots = ( %slots, %{ $this->{_attributes}{$_} } )
+          for reverse @{ mro::get_linear_isa( $class ) };
       }
 
       # Valid arguments or default values are passed to $self
@@ -180,9 +172,8 @@ sub create_constructor {    # $self ()
     # classes.
     BUILDALL: {
       map {
-        my $super = $_;
-        my $build = "${super}::BUILD";
-        $build->( $self, $proto ) if exists( &$build )
+        my $build = $_.'::BUILD';
+        $build->( $self, $proto ) if exists &$build;
       } reverse @{ mro::get_linear_isa( $class ) };
     }
 
@@ -200,9 +191,8 @@ sub create_constructor {    # $self ()
     # Call all DEMOLISH methods starting with the derived classes.
     DEMOLISHALL: {
       map {
-        my $super    = $_;
-        my $demolish = "${super}::DEMOLISH";
-        $demolish->( $self ) if exists( &$demolish );
+        my $demolish = $_.'::DEMOLISH';
+        $demolish->( $self ) if exists &$demolish;
       } @{ mro::get_linear_isa( $class ) };
     }
     return;
@@ -252,7 +242,7 @@ sub _add_attribute {    # void ($class, $attr, \&value)
       package $class; 
       use fields '$attr';
       return 1;
-    } or Carp::confess( $@ );
+    } or Carp::croak( $@ );
   }
   $self->SUPER::_add_attribute( $class, $attr, $value );
   return;
@@ -270,7 +260,7 @@ fields::LOP - The Lightweight Object Protocol for fields based classes
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 DESCRIPTION
 
@@ -319,10 +309,6 @@ The following L<Class::LOP> methods have been overwritten:
 =head2 init
 
   my $self = $self->init($class);
-
-=head2 superclasses
-
-  my \@array = $self->superclasses();
 
 =head1 REQUIRES
 
