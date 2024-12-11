@@ -11,4 +11,5 @@ BEGIN {
   use_ok 'slots::less';
   use_ok 'UNIVERSAL::Object::LOP';
   use_ok 'fields::LOP';
+  use_ok 'Class::Tiny::LOP';
 }
