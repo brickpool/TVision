@@ -6,7 +6,7 @@ use Test::Exception;
 use Data::Dumper;
 
 BEGIN {
-  use_ok 'Class::Tiny::LOP';
+  use_ok 'TV::toolkit::LOP::Class::Tiny';
 }
 
 BEGIN {
@@ -14,7 +14,7 @@ BEGIN {
   use strict;
   use warnings;
 
-  use Class::Tiny::LOP;
+  use TV::toolkit::LOP::Class::Tiny;
 
   sub import {
     my $caller = caller();

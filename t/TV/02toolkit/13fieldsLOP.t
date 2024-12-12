@@ -6,7 +6,7 @@ use Test::Exception;
 use Data::Dumper;
 
 BEGIN {
-  use_ok 'UNIVERSAL::Object::LOP';
+  use_ok 'TV::toolkit::LOP::Class::Fields';
 }
 
 BEGIN {
@@ -14,22 +14,22 @@ BEGIN {
   use strict;
   use warnings;
 
-  use UNIVERSAL::Object::LOP;
+  use TV::toolkit::LOP::Class::Fields;
 
   sub import {
     my $caller = caller();
-    UNIVERSAL::Object::LOP->init($caller)
+    $_ = Class::Fields::LOP->init($caller)
       ->create_constructor()
       ->warnings_strict()
       ->have_accessors('slot');
 
-    UNIVERSAL::Object::LOP->init( __PACKAGE__ )
+    Class::Fields::LOP->init( __PACKAGE__ )
       ->import_methods($caller, qw( extends ));
   }
 
   sub extends {
     my $caller = caller();
-    UNIVERSAL::Object::LOP->init( $caller )
+    Class::Fields::LOP->init( $caller )
       ->extend_class( @_ );
   }
 
@@ -42,8 +42,8 @@ BEGIN {
   package Point;
   use toolkit;
 
-  slot x => ( default => sub { 0 } );
-  slot y => ( is => 'rw', default => 0 );
+  slot x => ( is => 'rw', default => 1 );
+  slot y => ( is => 'rw', default => sub { 2 } );
 
   $INC{"Point.pm"} = 1;
 }
@@ -54,7 +54,7 @@ BEGIN {
 
   extends 'Point';
 
-  slot z => ( is => 'ro', default => sub { 0 } );
+  slot z => ( is => 'ro' );
 
   $INC{"Point3D.pm"} = 1;
 }
@@ -63,17 +63,17 @@ BEGIN {
   no warnings 'once';
   use_ok 'Point';
   is_deeply(
-    [ sort keys %Point::HAS ],
+    [ sort keys %Point::FIELDS ],
     [ qw( x y ) ],
-    'keys %Point::HAS is equal to fields'
+    'keys %Point::FIELDS is equal to fields'
   );
   is_deeply(
-    [ sort keys %{ UNIVERSAL::Object::LOP->init('Point')->get_attributes() } ],
-    [ qw( x y ) ],
-    'get_attributes() for Point3D works correctly'
+    Class::Fields::LOP->init('Point')->get_attributes(),
+    { x => 1, y => 2 },
+    'get_attributes() for Point works correctly'
   );
-  $_ = Dumper { Point->SLOTS() };
-  s/\$VAR1/*{'Point::HAS'}{HASH}/;
+  $_ = Dumper \%Point::FIELDS;
+  s/\$VAR1/*{'Point::FIELDS'}{HASH}/;
   note $_;
 }
 
@@ -81,17 +81,17 @@ BEGIN {
   no warnings 'once';
   use_ok 'Point3D';
   is_deeply(
-    [ sort keys %Point3D::HAS ],
+    [ sort keys %Point3D::FIELDS ],
     [ qw( x y z ) ],
-    'keys %Point3D::HAS is equal to fields'
+    'keys %Point3D::FIELDS is equal to fields'
   );
   is_deeply(
-    [ keys %{ UNIVERSAL::Object::LOP->init('Point3D')->get_attributes() } ],
-    [ qw( z ) ],
-    'get_attributes() for Point works correctly'
+    Class::Fields::LOP->init('Point3D')->get_attributes(),
+    { z => 3 },
+    'get_attributes() for Point3D works correctly'
   );
-  $_ = Dumper { Point3D->SLOTS() };
-  s/\$VAR1/*{'Point3D::HAS'}{HASH}/;
+  $_ = Dumper \%Point3D::FIELDS;
+  s/\$VAR1/*{'Point3D::FIELDS'}{HASH}/;
   note $_;
 }
 
@@ -103,12 +103,12 @@ BEGIN {
 
 {
   my $point = Point3D->new( z => 4 );
-  is( $point->x, 0, "Point3D->new sets x correctly" );
-  is( $point->y, 0, "Point3D->new sets y correctly" );
-  is( $point->z, 4, "Point3D->new sets z correctly" );
+  isa_ok( $point, 'Point' );
+  is( $point->x, 1, "Point3D->new sets x correctly" );
+  is( $point->y, 2, "Point3D->new sets y correctly" );
 
-  isa_ok( $point, 'UNIVERSAL::Object' );
-  dies_ok { $point->z(5) } 'Access to attribute z works correctly';
+  dies_ok { $point->z(3) } 'Access to attribute z works correctly';
+  is( $point->z, 4, "Point3D->new sets z correctly" );
 
   is_deeply(
     [ sort keys %$point ],
@@ -117,6 +117,6 @@ BEGIN {
   );
 }
 
-note 'Class::XSAccessor: ', UNIVERSAL::Object::LOP::XS ? 1 : 0;
+note 'Class::XSAccessor: ', Class::Fields::LOP::XS ? 1 : 0;
 
 done_testing();

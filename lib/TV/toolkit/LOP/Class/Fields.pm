@@ -1,4 +1,4 @@
-package fields::LOP;
+package Class::Fields::LOP;
 # ABSTRACT: A Lightweight Object Protocol for fields based classes.
 
 use strict;
@@ -256,7 +256,7 @@ __END__
 
 =head1 NAME
 
-fields::LOP - The Lightweight Object Protocol for fields based classes
+Class::Fields::LOP - The Lightweight Object Protocol for fields based classes
 
 =head1 VERSION
 
