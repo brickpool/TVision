@@ -9,35 +9,24 @@ BEGIN {
   use_ok 'TV::toolkit';
 }
 
-{
+BEGIN {
   package Point;
-  use fields qw( x y );
-  use subs qw( x );
-  sub new {
-    my ( $self, %args ) = @_;
-    $self      = fields::new( $self ) unless ref $self;
-    $self->{x} = $args{x};
-    $self->{y} = $args{y};
-    return $self;
-  }
+  use TV::toolkit;
+  slots x => ( is => 'bare' );
+  slots y => ( is => 'rw' );
   sub x {
     $_[0]->{x} = $_[1] if @_ > 2;
     $_[0]->{x};
   }
+  no TV::toolkit;
   $INC{"Point.pm"} = 1;
 }
 
-{
+BEGIN {
   package Point3D;
-  use base 'Point';
-  use fields 'z';
-  sub new {
-    my ( $self, %args ) = @_;
-    $self = fields::new( $self ) unless ref $self;
-    $self->SUPER::new( %args );
-    $self->{z} = $args{z};
-    return $self;
-  }
+  use TV::toolkit;
+  extends 'Point';
+  slots z => ( is => 'rw' );
   $INC{"Point3D.pm"} = 1;
 }
 
@@ -48,32 +37,32 @@ subtest 'Slots' => sub {
   is_deeply(
     [ TV::toolkit::all_slots( 'Point' ) ], 
     [
-      { name => 'x', initializer => { is => 'bare', init_arg => 'x' } },
-      { name => 'y', initializer => { is => 'rw',   init_arg => 'y' } },
+      { name => 'x', initializer => 1 },
+      { name => 'y', initializer => 2 },
     ], 
     'Point->all_slots' 
   );
   is_deeply(
     [ TV::toolkit::all_slots( 'Point3D' ) ], 
     [
-      { name => 'x', initializer => { is => 'bare', init_arg => 'x' } },
-      { name => 'y', initializer => { is => 'rw',   init_arg => 'y' } },
-      { name => 'z', initializer => { is => 'rw',   init_arg => 'z' } },
+      { name => 'x', initializer => 1 },
+      { name => 'y', initializer => 2 },
+      { name => 'z', initializer => 3 },
     ], 
     'Point3D->all_slots'
   );
   is_deeply(
     [ TV::toolkit::slots( 'Point' ) ],
     [
-      { name => 'x', initializer => { is => 'bare', init_arg => 'x' } },
-      { name => 'y', initializer => { is => 'rw',   init_arg => 'y' } },
+      { name => 'x', initializer => 1 },
+      { name => 'y', initializer => 2 },
     ], 
     'Point->slots'
   );
   is_deeply(
     [ TV::toolkit::slots( 'Point3D' ) ], 
     [
-      { name => 'z', initializer => { is => 'rw', init_arg => 'z' } },
+      { name => 'z', initializer => 3 },
     ],
     'Point3D->slots'
   );
@@ -81,12 +70,12 @@ subtest 'Slots' => sub {
   ok( !TV::toolkit::has_slot( 'Point', 'z' ), 'Point has no attribute z' );
   is_deeply(
     TV::toolkit::get_slot( 'Point3D', 'x' ),
-    { name => 'x', initializer => { is => 'bare', init_arg => 'x' } },
+    { name => 'x', initializer => 1 },
     'get_slot returns correct meta for x'
   );
   is_deeply(
     TV::toolkit::get_slot( 'Point3D', 'z' ),
-    { name => 'z', initializer => { is => 'rw', init_arg => 'z' } },
+    { name => 'z', initializer => 3 },
     'get_slot returns correct meta for z'
   );
   is( 
@@ -110,22 +99,11 @@ subtest 'Point3D' => sub {
 
 subtest 'install slots' => sub {
   my $point = Point->new( x => 2, y => 3 );
-  can_ok( $point, 'x' );
-  ok( !Point->can( 'y' ), "!Point->can('y')" );
-  lives_ok { 
-    use warnings FATAL => 'all';
-    TV::toolkit::install_slots( 'Point' );
-  } "install_slots( 'Point' )";
   can_ok( $point, qw( x y ) );
+  ok( !Point->can( 'z' ), "!Point->can('z')" );
 
-  ok( !Point3D->can( 'z' ), "!Point3D->can('z')" );
-  lives_ok {
-    use warnings FATAL => 'all';
-    TV::toolkit::install_slots( 'Point3D' );
-  } "install_slots( 'Point3D' )";
   $point = Point3D->new( x => 1, y => 2, z => 3 );
   can_ok( $point, qw( x y z ) );
-  ok( !Point->can( 'z' ), "!Point->can('z')" );
 };
 
 done_testing;

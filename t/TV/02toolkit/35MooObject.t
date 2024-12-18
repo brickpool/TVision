@@ -5,42 +5,33 @@ use Test::More;
 use Test::Exception;
 
 BEGIN {
-  plan skip_all => 'Test irrelevant without toolkit support';
   unless ( eval { require Moo } ) {
     plan skip_all => 'Test irrelevant without Moo';
   }
   else {
-    plan tests => 10;
+    plan tests => 8;
   }
   use_ok 'Moo';
-  use_ok 'TV::Objects::Object';
+  use_ok 'TV::toolkit';
 }
 
 BEGIN {
-  package Derived;
-  require TV::Objects::Object;
-  use base 'TV::Objects::Object';
-  use fields qw(
-    x y
-  );
-  __PACKAGE__->mk_accessors;
-  $INC{"Derived.pm"} = 1;
+  package MyObject;
+  use TV::toolkit;
+  slots x => ();
+  slots y => ();
+  $INC{"MyObject.pm"} = 1;
 }
 
-use_ok 'Derived';
+use_ok 'MyObject';
 
 # Test new method
-my $obj = TObject->new();
-isa_ok( $obj, TObject, 'new() creates an object of correct class' );
-
-# Test shutDown method
-can_ok( TObject, 'shutDown' );
-lives_ok { $obj->shutDown() } 'shutDown() does not throw an exception';
-
-$obj = Derived->new();
+my $obj = MyObject->new();
+isa_ok( $obj, 'MyObject', 'new() creates an object of correct class' );
 isa_ok( $obj, 'Moo::Object' );
 
-can_ok( $obj, 'x' );
+# Test accessors
+can_ok( $obj, qw( x y ) );
 lives_ok { $obj->x() } 'x works correctly';
 lives_ok { $obj->y( 1 ) } 'y works correctly';
 
