@@ -6,8 +6,8 @@ use Test::Exception;
 use Data::Dumper;
 
 BEGIN {
-  unless ( eval { require Moo; Moo->VERSION( 2.004 ) } ) {
-    plan skip_all => 'Test irrelevant without Moo >= 2.004';
+  unless ( eval { require Moo } ) {
+    plan skip_all => 'Test irrelevant without Moo';
   }
   else {
     plan tests => 16;

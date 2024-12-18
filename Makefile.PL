@@ -15,10 +15,13 @@ WriteMakefile(
     'ExtUtils::MakeMaker' => 6.64,
   },
   PREREQ_PM => {
+    'base'              => 0,
     'Carp'              => 1.17,
+    'Class::LOP'        => 0.003,
     'Devel::Assert'     => 1.06,
     'Devel::StrictMode' => 0.003,
     'List::Util'        => 1.33,
+    'Module::Loaded'    => 0,
     'Scalar::Util'      => 1.36,
     'UNIVERSAL::Object' => 0.17,
     'Win32'             => 0.59,

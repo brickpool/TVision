@@ -1,11 +1,17 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More;
 use Test::Exception;
 use Data::Dumper;
 
 BEGIN {
+  unless ( eval { require Class::Tiny } ) {
+    plan skip_all => 'Test irrelevant without Class::Tiny';
+  }
+  else {
+    plan tests => 16;
+  }
   use_ok 'TV::toolkit::LOP::Class::Tiny';
 }
 
@@ -14,12 +20,11 @@ BEGIN {
   use strict;
   use warnings;
 
-  use TV::toolkit::LOP::Class::Tiny;
+  require TV::toolkit::LOP::Class::Tiny;
 
   sub import {
     my $caller = caller();
-    $_ = Class::Tiny::LOP->init($caller)
-      ->create_constructor()
+    Class::Tiny::LOP->new($caller)
       ->warnings_strict()
       ->have_accessors('slot');
 

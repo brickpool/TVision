@@ -4,41 +4,47 @@ package Moo::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
+use Moo;
 
-use parent 'Class::LOP';
-use parent 'Moo::Object';
+with 'Moo::Class::LOP::Role';
 
-BEGIN {
-  local $Moo::sification::disabled = 1;
-  require Moo;
-  Moo->VERSION( 2.004 );
-  Moo->import;
-}
+has _name       => ( is => 'bare', required => 1 );
+has classes     => ( is => 'bare', default => sub { [] } );
+has _attributes => ( is => 'bare', default => sub { {} } );
 
-# bootstrap our own constructor
-sub new {
-  my ( $self, $class ) = @_;
-  $self = $self->init( $class );
-  $self->create_constructor( $class )
-    unless $self->class_exists( $class );
-  return $self;
-}
+sub BUILD {    # $self (@)
+  my ( $self ) = @_;
+  $self->create_constructor()
+    unless $self->class_exists( $self->name );
+  return;
+};
+
+around BUILDARGS => sub {    # $self ($class)
+  my $orig = shift;
+  my $self = shift;
+  return @_ == 1 && !ref $_[0]
+    ? $self->$orig( _name => $_[0] )
+    : $self->$orig( @_ );
+};
 
 sub init {    # $self ($class)
   my ( $self, $class ) = @_;
   return ref $self
     ? $self
-    : bless( { _name => $class }, $self );
+    : bless( $self->BUILDARGS( $class ), $self );
 }
 
-sub class_exists {    # $self ($class)
+sub class_exists {    # $bool (| $class)
   my ( $self, $class ) = @_;
   $class ||= $self->name;
-  return Moo->is_class( $class );
+  return Moo->can( 'is_class' )
+    ? Moo->is_class( $class )
+    # following code is taken from 'Moo::is_class' >= v2.4
+    : $Moo::MAKERS{$class} && $Moo::MAKERS{$class}{is_class};
 }
 
 sub extend_class {    # $self|undef (@mothers)
@@ -55,9 +61,13 @@ sub have_accessors {    # $self|undef ($name)
   my $class = $self->name;
   if ( $self->class_exists( $class ) ) {
     no strict 'refs';
+
+    # Create the slot
     my $slot = "${class}::${name}";
     *$slot = sub {
       my ( $attr, %args ) = @_;
+
+      # Prepare attributes
       my $value = do {
         my $d = delete $args{default};
         my $r = ref $d;
@@ -67,20 +77,25 @@ sub have_accessors {    # $self|undef ($name)
                         sub { $d }     ;
       };
       my $access = delete $args{is} || 'rw';
-      my $spec_ref = { is => $access, default => $value };
+
+      # Add attribute and create the accessor incl. default handling
       $self->_add_attribute( $class, $attr, $value );
+      my $spec_ref = { is => $access, default => $value };
       Moo
         ->_constructor_maker_for( $class )
         ->register_attribute_specs( $attr, $spec_ref );
       Moo
         ->_accessor_maker_for( $class )
         ->generate_method( $class, $attr, $spec_ref );
+
       return;
     }; #/ sub
+
     return $self;
   }
-  Carp::croak( "Can't create accessors in class '$class', ".
-    "because it doesn't exist" );
+  Carp::carp(
+    "Can't create accessors in class '$class', because it doesn't exist" );
+  return;
 } #/ sub have_accessors
 
 sub create_constructor {    # $self ()
@@ -89,7 +104,28 @@ sub create_constructor {    # $self ()
   return if $self->class_exists( $class );
   Carp::carp( "constructor is already implemented" )
     if $class->can('new');
-  Moo->make_class( $class );
+
+  unless ( $self->class_exists( $class ) ) {
+    if ( Moo->can( 'make_class' ) ) {
+      Moo->make_class( $class );
+    }
+    else {
+      # following code is taken from 'Moo::import' < v2.4
+      require Moo::_Utils;
+      my $stash       = Moo::_Utils::_getstash( $class );
+      my @not_methods = map { *$_{CODE} || () } grep !ref( $_ ), values %$stash;
+      @{ $Moo::MAKERS{$class}{not_methods} = {} }{@not_methods} = @not_methods;
+      $Moo::MAKERS{$class}{is_class} = 1;
+      {
+        no strict 'refs';
+        @{"${class}::ISA"} = do {
+          require Moo::Object;
+          ( 'Moo::Object' );
+        } unless @{"${class}::ISA"};
+      }
+    } #/ else [ if ( Moo->can( 'make_class'...))]
+  } #/ unless ( $self->class_exists...)
+
   Moo->_constructor_maker_for( $class );
   return $self;
 }
@@ -108,6 +144,30 @@ sub create_class {    # $bool ($class)
 
 1;
 
+BEGIN {
+  package Moo::Class::LOP::Role;
+  use Moo::Role;
+  use Class::LOP;
+
+  requires 'new';
+  requires 'init';
+
+  my %remove = map { $_ => 1 } qw(
+    __ANON__
+    BEGIN
+    import
+    init
+    new
+    VERSION
+  );
+  my $meta = Class::LOP->init( 'Class::LOP' );
+  $meta->import_methods( __PACKAGE__, 
+    grep { not $remove{$_} } $meta->list_methods()
+  );
+
+  $INC{"Moo/Class/LOP/Role.pm"} = 1;
+}
+
 __END__
 
 =pod
@@ -118,7 +178,7 @@ Moo::LOP - The Lightweight Object Protocol for Moo
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 DESCRIPTION
 
@@ -130,16 +190,25 @@ package was developed, which is based on L<Moo> and L<Class::LOP>.
 
 =head1 METHODS
 
-This is a derived class from L<Moo::Object|Moo> and L<Class::LOP>, which means 
-that we inherit the interface of the base classes.
+This is a derived class of L<Moo::Object|Moo> using L<Class::LOP> as role, which
+means that we inherit the interface of the I<Moo> base class, use the methods of
+L<Class::LOP> via L<Moo::Role> and extend them accordingly.
 
-The following L<Class::LOP> methods have been overwritten:
+The following methods of the methods imported as a role of L<Class::LOP> have 
+been overwritten:
 
 =head1 METHODS
+
+If you need information or further help, you should take a look at the 
+L<Moose::LOP> or L<Class::LOP> documentation.
 
 =head2 new
 
   my $self = $self->new($class);
+
+=head2 class_exists
+
+  my $bool = $self->class_exists( | $class);
 
 =head2 create_class
 
@@ -169,15 +238,21 @@ L<Carp>
 
 L<Class::LOP>
 
-L<Moo> v2.4.0
-
-L<parent>
+L<Moo>
 
 =head1 AUTHOR
 
 J. Schneider <brickpool@cpan.org>
 
+=head1 CONTRIBUTORS
+
+Brad Haywood <brad@perlpowered.com>
+
+L<Moo/AUTHOR> and L<Moo/CONTRIBUTORS>
+
 =head1 LICENSE
+
+Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

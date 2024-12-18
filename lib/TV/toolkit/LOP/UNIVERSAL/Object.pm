@@ -4,7 +4,7 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.04';
+our $VERSION   = '0.05';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
@@ -14,7 +14,7 @@ BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
 
 use parent 'Class::LOP';
-use parent 'UNIVERSAL::Object';
+use parent 'UNIVERSAL::Object::Immutable';
 
 our %HAS; BEGIN {
     %HAS = (
@@ -27,16 +27,23 @@ our %HAS; BEGIN {
 sub new {    # $self ($class)
   my ( $self, $class ) = @_;
   $self = $self->init( $class ) unless ref $self;
-  $class->create_constructor()
+  $self->create_constructor()
     unless $self->class_exists( $class );
   return $self;
 }
 
 sub init {    # $self ($class)
   my ( $self, $class ) = @_;
-  $self = $self->UNIVERSAL::Object::new( _name => $class ) unless ref $self;
-  return $self;
+  return ref $self
+    ? $self
+    : $self->UNIVERSAL::Object::Immutable::new( _name => $class );
 }
+
+sub class_exists {    # $bool (| $class)
+  my ( $self, $class ) = @_;
+  $class ||= $self->name;
+  return $class->isa( 'UNIVERSAL::Object' );
+};
 
 sub extend_class {    # $self|undef (@mothers)
   my $self = shift;
@@ -73,9 +80,13 @@ sub have_accessors {    # $self|undef ($name)
   my $class = $self->name;
   if ( $self->class_exists( $class ) ) {
     no strict 'refs';
+
+    # Create the slot
     my $slot = "${class}::${name}";
     *$slot = sub {
       my ( $attr, %args ) = @_;
+
+      # Prepare attributes
       my $value = do {
         my $d = delete $args{default};
         my $r = ref $d;
@@ -84,47 +95,57 @@ sub have_accessors {    # $self|undef ($name)
         $r eq 'CODE'  ? $d             :
                         sub { $d }     ;
       };
+      my $access = delete $args{is} || 'rw';
+
+      # Add attribute and create the accessor incl. default handling
       $self->_add_attribute( $class, $attr, $value );
-      my $is = delete $args{is} || 'rw';
-      if ( XS ) {
-        my $mutator = $is eq 'ro' ? 'getters' : 'accessors';
-        eval qq[
-          use Class::XSAccessor
-            class => '$class',
-            $mutator => { '$attr' => '$attr' };
-          return 1;
-        ] or Carp::croak( "Can't create accessor in class '$class': $@" );
-      }
-      else {
-        my $acc = "${class}::${attr}";
-        unless ( exists &$acc ) {
-          *{$acc} = $is eq 'ro'
-                  ? sub { 
-                      $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
-                          : $_[0]->{$attr}
-                    }
-                  : sub { 
-                      $#_ ? $_[0]->{$attr} = $_[1]
-                          : $_[0]->{$attr} 
-                    }
+      if ( $access =~ /^ro|rw$/ ) {
+        if ( XS ) {
+          my $mutator = $access eq 'ro' ? 'getters' : 'accessors';
+          eval qq[
+            use Class::XSAccessor
+              class => '$class',
+              $mutator => { '$attr' => '$attr' };
+            return 1;
+          ] or Carp::croak( "Can't create accessor in class '$class': $@" );
+        }
+        else {
+          my $acc = "${class}::${attr}";
+          unless ( exists &$acc ) {
+            *{$acc} = $access eq 'ro'
+                    ? sub { 
+                        $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
+                            : $_[0]->{$attr}
+                      }
+                    : sub { 
+                        $#_ ? $_[0]->{$attr} = $_[1]
+                            : $_[0]->{$attr} 
+                      }
+          }
         }
       }
+      elsif ( $access ne 'bare' ) {
+        Carp::carp "Can't create accessor in class '$class': ".
+          "unknown argument '$access'."
+      }
+
       return;
     }; #/ sub
+
     return $self;
   }
-  Carp::croak( "Can't create accessors in class '$class', ".
-    "because it doesn't exist" );
+  Carp::carp(
+    "Can't create accessors in class '$class', because it doesn't exist" );
+  return;
 } #/ sub have_accessors
 
 sub create_constructor {    # $self ()
   my ( $self ) = @_;
   my $class = $self->name;
-  unless ( $class->isa( 'UNIVERSAL::Object' ) ) {
-    Carp::carp( "constructor is already implemented" )
-      if $class->can('new');
-    $self->extend_class( qw( UNIVERSAL::Object ) );
-  }
+  return if $self->class_exists();
+  Carp::carp( "constructor is already implemented" )
+    if $class->can('new');
+  $self->extend_class( qw( UNIVERSAL::Object ) );
   return $self;
 }
 
@@ -145,12 +166,20 @@ sub get_attributes {    # \%slots ()
   my $self  = shift;
   my $class = $self->name;
 
+  # An unfortunate hack that needs to be fixed ..
+  my $SLOTS = sub {
+    my $class = shift;
+    $class->can( 'SLOTS' )
+      ? $class->SLOTS()
+      : do { no strict 'refs'; %{"${class}::HAS"} || () };
+  };
+
   # %a: %slots from this $class (which includes parents)
-  my %a = $class->SLOTS();
+  my %a = $class->$SLOTS();
 
   # %b: %slots from the superclasses (only the parents)
   my %b = ();
-  %b = ( %b, $_->SLOTS() ) 
+  %b = ( %b, $_->$SLOTS() )
     for reverse $self->superclasses();
 
   # build %slots that are not contained the entries from the parents
@@ -193,7 +222,7 @@ UNIVERSAL::Object::LOP - The Lightweight Object Protocol for UNIVERSAL::Object
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 DESCRIPTION
 
@@ -216,9 +245,16 @@ The following L<Class::LOP> methods have been overwritten:
 
 =head1 METHODS
 
+If you need information or further help, you should take a look at the 
+L<Moose::LOP> or L<Class::LOP> documentation.
+
 =head2 new
 
   my $self = $self->new($class);
+
+=head2 class_exists
+
+  my $bool = $self->class_exists( | $class);
 
 =head2 create_class
 
@@ -264,7 +300,15 @@ L<slots>
 
 J. Schneider <brickpool@cpan.org>
 
+=head1 CONTRIBUTORS
+
+Brad Haywood <brad@perlpowered.com>
+
+Stevan Little <stevan@cpan.org>
+
 =head1 LICENSE
+
+Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

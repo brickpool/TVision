@@ -1,11 +1,17 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More;
 use Test::Exception;
 use Data::Dumper;
 
 BEGIN {
+  unless ( eval { require UNIVERSAL::Object } ) {
+    plan skip_all => 'Test irrelevant without Universal::Object';
+  }
+  else {
+    plan tests => 16;
+  }
   use_ok 'TV::toolkit::LOP::UNIVERSAL::Object';
 }
 
@@ -14,12 +20,11 @@ BEGIN {
   use strict;
   use warnings;
 
-  use TV::toolkit::LOP::UNIVERSAL::Object;
+  require TV::toolkit::LOP::UNIVERSAL::Object;
 
   sub import {
     my $caller = caller();
-    UNIVERSAL::Object::LOP->init($caller)
-      ->create_constructor()
+    UNIVERSAL::Object::LOP->new($caller)
       ->warnings_strict()
       ->have_accessors('slot');
 

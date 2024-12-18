@@ -18,8 +18,7 @@ BEGIN {
 
   sub import {
     my $caller = caller();
-    $_ = Class::Fields::LOP->init($caller)
-      ->create_constructor()
+    Class::Fields::LOP->new($caller)
       ->warnings_strict()
       ->have_accessors('slot');
 

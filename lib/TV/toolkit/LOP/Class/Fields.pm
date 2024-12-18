@@ -4,7 +4,7 @@ package Class::Fields::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
@@ -25,7 +25,7 @@ our %_attributes;
 sub new {    # $self ($class)
   my ( $self, $class ) = @_;
   $self = $self->init( $class ) unless ref $self;
-  $class->create_constructor()
+  $self->create_constructor()
     unless $self->class_exists( $class );
   return $self;
 }
@@ -40,6 +40,13 @@ sub init {    # $self ($class)
   $self->{_attributes} = \%_attributes;
   return $self;
 }
+
+sub class_exists {    # $bool (| $class)
+  my ( $self, $class ) = @_;
+  $class ||= $self->name;
+  no strict 'refs';
+  return *{"${class}::FIELDS"}{HASH};
+};
 
 sub extend_class {    # $self|undef (@mothers)
   my $self = shift;
@@ -75,40 +82,48 @@ sub have_accessors {    # $self|undef ($name)
         $r eq 'CODE'  ? $d             :
                         sub { $d }     ;
       };
-      my $is = delete $args{is} || 'rw';
+      my $access = delete $args{is} || 'rw';
 
       # Add attribute and create the accessor incl. default handling
       $self->_add_attribute( $class, $attr, $value );
-      if ( XS ) {
-        my $mutator = $is eq 'ro' ? 'getters' : 'accessors';
-        eval qq[
-          use Class::XSAccessor
-            class => '$class',
-            $mutator => { '$attr' => '$attr' };
-          return 1;
-        ] or Carp::croak( "Can't create accessor in class '$class': $@" );
-      }
-      else {
-        my $acc = "${class}::${attr}";
-        unless ( exists &$acc ) {
-          *$acc = $is eq 'ro'
-                ? sub { 
-                    $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
-                        : $_[0]->{$attr}
-                  }
-                : sub { 
-                    $#_ ? $_[0]->{$attr} = $_[1]
-                        : $_[0]->{$attr} 
-                  }
+      if ( $access =~ /^ro|rw$/ ) {
+        if ( XS ) {
+          my $mutator = $access eq 'ro' ? 'getters' : 'accessors';
+          eval qq[
+            use Class::XSAccessor
+              class => '$class',
+              $mutator => { '$attr' => '$attr' };
+            return 1;
+          ] or Carp::croak( "Can't create accessor in class '$class': $@" );
+        }
+        else {
+          my $acc = "${class}::${attr}";
+          unless ( exists &$acc ) {
+            *$acc = $access eq 'ro'
+                  ? sub { 
+                      $#_ ? Carp::croak("Usage: ${class}::$attr(self)")
+                          : $_[0]->{$attr}
+                    }
+                  : sub { 
+                      $#_ ? $_[0]->{$attr} = $_[1]
+                          : $_[0]->{$attr} 
+                    }
+          }
         }
       }
+      elsif ( $access ne 'bare' ) {
+        Carp::carp "Can't create accessor in class '$class': ".
+          "unknown argument '$access'."
+      }
+
       return;
     }; #/ sub
 
     return $self;
   }
-  Carp::croak( "Can't create accessors in class '$class', ".
-    "because it doesn't exist" );
+  Carp::carp(
+    "Can't create accessors in class '$class', because it doesn't exist" );
+  return;
 } #/ sub have_accessors
 
 sub create_constructor {    # $self ()
@@ -116,6 +131,7 @@ sub create_constructor {    # $self ()
   my $this = shift;
   my $target = $this->name;
 
+  %{"${target}::FIELDS"} = () unless %{"${target}::FIELDS"};
   return if $target->can('new');
 
   # Create a constructor for the specified target
@@ -179,8 +195,6 @@ sub create_constructor {    # $self ()
 
     return $self;
   }; #/ sub new
-
-  return if $target->can( 'DESTROY' );
 
   # The destructor for the base class is created as follows ..
   my $DESTROY = "${target}::DESTROY";
@@ -260,7 +274,7 @@ Class::Fields::LOP - The Lightweight Object Protocol for fields based classes
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -282,9 +296,16 @@ The following L<Class::LOP> methods have been overwritten:
 
 =head1 METHODS
 
+If you need information or further help, you should take a look at the 
+L<Moose::LOP> or L<Class::LOP> documentation.
+
 =head2 new
 
   my $self = $self->new($class);
+
+=head2 class_exists
+
+  my $bool = $self->class_exists( | $class);
 
 =head2 create_class
 
@@ -330,7 +351,15 @@ L<whyfields>
 
 J. Schneider <brickpool@cpan.org>
 
+=head1 CONTRIBUTORS
+
+Brad Haywood <brad@perlpowered.com>
+
+Michael G Schwern <schwern@pobox.com>
+
 =head1 LICENSE
+
+Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

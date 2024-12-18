@@ -4,7 +4,7 @@ package Class::Tiny::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require Carp;
@@ -20,25 +20,36 @@ use Class::Tiny {
 sub new {    # $self ($class)
   my ( $self, $class ) = @_;
   $self = $self->init( $class ) unless ref $self;
-  $class->create_constructor()
+  $self->create_constructor()
     unless $self->class_exists( $class );
   return $self;
 }
 
 sub init {    # $self ($class)
   my ( $self, $class ) = @_;
-  $self = $self->Class::Tiny::Object::new( _name => $class ) unless ref $self;
-  return $self;
+  return ref $self
+    ? $self
+    : $self->Class::Tiny::Object::new( _name => $class );
 }
+
+sub class_exists {    # $bool (| $class)
+  my ( $self, $class ) = @_;
+  $class ||= $self->name;
+  return $class->isa( 'Class::Tiny::Object' );
+};
 
 sub have_accessors {    # $self|undef ($name)
   my ( $self, $name ) = @_;
   my $class = $self->name;
   if ( $self->class_exists( $class ) ) {
     no strict 'refs';
+
+    # Create the slot
     my $slot = "${class}::${name}";
     *$slot = sub {
       my ( $attr, %args ) = @_;
+
+      # Prepare attributes
       my $value = do {
         my $d = delete $args{default};
         my $r = ref $d;
@@ -47,33 +58,44 @@ sub have_accessors {    # $self|undef ($name)
         $r eq 'CODE'  ? $d             :
                         sub { $d }     ;
       };
-      my $is = delete $args{is} || 'rw';
+      my $access = delete $args{is} || 'rw';
+
+      # Add attribute and create the accessor incl. default handling
       $self->_add_attribute( $class, $attr, $value );
-      if ( $is eq 'ro' and *{"${class}::${attr}"}{CODE} ) {
-        $self->add_hook(
-          type   => 'before',
-          name   => $attr,
-          method => sub {
-            Carp::croak( "Usage: ${class}::$attr(self)" ) if $#_;
-          },
-        );
+      if ( $access =~ /^ro|rw$/ ) {
+        Class::Tiny->create_attributes( $class, { $attr => $value } );
+        if ( $access eq 'ro' and *{"${class}::${attr}"}{CODE} ) {
+          $self->add_hook(
+            type   => 'before',
+            name   => $attr,
+            method => sub {
+              Carp::croak( "Usage: ${class}::$attr(self)" ) if $#_;
+            },
+          );
+        }
+      } 
+      elsif ( $access ne 'bare' ) {
+        Carp::carp "Can't create accessor in class '$class': ".
+          "unknown argument '$access'."
       }
+
       return;
     }; #/ sub
+
     return $self;
   }
-  Carp::croak( "Can't create accessors in class '$class', ".
-    "because it doesn't exist" );
+  Carp::carp(
+    "Can't create accessors in class '$class', because it doesn't exist" );
+  return;
 } #/ sub have_accessors
 
 sub create_constructor {    # $self ()
   my ( $self ) = @_;
   my $class = $self->name;
-  unless ( $class->isa( 'Class::Tiny::Object' ) ) {
-    Carp::carp( "constructor is already implemented" )
-      if $class->can('new');
-    Class::Tiny->prepare_class( $class );
-  }
+  return if $self->class_exists();
+  Carp::carp( "constructor is already implemented" )
+    if $class->can('new');
+  Class::Tiny->prepare_class( $class );
   return $self;
 }
 
@@ -102,17 +124,10 @@ sub get_attributes {    # \%attr ()
     for reverse $self->superclasses();
 
   # build %attr that are not contained the entries from the parents
-  my %attr = map { $_ => $a{$_} } 
+  my %attr = map { $_ => $a{$_} }
     grep { !exists $b{$_} } keys %a;
 
   return \%attr;
-}
-
-sub _add_attribute {    # void ($class, $attr, \&value)
-  my ( $self, $class, $attr, $value ) = @_;
-  Class::Tiny->create_attributes( $class, { $attr => $value } );
-  $self->SUPER::_add_attribute( $class, $attr, $value );
-  return;
 }
 
 1;
@@ -127,7 +142,7 @@ Class::Tiny::LOP - The Lightweight Object Protocol for Class::Tiny
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 DESCRIPTION
 
@@ -146,9 +161,16 @@ The following L<Class::LOP> methods have been overwritten:
 
 =head1 METHODS
 
+If you need information or further help, you should take a look at the 
+L<Moose::LOP> or L<Class::LOP> documentation.
+
 =head2 new
 
   my $self = $self->new($class);
+
+=head2 class_exists
+
+  my $bool = $self->class_exists( | $class);
 
 =head2 create_class
 
@@ -188,7 +210,15 @@ L<Class::Tiny::Antlers>
 
 J. Schneider <brickpool@cpan.org>
 
+=head1 CONTRIBUTORS
+
+Brad Haywood <brad@perlpowered.com>
+
+L<Class::Tiny/AUTHOR> and L<Class::Tiny/CONTRIBUTORS>
+
 =head1 LICENSE
+
+Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
