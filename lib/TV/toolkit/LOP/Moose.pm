@@ -4,10 +4,10 @@ package Moose::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
+use Carp ();
 use Moose;
 use Moose::Meta::Class ();
 use Moose::Util qw( find_meta );
@@ -179,11 +179,11 @@ around create_method => sub {    # $self|undef ($name, $code)
 around override_method => sub {    # $self|undef ($name, $method)
   my ( $next, $self, $name, $method ) = @_;
   my $class = $self->name;
-  unless ( $self->method_exists( $class, $name ) ) {
-    Carp::carp "Cant't find '$name' in class $class - override_method()";
-    return;
-  }
   if ( my $meta = find_meta( $class ) ) {
+    unless ( $meta->has_method( $name ) ) {
+      Carp::carp "Cant't find '$name' in class $class - override_method()";
+      return;
+    }
     $meta->add_method( $name, $method );
     return $self;
   }
@@ -267,7 +267,7 @@ Moose::LOP - The Lightweight Object Protocol for Moose
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 DESCRIPTION
 
@@ -276,8 +276,6 @@ L<Class::MOP> distribution.
 
 This package was developed to support the interface provided by L<Class::LOP>. 
 For this purpose, we use the L<Class::MOP> distribution internally.
-
-=head1 METHODS
 
 This is a derived class of L<Moose::Object|Moose> using L<Class::LOP> as role, 
 which means that we inherit the interface of the L<Moose::Object|Moose> base 
@@ -561,7 +559,7 @@ For example:
   $class->override_method( 'foo', sub { return 'bar'; } );
   print $obj->foo();    # prints "bar"
 
-B<Note:> This method is based on C<< Class::MOP::Class->method_exists >> and 
+B<Note:> This method is based on C<< Class::MOP::Class->has_method >> and 
 C<< Class::MOP::Class->add_method >>.
 
 =head2 subclasses

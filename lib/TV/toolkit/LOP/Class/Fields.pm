@@ -4,10 +4,10 @@ package Class::Fields::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
+use Carp ();
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
@@ -45,7 +45,8 @@ sub class_exists {    # $bool (| $class)
   my ( $self, $class ) = @_;
   $class ||= $self->name;
   no strict 'refs';
-  return *{"${class}::FIELDS"}{HASH};
+  no warnings 'once';
+  return defined *{"${class}::FIELDS"}{HASH};
 };
 
 sub extend_class {    # $self|undef (@mothers)
@@ -148,13 +149,12 @@ sub create_constructor {    # $self ()
       } 
       else {
         # .. otherwise we take arg values as hashref or hash.
-        if ( @_ == 1 && ref $_[0] ) {
-          my $arg = shift;
-          my $ref = ref $arg;
+        my $ref = ref $_[0];
+        if ( @_ == 1 && $ref ) {
           Carp::croak( 'Unable to coerce to HASH reference from unknown '.
             "reference type ($ref)" ) 
-              if ( ref $arg || '' ) ne 'HASH';
-          $proto = $arg;
+              if $ref ne 'HASH';
+          $proto = $_[0];
         } #/ if ( @_ == 1 && ref $_...)
         else {
           Carp::croak( 'Unable to coerce to HASH reference from LIST with '.
@@ -174,7 +174,8 @@ sub create_constructor {    # $self ()
       my %slots = ();
       SLOTS: {
         %slots = ( %slots, %{ $this->{_attributes}{$_} } )
-          for reverse @{ mro::get_linear_isa( $class ) };
+          for grep { exists $this->{_attributes}{$_} }
+            reverse @{ mro::get_linear_isa( $class ) };
       }
 
       # Valid arguments or default values are passed to $self
@@ -188,8 +189,8 @@ sub create_constructor {    # $self ()
     # classes.
     BUILDALL: {
       map {
-        my $build = $_.'::BUILD';
-        $build->( $self, $proto ) if exists &$build;
+        my $build = *{$_.'::BUILD'}{CODE};
+        $build->( $self, $proto ) if $build;
       } reverse @{ mro::get_linear_isa( $class ) };
     }
 
@@ -205,8 +206,8 @@ sub create_constructor {    # $self ()
     # Call all DEMOLISH methods starting with the derived classes.
     DEMOLISHALL: {
       map {
-        my $demolish = $_.'::DEMOLISH';
-        $demolish->( $self ) if exists &$demolish;
+        my $demolish = *{$_.'::DEMOLISH'}{CODE};
+        $demolish->( $self ) if $demolish;
       } @{ mro::get_linear_isa( $class ) };
     }
     return;
@@ -274,7 +275,7 @@ Class::Fields::LOP - The Lightweight Object Protocol for fields based classes
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 DESCRIPTION
 
@@ -286,8 +287,6 @@ For this reason, this package was developed based on the L<base> distribution,
 which also contains the L<fields> package.
 
 When available, L<Class::XSAccessor> is used to generate the class accessors.
-
-=head1 METHODS
 
 This is a derived class from L<Class::LOP>, which means that we inherit the 
 interface of the base classes. 

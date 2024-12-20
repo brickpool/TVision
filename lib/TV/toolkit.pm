@@ -12,14 +12,16 @@ BEGIN {
   *name = *{TV::toolkit::LOP::name}{SCALAR};
 
   sub is_fields    (){ $name eq 'fields'            }
-  sub is_UNIVERSAL (){ $name eq 'UNIVERSAL::Object' }
+  sub is_ClassLOP  (){ $name eq 'Class::LOP'        }
   sub is_ClassTiny (){ $name eq 'Class::Tiny'       }
   sub is_Moo       (){ $name eq 'Moo'               }
   sub is_Moose     (){ $name eq 'Moose'             }
+  sub is_UNIVERSAL (){ $name eq 'UNIVERSAL::Object' }
 }
 
 sub import {
   my $caller = caller();
+  return if $caller eq 'main';
   return if $^H{"TV::toolkit/$caller"};
 
   init_class( $caller );

@@ -4,10 +4,10 @@ package Moo::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
+use Carp ();
 use Moo;
 
 with 'Moo::Class::LOP::Role';
@@ -178,7 +178,7 @@ Moo::LOP - The Lightweight Object Protocol for Moo
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -187,8 +187,6 @@ where L<Moose> is too I<heavy>.
 
 However, there is no meta-object support (by default). For this reason, this 
 package was developed, which is based on L<Moo> and L<Class::LOP>.
-
-=head1 METHODS
 
 This is a derived class of L<Moo::Object|Moo> using L<Class::LOP> as role, which
 means that we inherit the interface of the I<Moo> base class, use the methods of

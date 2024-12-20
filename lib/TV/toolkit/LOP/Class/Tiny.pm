@@ -4,10 +4,10 @@ package Class::Tiny::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
+use Carp ();
 
 use parent 'Class::LOP';
 
@@ -142,7 +142,7 @@ Class::Tiny::LOP - The Lightweight Object Protocol for Class::Tiny
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 DESCRIPTION
 
@@ -151,8 +151,6 @@ where L<Moose> and L<Moo> are too I<heavy>.
 
 For this reason, this package was developed, which is based on L<Class::Tiny> 
 and L<Class::LOP>.
-
-=head1 METHODS
 
 This is a derived class from L<Class::Tiny::Object|Class::Tiny> and 
 L<Class::LOP>, which means that we inherit the interface of the base classes. 

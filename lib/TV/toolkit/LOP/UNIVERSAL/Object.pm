@@ -4,17 +4,16 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-require Carp;
+use Carp ();
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
 BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
 
-use parent 'Class::LOP';
-use parent 'UNIVERSAL::Object::Immutable';
+use parent qw( UNIVERSAL::Object::Immutable Class::LOP );
 
 our %HAS; BEGIN {
     %HAS = (
@@ -24,25 +23,35 @@ our %HAS; BEGIN {
     );
 }
 
-sub new {    # $self ($class)
+sub BUILDARGS {    # $self ($class)
   my ( $self, $class ) = @_;
-  $self = $self->init( $class ) unless ref $self;
+  return { _name => $class };
+}
+
+sub BUILD {    # $self (@)
+  my $self = shift;
   $self->create_constructor()
-    unless $self->class_exists( $class );
-  return $self;
+    unless $self->class_exists( $self->name );
+  return;
+}
+
+sub SLOTS {   # %HAS ()
+  my $class = shift;
+  $class = __PACKAGE__ unless _has_slots( $class );
+  return %{ _get_slots( $class ) };
 }
 
 sub init {    # $self ($class)
   my ( $self, $class ) = @_;
   return ref $self
     ? $self
-    : $self->UNIVERSAL::Object::Immutable::new( _name => $class );
+    : $self->BLESS( $self->BUILDARGS( $class ) );
 }
 
 sub class_exists {    # $bool (| $class)
   my ( $self, $class ) = @_;
   $class ||= $self->name;
-  return $class->isa( 'UNIVERSAL::Object' );
+  return $class && $class->isa( 'UNIVERSAL::Object' );
 };
 
 sub extend_class {    # $self|undef (@mothers)
@@ -50,15 +59,12 @@ sub extend_class {    # $self|undef (@mothers)
   return unless @_;
 
   # get reference to %HAS (create new %HAS if necessary)
-  my $class = $self->name;
-  no strict 'refs';
-  %{"${class}::HAS"} = () unless %{"${class}::HAS"};
-  my $has = \%{"${class}::HAS"};
+  my $has = _get_slots( $self->name );
 
   # %a: %HAS from this $class (without parents)
   my %b = ();
-  %b = ( %b, %{$_.'::HAS'} ) 
-    for reverse $self->superclasses();
+  %b = ( %b, %{ _get_slots( $_ ) } ) 
+    for grep { _has_slots( $_ ) } reverse $self->superclasses();
   my %a = map { $_ => $has->{$_} } 
     grep { !exists $b{$_} } keys %$has;
 
@@ -66,8 +72,8 @@ sub extend_class {    # $self|undef (@mothers)
 
   # %b: %HAS from all superclasses (including new parents)
   %b = ();
-  %b = ( %b, %{$_.'::HAS'} ) 
-    for reverse $self->superclasses();
+  %b = ( %b, %{ _get_slots( $_ ) } ) 
+    for grep { _has_slots( $_ ) } reverse $self->superclasses();
 
   # We have new parent classes, so %HAS must be regenerated
   %$has = ( %b, %a );
@@ -144,7 +150,7 @@ sub create_constructor {    # $self ()
   my $class = $self->name;
   return if $self->class_exists();
   Carp::carp( "constructor is already implemented" )
-    if $class->can('new');
+    if $class && $class->can( 'new' );
   $self->extend_class( qw( UNIVERSAL::Object ) );
   return $self;
 }
@@ -169,9 +175,10 @@ sub get_attributes {    # \%slots ()
   # An unfortunate hack that needs to be fixed ..
   my $SLOTS = sub {
     my $class = shift;
-    $class->can( 'SLOTS' )
-      ? $class->SLOTS()
-      : do { no strict 'refs'; %{"${class}::HAS"} || () };
+    return
+        $class->can( 'SLOTS' ) ? $class->SLOTS()
+      : _has_slots( $class )   ? _get_slots( $class )
+      :                         ();
   };
 
   # %a: %slots from this $class (which includes parents)
@@ -191,23 +198,39 @@ sub get_attributes {    # \%slots ()
 
 sub _add_attribute {    # void ($class, $attr, \&value)
   my ( $self, $class, $attr, $value ) = @_;
-  no strict 'refs';
-  my $has = *{"${class}::HAS"}{HASH};
 
   # if %HAS does not exist, it is a base class for which %HAS must be created.
-  unless ( $has ) {
+  unless ( _has_slots( $class ) ) {
     # Create empty %HAS and get the reference
-    %{"${class}::HAS"} = ();
-    $has = \%{"${class}::HAS"};
+    my $has = _get_slots( $class );
 
     # copy all superclass entries to %HAS
-    %$has = ( %$has, %{$_.'::HAS'} ) 
-      for reverse $self->superclasses();
+    %$has = ( %$has, %{ _get_slots( $class ) } ) 
+      for grep { _has_slots( $_ ) } reverse $self->superclasses();
   }
 
+  my $has = _get_slots( $class );
   $has->{$attr} = $value;
   $self->SUPER::_add_attribute( $class, $attr, $value );
   return;
+}
+
+sub _has_slots {    # $bool ($class)
+  my $class = shift;
+  $class = ref $class if ref $class;
+  no strict 'refs';
+  no warnings 'once';
+  return defined *{"${class}::HAS"}{HASH};
+}
+
+sub _get_slots {    # \%HAS ($class)
+  my $class = shift;
+  $class = ref $class if ref $class;
+
+  # avoid possible typo warnings
+  no strict 'refs'; 
+  %{"${class}::HAS"} = () unless %{"${class}::HAS"};
+  return \%{"${class}::HAS"};
 }
 
 1;
@@ -222,7 +245,7 @@ UNIVERSAL::Object::LOP - The Lightweight Object Protocol for UNIVERSAL::Object
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 DESCRIPTION
 
@@ -235,8 +258,6 @@ For this reason, this package was developed, which is not based on the L<MOP>
 distribution, but on the L<Class::LOP> package.
 
 When available, L<Class::XSAccessor> is used to generate the class accessors.
-
-=head1 METHODS
 
 This is a derived class from L<UNIVERSAL::Object> and L<Class::LOP>, which means
 that we inherit the interface of the base classes. 
