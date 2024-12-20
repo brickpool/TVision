@@ -55,10 +55,6 @@ use base TObject;
 
 # predeclare global variable
 our %ITEMS = ();
-{
-  no warnings 'once';
-  TNSCollection->{ITEMS} = \%ITEMS;
-}
 
 # declare attributes
 use slots::less (
