@@ -51,6 +51,7 @@ use TV::Views::Const qw(
 use TV::Views::CommandSet;
 use TV::Views::Palette;
 use TV::Views::Util qw( message );
+use TV::toolkit;
 
 require TV::Views::View::Cursor;
 require TV::Views::View::Exposed;
@@ -59,7 +60,7 @@ require TV::Views::View::Write;
 sub TView() { __PACKAGE__ }
 sub name() { 'TView' }
 
-use base TObject;
+extends TObject;
 
 # declare global variables
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
@@ -89,26 +90,18 @@ use vars qw(
   *TheTopView = \$TV::Views::Group::TheTopView;
 }
 
-# use own accessors
-use subs qw(
-  owner
-  next
-);
-
 # declare attributes
-use slots::less (
-  owner     => sub { undef },
-  next      => sub { undef },
-  options   => sub { 0 },
-  state     => sub { sfVisible },
-  growMode  => sub { 0 },
-  dragMode  => sub { dmLimitLoY },
-  helpCtx   => sub { hcNoContext },
-  eventMask => sub { evMouseDown | evKeyDown | evCommand },
-  size      => sub { TPoint->new() },
-  origin    => sub { TPoint->new() },
-  cursor    => sub { TPoint->new() },
-);
+slots owner     => ( is => 'bare' );
+slots next      => ( is => 'bare' );
+slots options   => ( default => sub { 0 } );
+slots state     => ( default => sub { sfVisible } );
+slots growMode  => ( default => sub { 0 } );
+slots dragMode  => ( default => sub { dmLimitLoY } );
+slots helpCtx   => ( default => sub { hcNoContext } );
+slots eventMask => ( default => sub { evMouseDown | evKeyDown | evCommand } );
+slots size      => ( default => sub { TPoint->new() } );
+slots origin    => ( default => sub { TPoint->new() } );
+slots cursor    => ( default => sub { TPoint->new() } );
 
 # predeclare private methods
 my (
@@ -132,7 +125,7 @@ sub BUILDARGS {    # \%args (%)
   assert ( $class and !ref $class );
   # 'required' arguments
   assert ( blessed $args{bounds} );
-  return $class->next::method( %args );
+  return \%args;
 }
 
 sub BUILD {    # void (\%args)

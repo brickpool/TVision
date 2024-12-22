@@ -15,8 +15,7 @@ BEGIN {
   slots x => ( is => 'bare' );
   slots y => ( is => 'rw' );
   sub x {
-    $_[0]->{x} = $_[1] if @_ > 2;
-    $_[0]->{x};
+    $#_ ? $_[0]->{x} = $_[1] : $_[0]->{x}
   }
   no TV::toolkit;
   $INC{"Point.pm"} = 1;
@@ -27,6 +26,7 @@ BEGIN {
   use TV::toolkit;
   extends 'Point';
   slots z => ( is => 'rw' );
+  no TV::toolkit;
   $INC{"Point3D.pm"} = 1;
 }
 
@@ -35,47 +35,75 @@ ok TV::toolkit::is_fields(), 'TV::toolkit::fields is set to true';
 
 subtest 'Slots' => sub {
   is_deeply(
-    [ TV::toolkit::all_slots( 'Point' ) ], 
+    [
+      map { 
+        $_->{initializer} = !!ref $_->{initializer}; 
+        $_ 
+      } TV::toolkit::all_slots( 'Point' )
+    ], 
     [
       { name => 'x', initializer => 1 },
-      { name => 'y', initializer => 2 },
+      { name => 'y', initializer => 1 },
     ], 
     'Point->all_slots' 
   );
   is_deeply(
-    [ TV::toolkit::all_slots( 'Point3D' ) ], 
+    [
+      map { 
+        $_->{initializer} = !!ref $_->{initializer}; 
+        $_ 
+      } TV::toolkit::all_slots( 'Point3D' )
+    ],
     [
       { name => 'x', initializer => 1 },
-      { name => 'y', initializer => 2 },
-      { name => 'z', initializer => 3 },
+      { name => 'y', initializer => 1 },
+      { name => 'z', initializer => 1 },
     ], 
     'Point3D->all_slots'
   );
   is_deeply(
-    [ TV::toolkit::slots( 'Point' ) ],
+    [
+      map { 
+        $_->{initializer} = !!ref $_->{initializer}; 
+        $_ 
+      } TV::toolkit::slots( 'Point' )
+    ],
     [
       { name => 'x', initializer => 1 },
-      { name => 'y', initializer => 2 },
+      { name => 'y', initializer => 1 },
     ], 
     'Point->slots'
   );
   is_deeply(
-    [ TV::toolkit::slots( 'Point3D' ) ], 
     [
-      { name => 'z', initializer => 3 },
+      map { 
+        $_->{initializer} = !!ref $_->{initializer}; 
+        $_ 
+      } TV::toolkit::slots( 'Point3D' )
+    ],
+    [
+      { name => 'z', initializer => 1 },
     ],
     'Point3D->slots'
   );
   ok(  TV::toolkit::has_slot( 'Point', 'x' ), 'Point has an attribute x' );
   ok( !TV::toolkit::has_slot( 'Point', 'z' ), 'Point has no attribute z' );
   is_deeply(
-    TV::toolkit::get_slot( 'Point3D', 'x' ),
+    do { 
+      $_ = TV::toolkit::get_slot( 'Point3D', 'x' ); 
+      $_->{initializer} = !!ref $_->{initializer};
+      $_
+    },
     { name => 'x', initializer => 1 },
     'get_slot returns correct meta for x'
   );
   is_deeply(
-    TV::toolkit::get_slot( 'Point3D', 'z' ),
-    { name => 'z', initializer => 3 },
+    do { 
+      $_ = TV::toolkit::get_slot( 'Point3D', 'z' );
+      $_->{initializer} = !!ref $_->{initializer}; 
+      $_ 
+    },
+    { name => 'z', initializer => 1 },
     'get_slot returns correct meta for z'
   );
   is( 

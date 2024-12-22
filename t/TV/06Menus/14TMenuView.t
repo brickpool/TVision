@@ -30,9 +30,8 @@ BEGIN {
 BEGIN {
   package MyMenuView;
   use TV::Drivers::Const qw( evKeyDown kbEsc );
-  require TV::Menus::MenuView;
-  use base 'TV::Menus::MenuView';
-  use slots::less;
+  use TV::toolkit;
+  extends 'TV::Menus::MenuView';
   sub getEvent {
     $_[1]->{what} = evKeyDown;
     $_[1]->{keyDown}{keyCode} = kbEsc;
@@ -43,7 +42,7 @@ BEGIN {
 # Test object creation with menu and parent
 my $menu = TMenu->from(
   TMenuItem->from( 'One', 1, 0x1234 ),
-	TMenuItem->from( 'Two', 2, 0x5678 ) 
+  TMenuItem->from( 'Two', 2, 0x5678 ) 
 );
 my $parent_menu = TMenuView->new(
   bounds => TRect->new(), menu => $menu, parentMenu => undef 

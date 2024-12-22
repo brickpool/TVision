@@ -46,10 +46,10 @@ my $view1 = TView->new( bounds => $bounds );
 my $view2 = TView->new( bounds => $bounds );
 $group->insertView( $view1, undef );
 is( $group->last(), $view1,
-	'insertView sets last correctly when Target is undef' );
+  'insertView sets last correctly when Target is undef' );
 $group->insertView( $view2, $view1 );
 is( $view1->next(), $view2,
-	'insertView sets next correctly when Target is defined' );
+  'insertView sets next correctly when Target is defined' );
 
 # Test remove method
 can_ok( $group, 'remove' );
@@ -87,7 +87,7 @@ lives_ok { $group->selectNext( 1 ) }
 can_ok( $group, 'firstThat' );
 my $func = sub { return shift == $view2 };
 is( $group->firstThat( $func, undef ), $view2,
-	'firstThat returns the correct view' );
+  'firstThat returns the correct view' );
 
 # Test focusNext method
 can_ok( $group, 'focusNext' );

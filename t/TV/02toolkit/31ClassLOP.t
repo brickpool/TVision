@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More skip_all 
+  => 'Class::LOP cannot be used as a TV::toolkit';
 use Test::Exception;
 
 BEGIN {

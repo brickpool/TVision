@@ -26,11 +26,11 @@ use Scalar::Util qw(
 use TV::Views::Const qw( hcNoContext );
 use TV::Menus::Menu;
 use TV::Menus::MenuItem;
+use TV::toolkit;
 
 sub TSubMenu() { __PACKAGE__ }
 
-use base TMenuItem;
-use slots::less;
+extends TMenuItem;
 
 sub from {    # $obj ($nm, $key, $helpCtx)
   my $class = shift;

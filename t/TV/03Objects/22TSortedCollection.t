@@ -24,9 +24,8 @@ BEGIN {
 # Mock subclass to implement compare method
 {
   package MockSortedCollection;
-  require TV::Objects::SortedCollection;
-  use base 'TV::Objects::SortedCollection';
-  use slots::less;
+  use TV::toolkit;
+  extends 'TV::Objects::SortedCollection';
 
   sub compare {
     no warnings 'uninitialized';

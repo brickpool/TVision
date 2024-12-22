@@ -46,10 +46,10 @@ package MouseEventType {
 
   our %HAS; BEGIN {
     %HAS = ( 
-		  eventFlags      => sub { 0 },
-			controlKeyState => sub { 0 },
-			buttons         => sub { 0 },
-			where           => sub { TPoint->new() },
+      eventFlags      => sub { 0 },
+      controlKeyState => sub { 0 },
+      buttons         => sub { 0 },
+      where           => sub { TPoint->new() },
     );
   }
 

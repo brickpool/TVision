@@ -9,12 +9,11 @@ our @EXPORT = qw(
 );
 
 use TV::Objects::NSCollection;
+use TV::toolkit;
 
 sub TCollection() { __PACKAGE__ }
 sub name() { 'TCollection' };
 
-use base TNSCollection;
-
-use slots::less;
+extends TNSCollection;
 
 1

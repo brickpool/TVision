@@ -9,13 +9,12 @@ our @EXPORT = qw(
 );
 
 use TV::Objects::NSSortedCollection;
+use TV::toolkit;
 
 sub TSortedCollection() { __PACKAGE__ }
 sub name() { 'TSortedCollection' };
 
-use base TNSSortedCollection;
-
-use slots::less;
+extends TNSSortedCollection;
 
 sub compare {    # $cmp ($self, $key1, $key2)
   return 0;

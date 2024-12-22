@@ -31,21 +31,19 @@ use TV::Views::Const qw(
   sfVisible
 );
 use TV::Views::Group;
+use TV::toolkit;
 
 sub TDeskTop() { __PACKAGE__ }
 sub name() { 'TDeskTop' }
 
-use base TGroup;
-use parent TDeskInit;
+extends ( TGroup, TDeskInit );
 
 # declare global variables
 our $defaultBkgrnd = "\xB0";
 
 # declare attributes
-use slots::less (
-  background        => sub { },
-  tileColumnsFirst  => sub { 0 },
-);
+slots background        => ();
+slots tileColumnsFirst  => ( default => sub { 0 } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
@@ -53,7 +51,7 @@ sub BUILDARGS {    # \%args (%)
   # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
   # TDeskInit->BUILDARGS is not called because arguments are not 'required'
-  return $class->next::method( %args );
+  return $class->SUPER::BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)

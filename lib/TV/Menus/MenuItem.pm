@@ -26,22 +26,19 @@ use Scalar::Util qw(
 
 use TV::Views::Const qw( hcNoContext );
 use TV::Views::View;
+use TV::toolkit;
 
 sub TMenuItem() { __PACKAGE__ }
 
-use parent 'UNIVERSAL::Object';
-
 # declare attributes
-use slots::less (
-  next     => sub { },
-  name     => sub { die 'required' },
-  command  => sub { 0 },
-  disabled => sub { !!0 },
-  keyCode  => sub { die 'required' },
-  helpCtx  => sub { hcNoContext },
-  param    => sub { '' },
-  subMenu  => sub { },
-);
+slots next     => ();
+slots name     => ( default => sub { die 'required' } );
+slots command  => ( default => sub { 0 } );
+slots disabled => ( default => sub { !!0 } );
+slots keyCode  => ( default => sub { die 'required' } );
+slots helpCtx  => ( default => sub { hcNoContext } );
+slots param    => ( default => sub { '' } );
+slots subMenu  => ();
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

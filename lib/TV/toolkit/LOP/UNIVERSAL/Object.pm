@@ -59,7 +59,8 @@ sub extend_class {    # $self|undef (@mothers)
   return unless @_;
 
   # get reference to %HAS (create new %HAS if necessary)
-  my $has = _get_slots( $self->name );
+  my $class = $self->name;
+  my $has = _get_slots( $class );
 
   # %a: %HAS from this $class (without parents)
   my %b = ();
@@ -78,6 +79,7 @@ sub extend_class {    # $self|undef (@mothers)
   # We have new parent classes, so %HAS must be regenerated
   %$has = ( %b, %a );
 
+  push @{ $self->{classes} }, $class;    # for compatibility
   return $self;
 }
 

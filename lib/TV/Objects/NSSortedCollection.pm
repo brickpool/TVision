@@ -42,10 +42,11 @@ use Scalar::Util qw(
 
 use TV::Objects::Const qw( ccNotFound );
 use TV::Objects::NSCollection;
+use TV::toolkit;
 
 sub TNSSortedCollection() { __PACKAGE__ }
 
-use base TNSCollection;
+extends TNSCollection;
 
 # import global variables
 use vars qw(
@@ -57,9 +58,7 @@ use vars qw(
 }
 
 # declare attributes
-use slots::less (
-  duplicates => sub { !!0 },
-);
+slots duplicates => ( default => sub { !!0 } );
 
 sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;

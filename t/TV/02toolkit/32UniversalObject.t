@@ -5,16 +5,14 @@ use Test::More;
 use Test::Exception;
 
 BEGIN {
-  unless ( eval { require Universal::Object } ) {
+  unless ( eval { require UNIVERSAL::Object } ) {
   use Test::More;
     plan skip_all => 'Test irrelevant without Universal::Object';
   }
   else {
     plan tests => 9;
   }
-  require_ok 'Universal::Object';
-  # no warnings 'redefine';
-  local $SIG{__WARN__} = sub { warn $_[0] unless $_[0] =~ /\bredefined\b/ };
+  require_ok 'UNIVERSAL::Object';
   use_ok 'TV::toolkit';
 }
 

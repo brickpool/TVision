@@ -33,7 +33,7 @@ lives_ok { $desktop->handleEvent( $event ) }
 can_ok( $desktop, 'initBackground' );
 my $background = TDeskTop->initBackground( TRect->new() );
 isa_ok( $background, TBackground,
-	'initBackground returns a TBackground object' );
+  'initBackground returns a TBackground object' );
 
 # Test tile method
 can_ok( $desktop, 'tile' );

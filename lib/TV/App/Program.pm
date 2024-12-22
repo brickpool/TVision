@@ -32,11 +32,11 @@ use TV::Views::Palette;
 use TV::Views::Group;
 use TV::Views::Util qw( message );
 use TV::Views::View;
+use TV::toolkit;
 
 sub TProgram() { __PACKAGE__ }
 
-use base TGroup;
-use parent TProgInit;
+extends ( TGroup, TProgInit );
 
 # declare global variables
 our $application;

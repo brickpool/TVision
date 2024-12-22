@@ -33,12 +33,12 @@ use TV::Views::Const qw(
   gfGrowHiX
   ofPreProcess
 );
+use TV::toolkit;
 
 sub TMenuBar() { __PACKAGE__ }
 sub name() { TMenuView }
 
-use base TMenuView;
-use slots::less;
+extends TMenuView;
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args) = @_;

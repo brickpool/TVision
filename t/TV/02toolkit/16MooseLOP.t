@@ -33,7 +33,7 @@ BEGIN {
   }
 
   sub extends {
-	  Moose::LOP->init( caller() )->extend_class( @_ );
+    Moose::LOP->init( caller() )->extend_class( @_ );
   }
 
   $INC{"toolkit.pm"} = 1;

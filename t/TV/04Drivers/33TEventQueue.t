@@ -130,7 +130,7 @@ is( $event->{what}, evMouseMove, 'Mouse move event handled correctly' );
 is(
   $TV::Drivers::EventQueue::doubleDelay,
   8,
-	'TEventQueue->{doubleDelay} is set correctly'
+  'TEventQueue->{doubleDelay} is set correctly'
 );
 isa_ok( $TV::Drivers::EventQueue::lastMouse, 'MouseEventType' );
 

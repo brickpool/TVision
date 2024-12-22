@@ -48,22 +48,21 @@ use TV::Objects::Const qw(
   maxCollectionSize
 );
 use TV::Objects::Object;
+use TV::toolkit;
 
 sub TNSCollection() { __PACKAGE__ }
 
-use base TObject;
+extends TObject;
 
 # predeclare global variable
 our %ITEMS = ();
 
 # declare attributes
-use slots::less (
-  items        => sub { [] },
-  count        => sub { 0 },
-  limit        => sub { 0 },
-  delta        => sub { 0 },
-  shouldDelete => sub { !!1 },
-);
+slots items        => ( default => sub { [] }  );
+slots count        => ( default => sub { 0 }   );
+slots limit        => ( default => sub { 0 }   );
+slots delta        => ( default => sub { 0 }   );
+slots shouldDelete => ( default => sub { !!1 } );
 
 # predeclare private methods
 my (

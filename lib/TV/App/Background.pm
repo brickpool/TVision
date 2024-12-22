@@ -21,14 +21,14 @@ use TV::Views::Const qw(
 use TV::Views::Palette;
 use TV::Views::View;
 
+use TV::toolkit;
+
 sub TBackground() { __PACKAGE__ }
 
-use base TView;
+extends TView;
 
 # declare attributes
-use slots::less (
-  pattern => sub { die 'required' },
-);
+slots pattern => ( default => sub { die 'required' } );
 
 sub BUILD {    # void (| \%args)
   my $self = shift;

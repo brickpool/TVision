@@ -24,18 +24,15 @@ use Scalar::Util qw(
 );
 
 use TV::Menus::StatusItem;
+use TV::toolkit;
 
 sub TStatusDef() { __PACKAGE__ }
 
-use parent 'UNIVERSAL::Object';
-
 # declare attributes
-use slots::less (
-  next  => sub { },
-  min   => sub { 0 },
-  max   => sub { 0 },
-  items => sub { },
-);
+slots next  => ();
+slots min   => ( default => sub { 0 } );
+slots max   => ( default => sub { 0 } );
+slots items => ();
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

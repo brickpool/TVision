@@ -24,12 +24,10 @@ BEGIN {
 BEGIN {
   package MyOwner;
   use TV::Objects::Rect;
-  require TV::Views::View;
-  use base 'TV::Views::View';
-  use slots::less ( 
-    last => sub { },
-    clip => sub { TRect->new() },
-  );
+  use TV::toolkit;
+  extends 'TV::Views::View';
+  slots last => ();
+  slots clip => ( default => sub { TRect->new() } );
 
   sub drawSubViews { }
   $INC{"MyOwner.pm"} = 1;

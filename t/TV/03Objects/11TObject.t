@@ -12,12 +12,10 @@ BEGIN {
 
 BEGIN {
   package Derived;
-  require TV::Objects::Object;
-  use base 'TV::Objects::Object';
-  use slots::less (
-    x => sub { 0 },
-    y => sub { 0 },
-  );
+  use TV::toolkit;
+  extends 'TV::Objects::Object';
+  slots x => ( default => sub { 0 } );
+  slots y => ( default => sub { 0 } );
   $INC{"Derived.pm"} = 1;
 }
 

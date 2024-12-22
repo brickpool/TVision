@@ -52,7 +52,7 @@ sub extend_class {    # $self|undef (@mothers)
   return unless @_;
   my $class = $self->name;
   Moo->_set_superclasses( $class, @_ );
-  push @{ $self->{classes} }, $class;
+  push @{ $self->{classes} }, $class;    # for compatibility
   return $self;
 }
 

@@ -67,8 +67,8 @@ BEGIN {
     'keys %Point::FIELDS is equal to fields'
   );
   is_deeply(
-    Class::Fields::LOP->init('Point')->get_attributes(),
-    { x => 1, y => 2 },
+    [ sort keys %{ Class::Fields::LOP->init('Point')->get_attributes() } ],
+    [ qw( x y ) ],
     'get_attributes() for Point works correctly'
   );
   $_ = Dumper \%Point::FIELDS;
@@ -85,8 +85,8 @@ BEGIN {
     'keys %Point3D::FIELDS is equal to fields'
   );
   is_deeply(
-    Class::Fields::LOP->init('Point3D')->get_attributes(),
-    { z => 3 },
+    [ sort keys %{ Class::Fields::LOP->init('Point3D')->get_attributes() } ],
+    [ qw( z ) ],
     'get_attributes() for Point3D works correctly'
   );
   $_ = Dumper \%Point3D::FIELDS;

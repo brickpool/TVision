@@ -41,32 +41,25 @@ use TV::Views::Const qw(
 );
 use TV::Views::CommandSet;
 use TV::Views::View;
+use TV::toolkit;
 
 sub TGroup() { __PACKAGE__ }
 sub name() { 'TGroup' }
 
-use base TView;
+extends TView;
 
 # declare global variables
 our $TheTopView;
 our $ownerGroup;
 
-# use own accessors
-use subs qw(
-  current
-);
-
 # declare attributes
-use slots::less (
-  last      => sub { undef },
-  clip      => sub { undef },
-  phase     => sub { phFocused },
-  current   => sub { undef },
-  buffer    => sub { undef },
-  lockFlag  => sub { 0 },
-  endState  => sub { 0 },
-  eventMask => sub { 0xffff },
-);
+slots last      => ();
+slots clip      => ();
+slots phase     => ( default => sub { phFocused } );
+slots current   => ( is => 'bare' );
+slots buffer    => ();
+slots lockFlag  => ( default => sub { 0 } );
+slots endState  => ( default => sub { 0 } );
 
 # predeclare private methods
 my (
@@ -89,6 +82,7 @@ my $unlock_value = sub {
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
+  $self->{eventMask} = 0xffff;
   $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} ||= $self->getExtent();
   $lock_value->( $self->{current} ) if STRICT;

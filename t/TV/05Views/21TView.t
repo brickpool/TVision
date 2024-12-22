@@ -107,13 +107,13 @@ subtest 'mouseInView method' => sub {
 
 # Test the containsMouse method
 subtest 'containsMouse method' => sub {
-	my $view  = TView->new( bounds => $bounds );
-	my $event = TEvent->new( what => evMouse,
-		mouse => { where => TPoint->new( x => 5, y => 5 ) } );
-	ok( $view->containsMouse( $event ), 'mouse is contained in view' );
-	$event = TEvent->new( what => evMouse,
-		mouse => { where => TPoint->new( x => 15, y => 15 ) } );
-	ok( !$view->containsMouse( $event ), 'mouse is not contained in view' );
+  my $view  = TView->new( bounds => $bounds );
+  my $event = TEvent->new( what => evMouse,
+    mouse => { where => TPoint->new( x => 5, y => 5 ) } );
+  ok( $view->containsMouse( $event ), 'mouse is contained in view' );
+  $event = TEvent->new( what => evMouse,
+    mouse => { where => TPoint->new( x => 15, y => 15 ) } );
+  ok( !$view->containsMouse( $event ), 'mouse is not contained in view' );
 }; #/ 'containsMouse method' => sub
 
 # Test the locate method

@@ -105,6 +105,7 @@ around extend_class => sub {    # $self|undef (@mothers)
   my $self = shift;
   if ( my $meta = find_meta( $self->name ) ) {
     $meta->superclasses( @_ );
+    push @{ $self->{classes} }, $self->name;    # for compatibility
     return $self;
   }
   return $self->$next( @_ );

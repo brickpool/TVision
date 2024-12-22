@@ -52,18 +52,17 @@ use TV::Menus::Const qw(
   :menuAction
   cpMenuView
 );
+use TV::toolkit;
 
 sub TMenuView() { __PACKAGE__ }
 sub name() { TMenuView }
 
-use base TView;
+extends TView;
 
 # declare attributes
-use slots::less (
-  parentMenu => sub { },
-  menu       => sub { },
-  current    => sub { },
-);
+slots parentMenu => ();
+slots menu       => ();
+slots current    => ();
 
 # predeclare private methods
 my (

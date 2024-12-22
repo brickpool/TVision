@@ -29,9 +29,8 @@ BEGIN {
 # Mocking TView for testing purposes
 BEGIN {
   package MyView;
-  require TV::Views::View;
-  use base 'TV::Views::View';
-  use slots::less;
+  use TV::toolkit;
+  extends 'TV::Views::View';
   sub dataSize { 1 }
   $INC{"MyView.pm"} = 1;
 }

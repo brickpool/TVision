@@ -24,9 +24,9 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-sub TObject() { __PACKAGE__ }
+use TV::toolkit;
 
-use parent 'UNIVERSAL::Object';
+sub TObject() { __PACKAGE__ }
 
 sub destroy {    # void ($class|$self, $o|undef)
   my $class = shift;

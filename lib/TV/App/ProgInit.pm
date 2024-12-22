@@ -12,23 +12,14 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
+use TV::toolkit;
+
 sub TProgInit() { __PACKAGE__ }
 
-use parent 'UNIVERSAL::Object';
-
-# use own accessors
-use subs qw(
-  createStatusLine
-  createMenuBar
-  createDeskTop
-);
-
 # declare attributes
-use slots::less (
-  createStatusLine => sub { die 'required' },
-  createMenuBar    => sub { die 'required' },
-  createDeskTop    => sub { die 'required' },
-);
+slots createStatusLine => ( is => 'bare', default => sub { die 'required' } );
+slots createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
+slots createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

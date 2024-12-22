@@ -37,17 +37,16 @@ use TV::Views::Const qw(
 );
 use TV::Views::Palette;
 use TV::Views::View;
+use TV::toolkit;
 
 sub TStatusLine() { __PACKAGE__ }
 sub name() { TStatusLine }
 
-use base TView;
+extends TView;
 
 # declare attributes
-use slots::less (
-  items => sub { },
-  defs  => sub { },
-);
+slots items => ();
+slots defs  => ();
 
 # predeclare private methods
 my (

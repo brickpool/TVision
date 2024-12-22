@@ -49,17 +49,51 @@ sub class_exists {    # $bool (| $class)
   return defined *{"${class}::FIELDS"}{HASH};
 };
 
-sub extend_class {    # $self|undef (@mothers)
-  my $self = shift;
-  my $mothers = join ' ' => @_;
-  return unless $mothers;
-  my $class = $self->name;
+sub extend_class {    # $self|undef (@parents)
+  my ( $self, @parents ) = @_;
+  return unless @parents;
+
+  # inheritor
+  my $class = $self->{_name};
+
+  # We want to recognize multiple inheritance and 
+  # separate mothers (bases) and fathers (multiples).
+  # Part of the following code is taken from base::import()
+  my @fathers;
+  NEXT: {
+    # List of base classes from which we will inherit %FIELDS.
+    my $fields_base;
+    my @bases;
+    for my $i ( 0 .. $#parents ) {
+      my $base = $parents[$i];
+      next if grep { $_->isa( $base ) } ( $class, @bases );
+      push @bases, $base;
+      if ( base::has_fields( $base ) || base::has_attr( $base ) ) {
+        if ( $fields_base ) {
+          # Detect multiply inherit fields
+          push @fathers, delete $parents[$i];
+          redo NEXT;
+        }
+        $fields_base = $base;
+      } #/ if ( base::has_fields(...))
+    } #/ for my $i ( 0 .. $#parents)
+  } #/ NEXT:
+
+  # the mothers first
+  my $mothers = join ' ' => @parents;
   eval qq{
     package $class; 
     use base qw( $mothers );
     return 1;
   } or Carp::croak( $@ );
-  push @{ $self->{classes} }, $class;
+
+  # then the fathers if available
+  if ( @fathers ) {
+    no strict 'refs';
+    push @{"${class}::ISA"}, @fathers;    # dies if a loop is detected
+  }
+
+  push @{ $self->{classes} }, $class;    # for compatibility
   return $self;
 } #/ sub extend_class
 
@@ -246,6 +280,12 @@ sub get_attributes {    # \%fields ()
     next if $fattr & base::INHERITED;
     $attr->{$f} = $no;
   }
+
+  # merge the attribute values into the return hash
+  map { 
+    $attr->{$_} = $self->{_attributes}{$class}{$_}
+      if exists $self->{_attributes}{$class}{$_};
+  } keys %$attr;
 
   return $attr;
 } #/ sub get_attributes

@@ -23,15 +23,13 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+use TV::toolkit;
+
 sub TMenu() { __PACKAGE__ }
 
-use parent 'UNIVERSAL::Object';
-
 # declare attributes
-use slots::less (
-  items => sub { },
-  deflt => sub { },
-);
+slots items => ();
+slots deflt => ();
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

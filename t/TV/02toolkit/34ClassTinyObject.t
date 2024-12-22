@@ -1,7 +1,8 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More skip_all 
+  => 'Class::Tiny cannot be used as a TV::toolkit';
 use Test::Exception;
 
 BEGIN {

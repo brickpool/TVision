@@ -23,17 +23,15 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+use TV::toolkit;
+
 sub TStatusItem() { __PACKAGE__ }
 
-use parent 'UNIVERSAL::Object';
-
 # declare attributes
-use slots::less (
-  next    => sub { },
-  text    => sub { '' },
-  keyCode => sub { 0 },
-  command => sub { 0 },
-);
+slots next    => ();
+slots text    => ( default => sub { '' } );
+slots keyCode => ( default => sub { 0 } );
+slots command => ( default => sub { 0 } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;
