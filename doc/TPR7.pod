@@ -416,7 +416,7 @@ function
 
 =head3 Module
 
-    TV::Util
+    TV::Memory::Util
 
 =head3 Purpose
 
