@@ -86,7 +86,8 @@ package MouseEventType {
   sub clone {    # $obj ()
     my $self = shift;
     assert ( blessed $self );
-    my $clone = bless { %$self }, ref $self;
+    my $class = ref $self || $self;
+    my $clone = bless {}, $class;
     Hash::Util::lock_keys( %$clone ) if STRICT;
     $clone->{where} = $self->{where}->clone();
     return $clone;
@@ -133,6 +134,16 @@ package CharScanType {
       grep { exists $args{$_} }
         keys %HAS;
     return $self;
+  }
+
+  sub clone {    # $obj ()
+    my $self = shift;
+    assert ( blessed $self );
+    my $class = ref $self || $self;
+    my $clone = bless {}, $class;
+    tie %$clone, $class;
+    map { $clone->{$_} = $self->{$_} } keys %HAS;
+    return $clone;
   }
 
   sub TIEHASH  { bless \( my $data ), $_[0] }
@@ -192,6 +203,17 @@ package KeyDownEvent {
       grep { exists $args{$_} }
         keys %HAS;
     return $self;
+  }
+
+  sub clone {    # $obj ()
+    my $self = shift;
+    assert( blessed $self );
+    my $class = ref $self || $self;
+    my $clone = bless {}, $class;
+    tie %$clone, $class;
+    $clone->{keyCode}         = $self->{keyCode};
+    $clone->{controlKeyState} = $self->{controlKeyState};
+    return $clone;
   }
 
   sub TIEHASH  { bless [ CharScanType->new(), 0 ], $_[0] }
@@ -277,6 +299,22 @@ package MessageEvent {
         keys %HAS;
     return $self;
   } #/ sub new
+
+  sub clone {    # $obj ()
+    my $self = shift;
+    assert( blessed $self );
+    my $class = ref $self || $self;
+    my $clone = bless {}, $class;
+    tie %$clone, $class;
+    $clone->{command} = $self->{command};
+    if ( blessed $self->{infoPtr} && $self->{infoPtr}->can( 'clone' ) ) {
+      $clone->{infoPtr} = $self->{infoPtr}->clone();
+    }
+    else {
+      $clone->{infoPtr} = $self->{infoPtr};
+    }
+    return $clone;
+  }
 
   sub TIEHASH  { bless [ 0, 0 ], $_[0] }
   sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }
@@ -373,6 +411,25 @@ sub new {    # $obj (%args)
   }
   return $self;
 } #/ sub new
+
+sub clone {    # $obj ()
+  my $self = shift;
+  assert( blessed $self );
+  my $class = ref $self || $self;
+  my $clone = bless {}, $class;
+  tie %$clone, $class;
+  $clone->{what} = $self->{what};
+  if ( $self->{mouse} ) {
+    $clone->{mouse} = $self->{mouse}->clone();
+  }
+  elsif ( $self->{keyDown} ) {
+    $clone->{keyDown} = $self->{keyDown}->clone();
+  }
+  elsif ( $self->{message} ) {
+    $clone->{message} = $self->{message}->clone();
+  }
+  return $clone;
+}
 
 sub TIEHASH  { bless [ evNothing, undef ], $_[0] }
 sub STORE    { $HAS{ $_[1] }->( $_[0], $_[2] ) }

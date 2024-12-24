@@ -1107,7 +1107,7 @@ sub writeChar {    # void ($x, $y, $c, $color, $count)
   assert ( looks_like_number $count );
   if ( $count > 0 ) {
     $setCell->( my $cell, ord( $c ), $color );
-    my $buf  = [ ( $cell ) x $count ];
+    my $buf = [ ( $cell ) x $count ];
     $self->$writeView( $x, $y, $count, $buf );
   }
   return;

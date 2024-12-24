@@ -43,8 +43,11 @@ extends TMenuView;
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args) = @_;
   assert ( $class and !ref $class );
+  # 'required' arguments
   assert ( blessed $args{bounds} );
-  assert ( blessed $args{menu} );
+  assert ( exists $args{menu} );
+  # 'isa' is undef or TMenu or TSubMenu
+  assert ( !defined $args{menu} or blessed $args{menu} );
   return \%args;
 }
 
@@ -52,13 +55,13 @@ sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{menu} = TMenu->new( items => $self->{menu} )
-    if $self->{menu}->isa(TSubMenu);
+    if $self->{menu} && $self->{menu}->isa(TSubMenu);
   $self->{growMode} = gfGrowHiX;
   $self->{options} |= ofPreProcess;
   return;
 }
 
-sub from {    # $obj ($bounds, $aMenu)
+sub from {    # $obj ($bounds, $aMenu|undef)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );

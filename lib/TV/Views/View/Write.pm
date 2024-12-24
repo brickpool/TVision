@@ -4,7 +4,7 @@
 
 TView write member functions.
 
-=head1 COPYRIGHT AND LICENCE
+=head1 COPYRIGHT AND LICENSE
 
 Turbo Vision - Version 2.0
  
@@ -12,7 +12,7 @@ Turbo Vision - Version 2.0
   All Rights Reserved.
 
 The following content was taken from the framework
-"A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
+"A modern port of Turbo Vision 2.0", which is licensed under MIT license.
 
 Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
 
@@ -51,14 +51,14 @@ use vars qw(
 
 use constant HIDEMOUSE => 0;
 
-my $X = 0;
-my $Y = 0;
-my $Count = 0;
+my $X       = 0;
+my $Y       = 0;
+my $Count   = 0;
 my $wOffset = 0;
-my $Buffer = undef;
-my $Target = undef;
-my $edx = 0;
-my $esi = 0;
+my $Buffer  = undef;
+my $Target  = undef;
+my $edx     = 0;
+my $esi     = 0;
 
 use subs qw(
   L0
@@ -80,8 +80,8 @@ sub L0 {
   $Count   = $count;
   $Buffer  = $b;
   $wOffset = $x;
-  $Count += $x;
-  $edx = 0;
+  $Count  += $x;
+  $edx     = 0;
 
   if ( $y >= 0 && $y < $dest->{size}{y} ) {
     $X = 0
@@ -226,10 +226,16 @@ sub L40 {
 } #/ sub L40
 
 sub L50 {
-  no warnings 'uninitialized';
   my ( $owner ) = @_;
-  my $dst = $owner->{buffer}->[ $Y * $owner->{size}{x} + $X ];
-  my $src = $Buffer->[ $X - $wOffset ];
+  alias: my $dst = do {
+    my ( $a, $b ) = ( $Y * $owner->{size}{x} + $X, $#{ $owner->{buffer} } );
+    sub { \@_ }->( @{ $owner->{buffer} }[ $a .. $b ] );
+  };
+  alias: my $src = do {
+    my ( $a, $b ) = ( $X - $wOffset, $#$Buffer );
+    sub { \@_ }->( @$Buffer[ $a .. $b ] );
+  };
+  no warnings 'uninitialized';
   if ( $owner->{buffer} != $screenBuffer ) {
     copyShort( $dst, $src );
   }
@@ -247,7 +253,8 @@ sub L50 {
 sub copyShort {
   my ( $dst, $src ) = @_;
   if ( $edx == 0 ) {
-    @$dst = @$src;
+    # must be a copy of each element
+    $dst->[$_] = $src->[$_] for 0 .. $Count - $X;
   }
   else {
     for ( my $i = 0 ; $i < $Count - $X ; $i++ ) {

@@ -4,7 +4,7 @@
 
 TView resetCursor member functions.
 
-=head1 COPYRIGHT AND LICENCE
+=head1 COPYRIGHT AND LICENSE
 
 Turbo Vision - Version 2.0
  
@@ -12,7 +12,7 @@ Turbo Vision - Version 2.0
   All Rights Reserved.
 
 The following content was taken from the framework
-"A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
+"A modern port of Turbo Vision 2.0", which is licensed under MIT license.
 
 Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
 

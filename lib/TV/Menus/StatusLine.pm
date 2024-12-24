@@ -79,7 +79,7 @@ sub BUILD {    # void (\%args)
   return;
 } #/ sub new
 
-sub from {    # $obj ($bounds, $aDefs);
+sub from {    # $obj ($bounds, $aDefs|undef);
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
@@ -193,7 +193,7 @@ sub update {    # void
   return;
 } #/ sub update
 
-$drawSelect = sub {    # void ($selected)
+$drawSelect = sub {    # void ($selected|undef)
   my ( $self, $selected ) = @_;
   my $b = TDrawBuffer->new();
 
@@ -209,6 +209,7 @@ $drawSelect = sub {    # void ($selected)
     if ( $T->{text} ) {
       my $l = cstrlen( $T->{text} );
       if ( $i + $l < $self->{size}{x} ) {
+        no warnings 'uninitialized';
         my $color;
         if ( $self->commandEnabled( $T->{command} ) ) {
           $color = ( $T == $selected )

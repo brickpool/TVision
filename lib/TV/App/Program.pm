@@ -12,11 +12,29 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
-use TV::App::Const qw( :cpXXXX );
+use TV::App::Const qw( 
+  :cpXXXX
+  :apXXXX
+);
 use TV::App::DeskTop;
 use TV::App::ProgInit;
-use TV::Drivers::Const qw( :evXXXX );
+use TV::Drivers::Const qw( 
+  :evXXXX
+  :smXXXX
+  kbAltX
+  kbF10
+  kbAltF3
+  kbF5
+  kbCtrlF5
+);
+use TV::Drivers::Event;
+use TV::Drivers::EventQueue;
 use TV::Drivers::Screen;
+use TV::Menus::MenuBar;
+use TV::Menus::StatusDef;
+use TV::Menus::StatusItem;
+use TV::Menus::StatusLine;
+use TV::Memory::Util qw( lowMemory );
 use TV::Drivers::Util qw( getAltChar );
 use TV::Objects::Point;
 use TV::Objects::Rect;
@@ -27,6 +45,11 @@ use TV::Views::Const qw(
   cmSelectWindowNum
   cmQuit
   cmCommandSetChanged
+  cmMenu
+  cmClose
+  cmZoom
+  cmResize
+  cmValid
 );
 use TV::Views::Palette;
 use TV::Views::Group;
@@ -39,28 +62,35 @@ sub TProgram() { __PACKAGE__ }
 extends ( TGroup, TProgInit );
 
 # declare global variables
+our $exitText = "~Alt-X~ Exit";
 our $application;
 our $statusLine;
 our $menuBar;
 our $deskTop;
 our $appPalette = 0;
-our $pending;
+our $pending = TEvent->new();
 
 # import global variables
 use vars qw(
-  $shadowSize
-  $commandSetChanged
+  $mouse
   $screenBuffer
   $screenHeight
+  $screenMode
   $screenWidth
+  $commandSetChanged
+  $showMarkers
+  $shadowSize
 );
 {
   no strict 'refs';
-  *shadowSize        = \${ TView . '::shadowSize' };
-  *commandSetChanged = \${ TView . '::commandSetChanged' };
+  *mouse             = \${ TEventQueue . '::mouse' };
   *screenBuffer      = \${ TScreen . '::screenBuffer' };
   *screenHeight      = \${ TScreen . '::screenHeight' };
+  *screenMode        = \${ TScreen . '::screenMode' };
   *screenWidth       = \${ TScreen . '::screenWidth' };
+  *commandSetChanged = \${ TView . '::commandSetChanged' };
+  *showMarkers       = \${ TView . '::showMarkers' };
+  *shadowSize        = \${ TView . '::shadowSize' };
 }
 
 sub BUILDARGS {    # \%args (%)
@@ -70,8 +100,15 @@ sub BUILDARGS {    # \%args (%)
   $args{createStatusLine} = delete $args{cStatusLine};
   $args{createMenuBar}    = delete $args{cMenuBar};
   $args{createDeskTop}    = delete $args{cDeskTop};
+  # 'bounds' argument is not 'required'
+  $args{bounds} ||= TRect->new(
+    ax => 0,
+    ay => 0,
+    bx => $screenWidth,
+    by => $screenHeight,
+  );
   # TProgInit->BUILDARGS is not called because arguments are not 'required'
-  return $class->SUPER::BUILDARGS( %args );
+  return TGroup->BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)
@@ -80,12 +117,6 @@ sub BUILD {    # void (| \%args)
   $self->{createStatusLine} ||= \&initStatusLine;
   $self->{createMenuBar}    ||= \&initMenuBar;
   $self->{createDeskTop}    ||= \&initDeskTop;
-  $self->{bounds}           ||= TRect->new(
-    ax => 0,
-    ay => 0,
-    bx => $screenWidth,
-    by => $screenHeight,
-  );
   $application = $self;
   $self->initScreen();
   $self->{state}   = sfVisible | sfSelected | sfFocused | sfModal | sfExposed;
@@ -115,17 +146,6 @@ sub DEMOLISH {    # void ()
   $application = undef;
   return;
 }
-
-sub shutDown {    # void ()
-  my $self = shift;
-  assert ( blessed $self );
-  $statusLine = undef;
-  $menuBar    = undef;
-  $deskTop    = undef;
-  $self->SUPER::shutDown();
-  # TVMemMgr->clearSafetyPool();
-  return;
-} #/ sub shutDown
 
 sub canMoveFocus {    # $bool ()
   my $self = shift;
@@ -159,12 +179,13 @@ my $hasMouse = sub {    # $bool ($p, $s)
 };
 
 sub getEvent {    # void ($event)
-  my ( $self, $event ) = @_;
+  my ( $self, undef ) = @_;
+  alias: for my $event ( $_[1] ) {
   assert ( blessed $self );
   assert ( blessed $event );
-  if ( $self->{pending}{what} != evNothing ) {
-    %$event = %{ $self->{pending} };
-    $self->{pending}{what} = evNothing;
+  if ( $pending->{what} != evNothing ) {
+    $event = $pending->clone();
+    $pending->{what} = evNothing;
   }
   else {
     $event->getMouseEvent();
@@ -186,6 +207,7 @@ sub getEvent {    # void ($event)
     }
   } #/ if ( $self->{statusLine...})
   return;
+  } #/ alias: for my $event
 } #/ sub getEvent
 
 my ( $color, $blackwhite, $monochrome, @palettes );
@@ -210,6 +232,8 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $event );
   if ( $event->{what} == evKeyDown ) {
     my $c = getAltChar( $event->{keyDown}{keyCode} );
     if ( $c ge '1' && $c le '9' ) {
@@ -244,69 +268,62 @@ sub idle {    # void ()
     message( $self, evBroadcast, cmCommandSetChanged, 0 );
     $commandSetChanged = !!0;
   }
+  return;
 }
 
-sub initDeskTop {
-  my ( $class, $r ) = @_;
-  assert ( $class );
-  assert ( ref $r );
-  $r->{a}{y}++;
-  $r->{b}{y}--;
-  return TDeskTop->new( bounds => $r );
-}
-
-1
-
-__END__
-
-sub initMenuBar {
-  my ( $class, $r ) = @_;
-  $r->{b}{y} = $r->{a}{y} + 1;
-  return TMenuBar->new( $r, undef );
-}
-
-sub initScreen {
+sub initScreen { # void ()
   my $self = shift;
-  if ( ( TScreen::screenMode() & 0x00FF ) ne TDisplay::smMono() ) {
-    if ( TScreen::screenMode() & TDisplay::smFont8x8() ) {
+  assert ( blessed $self );
+  if ( ( $screenMode & 0x00FF ) != smMono ) {
+    if ( $screenMode & smFont8x8 ) {
       $shadowSize->{x} = 1;
     }
     else {
       $shadowSize->{x} = 2;
     }
     $shadowSize->{y} = 1;
-    $self->{showMarkers} = 0;
-    if ( ( TScreen::screenMode() & 0x00FF ) eq TDisplay::smBW80() ) {
-      $appPalette = 'apBlackWhite';
+    $showMarkers = !!0;
+    if ( ( $screenMode & 0x00FF ) == smBW80 ) {
+      $appPalette = apBlackWhite;
     }
     else {
-      $appPalette = 'apColor';
+      $appPalette = apColor;
     }
-  } #/ if ( ( TScreen::screenMode...))
+  } #/ if ( ( $screenMode & 0x00FF...))
   else {
     $shadowSize->{x} = 0;
     $shadowSize->{y} = 0;
-    $self->{showMarkers}   = 1;
-    $appPalette    = 'apMonochrome';
+    $showMarkers     = !!1;
+    $appPalette      = apMonochrome;
   }
+  return;
 } #/ sub initScreen
 
-sub initStatusLine {
-  my ( $class, $r ) = @_;
-  $r->{a}{y} = $r->{b}{y} - 1;
-  return TStatusLine->new(
-    $r,
-    TStatusDef->new( 0, 0xFFFF ) +
-      TStatusItem->new( $exitText, 'kbAltX',   cmQuit ) +
-      TStatusItem->new( 0,         'kbF10',    'cmMenu' ) +
-      TStatusItem->new( 0,         'kbAltF3',  'cmClose' ) +
-      TStatusItem->new( 0,         'kbF5',     'cmZoom' ) +
-      TStatusItem->new( 0,         'kbCtrlF5', 'cmResize' )
-  );
-} #/ sub initStatusLine
+sub outOfMemory {    # void ()
+  assert ( blessed shift );
+  # Handle out of memory
+  return;
+}
 
-sub insertWindow {
+sub putEvent {    # void ($event)
+  my ( $self, $event ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $event );
+  $pending = $event->clone();
+  return;
+}
+
+sub run {    # void ()
+  my $self = shift;
+  assert ( blessed $self );
+  $self->execute();
+  return;
+}
+
+sub insertWindow {    # $window|undef ($window|undef)
   my ( $self, $pWin ) = @_;
+  assert ( blessed $self );
+  assert ( blessed $pWin );
   if ( $self->validView( $pWin ) ) {
     if ( $self->canMoveFocus() ) {
       $deskTop->insert( $pWin );
@@ -319,60 +336,100 @@ sub insertWindow {
   return undef;
 } #/ sub insertWindow
 
-sub outOfMemory {
-
-  # Handle out of memory
-}
-
-sub putEvent {
-  my ( $self, $event ) = @_;
-  $self->{pending} = $event;
-}
-
-sub run {
-  my $self = shift;
-  $self->execute();
-}
-
-sub setScreenMode {
+sub setScreenMode { # void ($mode)
   my ( $self, $mode ) = @_;
   my $r;
 
-  TEventQueue::mouse()->hide();
-  TScreen::setVideoMode( $mode );
+  $mouse->hide();
+  TScreen->setVideoMode( $mode );
   $self->initScreen();
-  $self->{buffer} = TScreen::screenBuffer();
-  $r = TRect->new( 0, 0, TScreen::screenWidth(), TScreen::screenHeight() );
+  $self->{buffer} = $screenBuffer;
+  $r = TRect->new( ax => 0, bx => 0, ay => $screenWidth, by => $screenHeight );
   $self->changeBounds( $r );
-  $self->setState( 'sfExposed', 0 );
-  $self->setState( 'sfExposed', 1 );
+  $self->setState( sfExposed, 0 );
+  $self->setState( sfExposed, 1 );
   $self->redraw();
-  TEventQueue::mouse()->show();
+  $mouse->show();
+  return;
 } #/ sub setScreenMode
 
-sub validView {
-  my ( $self, $p ) = @_;
+sub shutDown {    # void ()
+  my $self = shift;
+  assert ( blessed $self );
+  $statusLine = undef;
+  $menuBar    = undef;
+  $deskTop    = undef;
+  $self->SUPER::shutDown();
+  # TVMemMgr->clearSafetyPool();
+  return;
+} #/ sub shutDown
+
+sub suspend {    # void ()
+  assert ( blessed shift );
+  return;
+}
+
+sub resume {    # void ()
+  assert ( blessed shift );
+  return;
+}
+
+sub initStatusLine {    # $statusLine ($r)
+  my ( $class, $r ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $r );
+  $r->{a}{y} = $r->{b}{y} - 1;
+  return TStatusLine->from(
+    $r,
+    TStatusDef->from( 0, 0xFFFF ) +
+      TStatusItem->from( $exitText, kbAltX,   cmQuit ) +
+      TStatusItem->from( 0,         kbF10,    cmMenu ) +
+      TStatusItem->from( 0,         kbAltF3,  cmClose ) +
+      TStatusItem->from( 0,         kbF5,     cmZoom ) +
+      TStatusItem->from( 0,         kbCtrlF5, cmResize )
+  );
+} #/ sub initStatusLine
+
+sub initMenuBar {    # $menuBar ($r)
+  my ( $class, $r ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $r );
+  $r->{b}{y} = $r->{a}{y} + 1;
+  return TMenuBar->new( bounds => $r, menu => undef );
+}
+
+sub initDeskTop {    # $deskTop ($r)
+  my ( $class, $r ) = @_;
+  assert ( $class and !ref $class );
+  assert ( ref $r );
+  $r->{a}{y}++;
+  $r->{b}{y}--;
+  return TDeskTop->new( bounds => $r );
+}
+
+sub validView {    # $view|undef ($view)
+  my ( $self, undef ) = @_;
+  alias: for my $p ( $_[1] ) {
+  assert( blessed $self );
+  assert( @_ == 2 );
   return undef unless $p;
-  if ( $self->lowMemory() ) {
+  if ( lowMemory() ) {
     $self->destroy( $p );
     $self->outOfMemory();
     return undef;
   }
-  unless ( $p->valid( 'cmValid' ) ) {
+  unless ( $p->valid( cmValid ) ) {
     $self->destroy( $p );
     return undef;
   }
   return $p;
+  } #/ alias: for my $p
 } #/ sub validView
 
 1
 
 __END__
 
-
-Und hier sind die entsprechenden Testfälle:
-
-```perl
 use strict;
 use warnings;
 use Test::More tests => 20;
@@ -481,9 +538,6 @@ use TPalette;
     sub new { bless {}, shift }
 }
 
-# Test object creation
-my $program = TProgram->new();
-isa_ok($program, 'TProgram', 'Object is of class TProgram');
 
 # Test shutDown method
 can_ok($program, 'shutDown');
@@ -570,6 +624,3 @@ can_ok($program, 'validView');
 is($program->validView($window), $window, 'validView returns correct value');
 
 done_testing();
-```
-
-Diese Testfälle decken die Erstellung des Objekts, das Setzen und Abrufen der Felder sowie das Verhalten der Methoden `shutDown`, `canMoveFocus`, `executeDialog`, `getEvent`, `getPalette`, `handleEvent`, `idle`, `initDeskTop`, `initMenuBar`, `initScreen`, `initStatusLine`, `insertWindow`, `outOfMemory`, `putEvent`, `run`, `setScreenMode` und `validView` ab. Wenn du noch weitere Tests oder Anpassungen benötigst, lass es mich wissen!

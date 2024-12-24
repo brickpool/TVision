@@ -51,7 +51,7 @@ sub BUILDARGS {    # \%args (%)
   # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
   # TDeskInit->BUILDARGS is not called because arguments are not 'required'
-  return $class->SUPER::BUILDARGS( %args );
+  return TGroup->BUILDARGS( %args );
 }
 
 sub BUILD {    # void (| \%args)
