@@ -9,6 +9,8 @@ require base;          # .. but that could change in the future
 # Code snippet taken from File::Spec
 my %module; BEGIN { %module = (
   fields              => 'Class::Fields',
+  # 'Class::LOP'        => 'Class::LOP',
+  # 'Class::Tiny'       => 'Class::Tiny',
   Moo                 => 'Moo',
   Moose               => 'Moose',
   'UNIVERSAL::Object' => 'UNIVERSAL::Object'
@@ -16,7 +18,7 @@ my %module; BEGIN { %module = (
 
 our $name; BEGIN {
   $name = 'fields';
-  foreach my $toolkit ( keys %module ) {
+  foreach my $toolkit ( reverse sort keys %module ) {
     if ( Module::Loaded::is_loaded $toolkit ) {
       $name = $toolkit;
       last;
@@ -28,7 +30,7 @@ my $module = $module{$name} || 'Class::Fields';
 
 require ''. base::_module_to_filename( 
   $name eq 'Class::LOP' 
-    ? 'Class::LOP' 
+    ? 'Class::LOP'
     : "TV::toolkit::LOP::$module" 
 );
 

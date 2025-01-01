@@ -86,9 +86,10 @@ package MouseEventType {
   sub clone {    # $obj ()
     my $self = shift;
     assert ( blessed $self );
-    my $class = ref $self || $self;
+    my $class = ref $self || return;
     my $clone = bless {}, $class;
     Hash::Util::lock_keys( %$clone ) if STRICT;
+    map { $clone->{$_} = $self->{$_} } grep { !/^(?!where)$/ } keys %HAS;
     $clone->{where} = $self->{where}->clone();
     return $clone;
   }
@@ -139,7 +140,7 @@ package CharScanType {
   sub clone {    # $obj ()
     my $self = shift;
     assert ( blessed $self );
-    my $class = ref $self || $self;
+    my $class = ref $self || return;
     my $clone = bless {}, $class;
     tie %$clone, $class;
     map { $clone->{$_} = $self->{$_} } keys %HAS;
@@ -208,7 +209,7 @@ package KeyDownEvent {
   sub clone {    # $obj ()
     my $self = shift;
     assert( blessed $self );
-    my $class = ref $self || $self;
+    my $class = ref $self || return;
     my $clone = bless {}, $class;
     tie %$clone, $class;
     $clone->{keyCode}         = $self->{keyCode};
@@ -303,7 +304,7 @@ package MessageEvent {
   sub clone {    # $obj ()
     my $self = shift;
     assert( blessed $self );
-    my $class = ref $self || $self;
+    my $class = ref $self || return;
     my $clone = bless {}, $class;
     tie %$clone, $class;
     $clone->{command} = $self->{command};
@@ -415,7 +416,7 @@ sub new {    # $obj (%args)
 sub clone {    # $obj ()
   my $self = shift;
   assert( blessed $self );
-  my $class = ref $self || $self;
+  my $class = ref $self || return;
   my $clone = bless {}, $class;
   tie %$clone, $class;
   $clone->{what} = $self->{what};

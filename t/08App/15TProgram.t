@@ -16,7 +16,7 @@ isa_ok( $bounds, TRect, 'Object is of class TRect' );
 {
   my $program = TProgram->new( bounds => $bounds );
   isa_ok( $program, TProgram, 'Object is of class TProgram' );
-  sleep( 3 );
+  sleep( 1 );
 }
 
 done_testing;

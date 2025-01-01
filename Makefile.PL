@@ -34,7 +34,7 @@ WriteMakefile(
   },
   LICENSE     => 'mit',
   dist        => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-  test        => { TESTS => 't/TV/*.t t/TV/*/*.t' },
+  test        => { TESTS => 't/*.t t/*/*.t' },
   META_MERGE  => {
     'meta-spec' => { version => 2 },
     resources => {
