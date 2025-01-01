@@ -11,8 +11,6 @@ use Carp ();
 
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
-BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
-
 use parent qw( UNIVERSAL::Object::Immutable Class::LOP );
 
 our %HAS; BEGIN {
