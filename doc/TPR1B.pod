@@ -36,10 +36,18 @@ Total pages in the electronic book:
 =head2 Chapter 1
 
     20 pages.
-    L<This introduction|TVision>
-    L<Copyright information|TVision>
-    L</Table of Contents for Turbo Pascal Reference|"Table of Contents">
-    L<Table of Contents for Borland Pascal Developer's Guide|TVision>
+
+=over
+
+=item L<This introduction|TVision>
+
+=item L<Copyright information|TVision>
+
+=item L<Table of Contents for Turbo Pascal Reference|/"Table of Contents">
+
+=item L<Table of Contents for Borland Pascal Developer's Guide|TVision>
+
+=back
 
 =head2 Chapter 2
 
@@ -246,7 +254,7 @@ Total pages in the electronic book:
 
 The Turbo Vision Reference (continued)
 
-=over 4
+=over
 
 =item Chapter 7
 

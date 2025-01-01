@@ -39,20 +39,23 @@ The Turbo Vision Reference contains an alphabetized list of all Turbo Vision
 objects, global variables, subroutines, functions, types and constants. This
 reference is substantially different than Borland's reference because:
 
-=over 4
+=over
 
-=item 1. 
+=item 1.
+
 Where possible, example code that actually uses the object type is
 shown. Borland's documentation generally does not show sample code within their
 Reference on Turbo Vision.
 
-=item 2. 
+=item 2.
+
 The reference includes all Turbo Vision features, including object
 types, types, constants, variables, subroutines and functions. All are grouped
 together in one alphabetized section, unlike Borland's reference, where you
 must look in several sections to find the desired item.
 
-=item 3. 
+=item 3.
+
 Most importantly, I have highlighted the methods that you are most
 likely to use within each object type. A problem with reading Borland's
 documentation is that they present each object type followed by all twenty to
@@ -81,15 +84,18 @@ TView where you will finally locate the redraw method.
 Turbo Vision uses standardized naming conventions as an aid to making source
 code readable. The most important conventions are:
 
-=over 4
+=over
 
-=item 1. 
+=item 1.
+
 Type declarations begin with a capital letter C<T>.
 
-=item 2. 
+=item 2.
+
 Registration records for stream I/O begin with a capital letter C<R>.
 
-=item 3. 
+=item 3.
+
 Identifiers beginning with lower case letters are standard Turbo Vision 
 constants. The following table shows the standard constant prefix characters:
 
@@ -114,6 +120,8 @@ constants. The following table shows the standard constant prefix characters:
     T       Object type             TCollection
     wf      Window flags            wfMove
     wp      Window color palettes   wpBlueWindow
+
+=back
 
 =head2 The Turbo Vision Object Hierarchy
 

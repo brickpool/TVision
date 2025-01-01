@@ -106,22 +106,26 @@ the right to make copies of this electronic book. However, I give you
 permission to copy this electronic text and give it away, free, to others,
 subject to the following rules and restrictions:
 
-=over 4
+=over
 
-=item 1. 
+=item 1.
+
 This electronic book may only be copied in its entirety, unless
 separate permission is received from the author.
 
-=item 2. 
+=item 2.
+
 Each copy of this material, whether electronic or printed, must not be
 modified by you. In particular, each copy must include this introduction, my
 copyright statement and the reference to Borland Pascal Developer's Guide (Que,
 1992).
 
-=item 3. 
+=item 3.
+
 You may print out copies of this electronic text for your own use.
 
-=item 4. 
+=item 4.
+
 Teachers and instructors are encouraged to copy, or to print and use
 this material in their classroom; however, if material is extracted for use in
 a classroom setting, the extracted material must bear the following notice:
@@ -130,21 +134,25 @@ a classroom setting, the extracted material must bear the following notice:
     Mitchell, author of Borland Pascal Developer's Guide, Que
     Corporation, 1992.
 
-=item 5. 
+=item 5.
+
 Bona fide shareware distributors may charge a "nominal" fee for the
 costs of duplication and distribution. By "nominal", I mean a low fee such as
 $5.00 per disk.
 
-=item 6. 
+=item 6.
+
 You may not sell copies of the Turbo Pascal Reference in electronic,
 printed or any other form, for profit or not-for profit.
 
-=item 7. 
+=item 7.
+
 You may not give this material away or distribute this freeware text
 as a promotion for any other product without the express written permission of
 Ed Mitchell.
 
-=item 8. 
+=item 8.
+
 Turbo Pascal, Turbo Pascal for Windows, and Borland Pascal are
 trademarks of Borland International, Inc.
 
