@@ -1,0 +1,267 @@
+=head1 TPR-BOOK
+
+This material is used under the Fair Use doctrine for educational and 
+non-commercial purposes. The original text is copyrighted, and all rights are 
+retained by the author. The material is provided "as is" without warranty of 
+any kind. 
+
+Please note the following preliminary remark from Ed Mitchell:
+
+    This chapter is part of the Turbo Pascal Reference electronic freeware book 
+    (C) Copyright 1992 by Ed Mitchell. 
+
+    This freeware book contains supplementary material to Borland Pascal 
+    Developer's Guide, published by Que Corporation, 1992. 
+    
+    However, Que Corporation has no affiliation with nor responsibility for the 
+    content of this free book. 
+    
+    Please see Chapter 1 of the Turbo Pascal Reference for important information
+    about your right to distribute and use this material freely. 
+    
+    If you find this material of use, I would appreciate your purchase of one my
+    books, such as the Borland Pascal Developer's Guide or Secrets of the 
+    Borland C++ Masters, Sams Books, 1992. 
+    
+    Thank you.
+
+=head1 CHAPTER 1 - Table of Contents
+
+Chapter 1 - Part 2 of 3 parts - of the Turbo Pascal Reference
+
+Total pages in the electronic book:
+
+    Over 400 single spaced pages.
+
+=head2 Chapter 1
+
+    20 pages.
+    L<This introduction|TVision>
+    L<Copyright information|TVision>
+    L</Table of Contents for Turbo Pascal Reference|"Table of Contents">
+    L<Table of Contents for Borland Pascal Developer's Guide|TVision>
+
+=head2 Chapter 2
+
+    The Integrated Development Environment
+    36 pages.
+
+    Using the Integrated Development Environment
+        When to Use the IDE?
+        Starting Turbo Pascal's IDE
+        Selecting Menu Items
+        Editing, Saving and Compiling a Program
+    Dialog Boxes
+    Using the Editor
+        Navigating in the Editor
+        Selecting Text and Text Block Operations
+        Specific Editing Commands
+    The IDE Help System
+        Copying Text from the Help system
+    The File Menu
+        File Menu/Open
+        File Menu/New  
+        File Menu/Save functions
+        File Menu/Change dir
+        File Menu/Print
+        File Menu/Get Info
+        File Menu/DOS Shell
+        File Menu/Exit
+    The Search Menu
+        Search Menu/Find (Ctrl-Q-F)
+        Search Menu/Replace (Ctrl-A)
+        Search Menu/Search Again (Ctrl-L)
+        Search Menu/Go to Line Number
+        Search Menu/Find Procedure
+        Search Menu/Find Error (Alt-F8)
+    The Run Menu
+        Run Menu/Run (Alt-R)
+        Run Menu/Program Reset (Ctrl-F2)
+        Run Menu/Go to Cursor (F4)
+        Run Menu/Trace Into (F7) and Step Over (F8)
+        Run Menu/Parameters
+    The Compile Menu
+        Compile Menu/Compile (Alt-F9)
+        Compile Menu/Make (F9)
+        Compile Menu/Build
+        Compile Menu/Destination
+        Compile Menu/Primary File
+    The Debug Menu and the Built-in Debugger
+        Debug Menu/Evaluate/Modify (Ctrl-F4)
+        Debug Menu/Watches
+        Debug/Watches - Add Watch (Ctrl-F7)
+        Debug Menu/Watches - Delete Watch
+        Debug Menu/Watches - Edit Watch
+        Debug Menu/Watches-Remove all Watches
+        Debug Menu/Toggle Breakpoint (Ctrl-F8)
+        Debug Menu/Breakpoints
+            Edit Breakpoints Button
+            Delete Button
+            View Button
+            Clear All Button
+    The Options Menu
+        Options Menu/Compiler
+        Options Menu/Memory sizes
+        Options Menu/Linker
+        Options Menu/Debugger
+        Options Menu/Directories
+        Options Menu/Environment
+            Options Menu/Environment - Preferences
+            Options Menu/Environment - Editor Options
+            Options Menu/Environment - Mouse
+            Options Menu/Environment - Startup
+            Options Menu/Environment - colors
+            Options Menu/Save options
+    The Window Menu
+
+=head2 Chapter 3
+
+    The Turbo Pascal Language
+    104 pages.
+
+    Your First Turbo Pascal Program
+    Pascal Program Structure
+    Pascal Data Types
+        A Note on the Use of Floating Point Values
+        Declaring Identifiers
+        Constants
+        Variables
+        Arrays
+        Multidimensional Arrays
+            Arrays and the packed Keyword
+        Enumerated Types
+        Subrange Types
+        Sets
+            Set Relational Operators
+            Set Logical Operators
+        Records
+            The With Statement
+            Record Types
+        Case-variant records
+        File Types
+        Typed Constants:  Pre-initialized variables
+        The Pointer Type
+            Defining and Allocating a Pointer
+            Using a Pointer
+            Disposing of a Dynamic variable
+            Common problems when using pointers
+            The Use of Mark and Release Procedures
+            Cautions concerning the use of Mark and Release
+            The Use of GetMem and FreeMem procedures
+            Pointers and Memory Management
+            Pointer Relational Operators
+            The Address-of operator @
+            @ and Procedures and Functions
+            @ and Procedure Value parameters
+            @ and Procedure Variable parameters
+        Summary of Pointer Operations
+        Pointers and Complex Data Structures
+        Pointers and the With Statement
+    Turbo Pascal Arithmetic Operations
+        Basic Arithmetic Operators
+        Mixing Data Types in Expressions
+        Implicit Type Conversion
+        Explicit Type Conversion
+        Address-of @ operator
+    Comparison or Relational Operators
+        Logical or Bit Level Operations
+        Boolean Operations
+        Short-Circuit versus Complete Evaluation
+    String Operations
+    Evaluation Hierarchy
+    Pascal Statements
+        Program Comments
+        Assignment Statements:  :=
+        Conditional Statements:  If-then-else and case
+            The if-then and if-then-else statements
+            The case Statement
+        Looping Statements:  For, While and Repeat
+            For Loop
+            While Loop
+            Repeat Loop
+        Labels and Goto
+    Procedures and Functions
+        Procedures
+            The <Optional parameter list>
+            Arrays as Parameters
+            Strings as Parameters
+            Records as Parameters
+            Summary of Using Parameter Values and Variables
+        The Procedure Body
+            Forward declared procedures
+            Near and Far procedure call models
+            Interrupt Procedures
+            Assembly language procedures:  External, Inline and Asm
+        Functions
+            Calling a function
+            Assigning a value to a function identifier
+            Acceptable Function Return Values
+            Recursive functions
+            The effect of short-circuit evaluation on functions
+        Procedures and Functions as Parameters
+    Conditional Compilation
+        Built-in Conditional Compilation Symbols
+    Compiler Directives
+    Disk File Operations
+        Defining a File Identifier
+        Opening a File
+        Writing and Reading File Data
+        Checking for File-related Errors
+        Text Files
+        Sequential Access Data Files
+        Random Access Data Files
+        Writing Pointer values to disk files
+        BlockRead and BlockWrite:  The Use of Untyped Files
+        Specifying Different Block Sizes
+        Maximum buffer size and maximum data to read or write
+        Other File Operations
+    Turbo Pascal Memory Limitations
+
+=head2 Chapter 4
+
+    System Library Reference
+    89 pages.
+
+=head2 Chapter 5
+
+    Graph Library Reference
+    54 pages.
+
+=head2 Chapter 6
+
+    The Turbo Vision Reference
+    34 pages.
+
+    About the Reference Section
+    Naming Conventions
+    Naming Conventions
+    The Turbo Vision Object Hierarchy
+    The Reference Section
+        Contains reference information on every aspect of Turbo Vision, 
+        including object types, global variables, type declarations, constants, 
+        plus examples and an overview of commonly used features.
+
+
+=head2 Chapter 7, 8, 9 and 10
+
+The Turbo Vision Reference (continued)
+
+=over 4
+
+=item Chapter 7
+
+28 pages.
+
+=item Chapter 8
+
+42 pages.
+
+=item Chapter 9
+
+40 pages.
+
+=item Chapter 10
+
+37 pages.
+
+=back

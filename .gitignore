@@ -37,7 +37,8 @@ inc/
 /*.zip
 
 # Documents
-/doc/
+/doc/_*
+/doc/*.pdf
 
 # Sources
 /lib/_*
@@ -53,8 +54,13 @@ inc/
 *.code-workspace
 
 # Devel
-/trial/
+/trial/_*
+/trial/*.pl
+/trial/rt*.t
 test.bin
 
 # perltidy
 .perltidyrc
+
+# Spelling
+.cspell

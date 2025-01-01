@@ -1,0 +1,2183 @@
+				   Chapter 4
+				 - continued -
+			     - Part 2 of 2 parts -
+                                    of the
+                            Turbo Pascal Reference
+
+			  The System Library Reference
+
+
+This chapter is part of the Turbo Pascal Reference electronic freeware book (C)
+Copyright 1992 by Ed Mitchell.  This freeware book contains supplementary
+material to Borland Pascal Developer's Guide, published by Que Corporation,
+1992.  However, Que Corporation has no affiliation with nor responsibility for
+the content of this free book.  Please see Chapter 1 of the Turbo Pascal
+Reference for important information about your right to distribute and use this
+material freely.  If you find this material of use, I would appreciate your
+purchase of one my books, such as the Borland Pascal Developer's Guide or
+Secrets of the Borland C++ Masters, Sams Books, 1992.  Thank you.
+
+
+IOResult function
+----------------------------------------------------------------
+Declaration:  
+     function IOResult : Word;
+
+Example:
+     repeat
+       Writeln( 'Enter name of file to open:' );
+       Readln( FileName );
+       {$I-}
+       Assign( F, FileName );
+       Reset( F );
+       {$I+} { I usually leave $I- set for the duration of my
+              programs }
+       ErrorCode := IOResult;
+       if ErrorCode <> 0   then
+       begin
+          Writeln('Unable to open file ', FileName );
+       end;
+     until  ErrorCode = 0;
+
+Purpose:
+     IOResult returns the error code of the last input/output operation.  To
+use IOResult, you must disable automatic IOResult checking by writing {$I-}
+before performing an I/O operation.  Then, after each I/O operation you can
+manually check the result code returned by IOResult, and take appropriate
+action.
+     Normally, you should copy the value of IOResult to a temporary variable,
+like this:
+
+     ErrorCode := IOResult;
+     If ErrorCode <> 0 then {take action}
+
+While you can check IOResult directly, IOResult resets the last error condition
+to zero when called.  This means if you check the value of  IOResult in an
+if-then statement, and then in the process of handling the error you again
+reference IOResult, the value returned will now be 0! Trying to track this type
+of problem is a bit maddening until you realize that IOResult returns the
+current error code and then resets itself to zero.
+
+
+
+Keep procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Keep(ExitCode: Word);
+
+Unit:       Dos
+
+Purpose:
+     Terminates a program but leaves the program resident in memory.  Such a
+program is a TSR program, which must latch itself onto a interrupt to be
+"revivied", and which must  be aware of the other considerations that apply to
+a TSR program (such as avoiding DOS reentrant code and so on).  The ExitCode
+parameter value is passed to the Halt standard procedure for indicating an
+error condition.  DO NOT use this procedure unless you know what you are doing!
+ You can learn how to write a TSR program entirely in Turbo Pascal by reading
+Chapter 9, "Special Programming Techniques:  8087 Usage, Interrupts and TSRs",
+in the Borland Pascal Developer's Guide, from Que Books.
+
+
+
+KeyPressed function
+----------------------------------------------------------------
+Declaration:  
+     function KeyPressed : Boolean;
+
+Unit:       Crt
+
+Example:
+
+     repeat
+       { Do any operations repeatedly here }
+     until KeyPressed;
+
+Purpose:
+     KeyPressed returns True if a keyboard character has been typed, False
+otherwise.  KeyPressed is useful for executing a section of code until a
+character is typed at the keyboard.  KeyPressed only tells you that 1 or more
+characters have been typed; you need to call Read, Readln or ReadKey to read
+the input.
+See ReadKey
+
+
+
+Length function
+----------------------------------------------------------------
+Declaration:  
+     function Length ( S : String );
+
+Example:
+
+     Writeln( Length ('ABCDEFGHIJKLMNOPQRSTUVWXYZ') );
+
+outputs,
+
+     26
+
+Purpose:
+     Length(S) returns the current value of the length byte of S, which is the
+actual length of the string that is stored in S.  SizeOf returns the total
+storage occupied by S.  If, for example, S is declared as,
+     var
+       S : String[80];
+then SizeOf(S) returns 81 (80 bytes plus the length byte), and Length(S)
+returns a value from 0 to 80, depending upon the current contents of the
+string.
+See SizeOf
+
+
+
+Ln function
+----------------------------------------------------------------
+Declaration:  
+     function Ln( X : Real );
+
+Purpose:
+     Returns the natural logarithm of X.  To compute the base 10 logarithm of
+an expression, define a new function like this:
+     function Log10 ( X : Real ): Real;
+     begin
+       Log10 := Ln(X) / Ln(10);
+     end;
+See Exp
+
+
+Lo function
+----------------------------------------------------------------
+Declaration:  
+     function Lo(X): Byte;
+
+Purpose:
+     Returns the low byte of X, where X is either an Integer or Word value. 
+Thefunction Hi(X) returns the corresponding high byte.
+See Hi, Swap
+
+
+
+LowVideo procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure LowVideo;
+
+Unit:       Crt
+
+Purpose:
+     Performs the inverse of HighVideo by subtracting 8 from the text
+attribute's foreground color, translating color values in the range 8 to 15
+down to 0 to 7.  See HighVideo for more details.
+See HighVideo, NormVideo, TextColor
+
+
+
+Lst file
+----------------------------------------------------------------
+Declaration:  
+     Lst : Text;
+
+Unit:       Printer
+
+Purpose:
+     The Printer unit provides a special Lst file identifier for easy printer
+output.  All you need do to use Lst, is use the Printer unit in your program or
+unit's uses statement.  Thereafter, to send output to the printer, specify Lst
+as the file identifier in your Write or Writeln statements.  You do not need to
+open or close the printer as this is handled automatically by the Printer
+unit's internal initialization section.
+See Write, Writeln
+
+
+
+Mark procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Mark (var P: Pointer);
+
+Purpose:
+     Copies the current value of the heap pointer to P.  Mark, together with
+Release, enable you to dynamically allocate a group of objects, and then
+dispose of them in a single call to Release.  See "The Use of Mark and Release
+Procedures" in Chapter 3, for full details.
+
+
+
+MaxAvail function
+----------------------------------------------------------------
+Declaration:  
+     function MaxAvail : Longint;
+
+Purpose:
+     During program execution, the heap memory area may become fragmented with
+blocks allocated here and there.  By calling MaxAvail you can determine the
+size, in bytes, of the largest free block available for allocation.  A related
+function, MemAvail, returns the total number of free bytes available in the
+heap.
+
+
+
+MemAvail function
+----------------------------------------------------------------
+Declaration:  
+     function MemAvail : Longint;
+
+Purpose:
+     Returns the total number of free bytes in the heap.  Note that you may not
+be able to allocate a dynamic variable as large as MemAvail because the heap
+may be fragmented.  You can determine the largest possible free block by
+calling MaxAvail.
+     A common use for MemAvail is to periodically check your memory allocation
+and deallocation.  If you find that MemAvail is constantly increasing durng
+program execution, you may be dynamically allocating a variable and never
+disposing of the memory block.  Eventually, your program will run out of memory
+and be halted.
+     You may also wish to place MemAvail checks at key points within your
+program.  For example, before calling a procedure that makes a large number of
+dynamic memory allocations, save the contents of MemAvail in another variable. 
+Then, upon return from the procedure, compare MemAvail to the saved value.  If
+they are not the same, this is a sign that somewhere within the called
+procedure, or perhaps a procedure called by it, memory is not being properly
+disposed.
+
+
+
+Mkdir procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure MkDir(S: String);
+
+Example:  
+var
+     DirName : String;
+     ErrorCode : Integer;
+begin
+     repeat
+       Write('Enter name of directory to make: ');
+       Readln( DirName );
+       if  DirName <> ''  then
+       begin
+          {$I-}
+          MkDir ( DirName );
+          ErrorCode := IOResult;
+          if ErrorCode <> 0 then
+            Writeln('Error creating directory ', DirName )
+          else
+            Writeln('Directory ', DirName, 
+              ' has been created.');
+       end;
+     until DirName = '';
+end.
+
+Purpose:
+     To create or make a subdirectory, call MkDir, setting the parameter S to
+the name of the directory to create.  S may specify a full path, such as
+'C:\TP\UTILS\GRAPHICS' or a simple directory name such as 'GRAPHICS' which
+creates subdirectory 'GRAPHICS' in the current subdirectory.  
+     The directory name specified may not be the name of an existing file.  You
+can check for errors by setting {$I-} and examining the value returned by
+IOResult.
+
+
+
+Move procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Move (var Source, Dest; Count : Word);
+
+Example:
+   1  { DEMOMOVE.PAS }
+   2  program MoveDemo;
+   3  { Demonstrates how Move procedure can be used to move large numbers
+   4  of bytes around inside an array.  This demo stores lines of text
+   5  into a large TextArray.  New lines are added by calling AddLine, which
+   6  calls MakeAHole to slide the existing data in the TextArray to make
+   7  room for new text.  AddLine then uses Move to copy the string data
+   8  into TextArray.  Data is fetched using the procedure GetLine.
+   9    The variable CurSize keeps track of how many bytes of TextArray are
+  10  currently in use.  CurLocation keeps track of the current position; if we
+  11  were writing a text editor based on this approach, CurLocation would
+index
+  12  into TextArray where the editor's cursor appears on the screen.  In other
+  13  word, the next new line that we type would be inserted at CurLocation.
+  14  }
+  15  
+  16  const
+  17    MaxSize = 32000;
+  18    MARKER = 13;
+  19  
+  20  var
+  21    TextArray : Array[0..MaxSize] of Char;
+  22    CurSize : Word;
+  23    CurLocation : Word;
+  24  
+  25  
+  26  procedure MakeAHole ( Address : Word; Size : Word );
+  27  { Slides data in the TextArray sideways, leaving a "hole" to fill
+  28  with new data }
+  29  begin
+  30    Move( TextArray[Address], TextArray[Address+Size], CurSize - Address +
+1 );
+  31  end;
+  32  
+  33  
+  34  
+  35  procedure AddLine ( var Address : Word; S : String );
+  36  { Adds the contents of S to the TextArray, starting at location Address }
+  37  var
+  38    NumBytes : Integer;
+  39  begin
+  40    NumBytes := Length(S) + 1;
+  41    S[0] := Chr(MARKER);
+  42    MakeAHole ( Address, NumBytes );
+  43    Move( S[0], TextArray[Address], NumBytes );
+  44    CurSize := CurSize + NumBytes;
+  45    Address := Address + NumBytes;
+  46  end;
+  47  
+  48  
+  49  
+  50  procedure GetLine ( Address : Word; var S : String );
+  51  { On entry, Address points to a MARKER character in the text array. 
+GetLine
+  52  copies the text between this marker and the next marker (or end of array)
+  53  to S. }
+  54  var
+  55    TempAddr : Word;
+  56  begin
+  57    TempAddr := Address + 1;
+  58    while (TempAddr <= CurSize) and
+  59          (TextArray[TempAddr] <> Chr(MARKER)) do
+  60      Inc(TempAddr);
+  61    Move ( TextArray[Address+1], S[1], TempAddr - Address );
+  62    S[0] := chr( TempAddr - Address );
+  63  end;
+  64  
+  65  
+  66  procedure MoveAhead (var Address : Word );
+  67  { Where address points to some location in TextArray, MoveAhead positions
+  68  Address to the index location of the next Marker character. }
+  69  begin
+  70    if  TextArray[Address] = chr(MARKER)  then
+  71      Inc(Address);
+  72    while (Address <= CurSize) and
+  73          (TextArray[Address] <> Chr(MARKER)) do
+  74      Inc(Address);
+  75  end;
+  76  
+  77  
+  78  var
+  79    I : Integer;
+  80    ALine : String;
+  81  
+  82  begin
+  83    CurSize := 0;
+  84    CurLocation := 0;
+  85  
+  86    { Add some sample data into TextArray }
+  87    AddLine ( CurLocation, 'Line 1 I''m the first line of data');
+  88    AddLine ( CurLocation, 'Line 2 and I''m the second!');
+  89    AddLine ( CurLocation, 'Line 3 The quick brown fox jumped over the');
+  90    AddLine ( CurLocation, 'Line 4 lazy brown dog and fell and hurt
+herself.');
+  91  
+  92    CurLocation := 0;
+  93    MoveAhead ( CurLocation );
+  94    AddLine ( CurLocation, 'One more line!!!!!');
+  95  
+  96    CurLocation := 0;
+  97    for I := 1 to 5 do
+  98    begin
+  99      GetLine ( CurLocation, ALine );
+ 100      Writeln( ALine );
+ 101      MoveAhead ( CurLocation );
+ 102    end;
+ 103  
+ 104    readln;
+ 105  end.
+
+Purpose:
+     Move copies a block of bytes of Count size from Source to Dest.  Move uses
+optimized assembly language to provide extremely fast copies of potentially
+large amounts of data and is particular useful for sliding values around inside
+large text arrays, such as might be used in a text editor (see example, above).
+
+Important! Range Checking!
+     Move does not perform range checking.  You may, for instance, move 30,000
+bytes into a 255 character string.  And Move will go ahead and do just that,
+writing over portions of your run-time stack, other variables, and generally
+anything else that gets in the way.  So be careful!
+
+
+
+MsDos procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure MsDos (var Regs: Registers );
+
+Unit:       Dos
+
+Example:
+     uses
+       Dos;
+     var
+       Reg : Registers;
+     begin
+       { Call the DOS Int 21H Function 0EH Select Disk function
+       to determine
+       the maximum number of drives permitted for the system;
+       this
+       is equivalent to the number of logical drives on the
+       system, or
+       the LASTDRIVE value in the CONFIG.SYS file, or a default
+       of 5
+       if LASTDRIVE (approximately) }
+       Reg.AH := $0E;
+       Reg.DL := $00;
+       MsDos( Reg );
+       Writeln( 'Total Drives=', Reg.AL );
+     end.
+
+Purpose:
+     MsDos access the DOS-functions available through software interrupt 21H. 
+While most of the especially useful DOS-level functions are available through
+Turbo Pascal library routines such as GetFTime, SetDate, and so on, you can
+access some of the other functions using the MsDos procedure call mechanism. 
+The variable parameter Regs defines a case variant record structure for
+representing the CPU registers, where Register is defined as:
+
+type
+     Registers = record
+       case Integer of
+          0: (AX, BX, CX, DX, BP, SI, DI, DS, ES, Flags: Word);
+          1: (Al, AH, BL, BH, CL, CH, DL, DH: Byte);
+     end;
+
+Note that the SS and SP registers are not available in this structure and
+cannot be used in conjunction with MsDos calls.  For complete details on DOS
+function calls, see DOS Programmer's Reference, by Terry Dettmann and Jim Kyle
+(Que Books, 1989).
+
+
+
+New procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure New( var P: Pointer [, Init: constructor ] );
+
+Example:
+     See "The Pointer type" in Chapter 3 of the Turbo Pascal Reference.
+
+Purpose:
+     Dynamic variable allocations and dynamic object creations are performed
+with New.  New allocates a memory block, from the heap memory area, and sets P
+to point to the memory block.  If P points to an object, you can optionally add
+the name of the object's constructor method and it will be called immediately
+after the memory is allocated.  This provides a short hand method of
+simultaneously allocating and initializing the object's fields and virtual
+method table.
+     The New procedure may fail if there is insufficient memory in the heap to
+allocate the new block.  Normally, this results in a run-time error that
+terminates the program.  However, by setting the HeapError variable to point to
+your own heap error handler, your program can take steps to gracefully recover
+from out of memory conditions.  See HeapError in this section, and chapter 3,
+"Pointers and Memory Management" for tips on trapping the out of memory error
+condition.
+     You must make certain that you dispose of allocated memory blocks once
+they are no longer needed (see Dispose).  If you fail to dispose of a memory
+block it continues to occupy memory space and can contribute to your program's
+running of out memory.
+     Since a pointer variable "points" to a memory block, you reference the
+thing that P points to by typing P^.  This is described in chapter 3.  
+See Dispose, FreeMem, GetMem
+
+
+
+NormVideo procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure NormVideo;
+
+Unit:       Crt
+
+Purpose:
+     Resets the current text attribute to the original text attribute that was
+in use when the program was launched.  Specifically, when the program is
+started, the value of the text attribute where the cursor is located is saved. 
+You can use NormVideo to restore this original text attribute at program exit. 
+By doing so, the screen image will be reset to whatever screen attributes were
+in effect when the program was started (or specifically, the screen attribute
+at the cursor's location when the program was started).
+See HighVideo, LowVideo, TextBackground, Textcolor
+
+
+
+NoSound procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure NoSound;
+
+Unit:       Crt
+
+Purpose:
+     NoSound is used in conjunction with the Sound procedure.  Sound turns on
+the speaker and emits a user selected tone.  To turn off the speaker, call
+NoSound.
+See Sound
+
+
+
+Odd function
+----------------------------------------------------------------
+Declaration:  
+     function Odd( X: Longint ): Boolean;
+
+Purpose:
+     Odd returns True if its parameter is an odd number, or False if its
+parameter is an even number.  Sort of an odd function.
+
+
+
+Ofs function
+----------------------------------------------------------------
+Declaration:  
+     function Ofs( X ): Word;
+
+Purpose:
+     Where X is any type of variable, Ofs(X) produces the offset portion of the
+variable's address.  All 80x86 addresses consist of a segment:offset word pair.
+The two values are added together to produce the actual physical memory
+address.  To find the corresponding segment value, call Seg(X).
+See Addr, Seg
+
+
+
+Ord function
+----------------------------------------------------------------
+Declaration:  
+     function Ord( X ): Longint;
+
+Example:
+     var
+       I : Integer;
+       S : String;
+     ...
+     { Convert all upper case letters to lower case letters }
+     for I := 1 to Length(S) do
+       if (S[I]>='A') and (S[I]<='Z')  then
+          S[I] := Chr( Ord(S[I]) + 32 );
+
+Purpose:
+     Ord translates its parameter X to a Longint value reprsenting X's
+ordinality.  For example, Ord('A') returns a value of 65, because A is the
+sixty-fifth value in the set of characters (this also coincides with 'A's ASCII
+code value).  The sample code shown above uses Ord to convert a character value
+to its ASCII code.  Since the capital letter 'A' has an ASCII value of 65, and
+the lower case letter 'A' has an ASCII code of 97, adding 32 to the ordinal
+value of a character is equivlant to converting the character to lower case. 
+Chr converts the integer result back to a character value.
+If you have an ordinal type declared as,
+     type
+       DaysOfTheWeek= (Sun,Mon,Tue,Wed,Thu,Fri,Sat);
+     var
+       Day : DaysOfTheWeek;
+
+And then the code, 
+
+     Day := Tue;
+     Writeln(Ord(Day));
+
+The output will be:
+     2
+since the ordinal values of DaysOfTheWeek are:
+     Sun  0
+     Mon  1
+     Tue  2
+     Wed  3
+     Thu  4
+     Fri    5
+     Sat    6
+
+
+
+PackTime procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure PackTime(var DT: DateTime; var Time: Longint);
+
+Unit:       Dos
+
+Example:
+     uses dos;
+     var
+       F : Text;
+       LFileInfo : Longint;
+       DFileInfo : DateTime; { declared in Dos unit }
+     begin
+       Assign( F, 'FSEARCH.PAS' );
+       Reset( F );
+       GetFTime ( F, LFileInfo );
+       UnpackTime ( LFileInfo, DFileInfo );
+       with DFileInfo do
+          Writeln(Month, '-', Day, '-', Year,
+            '  ',Hour:2,':',Min:2,':',Sec:2);
+
+       { Change file's date to 1992 }
+       DFileInfo.Year := 1992;
+       PackTime ( DFileInfo, LFileInfo );
+       SetFTime ( F, LFileInfo );
+       Readln;
+      end.
+
+Purpose:
+     PackTime converts a date and time record DT, containing individual values
+for Year, Month, Day, Hour, Min and Sec, into a 4 byte Longint reprsentation
+and returns the result in parameter variable Time.
+     PackTime is used with UnpackTime, for encoding and decoding the date and
+time data returned or set by GetFTime and SetFTime, respectively. You can write
+a program, such as the sample program above, to pre- or post-date files, as
+needed.  When that important project needs to be done on a Friday and you find
+yourself feverishly coding through late weekend hours, you still might be able
+to convince your boss that you really did finish the job on Friday!
+See GetFTime, SetFTime, UnpackTime
+
+
+
+ParamCount function
+----------------------------------------------------------------
+Declaration:  
+     function ParamCount : Word;
+
+Purpose:
+     When you start up a program from the DOS command line, you can add a
+number of comand line parameters that are accessible from your program (see
+ParamStr).  ParamCount returns the total number of command line parameters
+entered on the command line.
+
+
+
+ParamStr function
+----------------------------------------------------------------
+Declaration:  
+     function ParamStr( Index: Word ) : String;
+
+Purpose:
+     When you start up a program from the DOS command line, you can add a
+number of comand line parameters that are accessible from your program.   These
+command line parameters might be filenames, starting directories or any other
+values that your application requires.  For example, the command line compiler
+TPC has a large variety of command line options that may be specified when
+starting the compiler.  Inside your application, you can fetch each of the
+command line parameters by calling ParamStr and setting Index to choose a
+particular parameter.
+     Normally, you should restrict the value of Index to the range of 1 to
+ParamCount, where ParamCount returns the total number of command line
+parameters.  Invalid values for Index result in a null string being returned by
+ParamStr.  On DOS 3.0 and later, ParamStr(0) provides the name of the program
+that is currently executing.  ParamStr(0) is especially useful when an
+application must find the subdirectory from where it was launched.
+See ParamCount
+
+
+
+Pi function
+----------------------------------------------------------------
+Declaration:  function Pi : Real;
+
+Purpose:
+     Pi returns the constant value 3.1415926535897932385, where the exact
+precision depends on the math emulation or math processor mode that is in use.
+
+
+
+Port/PortW pseudo arrays
+----------------------------------------------------------------
+Declaration:  
+When used for output:
+     Port[ Index ] := <byte valued expression>
+     PortW[ Index ] := <word valued expression>
+       
+When used for input:
+     <Result> := Port[ Index ];
+     <Result> := PortW[ Index ];
+
+Example:
+     { Assign the value of Databyte to I/O address $3F8 }
+     Port[$3F8] := Databyte;
+
+Purpose:
+     Port and PortW act like arrays whose index corresponds to a hardware I/O
+port.  The index value ranges from 0 up to 65,535.  By using Port for byte
+values and PortW for word values, these pseudo-array variables are used to
+write high level language implementations of hardware device drivers, such as
+serial port access routines. PortW is used to access a word value.
+     Port and PortW are not really arrays but Pascal level access mechanisms
+for the low-level data ports.  As such, Port and PortW should only be used to
+the left of an assignment statement or as a component in an expression.  They
+cannot be used as variable parameters to any procedure or function.
+
+
+
+Pos function
+----------------------------------------------------------------
+Declaration:  
+     function Pos ( Substr, S: String ): Byte;
+
+Example:
+
+     { This examples uses the Pos() function to implement
+       a string replacement routine }
+
+     function Replace ( SearchFor, ReplaceWith, 
+            InThis : String ): String;
+     { Finds every occurrence of SearchFor within InThis, and
+     changes each occurrence to the value of ReplaceWith.
+     This function solves the problem recursively.  Once it finds
+     an occurrence of SearchFor, it makes the first replacement
+     and then calls itself on the remainder of the string.}
+     var
+       Index : Integer;
+     begin
+       Index := Pos (SearchFor, InThis);
+       if  Index > 0  then
+          Replace := Copy ( InThis, 1, 
+                 Pos(Searchfor, InThis) - 1) +
+                 ReplaceWith +
+                 Replace( SearchFor, ReplaceWith,
+                 Copy( InThis, Index + Length(Searchfor),255 ));
+       else
+          Replace := InThis;
+     end;
+
+Example Usage of Replace:
+
+     Writeln(
+     Replace('e', '*',
+        'The quick brown fox jumped over the lazy dog.');
+
+outputs,
+
+     Th* quick brown fox jump*d ov*r the lazy dog.
+
+Purpose:
+     When you need to search for a substring within another string, use the Pos
+function.  Pos scans through string S searching for an occurrence of Substr. 
+Iffound, Pos returns the character index in S where Substr begins. If not
+found, Pos returns 0.
+     The example function Replace, above, is a handy routine to perform a "find
+and replace" operation on strings.  Replace uses Pos to find the first
+occurence of the Searchfor string, replaces it with ReplaceWith, and then calls
+Replace recursively to change the remainder of the string.
+
+
+
+Pred function
+----------------------------------------------------------------
+Declaration:  
+     function Pred( X ) : <same type as X>;
+
+Example:
+     type
+       DaysOfTheWeek= (Sun,Mon,Tue,Wed,Thu,Fri,Sat);
+     var
+       Day : DaysOfTheWeek;
+     ...
+     Day := Tue;
+     Day := Pred( Day );      { Sets Day to Mon }
+
+Purpose:
+     Pred(X) sets X to the predecessor value in the ordinal valued set from
+which X is derived.   In the case of an integer or word value, Pred is
+equivalent to the Dec function.  Some additional examples:
+     Pred(10) = 9
+     Pred('B') = 'A'
+See Dec, Inc, Succ
+
+
+
+PrefixSeg variable
+----------------------------------------------------------------
+Declaration:  
+     PrefixSeg: Word = 0;
+
+Purpose:
+     PrefixSeg contains the segment address of the Program Segment Prefix
+(PSP).  The PSP contains information about the program loaded in memory,
+including the command line that was used to load the program (so the program
+can access command line parameters), pointers to the memory blocks used by the
+program and other information.  PrefixSeg is used in the example TSR program
+shown in Chapter 11 of this book.  For further details about the data contained
+in the PSP, consult Appendix F of DOS Programmer's Reference, 2nd edition, Que
+Books, 1989.  
+
+
+
+Ptr function
+----------------------------------------------------------------
+Declaration:  
+     function Ptr( Seg, Ofs : Word) : Pointer;
+
+Example:
+     { Using Ptr to manufacture a pointer into the DOS data area
+     to obtain the number of Kbytes of low memory available to
+     DOS.  On most systems today, this will always 
+     be 640k bytes. }
+     var
+       DOSMemory : word;
+     begin
+       DOSMemory:= Word(Ptr( $40, 19 )^);
+       Writeln('Low DOS Memory, in k bytes=', DOSMemory);
+     end.
+
+Purpose:
+     Ptr is used to create a pointer to a specific memory address, specified by
+Seg:Ofs.
+
+
+
+Random function
+----------------------------------------------------------------
+Declaration:  
+     function Random [ (Range: Word) ] : Word
+or
+     function Random [ (Range: Word) ] : Real;
+
+Example:
+     { On an EGA or VGA monitor, randomly rearrange the colors in
+     the palette }
+     Randomize;
+     repeat
+       SetPalette( Random(GetMaxColors), Random(GetMaxColors));
+       Delay ( 50 );
+     until Keypressed;
+
+Purpose:
+     Random produces a pseudo-random sequence of numbers.  In its default
+usage, Random returns a Real random value between 0 and 1 ( 0<= Random < 1). 
+Each subsequent call to Random returns another number in the pseudo-random
+sequence.
+     If you specify a Range value, Random returns a Word value betetween 0 up
+to Range ( 0<= Random < Range).  For instance, Random(10) returns random values
+in the range of 0 to 9.
+     The specific sequence generated by Random depends upon the initial value
+of the RandSeed variable, which is set by Randomize.  If you do not call
+Randomize at the start of your program, every time that your program executes
+it will generate the same random number sequence.
+
+
+
+Randomize procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Randomize;
+
+Purpose:
+     Randomize sets the RandSeed variable to a value translated from the
+current system clock time.  Generally you will wish to call Randomize at the
+start of your program.  If you do not call Randomize, your program will
+generate the same random number sequence each time that it is executed.   You
+can select a specific random number sequence by initializing the RandSeed
+variable to a value of your own choosing.  See the description of RandSeed.
+
+     
+
+RandSeed variable
+----------------------------------------------------------------
+Declaration:  
+     RandSeed : Longint;
+
+Example:
+
+     RandSeed := 99879;
+     repeat
+       SetPalette( Random(GetMaxColors), Random(GetMaxColors) );
+       Delay ( 50 );
+     until Keypressed;
+
+Purpose:
+     RandSeed contains the random number generator seed value.  By explicitly
+setting RandSeed to a value of your choosing, you can repeatedly generate the
+same random number sequence.  
+
+
+
+Read procedure
+----------------------------------------------------------------
+Purpose:
+     The Read procedure inputs values from the keyboard or text file and
+assigns the values to variables.  When used on typed files, Read reads the next
+file component into a variable.
+     By setting {$I-}, you can manually check for errors that may occur when
+reading data by checking the result code from IOResult.
+
+Text files
+Declaration:  
+     procedure Read( [var F: Text; ] V1 [, V2, ..., Vn ] );
+
+Description:
+     When reading data from a text file or the system input (keyboard) file,
+the behavior of Read depends on the data type of the variables to receive the
+data and the position of the file pointer (for example, at end of file).  The
+basic operation is to copy data from the input, convert if necessary to the
+appropriate format, and place into one of the parameter variables.  Read may
+have from 1 to many variables specified, and the variable type may be different
+for each of the variables.  For example, to read 2 integers and a single real
+value, write:
+     var
+       N1, N2 : Integer;
+       X : Real;
+     ...
+     Read( N1, N2, X );
+
+You should type the response to this input using blanks, tabs or the Enter key
+to separate each of the values, such as,
+     57 68 2345.987
+Interestingly, you may use the Enter key to separate each value, such as,
+     57 <Enter>
+     68 <Enter>
+     2345.987 <Enter>
+
+Important!  The Dangling Enter key!
+     In the previous example, the last <Enter> remains in the input buffer. 
+Forthis reason, when reading input from the keyboard, it is recommended that
+you use the Readln procedure instead of Read.  Readln behaves identically to
+Read except that Readln swallows and disgards the Enter key.
+     From a user interface perspective, it would be preferable to allow numeric
+input values to be separated by the comma "," character.  Unfortunately, Readln
+does not support this capability.
+     The details of how Read performs on the various data types are described
+in the following sections.  Also see the closely related procedure, Readln, and
+the output procedures Write and Writeln.
+
+
+String
+     Read copies input characters to the string variable, until it encounters
+an end-of-line or end-of-file condition.  The end-of-line character is never
+included in the data copied to the string variable.  When reading data from a
+text file, the next Read operation begins at the previous end-of-line
+character.  Thinking that it is at the end of another line, Read returns a null
+string.  The result of this is that Read only reads the first line and then
+gets stuck on the end-of-line character.  The solution is to use Readln for
+reading successive lines of text.
+     If the input line exceeds the defined maximum length for the string
+variable, then only that portion of the text that will fit is read into the
+string variable.  The remaining text out to the next end-of-line character is
+disgarded.
+
+Integer
+     When reading integer values to an integer variable, Read skips over
+leading blanks and tabs and then reads until encountering the next blank, tab,
+end-of-line character or end-of-file.  The characters that is has read are then
+converted to an integer value.  If these characters do not correspond to the
+proper format for an integer, an error condition occurs.  You can trap these
+errors by setting {$I-} and checking the value of IOResult.  
+     If the end-of-file is reached while reading the characters that make up an
+integer value, then the integer value is set to 0.
+
+Real
+     When reading real number values to a real variable, Read skips over
+leading blanks and tabs and then reads characters until encountering the next
+blank, tab, end-of-line character or end-of-file.  The characters that it has
+read, assuming that they correspond to the proper format for a real constant
+are then converted to a real value and assigned to the variable.  If the
+characters have an invalid format for a real constant, then an error occurs.
+
+Char
+     Read (Ch), where Ch is a Char data type, reads the next single character
+from the file and copies the character to Ch.  If the file is positioned at the
+end of file, Ch is set to Chr(26) to mark the end-of-file.  If the file pointer
+is positioned on an end-of-line character, then Ch is set to Chr(13).  Note
+that while you can use Read(Ch) to read an individual character from the
+standard input or keyboard, you must still press the Enter key to terminate the
+input.  If you wish to read invididual keystrokes without having to press
+Enter, use the ReadKey function.
+
+
+Typed files
+Declaration:  
+     procedure Read ( F, V1 [, V2, ..., Vn ] );
+
+Description:
+     In this form, Read is used to read individual recordor (or file
+components) from a disk file.  You can read the data in the file sequentially,
+by specifying multiple data values, or by repeatedly calling Read.  After each
+record is read, the file pointer is advanced to the next record in the file. 
+Toread records at random locations, call Seek to reposition the file pointer to
+a new location in the file.  As with all I/O operations, you can manually check
+for I/O errors by setting the {$I-} compiler option and checking the result
+value returned by IOResult.
+     For further information on record file operations, see chapter 3, "Disk
+File operations".
+See Seek, Write
+
+
+
+ReadKey function
+----------------------------------------------------------------
+Declaration:  
+     function ReadKey : Char;
+
+Unit:       Crt
+
+Example:
+
+   1  { KEYTEST.PAS }
+   2  Program KeyTest;
+   3  Uses
+   4    Crt;
+   5  Var
+   6   Code : Integer;
+   7  
+   8  
+   9  Function GetKey : Integer;
+  10  { Pauses for input of a single keystroke from the keyboard and returns
+  11    the ASCII value.  In the case where an Extended keyboard key is
+pressed,
+  12    GetKey returns the ScanCode + 256.  The Turbo Pascal ReadKey function
+  13    is called to perform the keystroke input.  This routine returns a 0
+  14    when an Extended key has been typed (e.g. left or right arrow) and we
+  15    must read the next byte to determined the Scan code.
+  16  }
+  17  Var
+  18    Ch : Char;
+  19  Begin
+  20    Ch := ReadKey;
+  21    If Ord(Ch) <> 0 Then
+  22      GetKey := Ord(Ch)   { Return normal ASCII value }
+  23    Else
+  24    Begin
+  25      { Read the DOS Extended SCAN code that follows }
+  26      GetKey := Ord(ReadKey) + 256;
+  27    End;
+  28  End;{GetKey}
+  29  
+  30  Begin
+  31  Repeat
+  32    Code := GetKey;
+  33    Writeln(Code);
+  34  Until Code = 27;
+  35  End.
+
+Purpose:
+     If a key has already been entered, ReadKey returns the key that was typed.
+Otherwise, ReadKey waits for a key to be pressed on the keyboard.  In both
+cases, the key that is entered is not echoed to the screen.
+     Normal characters having ASCII codes from 1 to 255 are returned by
+ReadKey.  However, the IBM PC supports additional character codes in order to
+recognize the function keys, Ins, Del, and so on.  When one of these extended
+keyboard characters is typed at the keyboard, ReadKey returns Chr(0) and you
+must then call ReadKey a second time to read the actual scan code.  The
+function GetKey, shown in the example above, provides a simple routine to read
+both normal and extended IBM keyboard values.
+
+
+
+Readln procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Readln( [var F: Text; ] [V1 , V2, ..., Vn ] );
+
+Purpose:
+     Readln is identical to Read except that after reading the input data,
+Readln causes the file pointer to advance to the start of the next line (just
+after the previous end-of-line marker).
+     Unlike Read, you can call Readln with no parameters and Readln disgards
+all input characters up to the next end-of-line.  Readln, without parameters,
+is often used to wait for the user to press the Enter key, like this:
+     Write('Press Enter to continue.');
+     Readln;
+
+
+
+Release procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Release (var P: Pointer);
+
+Purpose:
+     Release resets the top of heap pointer to the value in P, which should
+have been initialized previously with a call to Mark.  See "The Use of Mark and
+Release Procedures" in Chapter 3, "The Turbo Pascal Language" of the Turbo
+Pascal Reference.
+
+
+
+Rename procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Rename(var F; Newname : String );
+
+Example:
+     var
+       OldName: String;
+       NewName: String;
+       F: File;
+     begin
+       Write('Old filename: ');
+       Readln( OldName );
+       Write('New filename: ');
+       Readln( NewName );
+       Assign(F, OldName);
+       Rename(F, NewName );
+     end.
+
+Purpose:
+     With a filename assigned to file identifier F (using Assign), call Rename
+to change the name of the file to Newname.  F must not be open.  Interestingly,
+if NewName contains a directory name in addition to the filename, you can use
+Rename to move a file from one directory to another directory, with or without
+a name change.   Further, this move is nearly instantaneous, is handled
+internally by DOS shifting its internal file directory around, not by actually
+copying the entire file from one directory to another. For example, to move
+MYFILE from the current subdirectory to the \TOOLS subdirectory, write,
+     Assign( F, 'MYFILE' );
+     Rename( F, '\TOOLS\MYFILE' );
+
+
+
+Reset procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Reset (var F [: File; RecSize: Word] );
+
+Example:
+     See "Disk file operations" in Chapter 3, "The Turbo Pascal Language".
+
+Purpose:
+     Reset opens an existing file of any type for subsequent reading or writing
+of data and positions the file pointer to the beginning of the file.  In the
+case of text files, Reset sets the file to read-only; if you wish to write to a
+text file, use either Append or Rewrite to open the file.  Prior to calling
+Reset, you should assign a filename to the file identifier by calling Assign (a
+null filename '' may be used to open the standard input file).
+     The parameter RecSize may only be used with untyped files only and
+specifies a record size to be used when reading or writing blocks of data.  If
+unspecified, the default record size is 128 bytes.  See BlockRead/BlockWrite
+for additional details on block I/O.
+     If the file does not exist, Reset produces an I/O error that can be
+trapped by setting the {$I-} compiler directive and manually checking the
+IOResult return value.
+See Append, Assign, Close, Rewrite, Truncate
+
+
+
+Rewrite procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Rewrite (var F [: File; RecSize: Word] );
+
+Example:
+     See "Disk file operations" in Chapter 3, "The Turbo Pascal Language" of
+The Turbo Pascal Reference.
+
+Purpose:
+     Rewrite creates a new file.  Prior to calling Rewrite, you should call
+Assign to associate a filename (a null filename '' specifies the standard
+output file) with the file identifier F.  Rewrite creates a new disk file,
+erasing any previous file with the same name, and in the case of a text file,
+makes the file available for write-only access.
+     For untyped files, you can specify a record size parameter in RecSize (see
+BlockRead/BlockWrite).  If unspecified, the default record size is 128 bytes.
+See Append, Assign, Close, Reset, Truncate
+
+
+
+RmDir procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure RmDir ( S: String );
+
+Purpose:
+     Use RmDir to delete an existing - and empty of any files - subdirectory. 
+Sspecifies the name of the directory to delete.  If the directory still
+contains files, or if the directory does not exist, an I/O error occurs (use
+the {$I-} compiler directive and IOResult to check for errors).
+See MkDir
+
+
+
+Round function
+----------------------------------------------------------------
+Declaration:  
+     procedure Round ( X: Real );
+
+Example:
+     {Round the value of Pi to the nearest's thousandth's place }
+     Writeln( Round ( Pi * 1000 ) / 1000.0 );
+
+Purpose:
+     Where X is a real value, X is rounded to the nearest integer value.  When
+X is halfway between two integer values (e.g. 3.5), then X is rounded as
+follows:
+       If X > 0, then X is rounded up to the next integer value.  Examples: 3.5
+       becomes 4;  7.5 becomes 8.
+       if X < 0, then X is rounded down to the next integer value.  Examples: 
+       -3.5 becomes -4; -7.5 becomes 8.
+The code shown in the example above illustrates a method of using Round to
+round numbers to a particular number of decimal places.  In the example, the
+value of Pi, 3.1415926535.... is multiple by 1000, producing 3141.5926535.... 
+This value is then rounded to 3142.0, and divided by 1000.0, producing 3.142 as
+the value of Pi rounded to the thousandth's place.
+See Int, Trunc
+
+
+
+RunError procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure RunError [ ( ErrorCode: Byte ) ];
+
+Example:
+     
+     {$IFDEF Validate}
+     if (Temperature < 0.0) or (Temperature > 212.0)  then
+       RunError( TempOutOfRange );
+     {$ENDIF}
+
+Purpose:
+     RunError, like the Halt procedure, stops program execution.  RunError,
+however, generates a run-time error by setting ErrorAddr equal to the address
+of the statement that called RunError, and if specified, sets ExitCode to
+ErrorCode.
+     A good use for RunError is to assist in debugging your programs by placing
+internal consistency checks into your code.  For example, inside your code, you
+may wish to place special code to insure that values are always within their
+specified range, that pointers are non-nil, and so on.  An invalid value
+indicates that your program is not operating correctly, so you can call
+RunError to force an immediate halt to program execution.  Normally, you should
+place this type of check code inside of conditional compilation statements so
+that you can remove it from the final version of your program.
+See ErrorAddr, ExitCode, ExitProc, Halt
+
+
+
+Seek procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Seek(var F; N: Longint);
+
+Example:
+     Also see "Random Access Data Files" in Chapter 3, "The Turbo Pascal
+Language".
+
+     type
+       TDataRecord = record
+          Name        : String[20];
+          PhoneNumber : String[14];
+          Age         : Integer;
+          Available   : Boolean;
+       end;
+     var
+       RandomFile  : File of TDataRecord;
+       ...
+     Write('Enter number of record to edit:  ');
+     Readln( RecordNum );
+     Seek( RandomFile, RecordNum );
+     Read( RandomFile, DataRecord);
+     if  DataRecord.Available  then
+       Writeln('Record #', RecordNum, ' does not contain any data.');
+
+Purpose:
+     When performing random accesss to a disk file, Seek is used to position
+the file pointer of file F, to the Nth component of the file.  Another way of
+saying that is that Seek positions to the Nth record in the file.  The next
+read or write operation will be made to record N.
+     When you need to add new records to the end of a random access file, you
+can use Seek to position to the last record, plus 1.  This way the next write
+will append a new record to the end of the file.  A convenient way to access
+the last record is to write,
+     Seek ( F, FileSize(F) );
+since FileSize returns the current filesize in terms of file components or
+records.
+See FilePos, FileSize, Read, Reset, Rewrite, Write
+
+
+
+SeekEof function
+----------------------------------------------------------------
+Declaration:  
+     function SeekEof [  ( var F: Text ); ] 
+
+Purpose:
+     Text files often contain extra blanks, tabs or blank lines after the last
+useful data contained in the file.  For this reason, its possible that the
+Eof(F) function will return False, even though the next Read (F) will encounter
+an end of file condition.  The solution is to call SeekEof instead of Eof. 
+SeekEof skips ahead, past any blanks, tabs or blank lines to determine if the
+current file pointer is at the logical end of file.
+     Make sure that you use SeekEof only on open text files, and no other file
+types.  To manually check for file errors, set the {$I-} compiler directive and
+check IOResult.
+See Eof
+
+
+
+SeekEoln function
+----------------------------------------------------------------
+Declaration:  function SeekEoln[ (var F: Text); ]
+Purpose:
+     SeekEoln exists for the same reason as SeekEof (See SeekEof).  SeekEoln
+skips over trailing blanks and tabs in a line to locate the end-of-line marker.
+
+
+
+Seg function
+----------------------------------------------------------------
+Declaration:  
+     function Seg(X): Word;
+
+Purpose:
+     Computes and returns the segment part of the segment:offset address of X,
+where X is any identifier, including variables, procedures and functions.
+See Addr, Ofs
+
+
+
+SetCBreak procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetCBreak( Break: Boolean);
+
+Unit:       Dos
+
+Purpose:
+     The DOS operating system periodically checks for a the Ctrl-Break key
+combination being pressed during program execution.  As you know, pressing
+Ctrl-Break interrupts the flow of program execution.  However, the actual
+processing of the Ctrl-Break key depends on the state of a DOS internal
+variable.  GetCBreak returns the current state of this flag:  if set to True,
+DOS checks for Ctrl-Break at every DOS system call; if False, DOS checks only
+during input/output operations to the console (CON:), printer (LPT:) or
+communications ports (COMx:).  
+     You can set the state of the Ctrl-Break flag by calling SetCBreak and
+setting Break to True, to enable checking at each DOS system call; or False to
+restrict checking to input/output operations.
+See CheckBreak, GetCBreak
+
+
+
+SetDate procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetDate( Year, Month, Day: Word );
+
+Unit:       Dos
+
+Purpose:
+     Sets the DOS system date to the Year, Month and Day parameters, where Year
+should be in the range 1980 to 2099, Month in the range 1 to 12, and Day in the
+range 1 to 31.  SetDate does not return an error status; if the date values are
+erroneous, the new date is not set.
+See GetDate, GetTime, SetTime
+
+
+
+SetFAttr procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetFAttr (var F; Attr: Word );
+
+Unit:       Dos
+
+Example:
+Assign(F, 'SCRATCH.DAT' );
+GetFAttr( F, Attr );
+SetFAttr( F, Attr or Hidden ); { Make the file a hidden file }
+
+Purpose:
+     Every file on the system has associated with it a set of file attributes. 
+These attributes indicate if the file is read-only, hidden, or perhaps a
+directory name.  You can obtain a file's attribute settings by calling
+GetFAttr, where F is a file variable to which a filename has been assigned with
+Assign (but should not be open).
+     Using SetFAttr, you can change the file's attributes, as shown in the
+example above.  The bit pattern used for attributes is determined by these
+constants:  
+     ReadOnly    =  $01;
+     Hidden   =  $02;
+     SysFile     =  $04;
+     VolumeID =  $08;
+     Directory      = $10;
+     Archive     =  $20;
+     AnyFile     = $3F;
+AnyFile is typically used with FindFirst and FindNext and doesn't really have
+any use here except that it can be used to match any file attributes with an
+and operation.  
+     Combinations of attributes are set by or'ing the values together, as shown
+in the example above.  To get and set the file's access date and time, see
+GetFTime and SetFTime.
+
+     
+
+SetFTime procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetFTime( var F; Time: Longint );
+
+Unit:       Dos
+
+Example:
+
+     Assign( F, 'FSEARCH.PAS' );
+     Reset( F );
+     GetFTime ( F, LFileInfo );
+     UnpackTime ( LFileInfo, DFileInfo );
+     with DFileInfo do
+       Writeln(Month, '-', Day, '-', Year,
+          '  ',Hour:2,':',Min:2,':',Sec:2);
+
+     { Change file's date to 1992 }
+     DFileInfo.Year := 1992;
+     PackTime ( DFileInfo, LFileInfo );
+     SetFTime ( F, LFileInfo );
+
+Purpose:
+     Every file has associated with it, a date and time stamp indicating when
+the file was last written to.  You can fetch this date and time information by
+calling GetFTime (see GetFTime).  GetFTime returns the date and file time
+packed into a Longint value (see UnpackTime for converting the packed time
+format into individual date and time components).
+     The example, above, shows how to use SetFDate to output a new date and
+time stamp to the open file associated with F.  DFileInfo is declared as a DT
+record, where DT defines the fields, Month, Day, Year, Hour, Min, Sec.  After
+setting the field values, you must use PackTime to convert the record into a
+packed Loingint, prior to calling SetFDate.
+See GetFAttr, GetFTime, PackTime, SetFAttr, UnpackTime
+
+
+
+SetIntVec procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetIntVec( IntNo: Byte; Vector: Pointer);
+
+Purpose:
+     Places an address, Vector, in to the interrupt vector table at entry
+number IntNo, where IntNo is a value from 0 to 255.
+See GetIntVec
+
+
+
+SetTextBuf procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetTextBuf(var F: Text; var Buf [; Size: Word ] );
+
+Example:
+     (See GetMem for an example of a dynamically allocated text buffer).
+
+     Program SetTextBufDemo;
+     var
+       F : Text;
+       Buffer : Array[0..1023] of Char;
+       TextLine : String;
+
+     begin
+       Assign( F, 'TEMP.PAS' );
+       SetTextBuf( F, Buffer );
+       Reset( F );
+
+       while not Eof(F) do
+       begin
+          Readln( F, TextLine );
+          Writeln( TextLine );
+       end;
+
+       Close( F );
+     end.
+
+Purpose:
+     By default, all text files use an internal 128-byte buffer for reading and
+writing textual data to and from the disk.  For faster text file performance,
+programs can create their own text file buffer, of any appropriate size, by
+calling SetTextBuf and passing the name of the buffer as the Buf variable
+parameter.  By creating a larger text file buffer, such as 1,024 bytes, you
+will generally see a significant improvement in performance.  You don't need to
+specify the Size parameter; by default, SetTextBuf sets the internal text
+buffer size to SizeOf(Buf).  The new  buffer will be used until you close file
+F, or open a new file using the F file id.  After closing the file, be certain
+to properly dispose of the buffer, particularly if the buffer is a dynamic
+variable.
+
+Important!  Call SetTextBuf Before Calling Append, Reset, or Rewrite
+     As a rule of thumb, always call SetTextBuf just prior to calling Append,
+Reset or Rewrite.  While you can call SetTextBuf after opening a file, the act
+of switching text buffers can cause a potential loss of data.  So just don't do
+that!
+See "Disk file operations" in Chapter 3, or Append, Reset, Rewrite
+
+
+
+SetTime procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetTime(Hour, Minute, Second, Sec100: Word);
+
+Unit:       Dos
+
+Purpose:
+     Use SetTime to set the system clock.  If any of the values are out of the
+permissible ranges (0 to 23 for Hour, 0 to 59 for Minute and Second, and 0 to
+100 for Sec100), the time is not changed.
+See GetTime
+
+
+
+SetVerify procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SetVerify(Verify: Boolean);
+
+Unit:       Dos
+
+Purpose:
+     By calling SetVerify with Verify set to True, DOS will subsequently verify
+the accuracy of all disk write operations (by rereading the data it just
+wrote).  Since this is a time consuming operation, many applications will
+choose not to use this feature.  To turn off automatic verification, call
+SetVerify with Verify to False.
+
+
+
+Sin function
+----------------------------------------------------------------
+Declaration:  
+     function Sin ( X: Real ) : Real;
+
+Example:
+
+     GetAspectRatio ( Xasp, Yasp );
+     { Compute (X,Y) 10% further out than the radius. }
+     X := Round( 1.1 * Radius * Cos ( AngleInRadians ) );
+     Y := - Round( 1.1 * Radius * Sin ( AngleInRadians ) *
+            (Xasp/Yasp));
+
+Purpose:
+     Computes and returns the sine of X, where X is an angle measurement in
+radians.  Note that many of the graphics routines use an angle measurement in
+degrees. To convert from degrees to radians, divide the degree measurement by
+180 / Pi.
+See ArcCos/ArcSin, ArcTan, Cos, Tan
+
+
+
+SizeOf function
+----------------------------------------------------------------
+Declaration:  
+     function SizeOf( X ) : Word;
+
+Purpose:
+     SizeOf computes and returns the total memory storage, in bytes, of its
+parameter X, where X is either a variable or a data type.  SizeOf is frequently
+used when allocating memory blocks dynamically (such as GetMem ( PBuffer,
+SizeOf(Buffer) )) and elsewhere.
+
+
+
+Sound procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Sound(Hz : Word);
+
+Unit:       Crt
+
+Purpose:
+     Activates the PC's speaker, setting it to a tone having the frequency (in
+hertz or cycles per second) specified by Hz.  The only way to turn off the
+speaker, once activated, is to call NoSound.  Between calls to Sound and
+NoSound, use the Delay procedure to leave the speaker turned on for a set
+amount of time.
+See Delay, Sound
+
+
+
+SPtr function
+----------------------------------------------------------------
+Declaration:  
+     function SPtr : Word;
+
+Purpose:
+     Returns the value of 80x86 SP (stack pointer) register.  SP is always
+relative to the SS (Stack segment) register.
+See SSeg
+
+
+
+Sqr function
+----------------------------------------------------------------
+Declaration:  
+     function Sqr( X ) : <type of X>
+
+Purpose:
+     Returns X squared, which is equivalent to X * X.
+
+
+
+Sqrt function
+----------------------------------------------------------------
+Declaration:  
+     function Sqrt(X: Real) : Real;
+
+Purpose:
+     Where X is greater than or equal to 0, Sqrt(X) returns the square root of
+X.  Sqrt(X) if not defined for negatives values of X.
+
+
+
+SSeg function
+----------------------------------------------------------------
+Declaration:  
+     function SSeg: Word;
+
+Purpose:
+     Returns the current value of the SS or Stack Segment register of the CPU.
+See SPtr
+
+
+
+Str procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Str(X [: Width [:Decimals] ]; var S: String);
+
+Purpose:
+     When you need to convert a byte, integer, word, longint, or one of the
+real data types to a string representation, use the Str procedure, specifying
+an optional field Width and number of Decimals of accuracy.  For example,
+     Str( 3.14159, S );
+sets S equal to '3.1415900000E+00'.  To convert the value to a decimal
+notation, you must specify the Width and Decimals parameters, where Width
+specifies the overall length of the resulting string, and Decimals specifies
+the number of decimal places to be included in the result.  For example,
+     Str( 3.14159:5:2, S );
+sets S equal to '3.14'.  Changing Decimals from 2 to 4 sets S equal to
+'3.1416'.  Note:  The value of X is rounded, as needed, to fit within the
+specified width and decimal places.
+     To convert the string representation of a number, say '3.14159' to the
+internal numeric format, use the Val procedure.
+
+
+
+Succ function
+----------------------------------------------------------------
+Declaration:  
+     function Succ(X) : <same type as X>;
+
+Purpose:
+     Where X is any ordinal value, Succ(X) returns the successor of X.  For
+example, the Succ(9) is 10.  See Pred for an example involving ordinal types.
+See Inc, Pred
+
+
+
+Swap function
+----------------------------------------------------------------
+Declaration:  
+     function Swap(X) : <same type as X>;
+
+Purpose:
+     When X is either an integer or word value, Swap(X) returns the result of
+swapping the high and low order bytes of X.  You can examine the high or low
+order bytes of an integer or word value using the Hi and Lo functions.
+
+
+
+SwapVectors procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure SwapVectors;
+
+Unit:       Dos
+
+Example:
+     See Exec.
+
+Purpose:
+     SwapVectors is normally used before and after calling the Exec procedure,
+which is used to launch another application.  Essentially, SwapVectors results
+in saving the state of the interrupt vectors before a call to Exec, and
+restoring the vector table upon return.  This helps prevent problems that may
+occur if your application depends on specific settings in the interrupt vector
+table - settings that may be changed by the application which is launched.
+
+
+
+Test8087 variable
+----------------------------------------------------------------
+Declaration:  
+     Test8087: Byte = 0;
+
+Purpose:
+     When a Turbo Pascal program starts up, the initialization code determines
+if the 8087 math coprocessor is available for use, and sets Test8087 as
+follows:
+
+Value  Meaning
+0      No math coprocessor found.
+1      8087 available.
+2      80287 available.
+3      80387 available.
+
+
+
+TextAttr variable
+----------------------------------------------------------------
+Declaration:  
+     TextAttr: Byte;
+
+Unit:       Crt
+
+Example:
+     uses Crt;
+     begin
+       TextColor(3);
+       TextBackground(5);
+       Writeln('Foreground color=', TextAttr and 15);
+       Writeln('Background color=', (TextAttr shr 4) and 15);
+       Readln;
+     end.
+
+Purpose:
+     Stores the currently defined text attributes (color, background color) in
+internal format.
+
+
+
+TextBackground procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure TextBackground( Color: Byte );
+
+Unit:       Crt
+
+Purpose:
+     Text written to the display has two color attributes:  a foreground color
+and a background color.  TextBackground sets the current background color
+attribute to the value of Color, such that all text output following the call
+to TextBackground will be drawn with the specified background color.  Color
+should have a value from 0 to 7, to choose one of the 8 possible background
+colors.  You may substitute one of the following constants for your color
+choice:
+     Black       0
+     Blue     1
+     Green       2
+     Cyan     3
+     Red      4
+     Magenta     5
+     Brown       6
+     LightGray      7
+
+
+
+TextColor procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure TextColor(Color: Byte);
+
+Unit:       Crt
+
+Purpose:
+     Text written to the display has two color attributes, a foreground color
+and a background color.  TextColor sets the foreground color attribute to the
+value of Color, so that all subsequent text output will be written in the
+selected color, using the current TextBackground color.  Foreground color
+choices may range from 0 to 15, with values 8 through 15 referred to as "high
+intensity" equivalents of colors 0 to 7.  You may use the following constants
+to select the color choice:
+     
+     Black       0
+     Blue        1
+     Green       2
+     Cyan        3
+     Red         4
+     Magenta     5
+     Brown       6
+     LightGray   7
+     DarkGray    8
+     LightBlue   9
+     LightGreen  10
+     LightCyan   11
+     LightRed    12
+     LightMagenta   13
+     Yellow      14
+     White       15
+
+
+
+TextMode procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure TextMode(Mode: Word);
+
+Unit:       Crt
+
+Example:
+     TextMode ( CO80 );
+
+Purpose:
+     Most of today's video displays support a variety of text operating modes,
+including both 40 and 80 column wide displays, color and black & white display
+modes, and for EGA and VGA displays, the ability to display 43 or 50 lines of
+text.  The TextMode procedure selects the appropriate display mode by setting
+Mode to one of the following constants:
+
+     BW40        Selects B&W in 40 x 25 line display mode
+     BW80        Selects B&W in 80 x25  line display mode
+     Mono        Selects B&W in 80 x25 line on monochrome
+                 display adaptor card
+     CO40        Selects color in 40 x 25 line display mode
+     CO80        Selects color in 80 x 25 line display mode
+     C40         Same as CO40
+     C80         Same as CO80
+     LastMode    Restores the previous video mode prior to
+                 program startup.
+
+The selected text mode takes effect immediately and results in the screen being
+cleared.
+     LastMode is a variable and it stores the contents of the video mode at the
+time the program was started.  If your program changes video modes during
+program execution, you may wish to save the value of LastMode so that you can
+restore the appropriate video mode at program termination (also see ExitProc).
+     You may also use TextMode to select 43 or 50 line mode for use on EGA/VGA
+displays by adding or or'ing the constant Font8x8 (where Font8x8 = 256 and
+selects a small font for use in the higher resolution modes) to the mode
+selection constant, like this:
+     TextMode( LastMode and 255  or Font8x8 );
+In this form, the current video mode (such as 80 column color) is retained but
+the number of lines is increased to 43 or 50 lines, depending on your display. 
+You may explicitly select both a video mode and 43 or 50 line mode by writing:
+     TextMode( CO80 + Font8x8 );
+To switch back to 25 line mode and maintain the the other mode settings, you
+can write,
+     TextMode( LastMode and 255 );
+or specifically set a new mode, such as,
+     TextMode( BW80 );
+You can also use the Lo() and Hi() functions to check the value of LastMode. 
+Hi(LastMode) returns Font8x8 if 43/50 line mode is in effect.  Lo(LastMode)
+returns the current video mode.
+
+
+
+Trunc function
+----------------------------------------------------------------
+Declaration:  
+     function Trunc( X: Real ): Longint;
+
+Purpose:
+     Trunc converts the real value X to a longint integer value by disgarding
+the fractional portion of X.  For example, Trunc(3.14159) results in 3.  When
+converting real values to Longint, be aware that the range of valid real
+numbers exceeds the permissible range of Longint, and it is possible to receive
+an out of range run-time error.
+See Frac, Int, Round
+
+
+
+Truncate procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Truncate(var F);
+
+Purpose:
+     When using any open file, other than text files, Truncate(F) disgards all
+current data in the file from the current file pointer position on to the end
+of the file, effectively making the current file position the new end of file.
+
+
+
+Unpacktime procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure UnpackTime(Time: Longint; var DT: DateTime);
+
+Unit:       Dos
+
+Example:
+     uses dos;
+     var
+       F : Text;
+       LFileInfo : Longint;
+       DFileInfo : DateTime; { declared in Dos unit }
+     begin
+       Assign( F, 'FSEARCH.PAS' );
+       Reset( F );
+       GetFTime ( F, LFileInfo );
+       UnpackTime ( LFileInfo, DFileInfo );
+       with DFileInfo do
+          Writeln(Month, '-', Day, '-', Year,
+            '  ',Hour:2,':',Min:2,':',Sec:2);
+       Readln;
+     end.
+
+Purpose:
+     The procedures GetFTime, SetFTime, FindFirst and FindNext all use a
+special packed date/time format that packs the date and time information into a
+Longint value.  To convert the Longint packed representation into individual
+date and time components, use UnPackTime.  To convert back to packed format,
+use PackTime.
+     UnPackTime converts its Time parameter value into the contents of the DT
+record parameter variable.  DT contains separate fields for Year, Month, Day,
+Hour, Min and Sec, each a Word type value.  You can use these fields to display
+the date or time of a file in traditional date or time formats.
+
+
+
+UpCase function
+----------------------------------------------------------------
+Declaration:  
+     function UpCase (Ch: Char): Char;
+
+Example:
+     function Uppercase( S : String ): String;
+     var
+       I : Integer;
+     begin
+       for I := 1 to Length(S) do
+          S[I] := Upcase(S[I]);
+       Uppercase := S;
+     end;
+
+     begin
+
+       Writeln(Uppercase('Now is the time for all good men and women...'));
+       Readln;
+
+     end.
+
+Purpose:
+     UpCase converts its parameter Ch to uppercase, (if Ch is a letter from 'a'
+to 'z') or makes no changes if Ch is not a lower case letter, and returns the
+new value as its return result.  The example above shows a simple function to
+convert an entire string to upper case.
+
+
+
+Val procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Val(S: String; var V; var Code: Integer);
+
+Example:
+     uses Crt;
+     var
+       S : String;
+       Result : Real;
+       ErrCode : Integer;
+     begin
+       ClrScr;
+       Gotoxy(1,10);
+       Write('Enter number: ');
+       Readln(S);
+       {$R-}
+       Val( S, Result, ErrCode );
+       if ErrCode = 0 then
+          Writeln(S, ' converted successfully to ', Result )
+       else
+       begin
+          Gotoxy( 14+ErrCode, 11 );
+          Write('^ invalid character in number.');
+       end;
+       Readln;
+     end.
+
+Purpose:
+     Val converts a string containing a number, into its internal numeric
+format for the appropriate variable type, such as integer or real.  The string
+to convert is passed as parameter S and is returned in variable parameter V. 
+     The string to convert must contain a valid number for the type of the
+variable parameter V.  If an invalid character is detected during the
+conversion, Code is set to the index of the offending character within string
+S.  The example code above uses the returned error code to display a pointer to
+the invalid character.
+     When converting numbers, its possible for the number in S to be out of
+range of the permissible values for variable V.  For example, attempting to
+convert the string value shown below results in a range violation:
+     var
+       W : Word;
+     ...
+     Val('8799343.5', W, ErrCode );
+
+To avoid out of range errors, you can select the {$R-} compiler directive to
+disable automatic range checking.  A more thorough procedure, however, is to
+convert the value first to a temporary Real or Longint variable and then use an
+if-then statement to insure that the result falls within the valid range for
+the target variable.
+     
+
+
+WhereX function
+----------------------------------------------------------------
+Declaration:  
+     function WhereX : Byte;
+
+Unit:       Crt
+
+Purpose:
+     Returns the current X coordinate of the text cursor.  WhereY returns the
+corresponding Y coordinate.
+
+
+
+WhereY function
+----------------------------------------------------------------
+Declaration:  
+     function WhereY: Byte;
+
+Unit:       Crt
+
+Purpose:
+     Returns the current Y coordinate of the text cursor.  
+
+
+
+WindMin/WindMax variables
+----------------------------------------------------------------
+Declaration:  
+     WindMin, WindMax : Word;
+
+Unit:       Crt
+
+Purpose:
+     WindMin stores the coordinate of the upper left corner and WindMax the
+lower right corner of a window defined by the Window procedure.  The values are
+stored such that the X value is stored in the low byte and Y in the high byte. 
+Note that in WindMin and WindMax, the stored values are 0-relative, and not
+1-relative as used in the Window procedure.  This means that, for example,
+WindMax may contain an X value of 24 (instead of 25) and a Y value of 79
+(instead of 80).
+
+
+
+Window procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Window(X1, Y1, X2, Y2: Byte);
+
+Unit:       Crt
+
+Purpose:
+     When your program starts running, the default text window is the entire
+screen, from (1,1) to (80,25).  However, you can redefine this text window to a
+smaller region of the screen, and thereafter, all subsequent output and related
+screen I/O statements are performed relative to the location of the window. 
+Theparameters (X1,Y1) define the upper left corner of the window, and (X2,Y2)
+define the lower right corner of the window.  For example, to define a narrow
+window occupying just the right half of the screen, you may write,
+     Window(40, 1, 80, 25 );
+After the call to Window, subsequent I/O will be relative to this window.  A
+Gotoxy(10,10) positions the cursor to the physical location (40+10, 1+10).
+     You can use the Window statement for a variety of purposes because it
+effects all of the following routines:
+     ClrEol, ClrScr, DelLine, GotoXY, InsLine, WhereX, WhereY, Read, Readln,
+Write, Writeln
+     You can, for instance, create a small viewing window on the screen for
+storing a list of items.  Through the use of the DelLine and InsLine
+procedures, you can make text within the viewing window scroll up or down, as
+required.
+Important!  Window Doesn't do Windows!
+     Window does not provide for overlapping windows nor does it save the
+region behind the active window.  Window merely provides a simple way of
+restricting your screen output to specific regions on the screen.
+See WindMin/WindMax
+
+
+
+Write procedure
+----------------------------------------------------------------
+Purpose:
+     When used with text output files, Write outputs one or more values to the
+screen or to a text file.  When used with typed files, Write outputs its
+parameter values to the next file component (or record) in the file.  For typed
+files only, Seek may be used to position the file pointer to specific record
+location prior to calling Write.
+
+Write with Text Files
+Declaration:  
+     procedure Write( [ var F: Text; ] V1 [, V2, ..., Vn ] );
+
+Description:
+     Write outputs its parameters to the screen or to the text file F, if F is
+specified.  For numeric parameters, a MinWidth and a DecPlaces parameter may
+specify the minimum character width allocated to the item, and a number of
+decimal places, respectively, using the format:
+     Write( V1: MinWidth : DecPlaces );
+MinWidth and DecPlaces are optional, however MinWidth must be specified in
+order to specify DecPlaces, and DecPlaces may only be specified for real data
+types.  If the length of the item being output is less than the MinWidth
+specified, then leading blanks are placed before the item so that it will
+occupy at least MinWidth characters.  For example,
+     Write('/', '*' : 5, '/');
+displays,
+     /     */
+
+Formatting Trick
+     Many applications need to output large groups of blanks between output
+items, such as when formatting a table of values.  While there are several ways
+to accomplish this, such as placing Write(' ') inside a for loop, the easiest
+method uses the MinWidth parameter to specify the number of blanks desired,
+like this, which outputs 40 blanks:
+     Write(' ':40);
+
+Output formatting for each data type is described in the following sections.
+
+String
+     String values are copied directly to the output, byte by byte.  If
+MinWidth is specified, sufficient leading blanks are output, if needed, to make
+the string occupy exactly MinWidth character spaces.  If the string length
+exceeds MinWidth, then the entire string is output.
+
+Integer, Word, Longint
+     Integer values are converted from their internal format to a textual
+representation.  If MinWidth is specified, sufficient leading blanks are
+output, if needed, to make the textual representation of the integer as wide as
+MinWidth.
+
+Real
+     Real values are normally output in exponential notation, such that the
+statement,
+     Writeln(Pi)
+outputs,
+     3.1415926536E+00
+When MinWidth is not specified for a real value, a default MinWidth of 17 is
+assumed.  In the exponential floating point format, if MinWidth is less than 8,
+MinWidth is set to 8.  To output a real value in familiar fixed point notation,
+such as,
+     3.1416
+you must specify a MinWidth and DecPlaces parameter.  For example,
+     Writeln(Pi:7:4);
+outputs,
+     3.1416
+Note that this may resulting in rounding of the value, as needed.
+
+Char
+     Individual character values are output directly.  If MinWidth is
+specified, the MinWidth-1 leading blanks are placed before the character value.
+
+Boolean
+     Boolean values are displayed as either True or False, according to the
+value of the boolean expression.
+
+
+Write with Typed Files
+Declaration:  
+     procedure Write( var F; V1, [, V2, ..., Nn ] );
+
+Description:
+     When used with typed files, Write outputs one or more components to the
+file, and positions the file pointer to the next record in the file.  The Seek
+procedure may be used to position the file pointer prior to writing the record.
+See  "Disk file operations" in Chapter 3, "The Turbo Pascal Language" for
+complete details on sequential and random typed file access.
+
+
+
+Writeln procedure
+----------------------------------------------------------------
+Declaration:  
+     procedure Writeln( [var F:Text; ] [V1 [V2, ..., Vn] ] );
+
+Purpose:
+     For use in displaying output to the screen or writing output to text
+files, Writeln is equivalent to Write, except that it also outputs an
+end-of-line character following the parameters.
+
+
