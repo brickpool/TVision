@@ -12,6 +12,7 @@ use Carp ();
 BEGIN { sub XS () { eval q[ use Class::XSAccessor ]; !$@ } }
 
 BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
+BEGIN { require Devel::GlobalDestruction unless $] >= 5.014 }
 
 use base 'Class::LOP';
 use fields qw(
@@ -54,7 +55,7 @@ sub extend_class {    # $self|undef (@parents)
   return unless @parents;
 
   # inheritor
-  my $class = $self->{_name};
+  my $class = $self->name;
 
   # We want to recognize multiple inheritance and 
   # separate mothers (bases) and fathers (multiples).
@@ -167,7 +168,7 @@ sub create_constructor {    # $self ()
   my $target = $this->name;
 
   %{"${target}::FIELDS"} = () unless %{"${target}::FIELDS"};
-  return if $target->can('new');
+  return if $target->can( 'new' );
 
   # Create a constructor for the specified target
   my $new = "${target}::new";
@@ -204,7 +205,7 @@ sub create_constructor {    # $self ()
       REPL: {
         $self = fields::new( $class ) unless ref $self;
       }
-      
+
       my %slots = ();
       SLOTS: {
         %slots = ( %slots, %{ $this->{_attributes}{$_} } )
@@ -237,11 +238,15 @@ sub create_constructor {    # $self ()
     my $self = shift;
     my $class = ref $self || $self;
 
+    my $in_global_destruction = defined ${^GLOBAL_PHASE}
+      ? ${^GLOBAL_PHASE} eq 'DESTRUCT'
+      : Devel::GlobalDestruction::in_global_destruction();
+
     # Call all DEMOLISH methods starting with the derived classes.
     DEMOLISHALL: {
       map {
         my $demolish = *{$_.'::DEMOLISH'}{CODE};
-        $demolish->( $self ) if $demolish;
+        $demolish->( $self, $in_global_destruction ) if $demolish;
       } @{ mro::get_linear_isa( $class ) };
     }
     return;
@@ -270,10 +275,11 @@ sub get_attributes {    # \%fields ()
   my $attr;
 
   # Part of the following code is taken from fields::_dump()
-  my $fields = base::get_fields( $class );
+  my $fields     = base::get_fields( $class );
+  my $attributes = base::get_attr( $class );
   for my $f ( keys %$fields ) {
     my $no    = $fields->{$f};
-    my $fattr = base::get_attr( $class )->[$no];
+    my $fattr = $attributes->[$no];
 
     # we only want to have the newly defined %FIELDS of $class
     next if !defined $fattr;
@@ -378,7 +384,11 @@ L<Carp>
 
 L<Class::LOP>
 
+L<Devel::GlobalDestruction> for perl < v5.14
+
 L<fields>
+
+L<MRO::Compat> for perl < v5.10
 
 =head1 SEE ALSO
 

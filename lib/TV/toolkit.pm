@@ -24,7 +24,7 @@ sub import {
 
   init_class( $caller );
   create_constructor( $caller );
-  install_slots( $caller );
+  install_slots( $caller , 'slots' );
   import_extends( $caller );
 
   $^H{"TV::toolkit/$caller"} = $name;
@@ -42,7 +42,7 @@ sub unimport {
 
   # if there is a Class::MOP object, 
   # it is Moose and we should make the class immutable.
-  if ( __PACKAGE__->can( 'meta' ) ) {
+  if ( __PACKAGE__->can( 'meta' ) && __PACKAGE__->isa( 'Class::MOP' ) ) {
     __PACKAGE__->meta->make_immutable;
   }
 
@@ -64,7 +64,8 @@ sub all_slots {    # @metafields ($target)
     my $meta = TV::toolkit::LOP->init( $pkg );
     %FIELDS = ( %FIELDS, %{ $meta->get_attributes() } );
   }
-  return map { { name => $_, initializer => $FIELDS{$_} } } sort keys %FIELDS;
+  return map { { name => $_, initializer => $FIELDS{$_} } }
+    sort keys %FIELDS;
 }
 
 # Returns the local fields (without the inherited from parents) for the 
@@ -84,8 +85,15 @@ sub has_slot {    # $bool ($target, $name)
   assert( $proto );
   assert( $name && !ref $name );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  my $fields = $target->get_attributes();
-  return exists $fields->{$name};
+  my %FIELDS = %{ $target->get_attributes() };
+  # test just the local (and composed) slots first ...
+  return unless exists $FIELDS{$name};
+  # then check the inheritance hierarchy next ...
+  for my $pkg ( reverse ( $target->superclasses() ) ) {
+    my $meta = TV::toolkit::LOP->init( $pkg );
+    %FIELDS = ( %FIELDS, %{ $meta->get_attributes() } );
+  }
+  return exists $FIELDS{$name};
 }
 
 # Returns an hash reference to represent the field of the given name, 
@@ -96,22 +104,27 @@ sub get_slot {    # \%metafield ($target, $name)
   assert( $name && !ref $name );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   my %FIELDS = %{ $target->get_attributes() };
+  # test just the local (and composed) slots first ...
+  return { name => $name, initializer => $FIELDS{$name} }
+    if exists $FIELDS{$name};
+  # then check the inheritance hierarchy next ...
   for my $pkg ( reverse ( $target->superclasses() ) ) {
     my $meta = TV::toolkit::LOP->init( $pkg );
     %FIELDS = ( %FIELDS, %{ $meta->get_attributes() } );
   }
-  return unless exists $FIELDS{$name};
-  return { name => $name, initializer => $FIELDS{$name} };
+  return { name => $name, initializer => $FIELDS{$name} }
+    if exists $FIELDS{$name};
+  return;    # FALSE
 }
 
 # Adds a new fields keyword to the class. 
-# If no name is specified, the name of is 'slots'.
+# If no name is specified, the name of is 'has'.
 sub install_slots {    # void ($target, | $name)
   my ( $proto, $name ) = @_;
   assert( $proto );
   assert( !defined $name or !ref $name );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  $target->have_accessors( $name || 'slots' );
+  $target->have_accessors( $name || 'has' );
   return;
 }
 
