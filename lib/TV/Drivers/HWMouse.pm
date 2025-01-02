@@ -29,6 +29,7 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Scalar::Util qw( looks_like_number );
 
 use TV::Drivers::HardwareInfo;
 
@@ -64,7 +65,7 @@ sub setRange {    # void ($class, $rx, $ry)
   assert ( $class and !ref $class );
   assert ( looks_like_number $rx );
   assert ( looks_like_number $ry );
-  ... if STRICT;
+  warn 'Unimplemented' if STRICT;
   return;
 }
 

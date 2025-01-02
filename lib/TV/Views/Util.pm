@@ -8,6 +8,9 @@ defines various utility functions used throughout Turbo Vision
 
 package TV::Views::Util;
 
+use strict;
+use warnings;
+
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
@@ -27,10 +30,9 @@ use TV::Drivers::Event;
 sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
   assert ( @_ == 4 );
   my ( $receiver, $what, $command, $infoPtr ) = @_;
-  assert ( !defined $self or blessed $self );
+  assert ( !defined $receiver or blessed $receiver );
   assert ( looks_like_number $what );
   assert ( looks_like_number $command );
-  assert ( !defined $infoPtr or ref $infoPtr );
 
   return undef
     unless $receiver;

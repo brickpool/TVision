@@ -26,6 +26,7 @@ use Scalar::Util qw(
 );
 
 use TV::Objects::Point;
+use TV::Objects::Rect;
 use TV::Drivers::Const qw(
   :evXXXX
 );
@@ -597,7 +598,7 @@ sub drawSubViews {    # void ($p|undef, $bottom|undef)
 
 my $doCalcChange = sub {    # void ($p, $d)
   my ( $p, $d ) = @_;
-  my $r;
+  my $r = TRect->new();
   $p->calcBounds( $r, $d );
   $p->changeBounds( $r );
   return;

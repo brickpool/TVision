@@ -113,6 +113,15 @@ our @irBuffer      = ();
 our @crInfo        = ();
 our @sbInfo        = ();
 
+# import global variables
+use vars qw(
+  $ctrlBreakHit
+);
+{
+  no strict 'refs';
+  *ctrlBreakHit = \$TV::Drivers::SystemError::ctrlBreakHit;
+}
+
 my @ShiftCvt = (
          0,      0,      0,      0,      0,      0,      0,      0,
          0,      0,      0,      0,      0,      0,      0,      0,
@@ -459,6 +468,7 @@ sub getMouseEvent {    # $bool ($class, $event)
     $pendingEvent = $consoleHandle[cnInput]->GetEvents();
     if ( $pendingEvent ) {
       @irBuffer = $consoleHandle[cnInput]->Input();
+      $irBuffer[EventType] ||= 0;
     }
   }
 
@@ -483,6 +493,7 @@ sub getKeyEvent {    # $bool ($class, $event)
     $pendingEvent = $consoleHandle[cnInput]->GetEvents();
     if ( $pendingEvent ) {
       @irBuffer = $consoleHandle[cnInput]->Input();
+      $irBuffer[EventType] ||= 0;
     }
   }
 
@@ -526,8 +537,7 @@ sub getKeyEvent {    # $bool ($class, $event)
       }
 
       if ( $event->{keyDown}{keyCode} == kbCtrlC ) {
-        no warnings 'once';
-        $TSystemError::ctrlBreakHit = !!1;
+        $ctrlBreakHit = !!1;
       }
 
       $pendingEvent = 0;

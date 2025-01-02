@@ -8,6 +8,9 @@ Miscellaneous system-wide configuration parameters.
 
 package TV::Const;
 
+use strict;
+use warnings;
+
 use Exporter 'import';
 
 our @EXPORT_OK = qw(

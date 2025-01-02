@@ -11,6 +11,7 @@ WriteMakefile(
   VERSION_FROM      => 'lib/TV/Objects/Object.pm',
   ABSTRACT          => 'Turbo Vision is a character-mode text user '.
                        'interface framework.',
+  EXE_FILES         => ['bin/overview.pl'],
   CONFIGURE_REQUIRES  => {
     'ExtUtils::MakeMaker' => 6.64,
   },

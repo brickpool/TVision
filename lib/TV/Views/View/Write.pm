@@ -123,7 +123,7 @@ sub L20 {
   }
   else {
     if ( ( $next->{state} & sfVisible ) && $next->{origin}{y} <= $Y ) {
-      do {
+      { # do
         $esi = $next->{origin}{y} + $next->{size}{y};
         if ( $Y < $esi ) {
           $esi = $next->{origin}{x};
@@ -177,7 +177,7 @@ sub L20 {
             $edx--;
           }
         }
-      } while ( 0 );
+      } # while ( 0 ); 
     } #/ if ( ( $next->{state} ...))
     L20( $next );
   } #/ else [ if ( $next == ...)]

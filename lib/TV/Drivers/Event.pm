@@ -87,9 +87,8 @@ package MouseEventType {
     my $self = shift;
     assert ( blessed $self );
     my $class = ref $self || return;
-    my $clone = bless {}, $class;
+    my $clone = bless { %$self }, $class;
     Hash::Util::lock_keys( %$clone ) if STRICT;
-    map { $clone->{$_} = $self->{$_} } grep { !/^(?!where)$/ } keys %HAS;
     $clone->{where} = $self->{where}->clone();
     return $clone;
   }
