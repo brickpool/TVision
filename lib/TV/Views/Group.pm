@@ -93,7 +93,7 @@ sub DEMOLISH {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $unlock_value->( $self->{current} ) if STRICT;
-  $self->shutDown();
+  $self->shutDown() unless ${^GLOBAL_PHASE} && ${^GLOBAL_PHASE} eq 'DESTRUCT';
   return;
 }
 
