@@ -10,7 +10,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw( blessed );
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
 
 use TV::App::Const qw( 
   :cpXXXX
@@ -338,6 +341,8 @@ sub insertWindow {    # $window|undef ($window|undef)
 
 sub setScreenMode { # void ($mode)
   my ( $self, $mode ) = @_;
+  assert ( blessed $self );
+  assert ( looks_like_number $mode );
   my $r;
 
   $mouse->hide();
@@ -427,200 +432,3 @@ sub validView {    # $view|undef ($view)
 } #/ sub validView
 
 1
-
-__END__
-
-use strict;
-use warnings;
-use Test::More tests => 20;
-use Test::Exception;
-use TProgram;
-use TGroup;
-use TProgInit;
-use TDeskTop;
-use TStatusLine;
-use TMenuBar;
-use TView;
-use TEvent;
-use TRect;
-use TPalette;
-
-# Mocking TGroup, TProgInit, TDeskTop, TStatusLine, TMenuBar, TView, TEvent, TRect, and TPalette for testing purposes
-{
-    package TGroup;
-    sub new { bless { size => { x => 0, y => 0 }, options => 0, state => 0, buffer => undef, lockFlag => 0, clip => undef }, shift }
-    sub insert { }
-    sub shutDown { }
-    sub handleEvent { }
-    sub forEach { }
-    sub lock { }
-    sub unlock { }
-    sub getExtent { return TRect->new() }
-    sub selectNext { }
-    sub clearEvent { }
-    sub valid { return 1 }
-    sub changeBounds { }
-    sub setState { }
-    sub redraw { }
-}
-
-{
-    package TProgInit;
-    sub new { bless { createDeskTop => shift, createStatusLine => shift, createMenuBar => shift }, shift }
-}
-
-{
-    package TDeskTop;
-    sub new { bless {}, shift }
-    sub execView { return 'cmCancel' }
-    sub insert { }
-    sub valid { return 1 }
-}
-
-{
-    package TStatusLine;
-    sub new { bless {}, shift }
-    sub handleEvent { }
-    sub update { }
-}
-
-{
-    package TMenuBar;
-    sub new { bless {}, shift }
-}
-
-{
-    package TView;
-    sub new { bless { next => undef, owner => undef, state => 0, options => 0, eventMask => 0, size => { x => 0, y => 0 }, buffer => undef, lockFlag => 0, clip => undef }, shift }
-    sub next { shift->{next} }
-    sub set_next { shift->{next} = shift }
-    sub owner { shift->{owner} }
-    sub set_owner { shift->{owner} = shift }
-    sub hide { }
-    sub show { }
-    sub setState { }
-    sub prev { return shift }
-    sub focus { return 1 }
-    sub select { }
-    sub drawView { }
-    sub handleEvent { }
-    sub containsMouse { return 1 }
-    sub getData { }
-    sub setData { }
-    sub dataSize { return 1 }
-    sub calcBounds { }
-    sub changeBounds { }
-    sub getClipRect { return shift->{clip} }
-    sub getExtent { return shift->{clip} }
-    sub writeBuf { }
-    sub resetCursor { }
-    sub locate { }
-    sub sizeLimits { }
-    sub putInFrontOf { }
-    sub mouseInView { return 1 }
-    sub valid { return 1 }
-}
-
-{
-    package TEvent;
-    sub new { bless { what => 'evNothing', message => { command => 0 }, keyDown => { keyCode => 0 }, mouse => { where => 0 } }, shift }
-    sub getMouseEvent { }
-    sub getKeyEvent { }
-}
-
-{
-    package TRect;
-    sub new { bless { a => { x => 0, y => 0 }, b => { x => 0, y => 0 } }, shift }
-}
-
-{
-    package TPalette;
-    sub new { bless {}, shift }
-}
-
-
-# Test shutDown method
-can_ok($program, 'shutDown');
-$program->shutDown();
-pass('shutDown works correctly');
-
-# Test canMoveFocus method
-can_ok($program, 'canMoveFocus');
-is($program->canMoveFocus(), 1, 'canMoveFocus returns correct value');
-
-# Test executeDialog method
-can_ok($program, 'executeDialog');
-my $dialog = TView->new();
-is($program->executeDialog($dialog, undef), 'cmCancel', 'executeDialog returns correct value');
-
-# Test getEvent method
-can_ok($program, 'getEvent');
-my $event = TEvent->new();
-$program->getEvent($event);
-pass('getEvent works correctly');
-
-# Test getPalette method
-can_ok($program, 'getPalette');
-my $palette = $program->getPalette();
-isa_ok($palette, 'TPalette', 'getPalette returns a TPalette object');
-
-# Test handleEvent method
-can_ok($program, 'handleEvent');
-$program->handleEvent($event);
-pass('handleEvent works correctly');
-
-# Test idle method
-can_ok($program, 'idle');
-$program->idle();
-pass('idle works correctly');
-
-# Test initDeskTop method
-can_ok($program, 'initDeskTop');
-my $desktop = $program->initDeskTop(TRect->new());
-isa_ok($desktop, 'TDeskTop', 'initDeskTop returns a TDeskTop object');
-
-# Test initMenuBar method
-can_ok($program, 'initMenuBar');
-my $menuBar = $program->initMenuBar(TRect->new());
-isa_ok($menuBar, 'TMenuBar', 'initMenuBar returns a TMenuBar object');
-
-# Test initScreen method
-can_ok($program, 'initScreen');
-$program->initScreen();
-pass('initScreen works correctly');
-
-# Test initStatusLine method
-can_ok($program, 'initStatusLine');
-my $statusLine = $program->initStatusLine(TRect->new());
-isa_ok($statusLine, 'TStatusLine', 'initStatusLine returns a TStatusLine object');
-
-# Test insertWindow method
-can_ok($program, 'insertWindow');
-my $window = TView->new();
-is($program->insertWindow($window), $window, 'insertWindow returns correct value');
-
-# Test outOfMemory method
-can_ok($program, 'outOfMemory');
-$program->outOfMemory();
-pass('outOfMemory works correctly');
-
-# Test putEvent method
-can_ok($program, 'putEvent');
-$program->putEvent($event);
-pass('putEvent works correctly');
-
-# Test run method
-can_ok($program, 'run');
-$program->run();
-pass('run works correctly');
-
-# Test setScreenMode method
-can_ok($program, 'setScreenMode');
-$program->setScreenMode(0);
-pass('setScreenMode works correctly');
-
-# Test validView method
-can_ok($program, 'validView');
-is($program->validView($window), $window, 'validView returns correct value');
-
-done_testing();
