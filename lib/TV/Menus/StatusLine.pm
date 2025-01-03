@@ -124,8 +124,11 @@ my $palette;
 sub getPalette {    # $palette ()
   my $self = shift;
   assert ( blessed $self );
-  $palette ||= TPalette->new( cpStatusLine, length( cpStatusLine ) );
-  return $palette;
+  $palette ||= TPalette->new(
+    data => cpStatusLine, 
+    size => length( cpStatusLine ),
+  );
+  return $palette->clone();
 }
 
 sub handleEvent {    # void ($event)

@@ -230,7 +230,7 @@ sub getPalette {    # $palette ()
     size => length( cpAppMonochrome ) 
   );
   @palettes = ( $color, $blackwhite, $monochrome ) unless @palettes;
-  return $palettes[$appPalette];
+  return $palettes[$appPalette]->clone();
 } #/ sub getPalette
 
 sub handleEvent {    # void ($event)

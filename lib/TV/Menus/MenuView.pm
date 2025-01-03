@@ -351,8 +351,11 @@ my $palette;
 sub getPalette {    # $palette ()
   my $self = shift;
   assert ( blessed $self );
-  $palette ||= TPalette->new( cpMenuView, length( cpMenuView ) );
-  return $palette;
+  $palette ||= TPalette->new( 
+    data => cpMenuView, 
+    size => length( cpMenuView ),
+  );
+  return $palette->clone();
 }
 
 sub handleEvent {    # void ($event)
