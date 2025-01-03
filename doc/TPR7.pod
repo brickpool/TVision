@@ -33,7 +33,7 @@ For additional information on using Turbo Vision, including a detailed
 tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
 Guide.
 
-=head2 THistory->historyAdd
+=head2 historyAdd
 
 subroutine
 
@@ -43,7 +43,7 @@ subroutine
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
@@ -60,24 +60,24 @@ variable
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
 The THistory object allocates a block of memory from the heap in order to store
 the history list. $historyBlock is set to point to this memory block.
 
-=head2 THistory->historyCount
+=head2 historyCount
 
 function
 
 =head3 Declaration
 
-    sub historyCount; # $int ($id)
+    sub historyCount; # $count ($id)
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
@@ -97,27 +97,27 @@ variable
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
-At program initialization, TApplication->resume calls the THistory->doneHistory 
+At program initialization, TApplication->resume calls the doneHistory 
 subroutine to allocate history list memory space. The default allocation is 
 determined by the value stored in $historySize. To change this value, set 
 $historySize to a new size, specified in bytes, before calling 
 TApplication->resume.
 
-=head2 THistory->historyStr
+=head2 historyStr
 
 function
 
 =head3 Declaration
 
-    sub historyStr; # $string ($id, $index)
+    sub historyStr; # $str ($id, $index)
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
@@ -134,23 +134,23 @@ variable
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
 This is an internal value used by the history list routines.
 
-=head2 THistory->resume
+=head2 initHistory
 
 subroutine
 
 =head3 Declaration
 
-    sub resume;
+    sub initHistory;
 
 =head3 Module
 
-    TV::Dialogs::History
+    TV::Dialogs::History::HistList
 
 =head3 Purpose
 
