@@ -33,12 +33,12 @@ use TV::Drivers::Const qw(
 use TV::Drivers::Event;
 use TV::Drivers::EventQueue;
 use TV::Drivers::Screen;
+use TV::Drivers::Util qw( getAltChar );
 use TV::Menus::MenuBar;
 use TV::Menus::StatusDef;
 use TV::Menus::StatusItem;
 use TV::Menus::StatusLine;
 use TV::Memory::Util qw( lowMemory );
-use TV::Drivers::Util qw( getAltChar );
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Views::Const qw( 

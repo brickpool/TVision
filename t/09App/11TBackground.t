@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 10;
 use Test::Exception;
 
 BEGIN {

@@ -13,6 +13,7 @@ BEGIN {
   use_ok 'TV::App::DeskTop';
   use_ok 'TV::App::ProgInit';
   use_ok 'TV::App::Program';
+  use_ok 'TV::App::Application';
 }
 
 isa_ok(
