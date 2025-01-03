@@ -86,7 +86,6 @@ use vars qw(
   $TheTopView
 ); 
 {
-  no strict 'refs';
   *TheTopView = \$TV::Views::Group::TheTopView;
 }
 

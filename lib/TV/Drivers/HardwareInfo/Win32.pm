@@ -118,7 +118,6 @@ use vars qw(
   $ctrlBreakHit
 );
 {
-  no strict 'refs';
   *ctrlBreakHit = \$TV::Drivers::SystemError::ctrlBreakHit;
 }
 
