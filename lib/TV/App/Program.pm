@@ -323,8 +323,9 @@ sub run {    # void ()
   return;
 }
 
-sub insertWindow {    # $window|undef ($window|undef)
-  my ( $self, $pWin ) = @_;
+sub insertWindow {    # $window|undef ($pWin|undef)
+  my ( $self, undef ) = @_;
+  alias: for my $pWin ( $_[1] ) {
   assert ( blessed $self );
   assert ( blessed $pWin );
   if ( $self->validView( $pWin ) ) {
@@ -337,6 +338,7 @@ sub insertWindow {    # $window|undef ($window|undef)
     }
   }
   return undef;
+  } #/ alias
 } #/ sub insertWindow
 
 sub setScreenMode { # void ($mode)

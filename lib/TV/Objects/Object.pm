@@ -22,25 +22,30 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw( blessed );
+use Scalar::Util qw(
+  blessed
+  reftype
+);
 
 use TV::toolkit;
 
 sub TObject() { __PACKAGE__ }
 
 sub destroy {    # void ($class|$self, $o|undef)
-  my $class = shift;
+  my $class = ref $_[0] || $_[0];
+  alias: for my $o ( $_[1] ) {
   assert ( $class );
-  if ( defined $_[0] ) {
-    assert ( blessed $_[0] );
-    $_[0]->shutDown();
-    undef $_[0];
+  if ( defined $o ) {
+    assert ( blessed $o );
+    $o->shutDown();
+    undef $o;
   }
   return;
+  } #/ alias
 }
 
 sub shutDown {    # void ($self)
-  assert ( blessed shift );
+  assert ( blessed $_[0] );
   return;
 }
 
