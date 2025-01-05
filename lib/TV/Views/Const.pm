@@ -179,6 +179,7 @@ our %EXPORT_TAGS = (
 
   cpXXXX => [qw(
     cpFrame
+    cpScrollBar
   )],
 
 );
@@ -394,6 +395,8 @@ use constant {
 };
 
 use constant cpFrame => "\x01\x01\x02\x02\x03";
+
+use constant cpScrollBar  => "\x04\x05\x05";
 
 # add all the other %EXPORT_TAGS ":class" tags to the ":all" class and
 # @EXPORT_OK, deleting duplicates
