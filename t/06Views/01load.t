@@ -17,6 +17,7 @@ BEGIN {
   use_ok 'TV::Views::Group';
   use_ok 'TV::Views::Frame::Line';
   use_ok 'TV::Views::Frame';
+  use_ok 'TV::Views::WindowInit';
 }
 
 isa_ok( TCommandSet->new(), TCommandSet );
@@ -24,3 +25,4 @@ isa_ok( TPalette->new(), TPalette );
 isa_ok( TView->new( bounds => TRect->new() ), TView );
 isa_ok( TGroup->new( bounds => TRect->new() ), TGroup );
 isa_ok( TFrame->new( bounds => TRect->new() ), TFrame );
+isa_ok( TWindowInit->new( cFrame => sub { } ), TWindowInit );
