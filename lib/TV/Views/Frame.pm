@@ -23,15 +23,11 @@ use TV::Drivers::Const qw(
 );
 use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
+  cmClose cmZoom
   cpFrame
-  cmClose
-  cmZoom
-  dmDragGrow
-  dmDragMove
-  gfGrowHiX
-  gfGrowHiY
-  sfActive
-  sfDragging
+  dmDragGrow dmDragMove
+  gfGrowHiX gfGrowHiY
+  sfActive sfDragging
   :wfXXXX
   wnNoNumber
 );
@@ -40,9 +36,11 @@ use TV::Views::View;
 use TV::toolkit;
 
 sub TFrame() { __PACKAGE__ }
+sub name() { 'TFrame' }
 
 extends TView;
 
+# declare global variables
 our $initFrame =
   "\x06\x0A\x0C\x05\x00\x05\x03\x0A\x09\x16\x1A\x1C\x15\x00\x15\x13\x1A\x19";
 
@@ -54,6 +52,7 @@ our $zoomIcon   = "[~\x18~]";
 our $unZoomIcon = "[~\x12~]";
 our $dragIcon   = "~─┘~";
 
+# import frameLine
 require TV::Views::Frame::Line;
 
 sub BUILD {    # void (| \%args)
