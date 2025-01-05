@@ -60,33 +60,33 @@ sub unimport {
 }
 
 sub FETCH_CODE_ATTRIBUTES {
-	my ( $class, $coderef ) = @_;
+  my ( $class, $coderef ) = @_;
 
-	# return just the strings, as expected by attributes ...
-	return $ATTRS{ "$coderef" } ? @{ $ATTRS{ "$coderef" } } : ();
+  # return just the strings, as expected by attributes ...
+  return $ATTRS{ "$coderef" } ? @{ $ATTRS{ "$coderef" } } : ();
 }
 
 sub MODIFY_CODE_ATTRIBUTES {
-	my ( $package, $coderef, @attributes, @disallowed ) = @_;
-	push @disallowed,
-		grep { 
+  my ( $package, $coderef, @attributes, @disallowed ) = @_;
+  push @disallowed,
+    grep { 
       /^(?:
         import | unimport | FETCH_CODE_ATTRIBUTES | MODIFY_CODE_ATTRIBUTES
       )$/x
       or not __PACKAGE__->can( $_ ) 
     } @attributes;
 
-	# return the bad decorators as strings, as expected by attributes ...
-	return @disallowed if @disallowed;
+  # return the bad decorators as strings, as expected by attributes ...
+  return @disallowed if @disallowed;
 
-	# process the attributes ...
-	foreach my $attribute ( @attributes ) {
-		my $d = __PACKAGE__->can( $attribute ) or die;
-		$d->( $package, Sub::Util::subname( $coderef ), $coderef );
-	}
+  # process the attributes ...
+  foreach my $attribute ( @attributes ) {
+    my $d = __PACKAGE__->can( $attribute ) or die;
+    $d->( $package, Sub::Util::subname( $coderef ), $coderef );
+  }
 
-	$ATTRS{ "$coderef" } = \@attributes;
-	return;
+  $ATTRS{ "$coderef" } = \@attributes;
+  return;
 } #/ sub MODIFY_CODE_ATTRIBUTES
 
 sub static {
@@ -117,9 +117,9 @@ sub instance {
       if @_ == 0;
     Carp::confess( "Method not invoked as an instance method" )
       unless Scalar::Util::blessed $_[0];
-	  Carp::confess("Invocant of class '" . ref( $_[0] ) . 
+    Carp::confess("Invocant of class '" . ref( $_[0] ) . 
       "' is not a subclass of '$package'" )
-		    unless $_[0]->isa( $package );
+        unless $_[0]->isa( $package );
     goto &$referent;
   };
 } #/ sub _instance_method
