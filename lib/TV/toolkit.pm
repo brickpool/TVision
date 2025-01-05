@@ -5,7 +5,11 @@ use warnings;
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+
 use TV::toolkit::LOP;
+
+our $VERSION   = '0.02';
+our $AUTHORITY = 'cpan:BRICKPOOL';
 
 our $name;
 BEGIN {
