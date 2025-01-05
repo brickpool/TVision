@@ -176,6 +176,11 @@ our %EXPORT_TAGS = (
     positionalEvents
     focusedEvents
   )],
+
+  cpXXXX => [qw(
+    cpFrame
+  )],
+
 );
 
 use TV::Drivers::Const qw(
@@ -387,6 +392,8 @@ use constant {
   positionalEvents    => evMouse,
   focusedEvents       => evKeyboard | evCommand,
 };
+
+use constant cpFrame => "\x01\x01\x02\x02\x03";
 
 # add all the other %EXPORT_TAGS ":class" tags to the ":all" class and
 # @EXPORT_OK, deleting duplicates

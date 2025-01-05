@@ -25,8 +25,8 @@ BEGIN {
 # Mocking TGroup for testing purposes
 BEGIN {
   package MyGroup;
-  require TV::Views::Group;
-  use base 'TV::Views::Group';
+  use TV::toolkit;
+  extends 'TV::Views::Group';
   sub handleEvent { shift->{endState} = 100 }
   $INC{"MyGroup.pm"} = 1;
 }

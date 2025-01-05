@@ -15,9 +15,12 @@ BEGIN {
   use_ok 'TV::Views::View::Write';
   use_ok 'TV::Views::View';
   use_ok 'TV::Views::Group';
+  use_ok 'TV::Views::Frame::Line';
+  use_ok 'TV::Views::Frame';
 }
 
 isa_ok( TCommandSet->new(), TCommandSet );
 isa_ok( TPalette->new(), TPalette );
 isa_ok( TView->new( bounds => TRect->new() ), TView );
 isa_ok( TGroup->new( bounds => TRect->new() ), TGroup );
+isa_ok( TFrame->new( bounds => TRect->new() ), TFrame );
