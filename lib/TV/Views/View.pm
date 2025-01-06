@@ -242,7 +242,7 @@ sub locate {    # void ($bounds)
         $r->Union( $bounds );
         $r->{b} += $shadowSize;
       }
-      $self->drawUnderRect( $r, 0 );
+      $self->drawUnderRect( $r, undef );
     }
   } #/ if ( $bounds != $r )
   return;
