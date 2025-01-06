@@ -18,17 +18,16 @@ use Scalar::Util qw(
 
 use TV::Drivers::Const qw( 
   :evXXXX
-  kbLeft kbRight kbCtrlLeft kbCtrlRight kbHome kbEnd 
-  kbUp kbDown kbPgUp kbPgDn  kbCtrlPgUp kbCtrlPgDn
+  :kbXXXX
 );
 use TV::Drivers::Util qw( ctrlToArrow );
 use TV::Objects::DrawBuffer;
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Views::Const qw(
-  cmScrollBarClicked cmScrollBarChanged
+  :cmXXXX
   cpScrollBar
-  gfGrowLoX gfGrowLoY gfGrowHiX gfGrowHiY
+  :gfXXXX
   :sbXXXX
   sfVisible
 );
@@ -43,8 +42,8 @@ sub name() { 'TScrollBar' }
 extends TView;
 
 # declare global variables
-our $vChars = [ "\x1e", "\x1f", "\b1", "\fe", "\b2" ];    # for UnitedStates..
-our $hChars = [ "\x11", "\x10", "\b1", "\fe", "\b2" ];    # ..code page
+our $vChars = "\x1E\x1F\xB1\xFE\xB2";    # cp437: "▲▼░■▒"
+our $hChars = "\x11\x10\xB1\xFE\xB2";    # cp437: "◄►░■▒"
 
 # declare attributes
 slots value  => ( default => sub { 0 } );
@@ -52,7 +51,7 @@ slots minVal => ( default => sub { 0 } );
 slots maxVal => ( default => sub { 0 } );
 slots pgStep => ( default => sub { 1 } );
 slots arStep => ( default => sub { 1 } );
-slots chars  => ( default => sub { [ ( "\0" ) x 5 ] } );
+slots chars  => ( default => sub { "\0" x 5 } );
 
 # predeclare private methods
 my (
@@ -64,11 +63,11 @@ sub BUILD {    # void (| \%args)
   assert ( blessed $self );
   if ( $self->{size}{x} == 1 ) {
     $self->{growMode} = gfGrowLoX | gfGrowHiX | gfGrowHiY;
-    $self->{chars}    = [ @$vChars ];
+    $self->{chars}    = $vChars;
   }
   else {
     $self->{growMode} = gfGrowLoY | gfGrowHiX | gfGrowHiY;
-    $self->{chars}    = [ @$hChars ];
+    $self->{chars}    = $hChars;
   }
   return;
 }
@@ -311,15 +310,15 @@ sub drawPos {    # void ($pos);
   my ( $self, $pos ) = @_;
   my $b = TDrawBuffer->new();
   my $s = $self->getSize() - 1;
-  $b->moveChar( 0, $self->{chars}[0], $self->getColor( 2 ), 1 );
+  $b->moveChar( 0, substr($self->{chars}, 0, 1), $self->getColor( 2 ), 1 );
   if ( $self->{maxVal} == $self->{minVal} ) {
-    $b->moveChar( 1, $self->{chars}[4], $self->getColor( 1 ), $s - 1 );
+    $b->moveChar( 1, substr($self->{chars}, 4, 1), $self->getColor( 1 ), $s-1 );
   }
   else {
-    $b->moveChar( 1,    $self->{chars}[2], $self->getColor( 1 ), $s - 1 );
-    $b->moveChar( $pos, $self->{chars}[3], $self->getColor( 3 ), 1 );
+    $b->moveChar( 1, substr($self->{chars}, 2, 1), $self->getColor( 1 ), $s-1 );
+    $b->moveChar( $pos, substr($self->{chars}, 3, 1), $self->getColor( 3 ), 1 );
   }
-  $b->moveChar( $s, $self->{chars}[1], $self->getColor( 2 ), 1 );
+  $b->moveChar( $s, substr( $self->{chars}, 1, 1), $self->getColor( 2 ), 1 );
   $self->writeBuf( 0, 0, $self->{size}{x}, $self->{size}{y}, $b );
   return;
 } #/ sub drawPos

@@ -14,10 +14,7 @@ use Scalar::Util qw( blessed );
 
 use TV::App::Const qw( cpBackground );
 use TV::Objects::DrawBuffer;
-use TV::Views::Const qw(
-  gfGrowHiX
-  gfGrowHiY
-);
+use TV::Views::Const qw( :gfXXXX );
 use TV::Views::Palette;
 use TV::Views::View;
 

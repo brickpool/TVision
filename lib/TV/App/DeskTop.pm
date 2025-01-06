@@ -22,11 +22,8 @@ use TV::Drivers::Const qw(
 );
 use TV::Objects::Point;
 use TV::Views::Const qw(
-  gfGrowHiX
-  gfGrowHiY
-  cmNext
-  cmReleasedFocus
-  cmPrev
+  :cmXXXX
+  :gfXXXX
   ofTileable
   sfVisible
 );

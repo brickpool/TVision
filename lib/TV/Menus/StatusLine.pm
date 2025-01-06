@@ -29,9 +29,7 @@ use TV::Drivers::Util qw( cstrlen );
 use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
   cmCommandSetChanged
-  gfGrowLoY
-  gfGrowHiX
-  gfGrowHiY
+  :gfXXXX
   hcNoContext
   ofPreProcess
 );

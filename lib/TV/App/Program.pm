@@ -16,19 +16,15 @@ use Scalar::Util qw(
 );
 
 use TV::App::Const qw( 
-  :cpXXXX
   :apXXXX
+  :cpXXXX
 );
 use TV::App::DeskTop;
 use TV::App::ProgInit;
 use TV::Drivers::Const qw( 
   :evXXXX
+  :kbXXXX
   :smXXXX
-  kbAltX
-  kbF10
-  kbAltF3
-  kbF5
-  kbCtrlF5
 );
 use TV::Drivers::Event;
 use TV::Drivers::EventQueue;
@@ -42,17 +38,8 @@ use TV::Memory::Util qw( lowMemory );
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Views::Const qw( 
+  :cmXXXX
   :sfXXXX
-  cmReleasedFocus
-  cmCancel
-  cmSelectWindowNum
-  cmQuit
-  cmCommandSetChanged
-  cmMenu
-  cmClose
-  cmZoom
-  cmResize
-  cmValid
 );
 use TV::Views::Palette;
 use TV::Views::Group;

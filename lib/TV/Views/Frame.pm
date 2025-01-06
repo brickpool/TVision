@@ -23,11 +23,11 @@ use TV::Drivers::Const qw(
 );
 use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
-  cmClose cmZoom
+  :cmXXXX
   cpFrame
-  dmDragGrow dmDragMove
-  gfGrowHiX gfGrowHiY
-  sfActive sfDragging
+  :dmXXXX
+  :gfXXXX
+  :sfXXXX
   :wfXXXX
   wnNoNumber
 );
@@ -44,13 +44,16 @@ extends TView;
 our $initFrame =
   "\x06\x0A\x0C\x05\x00\x05\x03\x0A\x09\x16\x1A\x1C\x15\x00\x15\x13\x1A\x19";
 
+# for UnitedStates code page
+# "   └ │┌├ ┘─┴┐┤┬┼   ╚ ║╔╟ ╝═╧╗╢╤ ";
 our $frameChars =
-  "   └ │┌├ ┘─┴┐┤┬┼   ╚ ║╔╟ ╝═╧╗╢╤ ";    # for UnitedStates code page
+  "\x20\x20\x20\xC0\x20\xB3\xDA\xC3\x20\xD9\xC4\xC1\xBf\xB4\xC2\xC5".
+  "\x20\x20\x20\xC8\x20\xBA\xC9\xC7\x20\xBC\xCD\xCF\xBB\xB6\xD1\x20";
 
-our $closeIcon  = "[~\xFE~]";
-our $zoomIcon   = "[~\x18~]";
-our $unZoomIcon = "[~\x12~]";
-our $dragIcon   = "~─┘~";
+our $closeIcon  = "[~\xFE~]";    # "[~■~]"
+our $zoomIcon   = "[~\x18~]";    # "[~↑~]"
+our $unZoomIcon = "[~\x12~]";    # "[~↕~]"
+our $dragIcon   = "~\xC4\xD9~";  # "~─┘~"
 
 # import frameLine
 require TV::Views::Frame::Line;

@@ -25,15 +25,7 @@ use Scalar::Util qw(
 
 use TV::Drivers::Const qw( 
   :evXXXX
-  kbNoKey
-  kbUp
-  kbDown
-  kbLeft
-  kbRight
-  kbHome
-  kbEnd
-  kbEnter
-  kbEsc
+  :kbXXXX
 );
 use TV::Drivers::Util qw(
   ctrlToArrow
@@ -42,8 +34,7 @@ use TV::Drivers::Util qw(
 use TV::Drivers::Event;
 use TV::Objects::Rect;
 use TV::Views::Const qw( 
-  cmMenu
-  cmCommandSetChanged
+  :cmXXXX
   hcNoContext
 );
 use TV::Views::Palette;
