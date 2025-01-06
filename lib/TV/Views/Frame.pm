@@ -190,7 +190,8 @@ sub handleEvent {    # void ($event)
         && ( $self->{state} & sfActive )
         && (
           (
-            $mouse->{x} >= $self->{size}{x} - 5 && $mouse->{x} <= $self->{size}{x} - 3
+               $mouse->{x} >= $self->{size}{x} - 5 
+            && $mouse->{x} <= $self->{size}{x} - 3
           )
           || ( $event->{mouse}{eventFlags} & meDoubleClick )
         )
