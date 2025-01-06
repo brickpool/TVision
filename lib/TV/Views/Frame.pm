@@ -22,6 +22,7 @@ use TV::Drivers::Const qw(
   :evXXXX
   meDoubleClick
 );
+use TV::Objects::Point;
 use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
   :cmXXXX
@@ -114,17 +115,17 @@ sub draw {    # void ()
       $l = max( $l, 0 );
       $i = ( $width - $l ) >> 1;
       $b->putChar( $i - 1, ' ' );
-      $b->moveBuf( $i, [ split // => $title ], $cTitle, $l );
+      $b->moveBuf( $i, [ unpack 'C*' => $title ], $cTitle, $l );
       $b->putChar( $i + $l, ' ' );
     }
   } #/ if ( $self->owner )
 
   if ( $self->{state} & sfActive ) {
     if ( $self->owner->{flags} & wfClose ) {
-      $b->moveCStr( 2, $self->{closeIcon}, $cFrame );
+      $b->moveCStr( 2, $closeIcon, $cFrame );
     }
     if ( $self->owner->{flags} & wfZoom ) {
-      my ( $minSize, $maxSize );
+      my ( $minSize, $maxSize ) = ( TPoint->new(), TPoint->new() );
       $self->owner->sizeLimits( $minSize, $maxSize );
       if ( $self->owner->{size} == $maxSize ) {
         $b->moveCStr( $width - 5, $unZoomIcon, $cFrame );
