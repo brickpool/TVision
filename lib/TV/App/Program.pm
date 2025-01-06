@@ -8,6 +8,9 @@ our @EXPORT = qw(
   TProgram
   new_TProgram
 );
+our @EXPORT_OK = qw(
+  $deskTop
+);
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
