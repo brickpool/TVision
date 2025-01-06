@@ -253,16 +253,16 @@ sub setState {    # void ($aState, $enable)
     if ( $self->{frame} ) {
       $self->{frame}->setState( sfActive, $enable );
     }
-    $windowCommands->add( cmNext );
-    $windowCommands->add( cmPrev );
+    $windowCommands += cmNext;
+    $windowCommands += cmPrev;
     if ( $self->{flags} & ( wfGrow | wfMove ) ) {
-      $windowCommands->add( cmResize );
+      $windowCommands += cmResize;
     }
     if ( $self->{flags} & wfClose ) {
-      $windowCommands->add( cmClose );
+      $windowCommands += cmClose;
     }
     if ( $self->{flags} & wfZoom ) {
-      $windowCommands->add( cmZoom );
+      $windowCommands += cmZoom;
     }
     if ( $enable ) {
       $self->enableCommands( $windowCommands );
