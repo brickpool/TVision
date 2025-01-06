@@ -55,8 +55,8 @@ sub from {    # $obj ($tp | $d, $len)
   assert ( $class and !ref $class );
   assert ( @_ >= 1 && @_ <= 2 );
   SWITCH: for ( scalar @_ ) {
-    $_ == 0 and return $class->new( copy_from => $_[0] );
-    $_ == 1 and return $class->new( data => $_[0], size => $_[1] );
+    $_ == 1 and return $class->new( copy_from => $_[0] );
+    $_ == 2 and return $class->new( data => $_[0], size => $_[1] );
   }
   return;
 }
