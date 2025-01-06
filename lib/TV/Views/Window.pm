@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TWindow
+  new_TWindow
 );
 
 use Devel::StrictMode;
@@ -43,6 +44,7 @@ use TV::toolkit;
 
 sub TWindow() { __PACKAGE__ }
 sub name() { 'TWindow' }
+sub new_TWindow { __PACKAGE__->from(@_) }
 
 extends ( TGroup, TWindowInit );
 
@@ -92,6 +94,17 @@ sub BUILD {    # void (| \%args)
   }
   return;
 } #/ sub new
+
+sub from {    # $obj ($bounds, $aTitle, $aNumber)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 3 );
+  return $class->new(
+    bounds => $_[0],
+    title  => $_[1],
+    number => $_[2],
+  );
+}
 
 sub DEMOLISH {    # void ()
   my $self = shift;

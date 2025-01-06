@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TProgInit
+  new_TProgInit
 );
 
 use Devel::StrictMode;
@@ -15,6 +16,7 @@ use Scalar::Util qw( blessed );
 use TV::toolkit;
 
 sub TProgInit() { __PACKAGE__ }
+sub new_TProgInit { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots createStatusLine => ( is => 'bare', default => sub { die 'required' } );
@@ -34,6 +36,17 @@ sub BUILDARGS {    # \%args (%)
   assert ( ref $args{createDeskTop} eq 'CODE' );
   return \%args;
 } #/ sub BUILDARGS
+
+sub from {    # $obj ($cStatusLine, $cMenuBar, $cDeskTop)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 3 );
+  return $class->new(
+    cStatusLine => $_[0],
+    cMenuBar    => $_[0],
+    cDeskTop    => $_[0],
+  );
+}
 
 sub createStatusLine {    # $statusLine ($r)
   my ( $self, $r ) = @_;

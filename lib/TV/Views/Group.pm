@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TGroup
+  new_TGroup
 );
 
 use Devel::StrictMode;
@@ -46,6 +47,7 @@ use TV::toolkit;
 
 sub TGroup() { __PACKAGE__ }
 sub name() { 'TGroup' }
+sub new_TGroup { __PACKAGE__->from(@_) }
 
 extends TView;
 

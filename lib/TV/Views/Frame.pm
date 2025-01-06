@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TFrame
+  new_TFrame
 );
 
 use Devel::StrictMode;
@@ -37,6 +38,7 @@ use TV::toolkit;
 
 sub TFrame() { __PACKAGE__ }
 sub name() { 'TFrame' }
+sub new_TFrame { __PACKAGE__->from(@_) }
 
 extends TView;
 

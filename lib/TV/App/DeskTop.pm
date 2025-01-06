@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TDeskTop
+  new_TDeskTop
 );
 
 use Devel::StrictMode;
@@ -32,6 +33,7 @@ use TV::toolkit;
 
 sub TDeskTop() { __PACKAGE__ }
 sub name() { 'TDeskTop' }
+sub new_TDeskTop { __PACKAGE__->from(@_) }
 
 extends ( TGroup, TDeskInit );
 
@@ -49,6 +51,13 @@ sub BUILDARGS {    # \%args (%)
   $args{createBackground} = delete $args{cBackground};
   # TDeskInit->BUILDARGS is not called because arguments are not 'required'
   return TGroup->BUILDARGS( %args );
+}
+
+sub from {    # $obj ($bounds)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 1 );
+  return $class->new( bounds => $_[0] );
 }
 
 sub BUILD {    # void (| \%args)

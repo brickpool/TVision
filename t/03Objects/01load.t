@@ -14,6 +14,7 @@ BEGIN {
   use_ok 'TV::Objects::NSCollection';
   use_ok 'TV::Objects::NSSortedCollection';
   use_ok 'TV::Objects::Collection';
+  use_ok 'TV::Objects::SortedCollection';
 }
 
 isa_ok( TObject->new(), TObject );
@@ -22,3 +23,4 @@ isa_ok( TRect->new(), TRect );
 isa_ok( TNSCollection->new(), TNSCollection );
 isa_ok( TNSSortedCollection->new(), TNSSortedCollection );
 isa_ok( TCollection->new(), TCollection );
+isa_ok( TSortedCollection->new(), TSortedCollection );

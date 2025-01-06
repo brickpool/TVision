@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TCommandSet
+  new_TCommandSet
 );
 
 use Devel::StrictMode;
@@ -16,6 +17,7 @@ use Scalar::Util qw(
 );
 
 sub TCommandSet() { __PACKAGE__ }
+sub new_TCommandSet { __PACKAGE__->from(@_) }
 
 my $loc = sub {    # $int ( $cmd )
   int( $_[0] / 8 ) % 32;
@@ -57,6 +59,17 @@ sub new {    # $obj (%args)
     if exists $args{copy_from};
   return $self;
 } #/ sub new
+
+sub from {    # $obj (| $tc)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 0 && @_ <= 1 );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 0 and return $class->new();
+    $_ == 1 and return $class->new( copy_from => $_[0] );
+  }
+  return;
+}
 
 sub clone {    # $clone ($self)
   my $self = shift;

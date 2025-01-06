@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TSortedCollection
+  new_TSortedCollection
 );
 
 use TV::Objects::NSSortedCollection;
@@ -13,6 +14,7 @@ use TV::toolkit;
 
 sub TSortedCollection() { __PACKAGE__ }
 sub name() { 'TSortedCollection' };
+sub new_TSortedCollection { __PACKAGE__->from(@_) }
 
 extends TNSSortedCollection;
 

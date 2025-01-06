@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TMenuView
+  new_TMenuView
 );
 
 use Devel::StrictMode;
@@ -47,6 +48,7 @@ use TV::toolkit;
 
 sub TMenuView() { __PACKAGE__ }
 sub name() { TMenuView }
+sub new_TMenuView { __PACKAGE__->from(@_) }
 
 extends TView;
 

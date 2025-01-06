@@ -20,6 +20,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TPalette
+  new_TPalette
 );
 
 require bytes;
@@ -31,6 +32,7 @@ use Scalar::Util qw(
 );
 
 sub TPalette() { __PACKAGE__ }
+sub new_TPalette { __PACKAGE__->from(@_) }
 
 sub new {    # $obj (%args)
   my ( $class, %args ) = @_;
@@ -47,6 +49,17 @@ sub new {    # $obj (%args)
   }
   return bless \$data, $class;
 } #/ sub new
+
+sub from {    # $obj ($tp | $d, $len)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ >= 1 && @_ <= 2 );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 0 and return $class->new( copy_from => $_[0] );
+    $_ == 1 and return $class->new( data => $_[0], size => $_[1] );
+  }
+  return;
+}
 
 sub clone {    # $clone ($self)
   my $self = shift;

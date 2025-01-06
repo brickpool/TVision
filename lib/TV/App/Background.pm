@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TBackground
+  new_TBackground
 );
 
 use Devel::StrictMode;
@@ -21,6 +22,7 @@ use TV::Views::View;
 use TV::toolkit;
 
 sub TBackground() { __PACKAGE__ }
+sub new_TBackground { __PACKAGE__->from(@_) }
 
 extends TView;
 
@@ -32,6 +34,16 @@ sub BUILD {    # void (| \%args)
   assert ( blessed $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
   return;
+}
+
+sub from {    # $obj ($bounds, $aPattern)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 2 );
+  return $class->new(
+    bounds  => $_[0], 
+    pattern => $_[1],
+  );
 }
 
 sub draw {    # void ()

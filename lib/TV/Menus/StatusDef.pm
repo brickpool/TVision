@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TStatusDef
+  new_TStatusDef
 );
 
 use Devel::StrictMode;
@@ -27,6 +28,7 @@ use TV::Menus::StatusItem;
 use TV::toolkit;
 
 sub TStatusDef() { __PACKAGE__ }
+sub new_TStatusDef { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots next  => ();

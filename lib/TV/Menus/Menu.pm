@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TMenu
+  new_TMenu
 );
 
 use Devel::StrictMode;
@@ -26,12 +27,13 @@ use Scalar::Util qw(
 use TV::toolkit;
 
 sub TMenu() { __PACKAGE__ }
+sub new_TMenu { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots items => ();
 slots deflt => ();
 
-sub BUILDARGS {    # \%args (%)
+sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;
   # 'init_arg' is not the same as the field name.
   $args{deflt} = delete $args{default};

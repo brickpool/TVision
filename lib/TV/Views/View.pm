@@ -15,6 +15,7 @@ use Exporter 'import';
 
 our @EXPORT = qw(
   TView
+  new_TView
 );
 
 use Devel::StrictMode;
@@ -59,6 +60,7 @@ require TV::Views::View::Write;
 
 sub TView() { __PACKAGE__ }
 sub name() { 'TView' }
+sub new_TView { __PACKAGE__->from(@_) }
 
 extends TObject;
 
@@ -135,6 +137,13 @@ sub BUILD {    # void (\%args)
   $self->setBounds( $args->{bounds} );
   return;
 } #/ sub BUILD
+
+sub from {    # $obj ($bounds)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 1 );
+  return $class->new( bounds => $_[0] );
+}
 
 sub DEMOLISH {    # void ()
   my $self = shift;

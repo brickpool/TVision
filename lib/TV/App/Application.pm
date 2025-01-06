@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TApplication
+  new_TApplication
 );
 
 use Devel::StrictMode;
@@ -23,6 +24,7 @@ use TV::Drivers::SystemError;
 use TV::toolkit;
 
 sub TApplication() { __PACKAGE__ }
+sub new_TApplication { __PACKAGE__->from(@_) }
 
 extends TProgram;
 

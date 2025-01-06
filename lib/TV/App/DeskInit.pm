@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TDeskInit
+  new_TDeskInit
 );
 
 use Devel::StrictMode;
@@ -15,6 +16,7 @@ use Scalar::Util qw( blessed );
 use TV::toolkit;
 
 sub TDeskInit() { __PACKAGE__ }
+sub new_TDeskInit { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots createBackground => ( is => 'bare', default => sub { die 'required' } );
@@ -25,6 +27,13 @@ sub BUILDARGS {    # \%args (%)
   # 'init_arg' is not equal to the field name
   $args{createBackground} = delete $args{cBackground};
   return \%args;
+}
+
+sub from {    # $obj ($cBackground)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 1 );
+  return $class->new( cBackground => $_[0] );
 }
 
 sub createBackground {    # $background ($r)

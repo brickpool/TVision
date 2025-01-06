@@ -31,6 +31,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TNSCollection
+  new_TNSCollection
 );
 
 use Carp ();
@@ -51,6 +52,7 @@ use TV::Objects::Object;
 use TV::toolkit;
 
 sub TNSCollection() { __PACKAGE__ }
+sub new_TNSCollection { __PACKAGE__->from(@_) }
 
 extends TObject;
 
@@ -69,12 +71,30 @@ my (
   $freeItem,
 );
 
+sub BUILDARGS {    # \%args (| %args)
+  my ( $class, %args ) = @_;
+  # 'isa' is not exists or Int
+  assert ( !exists $args{limit} or looks_like_number $args{limit} );
+  assert ( !exists $args{delta} or looks_like_number $args{delta} );
+  return \%args;
+}
+
 sub BUILD {    # void (| \%args)
   my ( $self, $args ) = @_;
   assert( blessed $self );
   $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD
+
+sub from {    # $obj ($aLimit, $aDelta);
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 2 );
+  return $class->new(
+    limit => $_[0], 
+    delta => $_[1],
+  );
+}
 
 sub DEMOLISH {    # void ()
   my $self = shift;

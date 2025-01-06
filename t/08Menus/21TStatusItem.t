@@ -11,7 +11,7 @@ BEGIN {
 }
 
 # Test object creation as list
-my $status_item1 = TStatusItem->from( 'One', 0x1234, 1 );
+my $status_item1 = new_TStatusItem( 'One', 0x1234, 1 );
 isa_ok( $status_item1, TStatusItem, 'Object is of class TStatusItem' );
 
 # Test object creation als hash with 'next'

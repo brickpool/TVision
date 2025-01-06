@@ -24,26 +24,26 @@ BEGIN {
 
 # Test case for the constructor
 subtest 'constructor' => sub {
-  my $bounds      = TRect->from( 0, 0, 10, 10 );
-  my $defs        = TStatusDef->from( 0, 0 );
-  my $status_line = TStatusLine->from( $bounds, $defs );
+  my $bounds      = new_TRect( 0, 0, 10, 10 );
+  my $defs        = new_TStatusDef( 0, 0 );
+  my $status_line = new_TStatusLine( $bounds, $defs );
   isa_ok( $status_line, TStatusLine, 'TStatusLine object created' );
 };
 
 # Test case for the destructor
 subtest 'destructor' => sub {
-  my $bounds      = TRect->from( 0, 0, 10, 10 );
-  my $defs        = TStatusDef->from( 0, 0 );
-  my $status_line = TStatusLine->from( $bounds, $defs );
+  my $bounds      = new_TRect( 0, 0, 10, 10 );
+  my $defs        = new_TStatusDef( 0, 0 );
+  my $status_line = new_TStatusLine( $bounds, $defs );
   $status_line->DEMOLISH();
   ok( !$status_line->{defs}, 'TStatusLine object destroyed' );
 };
 
 # Test case for the draw method
 subtest 'draw method' => sub {
-  my $bounds      = TRect->from( 0, 0, 10, 10 );
-  my $defs        = TStatusDef->from( 0, 0 );
-  my $status_line = TStatusLine->from( $bounds, $defs );
+  my $bounds      = new_TRect( 0, 0, 10, 10 );
+  my $defs        = new_TStatusDef( 0, 0 );
+  my $status_line = new_TStatusLine( $bounds, $defs );
   can_ok( $status_line, 'draw' );
   lives_ok { $status_line->draw() } 
     'TStatusLine->draw() works correctly';
@@ -51,9 +51,9 @@ subtest 'draw method' => sub {
 
 # Test case for the getPalette method
 subtest 'getPalette method' => sub {
-  my $bounds      = TRect->from( 0, 0, 10, 10 );
-  my $defs        = TStatusDef->from(0, 0 );
-  my $status_line = TStatusLine->from( $bounds, $defs );
+  my $bounds      = new_TRect( 0, 0, 10, 10 );
+  my $defs        = new_TStatusDef(0, 0 );
+  my $status_line = new_TStatusLine( $bounds, $defs );
   can_ok( $status_line, 'getPalette' );
   lives_ok { $status_line->getPalette() } 
     'TStatusLine->getPalette() works correctly';
@@ -61,10 +61,10 @@ subtest 'getPalette method' => sub {
 
 # Test case for the handleEvent method
 subtest 'handleEvent method' => sub {
-  my $bounds      = TRect->from( 0, 0, 10, 10 );
+  my $bounds      = new_TRect( 0, 0, 10, 10 );
   my $event       = TEvent->new();
-  my $defs        = TStatusDef->from( 0, 0 );
-  my $status_line = TStatusLine->from( $bounds, $defs );
+  my $defs        = new_TStatusDef( 0, 0 );
+  my $status_line = new_TStatusLine( $bounds, $defs );
   can_ok( $status_line, 'handleEvent' );
   lives_ok { $status_line->handleEvent( $event ) } 
     'TStatusLine->handleEvent() works correctly';

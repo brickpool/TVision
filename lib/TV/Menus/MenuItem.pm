@@ -15,6 +15,7 @@ use Exporter 'import';
 our @EXPORT = qw(
   TMenuItem
   newLine
+  new_TMenuItem
 );
 
 use Devel::StrictMode;
@@ -29,6 +30,7 @@ use TV::Views::View;
 use TV::toolkit;
 
 sub TMenuItem() { __PACKAGE__ }
+sub new_TMenuItem { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots next     => ();

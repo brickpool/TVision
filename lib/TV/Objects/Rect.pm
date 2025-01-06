@@ -28,6 +28,7 @@ use TV::Objects::Point;
 use Exporter 'import';
 our @EXPORT = qw(
   TRect
+  new_TRect
 );
 
 use Devel::StrictMode;
@@ -40,6 +41,7 @@ use Scalar::Util qw(
 );
 
 sub TRect() { __PACKAGE__ }
+sub new_TRect { __PACKAGE__->from(@_) }
 
 # declare attributes
 our %HAS; BEGIN {

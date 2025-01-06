@@ -18,6 +18,7 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 use Exporter 'import';
 our @EXPORT = qw(
   TObject
+  new_TObject
 );
 
 use Devel::StrictMode;
@@ -30,6 +31,14 @@ use Scalar::Util qw(
 use TV::toolkit;
 
 sub TObject() { __PACKAGE__ }
+sub new_TObject { __PACKAGE__->from(@_) }
+
+sub from {    # $obj ();
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
+  return $class->new();
+}
 
 sub destroy {    # void ($class|$self, $o|undef)
   my $class = ref $_[0] || $_[0];

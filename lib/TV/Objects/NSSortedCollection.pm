@@ -31,6 +31,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TNSSortedCollection
+  new_TNSSortedCollection
 );
 
 use Devel::StrictMode;
@@ -45,6 +46,7 @@ use TV::Objects::NSCollection;
 use TV::toolkit;
 
 sub TNSSortedCollection() { __PACKAGE__ }
+sub new_TNSSortedCollection { __PACKAGE__->from(@_) }
 
 extends TNSCollection;
 

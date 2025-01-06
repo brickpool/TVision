@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TScrollBar
+  new_TScrollBar
 );
 
 use Devel::StrictMode;
@@ -38,6 +39,7 @@ use TV::toolkit;
 
 sub TScrollBar() { __PACKAGE__ }
 sub name() { 'TScrollBar' }
+sub new_TScrollBar { __PACKAGE__->from(@_) }
 
 extends TView;
 

@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TEvent
+  new_TEvent
 );
 
 use Devel::StrictMode;
@@ -330,6 +331,7 @@ package MessageEvent {
 }
 
 sub TEvent() { __PACKAGE__ }
+sub new_TEvent { __PACKAGE__->from(@_) }
 
 our %HAS = (
   what => sub {
@@ -411,6 +413,13 @@ sub new {    # $obj (%args)
   }
   return $self;
 } #/ sub new
+
+sub from {    # $obj ()
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
+  return $class->new();
+}
 
 sub clone {    # $obj ()
   my $self = shift;

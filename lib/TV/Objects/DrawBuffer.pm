@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TDrawBuffer
+  new_TDrawBuffer
 );
 
 use Devel::StrictMode;
@@ -17,6 +18,7 @@ use Scalar::Util qw(
 );
 
 sub TDrawBuffer() { __PACKAGE__ }
+sub new_TDrawBuffer { __PACKAGE__->from(@_) }
 
 use TV::Views::Const qw( maxViewWidth );
 
@@ -44,6 +46,13 @@ sub new {    # $obj ()
   assert ( $class and !ref $class );
   my $self  = [ ( 0 ) x maxViewWidth ];
   return bless $self, $class;
+}
+
+sub from {    # $obj ()
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
+  return $class->new();
 }
 
 sub putAttribute {    # void ($indent, $attr)

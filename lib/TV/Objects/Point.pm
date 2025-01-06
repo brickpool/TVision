@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TPoint
+  new_TPoint
 );
 
 use Devel::StrictMode;
@@ -25,6 +26,7 @@ use Scalar::Util qw(
 );
 
 sub TPoint() { __PACKAGE__ }
+sub new_TPoint { __PACKAGE__->from(@_) }
 
 # declare attributes
 our %HAS; BEGIN {

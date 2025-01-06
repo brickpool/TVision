@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TSubMenu
+  new_TSubMenu
 );
 
 use Devel::StrictMode;
@@ -29,6 +30,7 @@ use TV::Menus::MenuItem;
 use TV::toolkit;
 
 sub TSubMenu() { __PACKAGE__ }
+sub new_TSubMenu { __PACKAGE__->from(@_) }
 
 extends TMenuItem;
 

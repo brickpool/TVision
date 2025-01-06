@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TWindowInit
+  new_TWindowInit
 );
 
 use Devel::StrictMode;
@@ -15,6 +16,7 @@ use Scalar::Util qw( blessed );
 use TV::toolkit;
 
 sub TWindowInit() { __PACKAGE__ }
+sub new_TWindowInit { __PACKAGE__->from(@_) }
 
 # declare attributes
 slots createFrame => ( is => 'bare', default => sub { die 'required' } );
@@ -25,6 +27,13 @@ sub BUILDARGS {    # \%args (%)
   # 'init_arg' is not equal to the field name
   $args{createFrame} = delete $args{cFrame};
   return \%args;
+}
+
+sub from {    # $obj ($cFrame)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 1 );
+  return $class->new( cFrame => $_[0] );
 }
 
 sub createFrame {    # $frame ($r)

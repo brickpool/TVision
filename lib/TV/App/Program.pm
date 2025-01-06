@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TProgram
+  new_TProgram
 );
 
 use Devel::StrictMode;
@@ -48,6 +49,7 @@ use TV::Views::View;
 use TV::toolkit;
 
 sub TProgram() { __PACKAGE__ }
+sub new_TProgram { __PACKAGE__->from(@_) }
 
 extends ( TGroup, TProgInit );
 
@@ -129,6 +131,13 @@ sub BUILD {    # void (| \%args)
     $self->insert( $menuBar );
   }
   return;
+}
+
+sub from {    # $obj ()
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
+  return $class->new();
 }
 
 sub DEMOLISH {    # void ()

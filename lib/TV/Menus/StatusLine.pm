@@ -14,6 +14,7 @@ use warnings;
 use Exporter 'import';
 our @EXPORT = qw(
   TStatusLine
+  new_TStatusLine
 );
 
 use Devel::StrictMode;
@@ -39,6 +40,7 @@ use TV::toolkit;
 
 sub TStatusLine() { __PACKAGE__ }
 sub name() { TStatusLine }
+sub new_TStatusLine { __PACKAGE__->from(@_) }
 
 extends TView;
 
