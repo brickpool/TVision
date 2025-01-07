@@ -27,13 +27,16 @@ package TV::Views::Frame::Line;
 use strict;
 use warnings;
 
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
   blessed
   looks_like_number
 );
-
 
 use TV::Views::Const qw( cpFrame );
 require TV::Views::Frame;

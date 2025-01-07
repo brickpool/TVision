@@ -11,8 +11,11 @@ package TV::Views::View;
 use strict;
 use warnings;
 
-use Exporter 'import';
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
 
+use Exporter 'import';
 our @EXPORT = qw(
   TView
   new_TView

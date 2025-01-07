@@ -25,6 +25,10 @@ use warnings;
 use List::Util qw(min max);
 use TV::Objects::Point;
 
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
 use Exporter 'import';
 our @EXPORT = qw(
   TRect

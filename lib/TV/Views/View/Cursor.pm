@@ -27,6 +27,10 @@ package TV::Views::View::Cursor;
 use strict;
 use warnings;
 
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
 use TV::Drivers::HardwareInfo;
 use TV::Drivers::Screen;
 use TV::Views::Const qw( :sfXXXX );

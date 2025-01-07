@@ -11,6 +11,10 @@ package TV::Menus::MenuBar;
 use strict;
 use warnings;
 
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
 use Exporter 'import';
 our @EXPORT = qw(
   TMenuBar
