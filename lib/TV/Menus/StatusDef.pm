@@ -31,10 +31,10 @@ sub TStatusDef() { __PACKAGE__ }
 sub new_TStatusDef { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots next  => ();
-slots min   => ( default => sub { 0 } );
-slots max   => ( default => sub { 0 } );
-slots items => ();
+has next  => ( is => 'rw' );
+has min   => ( is => 'rw', default => sub { 0 } );
+has max   => ( is => 'rw', default => sub { 0 } );
+has items => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

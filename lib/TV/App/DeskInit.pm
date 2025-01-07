@@ -19,7 +19,7 @@ sub TDeskInit() { __PACKAGE__ }
 sub new_TDeskInit { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots createBackground => ( is => 'bare', default => sub { die 'required' } );
+has createBackground => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

@@ -19,7 +19,7 @@ sub TWindowInit() { __PACKAGE__ }
 sub new_TWindowInit { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots createFrame => ( is => 'bare', default => sub { die 'required' } );
+has createFrame => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

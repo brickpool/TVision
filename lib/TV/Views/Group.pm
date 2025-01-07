@@ -56,13 +56,13 @@ our $TheTopView;
 our $ownerGroup;
 
 # declare attributes
-slots last      => ();
-slots clip      => ();
-slots phase     => ( default => sub { phFocused } );
-slots current   => ( is => 'bare' );
-slots buffer    => ();
-slots lockFlag  => ( default => sub { 0 } );
-slots endState  => ( default => sub { 0 } );
+has last      => ( is => 'rw' );
+has clip      => ( is => 'rw' );
+has phase     => ( is => 'rw', default => sub { phFocused } );
+has current   => ( is => 'bare' );
+has buffer    => ( is => 'rw' );
+has lockFlag  => ( is => 'rw', default => sub { 0 } );
+has endState  => ( is => 'rw', default => sub { 0 } );
 
 # predeclare private methods
 my (

@@ -48,12 +48,12 @@ our $vChars = "\x1E\x1F\xB1\xFE\xB2";    # cp437: "▲▼░■▒"
 our $hChars = "\x11\x10\xB1\xFE\xB2";    # cp437: "◄►░■▒"
 
 # declare attributes
-slots value  => ( default => sub { 0 } );
-slots minVal => ( default => sub { 0 } );
-slots maxVal => ( default => sub { 0 } );
-slots pgStep => ( default => sub { 1 } );
-slots arStep => ( default => sub { 1 } );
-slots chars  => ( default => sub { "\0" x 5 } );
+has value  => ( is => 'rw', default => sub { 0 } );
+has minVal => ( is => 'rw', default => sub { 0 } );
+has maxVal => ( is => 'rw', default => sub { 0 } );
+has pgStep => ( is => 'rw', default => sub { 1 } );
+has arStep => ( is => 'rw', default => sub { 1 } );
+has chars  => ( is => 'rw', default => sub { "\0" x 5 } );
 
 # predeclare private methods
 my (

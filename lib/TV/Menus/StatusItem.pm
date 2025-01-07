@@ -30,10 +30,10 @@ sub TStatusItem() { __PACKAGE__ }
 sub new_TStatusItem { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots next    => ();
-slots text    => ( default => sub { '' } );
-slots keyCode => ( default => sub { 0 } );
-slots command => ( default => sub { 0 } );
+has next    => ( is => 'rw' );
+has text    => ( is => 'rw', default => sub { '' } );
+has keyCode => ( is => 'rw', default => sub { 0 } );
+has command => ( is => 'rw', default => sub { 0 } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

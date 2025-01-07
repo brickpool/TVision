@@ -11,15 +11,15 @@ BEGIN {
   else {
     plan tests => 8;
   }
-  use_ok 'Moose';
+  require_ok 'Moose';
   use_ok 'TV::toolkit';
 }
 
 BEGIN {
   package MyObject;
   use TV::toolkit;
-  slots x => ();
-  slots y => ();
+  has x => ( is => 'rw' );
+  has y => ( is => 'rw' );
   $INC{"MyObject.pm"} = 1;
 }
 

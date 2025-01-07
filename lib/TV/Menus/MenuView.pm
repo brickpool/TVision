@@ -53,9 +53,9 @@ sub new_TMenuView { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-slots parentMenu => ();
-slots menu       => ();
-slots current    => ();
+has parentMenu => ( is => 'rw' );
+has menu       => ( is => 'rw' );
+has current    => ( is => 'rw' );
 
 # predeclare private methods
 my (

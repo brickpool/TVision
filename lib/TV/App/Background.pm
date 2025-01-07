@@ -27,7 +27,7 @@ sub new_TBackground { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-slots pattern => ( default => sub { die 'required' } );
+has pattern => ( is => 'rw', default => sub { die 'required' } );
 
 sub BUILD {    # void (| \%args)
   my $self = shift;

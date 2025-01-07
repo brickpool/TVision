@@ -26,8 +26,8 @@ BEGIN {
   use TV::Objects::Rect;
   use TV::toolkit;
   extends 'TV::Views::View';
-  slots last => ();
-  slots clip => ( default => sub { TRect->new() } );
+  has last => ( is => 'rw' );
+  has clip => ( is => 'rw', default => sub { TRect->new() } );
 
   sub drawSubViews { }
   $INC{"MyOwner.pm"} = 1;

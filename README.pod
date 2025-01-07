@@ -64,14 +64,19 @@ announcement, as so far only the basics are working).
 
 =item B<Extensibility>
 
-A pure Perl based toolkit was used to ensure that the applications remain 
-efficient and portable. The L<fields>/L<base> pragmas (by default) and 
-L<UNIVERSAL::Object> and L<Moo> and L<Moose> are currently supported.
+A I<Moo/s/e> based toolkit was used to ensure that the applications remain 
+efficient and portable. The toolkit enables developers to extend the 
+functionality of Perl TVision easily and efficiently. The L<Moos> package (by 
+default), L<Moo> and L<Moose> are currently supported. 
 
-The port allows developers to extend the functionality of Turbo Vision through 
-Perl modules and libraries.
+L<Moo> and L<Moose> are widely used libraries with a well-known API. It is 
+important to note that L<Moo> and L<Moose> are not required as prerequisites! 
+The default toolkit L<Moos> is compatible with this API and implemented in pure 
+Perl. 
 
-Note that Moo/se support has only been tested a very limited amount.
+It's up to you what you want to use. Simply C<use Moo> in your application, 
+instead of C<use TV::toolkit> if you want to use L<Moo>. Perl TVision will then 
+use L<Moo> in its entirety (the same applies to L<Moose>, of course). 
 
 =back
 
@@ -84,7 +89,7 @@ run the following command:
 
 A simple example to create an application with Turbo Vision in Perl:
 
-   use TV;
+   use TV::App;
 
    my $app = TApplication->new();
    $app->run();

@@ -45,8 +45,8 @@ sub new_TStatusLine { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-slots items => ();
-slots defs  => ();
+has items => ( is => 'rw' );
+has defs  => ( is => 'rw' );
 
 # predeclare private methods
 my (

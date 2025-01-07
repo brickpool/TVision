@@ -30,8 +30,8 @@ sub TMenu() { __PACKAGE__ }
 sub new_TMenu { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots items => ();
-slots deflt => ();
+has items => ( is => 'rw' );
+has deflt => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my ( $class, %args ) = @_;

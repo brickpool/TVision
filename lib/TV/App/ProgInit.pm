@@ -19,9 +19,9 @@ sub TProgInit() { __PACKAGE__ }
 sub new_TProgInit { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots createStatusLine => ( is => 'bare', default => sub { die 'required' } );
-slots createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
-slots createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
+has createStatusLine => ( is => 'bare', default => sub { die 'required' } );
+has createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
+has createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

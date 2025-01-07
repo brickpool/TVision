@@ -41,8 +41,8 @@ extends ( TGroup, TDeskInit );
 our $defaultBkgrnd = "\xB0";
 
 # declare attributes
-slots background        => ();
-slots tileColumnsFirst  => ( default => sub { 0 } );
+has background        => ( is => 'rw' );
+has tileColumnsFirst  => ( is => 'rw', default => sub { 0 } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

@@ -15,8 +15,8 @@ ok( TV::toolkit::is_ClassLOP(), 'is Class::LOP toolkit' );
 BEGIN {
   package MyObject;
   use TV::toolkit;
-  slots x => ();
-  slots y => ();
+  has x => ( is => 'rw' );
+  has y => ( is => 'rw' );
   $INC{"MyObject.pm"} = 1;
 }
 

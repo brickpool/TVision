@@ -33,14 +33,14 @@ sub TMenuItem() { __PACKAGE__ }
 sub new_TMenuItem { __PACKAGE__->from(@_) }
 
 # declare attributes
-slots next     => ();
-slots name     => ( default => sub { die 'required' } );
-slots command  => ( default => sub { 0 } );
-slots disabled => ( default => sub { !!0 } );
-slots keyCode  => ( default => sub { die 'required' } );
-slots helpCtx  => ( default => sub { hcNoContext } );
-slots param    => ( default => sub { '' } );
-slots subMenu  => ();
+has next     => ( is => 'rw' );
+has name     => ( is => 'rw', default => sub { die 'required' } );
+has command  => ( is => 'rw', default => sub { 0 } );
+has disabled => ( is => 'rw', default => sub { !!0 } );
+has keyCode  => ( is => 'rw', default => sub { die 'required' } );
+has helpCtx  => ( is => 'rw', default => sub { hcNoContext } );
+has param    => ( is => 'rw', default => sub { '' } );
+has subMenu  => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

@@ -28,8 +28,8 @@ BEGIN {
   package MyWindow;
   use TV::toolkit;
   extends 'TV::Views::Group';
-  slots flags  => ( default => sub { 0 } );
-  slots number => ( default => sub { 0 } );
+  has flags  => ( is => 'rw', default => sub { 0 } );
+  has number => ( is => 'rw', default => sub { 0 } );
   sub getTitle { 'title' }
   $INC{"MyWindow.pm"} = 1;
 }

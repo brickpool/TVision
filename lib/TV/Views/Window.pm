@@ -60,12 +60,15 @@ use vars qw(
   *appPalette = \${ TProgram . '::appPalette' };
 }
 
-slots flags    => ( default => sub { wfMove | wfGrow | wfClose | wfZoom } );
-slots zoomRect => ();
-slots number   => ( default => sub { die 'required' } );
-slots palette  => ();
-slots frame    => ();
-slots title    => ( default => sub { die 'required' } );
+has flags    => (
+  is => 'rw', 
+  default => sub { wfMove | wfGrow | wfClose | wfZoom }
+);
+has zoomRect => ( is => 'rw' );
+has number   => ( is => 'rw', default => sub { die 'required' } );
+has palette  => ( is => 'rw' );
+has frame    => ( is => 'rw' );
+has title    => ( is => 'rw', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%)
   my ( $class, %args ) = @_;

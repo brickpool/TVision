@@ -24,6 +24,7 @@ WriteMakefile(
     'Import::Into'      => 1.002005,
     'List::Util'        => 1.33,
     'Module::Loaded'    => 0,
+    'Moos'              => '0.30',
     'Scalar::Util'      => 1.36,
     'Win32'             => 0.59,
     'Win32API::File'    => 0.1101,

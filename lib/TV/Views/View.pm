@@ -92,17 +92,20 @@ use vars qw(
 }
 
 # declare attributes
-slots owner     => ( is => 'bare' );
-slots next      => ( is => 'bare' );
-slots options   => ( default => sub { 0 } );
-slots state     => ( default => sub { sfVisible } );
-slots growMode  => ( default => sub { 0 } );
-slots dragMode  => ( default => sub { dmLimitLoY } );
-slots helpCtx   => ( default => sub { hcNoContext } );
-slots eventMask => ( default => sub { evMouseDown | evKeyDown | evCommand } );
-slots size      => ( default => sub { TPoint->new() } );
-slots origin    => ( default => sub { TPoint->new() } );
-slots cursor    => ( default => sub { TPoint->new() } );
+has owner     => ( is => 'bare' );
+has next      => ( is => 'bare' );
+has options   => ( is => 'rw', default => sub { 0 } );
+has state     => ( is => 'rw', default => sub { sfVisible } );
+has growMode  => ( is => 'rw', default => sub { 0 } );
+has dragMode  => ( is => 'rw', default => sub { dmLimitLoY } );
+has helpCtx   => ( is => 'rw', default => sub { hcNoContext } );
+has eventMask => (
+  is => 'rw',
+  default => sub { evMouseDown | evKeyDown | evCommand },
+);
+has size      => ( is => 'rw', default => sub { TPoint->new() } );
+has origin    => ( is => 'rw', default => sub { TPoint->new() } );
+has cursor    => ( is => 'rw', default => sub { TPoint->new() } );
 
 # predeclare private methods
 my (

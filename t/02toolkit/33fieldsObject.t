@@ -1,10 +1,12 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More skip_all 
+  => 'fields cannot be used as a TV::toolkit';
 use Test::Exception;
 
 BEGIN {
+  plan tests => 9;
   require_ok 'fields';
   use_ok 'TV::toolkit';
 }
@@ -14,8 +16,8 @@ ok( TV::toolkit::is_fields(), 'is fields based toolkit' );
 BEGIN {
   package MyObject;
   use TV::toolkit;
-  slots x => ();
-  slots y => ();
+  has x => ( is => 'rw' );
+  has y => ( is => 'rw' );
   $INC{"MyObject.pm"} = 1;
 }
 

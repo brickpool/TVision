@@ -60,7 +60,7 @@ use vars qw(
 }
 
 # declare attributes
-slots duplicates => ( default => sub { !!0 } );
+has duplicates => ( is => 'rw', default => sub { !!0 } );
 
 sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;

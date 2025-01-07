@@ -60,11 +60,11 @@ extends TObject;
 our %ITEMS = ();
 
 # declare attributes
-slots items        => ( default => sub { [] }  );
-slots count        => ( default => sub { 0 }   );
-slots limit        => ( default => sub { 0 }   );
-slots delta        => ( default => sub { 0 }   );
-slots shouldDelete => ( default => sub { !!1 } );
+has items        => ( is => 'rw', default => sub { [] }  );
+has count        => ( is => 'rw', default => sub { 0 }   );
+has limit        => ( is => 'rw', default => sub { 0 }   );
+has delta        => ( is => 'rw', default => sub { 0 }   );
+has shouldDelete => ( is => 'rw', default => sub { !!1 } );
 
 # predeclare private methods
 my (
