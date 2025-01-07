@@ -1,14 +1,24 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More;
 use Test::Exception;
+
+BEGIN {
+  unless ( $] >= 5.015004 ) {
+    plan skip_all => 'Test only for for Perl >= 5.15.4';
+  }
+  else {
+    plan tests => 15;
+  }
+}
 
 BEGIN {
   package Local::Class;
   BEGIN {
-    ::require_ok 'TV::decorators';
-    ::lives_ok { TV::decorators->import() } 'TV::decorators->import();';
+    ::require_ok 'TV::toolkit::decorators';
+    ::lives_ok { TV::toolkit::decorators->import() }
+      'TV::toolkit::decorators->import();';
   }
 
   sub new {

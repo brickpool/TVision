@@ -4,7 +4,7 @@ package Class::Fields::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.04';
+our $VERSION   = '0.05';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Carp ();
@@ -125,12 +125,10 @@ sub have_accessors {    # $self|undef ($name)
       if ( $access =~ /^ro|rw$/ ) {
         if ( XS ) {
           my $mutator = $access eq 'ro' ? 'getters' : 'accessors';
-          eval qq[
-            use Class::XSAccessor
-              class => '$class',
-              $mutator => { '$attr' => '$attr' };
-            return 1;
-          ] or Carp::croak( "Can't create accessor in class '$class': $@" );
+          Class::XSAccessor->import(
+            class => $class,
+            $mutator => { $attr => $attr },
+          );
         }
         else {
           my $acc = "${class}::${attr}";
@@ -321,7 +319,7 @@ Class::Fields::LOP - The Lightweight Object Protocol for fields based classes
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 DESCRIPTION
 
@@ -408,7 +406,7 @@ Michael G Schwern <schwern@pobox.com>
 
 =head1 LICENSE
 
-Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+Copyright (c) 2024-2025 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

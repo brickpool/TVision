@@ -6,7 +6,7 @@ use warnings;
 no strict 'refs';
 no warnings 'once';
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Carp ();
@@ -118,12 +118,10 @@ sub add_accessor {    # void ($class, $field, | $access)
   # create the accessor and use the XS version if available
   if ( XS ) {
     my $mutator = $access eq 'ro' ? 'getters' : 'accessors';
-    eval qq[
-      use Class::XSAccessor
-        class => '$class',
-        $mutator => { '$field' => '$field' };
-      return 1;
-    ] or Carp::croak( "Can't create accessor in class '$class': $@" );
+    Class::XSAccessor->import(
+      class => $class,
+      $mutator => { $field => $field },
+    );
   }
   else {
     my $acc = "${class}::${field}";
@@ -161,7 +159,7 @@ slots::less - A simple pragma for UNIVERSAL::Object without MOP dependency
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 DESCRIPTION
 
@@ -174,8 +172,8 @@ This is why this pragma was developed, which does not require the L<MOP>
 distribution.
 
 Similar to the L<fields> pragma, C<slot::less> declares individual fields 
-(stored in a global variable %HAS) and create accessors if a class based 
-L<UNIVERSAL::Object> is in use.
+(stored in a global variable %HAS). L<UNIVERSAL::Object> is used as the base 
+class and accessors are also created (unlike the L<fields> or L<slots> pragma).
 
 When available, L<Class::XSAccessor> is used to generate the class accessors.
 
@@ -183,7 +181,7 @@ When available, L<Class::XSAccessor> is used to generate the class accessors.
 
 L<Carp>, L<UNIVERSAL::Object> and L<MRO::Compat> when using perl < v5.10.
 
-=head1 BUGS, CAVETS
+=head1 BUGS
 
 This pragma creates the global variable C<%HAS> used by C<UNIVERSAL::Objects>. 
 This means that all derived classes will require C<%HAS> (including inherited 
@@ -209,7 +207,7 @@ Michael G Schwern <schwern@pobox.com>
 
 =head1 LICENSE
 
-Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+Copyright (c) 2024-2025 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

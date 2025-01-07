@@ -20,6 +20,7 @@ BEGIN {
   use TV::toolkit;
   has x => ( is => 'rw' );
   has y => ( is => 'rw' );
+  no TV::toolkit;
   $INC{"MyObject.pm"} = 1;
 }
 

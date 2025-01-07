@@ -11,13 +11,13 @@ my %module; BEGIN { %module = (
   fields              => 'Class::Fields',
   # 'Class::LOP'        => 'Class::LOP',
   # 'Class::Tiny'       => 'Class::Tiny',
-  Moo                 => 'Moo',
-  Moose               => 'Moose',
+  # Moo                 => 'Moo',
+  # Moose               => 'Moose',
   'UNIVERSAL::Object' => 'UNIVERSAL::Object'
 )}
 
 our $name; BEGIN {
-  $name = 'fields';
+  *name = \$TV::toolkit::name;
   foreach my $toolkit ( reverse sort keys %module ) {
     if ( Module::Loaded::is_loaded $toolkit ) {
       $name = $toolkit;

@@ -1,8 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More skip_all 
-  => 'UNIVERSAL::Object cannot be used as a TV::toolkit';
+use Test::More;
 use Test::Exception;
 
 BEGIN {

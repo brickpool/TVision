@@ -4,7 +4,7 @@ package UNIVERSAL::Object::LOP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.06';
+our $VERSION   = '0.07';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Carp ();
@@ -108,12 +108,10 @@ sub have_accessors {    # $self|undef ($name)
       if ( $access =~ /^ro|rw$/ ) {
         if ( XS ) {
           my $mutator = $access eq 'ro' ? 'getters' : 'accessors';
-          eval qq[
-            use Class::XSAccessor
-              class => '$class',
-              $mutator => { '$attr' => '$attr' };
-            return 1;
-          ] or Carp::croak( "Can't create accessor in class '$class': $@" );
+          Class::XSAccessor->import(
+            class => $class,
+            $mutator => { $attr => $attr },
+          );
         }
         else {
           my $acc = "${class}::${attr}";
@@ -245,7 +243,7 @@ UNIVERSAL::Object::LOP - The Lightweight Object Protocol for UNIVERSAL::Object
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 DESCRIPTION
 
@@ -329,7 +327,7 @@ Stevan Little <stevan@cpan.org>
 
 =head1 LICENSE
 
-Copyright (c) 2024 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+Copyright (c) 2024-2025 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

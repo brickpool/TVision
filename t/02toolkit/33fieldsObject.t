@@ -1,12 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More skip_all 
-  => 'fields cannot be used as a TV::toolkit';
+use Test::More tests => 9;
 use Test::Exception;
 
 BEGIN {
-  plan tests => 9;
   require_ok 'fields';
   use_ok 'TV::toolkit';
 }

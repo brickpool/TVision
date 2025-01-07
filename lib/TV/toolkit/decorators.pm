@@ -1,5 +1,10 @@
-package TV::decorators;
+package TV::toolkit::decorators;
 
+# Prior to Perl 5.15.4, attribute handlers are executed before the body is 
+# attached, so see it in that intermediate state. (From Perl 5.15.4 onwards, 
+# attribute handlers are executed after the body is attached.
+# See: L<Sub::WhenBodied> for details.
+use 5.015004;
 use strict;
 use warnings;
 
@@ -9,7 +14,7 @@ use Exporter              ();
 use Scalar::Util          ();
 use Sub::Util             ();
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 our @EXPORT = qw(
