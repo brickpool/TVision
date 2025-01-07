@@ -27,3 +27,5 @@ isa_ok( TProgInit->new(
   cMenuBar    => sub { },
   cDeskTop    => sub { },
 ), TProgInit );
+ok( TProgram->can( 'new' ), 'TProgram->new() exists' );
+ok( TApplication->can( 'new' ), 'TApplication->new_() exists' );
