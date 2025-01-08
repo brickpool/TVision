@@ -15,6 +15,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   weaken
@@ -46,29 +50,22 @@ our $defaultBkgrnd = "\xB0";
 
 # declare attributes
 has background        => ( is => 'rw' );
-has tileColumnsFirst  => ( is => 'rw', default => sub { 0 } );
+has tileColumnsFirst  => ( is => 'rw', default => sub { !!0 } );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  # 'init_arg' is not equal to the field name
-  $args{createBackground} = delete $args{cBackground};
-  # TDeskInit->BUILDARGS is not called because arguments are not 'required'
-  return TGroup->BUILDARGS( %args );
-}
-
-sub from {    # $obj ($bounds)
+sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
-  assert ( @_ == 1 );
-  return $class->new( bounds => $_[0] );
+  my $args1 = TGroup->BUILDARGS( @_ );
+  my $args2 = TDeskInit->BUILDARGS(
+    cBackground => $class->can( 'initBackground' ),
+  );
+  return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
-  $self->{createBackground} ||= \&initBackground;
-  $self->{growMode}         = gfGrowHiX | gfGrowHiY;
+  $self->{growMode} = gfGrowHiX | gfGrowHiY;
 
   if ( $self->{createBackground}
     && ( $self->{background} = $self->createBackground( $self->getExtent() ) ) 
@@ -76,6 +73,13 @@ sub BUILD {    # void (| \%args)
     $self->insert( $self->{background} );
   }
   return;
+}
+
+sub from {    # $obj ($bounds)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 1 );
+  return $class->new( bounds => $_[0] );
 }
 
 my $Tileable = sub {    # void ($p)

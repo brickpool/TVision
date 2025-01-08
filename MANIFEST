@@ -1,5 +1,6 @@
 bin/overview.pl
 lib/slots/less.pm
+lib/TV/App.pm
 lib/TV/App/Application.pm
 lib/TV/App/Background.pm
 lib/TV/App/Const.pm
@@ -8,8 +9,8 @@ lib/TV/App/DeskTop.pm
 lib/TV/App/ProgInit.pm
 lib/TV/App/Program.pm
 lib/TV/Const.pm
-lib/TV/decorators.pm
 lib/TV/Dialogs/History/HistList.pm
+lib/TV/Drivers.pm
 lib/TV/Drivers/Const.pm
 lib/TV/Drivers/Display.pm
 lib/TV/Drivers/Event.pm
@@ -21,7 +22,9 @@ lib/TV/Drivers/Mouse.pm
 lib/TV/Drivers/Screen.pm
 lib/TV/Drivers/SystemError.pm
 lib/TV/Drivers/Util.pm
+lib/TV/Memory.pm
 lib/TV/Memory/Util.pm
+lib/TV/Menus.pm
 lib/TV/Menus/Const.pm
 lib/TV/Menus/Menu.pm
 lib/TV/Menus/MenuBar.pm
@@ -31,6 +34,7 @@ lib/TV/Menus/StatusDef.pm
 lib/TV/Menus/StatusItem.pm
 lib/TV/Menus/StatusLine.pm
 lib/TV/Menus/SubMenu.pm
+lib/TV/Objects.pm
 lib/TV/Objects/Collection.pm
 lib/TV/Objects/Const.pm
 lib/TV/Objects/DrawBuffer.pm
@@ -41,6 +45,7 @@ lib/TV/Objects/Point.pm
 lib/TV/Objects/Rect.pm
 lib/TV/Objects/SortedCollection.pm
 lib/TV/toolkit.pm
+lib/TV/toolkit/decorators.pm
 lib/TV/toolkit/LOP.pm
 lib/TV/toolkit/LOP/Class/Fields.pm
 lib/TV/toolkit/LOP/Class/Tiny.pm
@@ -93,6 +98,7 @@ t/03Objects/13TRect.t
 t/03Objects/15DrawBuffer.t
 t/03Objects/21TCollection.t
 t/03Objects/22TSortedCollection.t
+t/03Objects/99Objects.t
 t/04Drivers/01load.t
 t/04Drivers/02Const.t
 t/04Drivers/03Util.t
@@ -107,8 +113,10 @@ t/04Drivers/24MessageEvent.t
 t/04Drivers/25TEvent.t
 t/04Drivers/32TMouse.t
 t/04Drivers/33TEventQueue.t
+t/04Drivers/99Drivers.t
 t/05Memory/01load.t
 t/05Memory/03Util.t
+t/05Memory/99Memory.t
 t/06Views/01load.t
 t/06Views/02Const.t
 t/06Views/03message.t
@@ -142,6 +150,7 @@ t/08Menus/15TMenuBar.t
 t/08Menus/21TStatusItem.t
 t/08Menus/22TStatusDef.t
 t/08Menus/23TStatusLine.t
+t/08Menus/99Menus.t
 t/09App/01load.t
 t/09App/02Const.t
 t/09App/11TBackground.t
@@ -150,6 +159,7 @@ t/09App/13TDeskTop.t
 t/09App/14TProgInit.t
 t/09App/15TProgram.t
 t/09App/16Application.t
+t/09App/99App.t
 t/10Views/01load.t
 t/10Views/44TWindow.t
 t/10Views/99Views.t

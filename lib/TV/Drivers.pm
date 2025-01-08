@@ -31,7 +31,7 @@ sub import {
   TV::Drivers::HWMouse->import::into( $target );
   TV::Drivers::Mouse->import::into( $target );
   TV::Drivers::EventQueue->import::into( $target );
-  TV::Drivers::Util->import::into( $target, qw( /.+/) );
+  TV::Drivers::Util->import::into( $target, qw( /\S+/) );
 }
 
 sub unimport {

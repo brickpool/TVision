@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -62,15 +66,14 @@ my (
 # declare local variables
 my $hintSeparator;
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( blessed $args{bounds} );
-  assert ( exists $args{defs} );
-  # 'isa' is undef or TStatusDef
-  assert( !defined $args{defs} or blessed $args{defs} );
-  return $class->SUPER::BUILDARGS( %args );
+  return STRICT ? check( {
+    # 'required' arguments (note: 'defs' can be undefined)
+    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
+    defs => { required => 1, allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub BUILD {    # void (\%args)

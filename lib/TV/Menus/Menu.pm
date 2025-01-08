@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -37,14 +41,16 @@ sub new_TMenu { __PACKAGE__->from(@_) }
 has items => ( is => 'rw' );
 has deflt => ( is => 'rw' );
 
-sub BUILDARGS {    # \%args (%args)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (| %args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  my $args = STRICT ? check( {
+    items   => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    default => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   # 'init_arg' is not the same as the field name.
-  $args{deflt} = delete $args{default};
-  # 'isa' is undef or TMenuItem
-  assert ( !defined $args{items} or blessed $args{items} );
-  assert ( !defined $args{deflt} or blessed $args{deflt} );
-  return \%args;
+  $args->{deflt} = delete $args->{default};
+  return $args;
 }
 
 sub BUILD {    # void (| \%args)

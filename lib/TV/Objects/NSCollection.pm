@@ -43,6 +43,10 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Errno qw( EFAULT EINVAL );
 use Hash::Util::FieldHash qw( id );
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -76,11 +80,12 @@ my (
 );
 
 sub BUILDARGS {    # \%args (| %args)
-  my ( $class, %args ) = @_;
-  # 'isa' is not exists or Int
-  assert ( !exists $args{limit} or looks_like_number $args{limit} );
-  assert ( !exists $args{delta} or looks_like_number $args{delta} );
-  return \%args;
+  my $class = shift;
+  assert ( $class and !ref $class );
+  return STRICT ? check( {
+    limit => { default => 0, defined => 1, allow => qr/^\d+$/ },
+    delta => { default => 0, defined => 1, allow => qr/^\d+$/ },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub BUILD {    # void (| \%args)

@@ -15,6 +15,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw( blessed );
 
 use TV::toolkit;
@@ -27,18 +31,20 @@ has createStatusLine => ( is => 'bare', default => sub { die 'required' } );
 has createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
 has createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
-  assert( $class and !ref $class );
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args = STRICT ? check( {
+    cStatusLine => { required => 1, default => sub { }, strict_type => 1 },
+    cMenuBar    => { required => 1, default => sub { }, strict_type => 1 },
+    cDeskTop    => { required => 1, default => sub { }, strict_type => 1 },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   # 'init_arg' is not equal to the field name
-  $args{createStatusLine} = delete $args{cStatusLine};
-  $args{createMenuBar}    = delete $args{cMenuBar};
-  $args{createDeskTop}    = delete $args{cDeskTop};
-  # 'required' arguments
-  assert ( ref $args{createStatusLine} eq 'CODE' );
-  assert ( ref $args{createMenuBar} eq 'CODE' );
-  assert ( ref $args{createDeskTop} eq 'CODE' );
-  return \%args;
+  $args->{createStatusLine} = delete $args->{cStatusLine};
+  $args->{createMenuBar}    = delete $args->{cMenuBar};
+  $args->{createDeskTop}    = delete $args->{cDeskTop};
+  return $args;
 } #/ sub BUILDARGS
 
 sub from {    # $obj ($cStatusLine, $cMenuBar, $cDeskTop)

@@ -18,6 +18,10 @@ our @EXPORT_OK = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -92,30 +96,29 @@ use vars qw(
   *shadowSize        = \${ TView . '::shadowSize' };
 }
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  # 'init_arg' is not the same as the field name.
-  $args{createStatusLine} = delete $args{cStatusLine};
-  $args{createMenuBar}    = delete $args{cMenuBar};
-  $args{createDeskTop}    = delete $args{cDeskTop};
-  # 'bounds' argument is not 'required'
-  $args{bounds} ||= TRect->new(
-    ax => 0,
-    ay => 0,
-    bx => $screenWidth,
-    by => $screenHeight,
+sub BUILDARGS {    # \%args ()
+  my $class = shift;
+  assert( $class and !ref $class );
+  assert( @_ == 0 );
+  my $args1 = TGroup->BUILDARGS(
+    bounds => TRect->new(
+      ax => 0,
+      ay => 0,
+      bx => $screenWidth,
+      by => $screenHeight,
+    )
   );
-  # TProgInit->BUILDARGS is not called because arguments are not 'required'
-  return TGroup->BUILDARGS( %args );
+  my $args2 = TProgInit->BUILDARGS(
+    cStatusLine => $class->can( 'initStatusLine' ),
+    cMenuBar    => $class->can( 'initMenuBar' ),
+    cDeskTop    => $class->can( 'initDeskTop' ),
+  );
+  return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (| \%args)
   my $self = shift;
   assert ( blessed $self );
-  $self->{createStatusLine} ||= \&initStatusLine;
-  $self->{createMenuBar}    ||= \&initMenuBar;
-  $self->{createDeskTop}    ||= \&initDeskTop;
   $application = $self;
   $self->initScreen();
   $self->{state}   = sfVisible | sfSelected | sfFocused | sfModal | sfExposed;

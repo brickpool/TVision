@@ -15,6 +15,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -74,13 +78,18 @@ has palette  => ( is => 'rw' );
 has frame    => ( is => 'rw' );
 has title    => ( is => 'rw', default => sub { die 'required' } );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'init_arg' is not equal to the field name
-  $args{createFrame} = delete $args{cFrame};
-  # TWindowInit->BUILDARGS is not called because arguments are not 'required'
-  return TGroup->BUILDARGS( %args );
+  my $args1 = STRICT ? check( {
+    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
+    title  => { required => 1, defined => 1, allow => sub { !ref shift } },
+    number => { required => 1, defined => 1, allow => qr/^\d+$/ },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  my $args2 = TWindowInit->BUILDARGS(
+    cFrame => $class->can( 'initFrame' ),
+  );
+  return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (| \%args)
@@ -88,7 +97,6 @@ sub BUILD {    # void (| \%args)
   assert ( blessed $self );
   $self->{zoomRect} = $self->getBounds();
   $self->{palette}  = wpBlueWindow;
-  $self->{createFrame} ||= \&initFrame;
 
   $self->{state}   |= sfShadow;
   $self->{options} |= ofSelectable | ofTopSelect;
@@ -126,7 +134,7 @@ sub close {    # void ()
   if ( $self->valid( cmClose ) ) {
     # so we don't try to use the frame after it's been deleted
     $self->{frame} = undef;
-	  $self->destroy( $self );
+    $self->destroy( $self );
   }
   return;
   } #/ alias

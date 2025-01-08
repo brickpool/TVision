@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -40,16 +44,17 @@ has min   => ( is => 'rw', default => sub { 0 } );
 has max   => ( is => 'rw', default => sub { 0 } );
 has items => ( is => 'rw' );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( looks_like_number $args{min} );
-  assert ( looks_like_number $args{max} );
-  # check 'isa' (note: 'next' and 'items' can be undefined)
-  assert( !defined $args{next}  or blessed $args{next} );
-  assert( !defined $args{items} or blessed $args{items} );
-  return \%args;
+  return STRICT ? check( {
+    # 'required' arguments
+    min => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    max => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    # check 'isa' (note: 'next' and 'items' can be undefined)
+    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    items => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub from {    # $obj ($aMin, $aMax, | $someItems, | $aNext)

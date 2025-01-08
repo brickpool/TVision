@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -39,16 +43,18 @@ has text    => ( is => 'rw', default => sub { '' } );
 has keyCode => ( is => 'rw', default => sub { 0 } );
 has command => ( is => 'rw', default => sub { 0 } );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( defined $args{text} and !ref $args{text} );
-  assert ( looks_like_number $args{keyCode} );
-  assert ( looks_like_number $args{command} );
-  # 'isa' is undef or TStatusItem
-  assert ( !defined $args{next} or blessed $args{next} );
-  return \%args;
+  local $Params::Check::PRESERVE_CASE = 1;
+  return STRICT ? check( {
+    # 'required' arguments
+    text    => { required => 1, defined => 1, allow => sub { !ref shift } },
+    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    # check 'isa' (note: 'next' can be undefined)
+    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub from {    # $obj ($aText, $key, $cmd, | $aNext)

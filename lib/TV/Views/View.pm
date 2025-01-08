@@ -24,7 +24,11 @@ our @EXPORT = qw(
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
-use Scalar::Util qw( 
+use Params::Check qw(
+  check
+  last_error
+);
+use Scalar::Util qw(
   blessed 
   weaken
   looks_like_number
@@ -127,12 +131,13 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
   # 'required' arguments
-  assert ( blessed $args{bounds} );
-  return \%args;
+  return STRICT ? check( {
+    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub BUILD {    # void (\%args)

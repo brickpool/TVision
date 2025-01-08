@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -37,6 +41,22 @@ sub TSubMenu() { __PACKAGE__ }
 sub new_TSubMenu { __PACKAGE__->from(@_) }
 
 extends TMenuItem;
+
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  return STRICT ? check( {
+    # 'required' arguments
+    name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
+    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    # check 'isa' (note: 'helpCtx' can be undefined)
+    helpCtx => {
+      default => hcNoContext,
+      allow   => sub { !defined $_[0] or looks_like_number $_[0] }
+    },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+}
 
 sub from {    # $obj ($nm, $key, $helpCtx)
   my $class = shift;

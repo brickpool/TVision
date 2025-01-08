@@ -24,7 +24,7 @@ sub import {
   TV::App::DeskInit->import::into( $target );
   TV::App::DeskTop->import::into( $target );
   TV::App::ProgInit->import::into( $target );
-  TV::App::Program->import::into( $target );
+  TV::App::Program->import::into( $target, qw ( /\S+/ ) );
   TV::App::Application->import::into( $target );
 }
 

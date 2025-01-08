@@ -33,6 +33,13 @@ use TV::toolkit;
 sub TObject() { __PACKAGE__ }
 sub new_TObject { __PACKAGE__->from(@_) }
 
+sub BUILDARGS {    # \%args ()
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
+  return {};
+}
+
 sub from {    # $obj ();
   my $class = shift;
   assert ( $class and !ref $class );

@@ -17,7 +17,7 @@ use Test::More tests => 4;
 use Test::Exception;
 
 BEGIN {
-  use_ok 'TV::App::Application';
+  use_ok 'TV::App';
 }
 
 use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
@@ -25,7 +25,7 @@ use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
                                 && !$ENV{NONINTERACTIVE_TESTING};
 
 SKIP: {
-  skip 'Manual test not enabled', 2 unless ManualTestsEnabled();
+  skip 'Manual test not enabled', 3 unless ManualTestsEnabled();
   my $myApp;
   lives_ok { $myApp = TApplication->new() } 'TApplication object created';
   isa_ok( $myApp, TApplication );

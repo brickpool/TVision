@@ -24,6 +24,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -46,19 +50,24 @@ has helpCtx  => ( is => 'rw', default => sub { hcNoContext } );
 has param    => ( is => 'rw', default => sub { '' } );
 has subMenu  => ( is => 'rw' );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( defined $args{name} and !ref $args{name} );
-  assert ( looks_like_number $args{keyCode} );
-  # check 'isa'
-  assert ( !defined $args{command} or looks_like_number $args{command} );
-  assert ( !defined $args{subMenu} or blessed $args{subMenu} );
-  assert ( !defined $args{helpCtx} or looks_like_number $args{helpCtx} );
-  assert ( !ref $args{param} );
-  assert ( !defined $args{next} or blessed $args{next} );
-  return \%args;
+  local $Params::Check::PRESERVE_CASE = 1;
+  return STRICT ? check( {
+    # 'required' arguments
+    name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
+    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    # check 'isa' (note: args can be undefined)
+    command => { allow => sub { !defined $_[0] or looks_like_number $_[0] } },
+    subMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    helpCtx => {
+      default => hcNoContext,
+      allow   => sub { !defined $_[0] or looks_like_number $_[0] }
+    },
+    param   => { allow => sub { !defined $_[0] or !ref $_[0] } },
+    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub BUILD {    # void (| \%args)

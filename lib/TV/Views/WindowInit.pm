@@ -15,6 +15,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw( blessed );
 
 use TV::toolkit;
@@ -25,12 +29,16 @@ sub new_TWindowInit { __PACKAGE__->from(@_) }
 # declare attributes
 has createFrame => ( is => 'bare', default => sub { die 'required' } );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args = STRICT ? check( {
+    cFrame => { required => 1, default => sub { }, strict_type => 1 },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   # 'init_arg' is not equal to the field name
-  $args{createFrame} = delete $args{cFrame};
-  return \%args;
+  $args->{createFrame} = delete $args->{cFrame};
+  return $args;
 }
 
 sub from {    # $obj ($cFrame)

@@ -23,6 +23,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -75,15 +79,17 @@ my (
   $findHotKey,
 );
 
-sub BUILDARGS {    # \%args (%)
-  my ( $class, %args ) = @_;
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
-  assert ( exists $args{bounds} );
-  # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
-  assert( !defined $args{menu}       or blessed $args{menu} );
-  assert( !defined $args{parentMenu} or blessed $args{parentMenu} );
-  return $class->SUPER::BUILDARGS( %args );
+  local $Params::Check::PRESERVE_CASE = 1;
+  return STRICT ? check( {
+    # 'required' arguments
+    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
+    # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
+    menu       => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    parentMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
 sub BUILD {    # void (\%args)

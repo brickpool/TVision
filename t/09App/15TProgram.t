@@ -42,9 +42,7 @@ my $program;
 
 # Test object creation
 subtest 'object creation' => sub {
-  my $bounds = TRect->new( ax => 0, ay => 0, bx => 80, by => 25 );
-  isa_ok( $bounds, TRect, 'Object is of class TRect' );
-  $program = TProgram->new( bounds => $bounds );
+  $program = TProgram->new();
   isa_ok( $program, TProgram, 'Object is of class TProgram' );
   isa_ok(  $TV::App::Program::deskTop,  TDeskTop, 
     '$desktop is of class TDesktop' );

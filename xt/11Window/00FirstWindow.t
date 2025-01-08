@@ -13,7 +13,7 @@ L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-T
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 7;
 use Test::Exception;
 
 use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
@@ -21,27 +21,27 @@ use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
                                 && !$ENV{NONINTERACTIVE_TESTING};
 
 BEGIN {
-  use_ok 'TV::Objects::Rect';
-  use_ok 'TV::Views::Const';
-  use_ok 'TV::Views::Window';
-  use_ok 'TV::App::Program';
   use_ok 'TV::toolkit';
-  use_ok 'TV::App::Application';
+  use_ok 'TV::Objects';
+  use_ok 'TV::Views';
+  use_ok 'TV::App';
 }
 
 BEGIN {
   package TMyApp;
 
-  use TV::Objects::Rect;
-  use TV::Views::Const qw( wnNoNumber );
-  use TV::Views::Window;
-  use TV::App::Program qw( $deskTop );
-
   use TV::toolkit;
-  extends 'TV::App::Application';
+  use TV::Objects;
+  use TV::Views;
+  use TV::App;
 
+  extends TApplication;
+
+  # We want to use a console resolution like MS DOS.
   sub BUILDARGS {
-    shift->SUPER::BUILDARGS( bounds => new_TRect( 0, 0, 80, 25 ) )
+    my $args = shift->SUPER::BUILDARGS( @_ ) || return;
+    $args->{bounds} = new_TRect( 0, 0, 80, 25 );
+    return $args;
   }
 
   # The constructor is inherited so that a new window is created from the start.
