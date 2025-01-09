@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Views::View - defines the class TView
-
-=cut
-
 package TV::Views::View;
+# ABSTRACT:  Base class for all visual components in Turbo Vision
 
 use strict;
 use warnings;
@@ -1251,3 +1244,553 @@ $writeView = sub {    # void ($x, $y, $count, $b)
 };
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TView - Base class for all visual components in Turbo Vision
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $view = TView->new(bounds => $bounds);
+  $view->draw();
+  $view->handleEvent($event);
+
+=head1 DESCRIPTION
+
+The C<TView> class is the base class for all visual components in Turbo Vision. 
+It provides methods for drawing, event handling, and managing the state and 
+appearance of the view.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item cursor
+
+The position of the cursor in the view (TPoint).
+
+=item clip
+
+The clipping rectangle of the view (TRect).
+
+=item dragMode
+
+The drag mode of the view (Int).
+
+=item eventMask
+
+The event mask of the view (Int).
+
+=item growMode
+
+The grow mode of the view (Int).
+
+=item helpCtx
+
+The help context of the view (Int).
+
+=item next
+
+A reference to the next element in the view list (TView).
+
+=item options
+
+The options of the view (Int).
+
+=item origin
+
+The origin of the view (TPoint).
+
+=item owner
+
+The owner of the view (TGroup).
+
+=item size
+
+The size of the view (TPoint).
+
+=item state
+
+The state of the view (Int).
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $view = TView->new(bounds => $bounds);
+
+Initializes an instance of C<TView> with the specified bounds.
+
+=over
+
+=item bounds
+
+The bounds of the view (TRect).
+
+=back
+
+=head2 DEMOLISH
+
+  $self->DEMOLISH();
+
+=head2 TopView
+
+  my $view = $self->TopView();
+
+Returns the top view in the view hierarchy.
+
+=head2 awaken
+
+  $self->awaken();
+
+Prepares the view for activation.
+
+=head2 blockCursor
+
+  $self->blockCursor();
+
+Sets the cursor to block mode.
+
+=head2 calcBounds
+
+  $self->calcBounds($bounds, $delta);
+
+Calculates the bounds of the view based on the given delta.
+
+=head2 changeBounds
+
+  $self->changeBounds($bounds);
+
+Changes the bounds of the view.
+
+=head2 clearEvent
+
+  $self->clearEvent($event);
+
+Clears the specified event.
+
+=head2 commandEnabled
+
+  my $bool = $self->commandEnabled($command);
+
+Checks if the specified command is enabled.
+
+=head2 containsMouse
+
+  my $bool = $self->containsMouse($event);
+
+Checks if the mouse is within the view's bounds.
+
+=head2 dataSize
+
+  my $size = $self->dataSize();
+
+Returns the size of the view's data.
+
+=head2 disableCommand
+
+  $self->disableCommand($command);
+
+Disables the specified command.
+
+=head2 disableCommands
+
+  $self->disableCommands($commands);
+
+Disables the specified commands.
+
+=head2 dragView
+
+  $self->dragView($event, $mode, $limits, $minSize, $maxSize);
+
+Handles the dragging of the view.
+
+=head2 draw
+
+  $self->draw();
+
+Draws the view on the screen.
+
+=head2 drawCursor
+
+  $self->drawCursor();
+
+Draws the cursor in the view.
+
+=head2 drawHide
+
+  $self->drawHide($lastView | undef);
+
+Hides the view by drawing over it.
+
+=head2 drawShow
+
+  $self->drawShow($lastView | undef);
+
+Shows the view by drawing it.
+
+=head2 drawUnderRect
+
+  $self->drawUnderRect($r, $lastView | undef);
+
+Draws the view under the specified rectangle.
+
+=head2 drawUnderView
+
+  $self->drawUnderView($doShadow, $lastView | undef);
+
+Draws the view under another view.
+
+=head2 drawView
+
+  $self->drawView();
+
+Draws the view.
+
+=head2 enableCommand
+
+  $self->enableCommand($command);
+
+Enables the specified command.
+
+=head2 enableCommands
+
+  $self->enableCommands($commands);
+
+Enables the specified commands.
+
+=head2 endModal
+
+  $self->endModal($command);
+
+Ends the modal state of the view.
+
+=head2 eventAvail
+
+  my $bool = $self->eventAvail();
+
+Checks if an event is available.
+
+=head2 execute
+
+  my $cmd = $self->execute();
+
+Executes the view.
+
+=head2 exposed
+
+  my $bool = $self->exposed();
+
+Checks if the view is exposed.
+
+=head2 focus
+
+  my $bool = $self->focus();
+
+Sets the focus to the view.
+
+=head2 getBounds
+
+  my $rect = $self->getBounds();
+
+Returns the bounds of the view.
+
+=head2 getClipRect
+
+  my $rect = $self->getClipRect();
+
+Returns the clipping rectangle of the view.
+
+=head2 getColor
+
+  my $int = $self->getColor($color);
+
+Returns the color of the view.
+
+=head2 getCommands
+
+  $self->getCommands($commands);
+
+Gets the commands of the view.
+
+=head2 getData
+
+  $self->getData($rec);
+
+Returns the data of the view.
+
+=head2 getEvent
+
+  $self->getEvent($event);
+
+Gets the specified event.
+
+=head2 getExtent
+
+  my $rect = $self->getExtent();
+
+Returns the extent of the view.
+
+=head2 getHelpCtx
+
+  my $int = $self->getHelpCtx();
+
+Returns the help context of the view.
+
+=head2 getPalette
+
+  my $palette = $self->getPalette();
+
+Returns the view's color palette.
+
+=head2 getState
+
+  my $bool = $self->getState($aState);
+
+Returns the state of the view.
+
+=head2 growTo
+
+  $self->growTo($x, $y);
+
+Grows the view to the specified size.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles an event sent to the view.
+
+=head2 hide
+
+  $self->hide();
+
+Hides the view.
+
+=head2 hideCursor
+
+  $self->hideCursor();
+
+Hides the cursor in the view.
+
+=head2 keyEvent
+
+  $self->keyEvent($event);
+
+Handles a key event.
+
+=head2 locate
+
+  $self->locate($bounds);
+
+Positions the view within the specified bounds.
+
+=head2 makeFirst
+
+  my $void = $self->makeFirst();
+
+Moves the view to the front of the view hierarchy.
+
+=head2 makeGlobal
+
+  my $point = $self->makeGlobal($source);
+
+Converts a local point to a global point.
+
+=head2 makeLocal
+
+  my $point = $self->makeLocal($source);
+
+Converts a global point to a local point.
+
+=head2 mapColor
+
+  my $int = $self->mapColor($color);
+
+Maps a color to the view's palette.
+
+=head2 mouseEvent
+
+  my $bool = $self->mouseEvent($event, $mask);
+
+Handles a mouse event.
+
+=head2 mouseInView
+
+  my $bool = $self->mouseInView($mouse);
+
+Checks if the mouse is within the view.
+
+=head2 moveTo
+
+  $self->moveTo($x, $y);
+
+Moves the view to the specified position.
+
+=head2 nextView
+
+  my $view | undef = $self->nextView();
+
+Returns the next view in the view hierarchy.
+
+=head2 normalCursor
+
+  $self->normalCursor();
+
+Sets the cursor to normal mode.
+
+=head2 prev
+
+  my $view | undef = $self->prev();
+
+Returns the previous view in the view hierarchy.
+
+=head2 prevView
+
+  my $view | undef = $self->prevView();
+
+Returns the previous view in the view hierarchy.
+
+=head2 putEvent
+
+  $self->putEvent($event);
+
+Puts an event in the event queue.
+
+=head2 putInFrontOf
+
+  $self->putInFrontOf($target | undef);
+
+Puts the view in front of the specified target view.
+
+=head2 resetCursor
+
+  $self->resetCursor();
+
+Resets the cursor in the view.
+
+=head2 select
+
+  $self->select();
+
+Selects the view.
+
+=head2 setBounds
+
+  $self->setBounds($bounds);
+
+Sets the bounds of the view to the specified values.
+
+=head2 setCmdState
+
+  $self->setCmdState($commands, $enable);
+
+Sets the command state of the view.
+
+=head2 setCommands
+
+  $self->setCommands($commands);
+
+Sets the commands of the view.
+
+=head2 setCursor
+
+  $self->setCursor($x, $y);
+
+Sets the position of the cursor in the view to the specified values.
+
+=head2 setData
+
+  $self->setData($rec);
+
+Sets the data of the view to the specified values.
+
+=head2 setState
+
+  $self->setState($aState, $enable);
+
+Sets the state of the view to the specified value.
+
+=head2 show
+
+  $self->show();
+
+Shows the view.
+
+=head2 showCursor
+
+  $self->showCursor();
+
+Displays the cursor in the view.
+
+=head2 shutDown
+
+  $self->shutDown();
+
+Shuts down the view.
+
+=head2 sizeLimits
+
+  $self->sizeLimits($min, $max);
+
+Determines the minimum and maximum sizes of the view.
+
+=head2 valid
+
+  my $bool = $self->valid($command);
+
+Checks if the view is valid for the specified command.
+
+=head2 writeBuf
+
+  $self->writeBuf($x, $y, $w, $h, $b);
+
+Writes a buffer to the view.
+
+=head2 writeChar
+
+  $self->writeChar($x, $y, $c, $color, $count);
+
+Writes a character to the view.
+
+=head2 writeLine
+
+  $self->writeLine($x, $y, $w, $h, $b);
+
+Writes a line to the view.
+
+=head2 writeStr
+
+  $self->writeStr($x, $y, $str, $color);
+
+Writes a string to the view.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

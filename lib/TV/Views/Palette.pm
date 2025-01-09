@@ -1,18 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Views::Palette - defines the class TPalette
-
-=head1 DESCRIPTION
-
-In this Perl module the class I<TPalette> is created and the constructor I<new> 
-and I<clone> as the methods I<assign> and I<at> are implemented to emulate 
-the functionality of the Borland C++ code. 
-
-=cut
-
 package TV::Views::Palette;
+# ABSTRACT: A class for managing color palettes in Turbo Vision 2.0.
 
 use strict;
 use warnings;
@@ -54,7 +41,7 @@ sub new {    # $obj (%args)
   return bless \$data, $class;
 } #/ sub new
 
-sub from {    # $obj ($tp | $d, $len)
+sub from {    # $obj ($tp|$d, $len)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 1 && @_ <= 2 );
@@ -92,3 +79,95 @@ use overload
   fallback => 1;
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TPalette - A class for managing color palettes in Turbo Vision 2.0.
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $palette = TPalette->new( data => $data, size => length( $data ) );
+  my $byte    = $palette->at( $index );
+
+=head1 DESCRIPTION
+
+In this Perl module the class I<TPalette> is created and the constructor I<new> 
+and I<clone> as the methods I<assign> and I<at> are implemented to emulate 
+the functionality of the Borland C++ code. 
+
+=head1 METHODS
+
+=head2 new
+
+  my $obj = TPalette->new(%args);
+
+Creates a new TPalette object.
+
+=over
+
+=item data
+
+Stores the palette data. Used together with L</size>. (Str)
+
+=item size
+
+The size of the palette. Used together with L</data>. (Int)
+
+=item copy_from
+
+Copies data from another palette. Used instead of L</data> and L</size>. 
+(TPalette)
+
+=back
+
+=head2 clone
+
+  my $clone = TPalette->clone($self);
+
+Creates a clone of the palette.
+
+=head2 from
+
+  my $obj = TPalette->from($tp | $d, $len);
+
+Creates a TPalette object from another palette or data.
+
+=head2 assign
+
+  my $self = $self->assign($tp);
+
+Assigns the data from another palette to the current palette.
+
+=head2 at
+
+  my $byte = $self->at($index);
+
+Returns the color at the specified index. (Int)
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

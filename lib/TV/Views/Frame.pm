@@ -1,4 +1,5 @@
 package TV::Views::Frame;
+# ABSTRACT: Frame class for window components in Turbo Vision
 
 use strict;
 use warnings;
@@ -65,7 +66,7 @@ our $dragIcon   = "~\xC4\xD9~";  # "~─┘~"
 # import frameLine
 require TV::Views::Frame::Line;
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
@@ -250,4 +251,92 @@ sub dragWindow {    # void ($event, $mode)
   return;
 } #/ sub dragWindow
 
-1;
+1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TFrame - Frame class for window components in Turbo Vision
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $frame = TFrame->new(bounds => $bounds);
+  $frame->draw();
+
+=head1 DESCRIPTION
+
+The C<TFrame> class is used to create frames for window components in Turbo
+Vision. It provides methods for drawing the frame and managing its appearance.
+
+=head1 METHODS
+
+=head2 new
+
+  my $frame = TFrame->new(bounds => $bounds);
+
+Initializes an instance of C<TFrame> with the specified bounds.
+
+=over
+
+=item bounds
+
+The bounds of the view (TRect).
+
+=back
+
+=head2 dragWindow
+
+  $self->dragWindow($event, $mode);
+
+Handles the dragging of the window.
+
+=head2 draw
+
+  $self->draw();
+
+Draws the frame on the screen.
+
+=head2 getPalette
+
+  my $palette = getPalette();
+
+Returns the frame color palette.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles an event sent to the frame.
+
+=head2 setState
+
+  $self->setState($aState, $enable);
+
+Sets the state of the frame to the specified value.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

@@ -1,4 +1,5 @@
 package TV::Views::Window;
+# ABSTRACT: A base class for managing windows in Turbo Vision 2.0.
 
 use strict;
 use warnings;
@@ -350,3 +351,172 @@ sub shutDown {    # void ()
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TWindow - A class for managing windows in Turbo Vision 2.0.
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $window = TWindow->new( bounds => $r, title => 'Title', number => 0 );
+
+=head1 DESCRIPTION
+
+The TWindow class is used to manage windows and their components in a Turbo 
+Vision application. It provides methods to handle window operations such as 
+opening, closing, and resizing. This class is essential for creating and 
+managing user interface windows on the desktop.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item flags
+
+Stores the state flags of the window. (Int)
+
+=item frame
+
+A reference to the frame of the window. (TFrame)
+
+=item number
+
+The unique identifier number of the window. (Int)
+
+=item palette
+
+The color palette used by the window. (TPalette)
+
+=item title
+
+The title of the window. (Str)
+
+=item zoomRect
+
+The rectangle defining the zoomed state of the window. (TRect)
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $obj = TWindow->new(%args);
+
+Creates a new TWindow object.
+
+=over
+
+=item bounds
+
+The bounds of the window. (TRect)
+
+=item title
+
+The title of the window. (Str)
+
+=item number
+
+The unique identifier number of the window. (Int)
+
+=back
+
+=head2 DEMOLISH
+
+  $self->DEMOLISH();
+
+Destroys the window and releases its resources.
+
+=head2 close
+
+  $self->close();
+
+Closes the window.
+
+=head2 from
+
+  my $obj = $self->from($bounds, $aTitle, $aNumber);
+
+Creates a TWindow object from the specified bounds, title, and number.
+
+=head2 getPalette
+
+  my $palette = $self->getPalette();
+
+Returns the color palette of the window.
+
+=head2 getTitle
+
+  my $str = $self->getTitle($maxSize);
+
+Returns the title of the window, truncated to the specified maximum size.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles an event sent to the window.
+
+=head2 initFrame
+
+  my $frame = $self->initFrame($r);
+
+Initializes the frame of the window.
+
+=head2 setState
+
+  $self->setState($aState, $enable);
+
+Sets the state of the window to the specified value.
+
+=head2 shutDown
+
+  $self->shutDown();
+
+Shuts down the window and releases its resources.
+
+=head2 sizeLimits
+
+  $self->sizeLimits($min, $max);
+
+Sets the minimum and maximum size limits of the window.
+
+=head2 standardScrollBar
+
+  my $scrollBar = $self->standardScrollBar($aOptions);
+
+Creates a standard scroll bar for the window with the specified options.
+
+=head2 zoom
+
+  $self->zoom();
+
+Zooms the window to its maximum or previous size.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

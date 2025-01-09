@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Views::View - defines the class TGroup
-
-=cut
-
 package TV::Views::Group;
+# ABSTRACT: Base class for all group components in Turbo Vision
 
 use strict;
 use warnings;
@@ -845,3 +838,342 @@ $findNext = sub {
 }; #/ sub findNext
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TGroup - Base class for all group components in Turbo Vision
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $group = TGroup->new(bounds => $bounds);
+  $group->insert($view);
+  $group->remove($view);
+
+=head1 DESCRIPTION
+
+The C<TGroup> class is the base class for all group components in Turbo Vision.
+It provides methods for managing child views, event handling, and drawing the
+group and its children.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item buffer
+
+This attribute is typically used to store temporary data or intermediate results 
+during processing. (ArrayRef)
+
+=item clip
+
+The clipping rectangle of the group, represented by a C<TRect>. It defines the 
+area within which drawing operations are allowed. (TRect)
+
+=item current
+
+This attribute usually refers to the currently active or selected item within a 
+group or list. (TView)
+
+=item endState
+
+This attribute represents the final state of an object or process after it has 
+completed its operation. (Int)
+
+=item last
+
+This attribute often points to the last item in a list or sequence. (TView)
+
+=item lockFlag
+
+This attribute is used to indicate whether a resource or process is locked, 
+preventing other operations from modifying it. (Bool)
+
+=item phase
+
+This attribute represents the current phase or stage of a process or operation. 
+(Int)
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $group = TGroup->new(bounds => $bounds);
+
+Initializes an instance of C<TGroup> with the specified bounds.
+
+=over
+
+=item bounds
+
+The bounds of the view (TRect).
+
+=back
+
+=head2 DEMOLISH
+
+  $self->DEMOLISH();
+
+
+=head2 at
+
+ my $view | undef = at($index);
+
+Returns the view at the specified index.
+
+=head2 awaken
+
+  $self->awaken();
+
+Awakens the group, making it active.
+
+=head2 changeBounds
+
+  $self->changeBounds($self, $bounds);
+
+Changes the bounds of the group.
+
+=head2 current
+
+  my $view | undef = current( | $view | undef);
+
+Returns the current view or sets it to the specified view.
+
+=head2 dataSize
+
+  my $int = dataSize();
+
+Returns the size of the data.
+
+=head2 draw
+
+  $self->draw();
+
+Draws the group and its children on the screen.
+
+=head2 drawSubViews
+
+  $self->drawSubViews($p | undef, $bottom | undef);
+
+Draws the subviews of the group.
+
+=head2 endModal
+
+  $self->endModal($command);
+
+Ends a modal state with the specified command.
+
+=head2 eventError
+
+  $self->eventError($event);
+
+Handles an error event.
+
+=head2 execView
+
+  my $int = $self->execView();
+
+Executes the view and returns a status code.
+
+=head2 execute
+
+  my $int = $self->execute();
+
+Executes the group and returns a status code.
+
+=head2 first
+
+  my $view | undef = $self->first();
+
+Returns the first view in the group.
+
+=head2 firstMatch
+
+  my $view | undef = $self->firstMatch($aState, $aOptions);
+
+Returns the first view that matches the specified state and options.
+
+=head2 firstThat
+
+  my $view | undef = $self->firstThat(\&func, $args | undef);
+
+Returns the first view that satisfies the specified function.
+
+=head2 focusNext
+
+  my $bool = $self->focusNext($forwards);
+
+Moves the focus to the next view.
+
+=head2 forEach
+
+  $self->forEach(\&func, $args | undef);
+
+Applies the specified function to each view in the group.
+
+=head2 freeBuffer
+
+  $self->freeBuffer();
+
+Frees the buffer used by the group.
+
+=head2 getBuffer
+
+  $self->getBuffer();
+
+Gets the buffer used by the group.
+
+=head2 getData
+
+  $self->getData(\@rec);
+
+Returns the data of the group.
+
+=head2 getHelpCtx
+
+ my $int = $self->getHelpCtx();
+
+Returns the help context of the group.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles an event sent to the group.
+
+=head2 indexOf
+
+  my $int = $self->indexOf($p);
+
+Returns the index of the specified view.
+
+=head2 insert
+
+  $self->insert($p);
+
+Inserts a view into the group.
+
+=head2 insertBefore
+
+  $self->insertBefore($self, $p, $Target | undef);
+
+Inserts a view before the specified target.
+
+=head2 insertView
+
+  $self->insertView($self, $p, $Target | undef);
+
+Inserts a view into the group.
+
+=head2 lock
+
+  $self->lock();
+
+Locks the group to prevent updates.
+
+=head2 matches
+
+ my $bool = $self->matches($p);
+
+Checks if the group matches the specified criteria.
+
+=head2 redraw
+
+  $self->redraw();
+
+Redraws the group.
+
+=head2 remove
+
+  $self->remove($p);
+
+Removes a view from the group.
+
+=head2 removeView
+
+  $self->removeView($p);
+
+Removes a view from the group.
+
+=head2 resetCurrent
+
+  $self->resetCurrent();
+
+Resets the current view.
+
+=head2 resetCursor
+
+  $self->resetCursor();
+
+Resets the cursor position.
+
+=head2 selectNext
+
+  $self->selectNext($forwards);
+
+Selects the next view.
+
+=head2 setCurrent
+
+  $self->setCurrent($p, $mode);
+
+Sets the current view to the specified view.
+
+=head2 setData
+
+  $self->setData(\@rec);
+
+Sets the data of the group to the specified values.
+
+=head2 setState
+
+  $self->setState($aState, $enable);
+
+Sets the state of the group to the specified value.
+
+=head2 shutDown
+
+  $self->shutDown();
+
+Shuts down the group.
+
+=head2 unlock
+
+  $self->unlock();
+
+Unlocks the group to allow updates.
+
+=head2 valid
+
+ my $bool = $self->valid($command);
+
+Checks if the group is in a valid state.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

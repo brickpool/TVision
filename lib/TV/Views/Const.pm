@@ -1,15 +1,5 @@
-=pod
-
-=head1 DESCRIPTION
-
-In this Perl module, the constants for I<Views> are defined according to the 
-naming conventions in Perl, using capital letters and underscores between the 
-word boundaries. The constants are defined with I<use constant> to specify their
-values.
-
-=cut
-
 package TV::Views::Const;
+# ABSTRACT: defines various constants used throughout Turbo Vision
 
 use strict;
 use warnings;
@@ -430,4 +420,40 @@ use constant {
       @EXPORT_OK;
 }
 
-1;
+1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Views::Const
+
+=head1 DESCRIPTION
+
+In this Perl module, the constants for I<Views> are defined according to the 
+naming conventions in Turbo Vision 2.0 C++, using the lower camel case syntax. 
+The constants are defined with I<use constant> to specify their values.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

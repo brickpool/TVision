@@ -1,28 +1,5 @@
-=pod
-
-=head1 DESCRIPTION
-
-TView resetCursor member functions.
-
-=head1 COPYRIGHT AND LICENSE
-
-Turbo Vision - Version 2.0
- 
-  Copyright (c) 1994 by Borland International
-  All Rights Reserved.
-
-The following content was taken from the framework
-"A modern port of Turbo Vision 2.0", which is licensed under MIT license.
-
-Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
-
-=head1 SEE ALSO
-
-I<tvcursor.asm>, I<tvcursor.cpp>
-
-=cut
-
 package TV::Views::View::Cursor;
+# ABSTRACT: TView resetCursor member functions.
 
 use strict;
 use warnings;
@@ -117,3 +94,47 @@ sub decideCaretSize {    # $int()
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 DESCRIPTION
+
+TView resetCursor member functions.
+
+The content was taken from the framework
+"A modern port of Turbo Vision 2.0", which is licensed under MIT license.
+
+=head1 SEE ALSO
+
+I<tvcursor.asm>, I<tvcursor.cpp>
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 CONTRIBUTORS
+
+=over
+
+=item magiblot <magiblot@hotmail.com>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2019-2025 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution).
+
+=cut

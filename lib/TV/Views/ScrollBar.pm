@@ -1,4 +1,5 @@
 package TV::Views::ScrollBar;
+# ABSTRACT: Scroll bar class for window components in Turbo Vision
 
 use strict;
 use warnings;
@@ -64,7 +65,7 @@ my (
   $getPartCode,
 );
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   if ( $self->{size}{x} == 1 ) {
@@ -312,7 +313,7 @@ sub setValue {    # void ($aValue)
   return;
 }
 
-sub drawPos {    # void ($pos);
+sub drawPos {    # void ($pos)
   my ( $self, $pos ) = @_;
   my $b = TDrawBuffer->new();
   my $s = $self->getSize() - 1;
@@ -396,3 +397,154 @@ $getPartCode = sub {    # $int ()
 };
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TScrollBar - Scroll bar class for window components in Turbo Vision
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $scrollBar = TScrollBar->new(bounds => $bounds);
+  $scrollBar->draw();
+
+=head1 DESCRIPTION
+
+The C<TScrollBar> class is used to create scroll bars for window components in
+Turbo Vision. It provides methods for drawing the scroll bar and managing its
+appearance and behavior.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item value
+
+The current value of the scroll bar. (Int)
+
+=item minVal
+
+The minimum value of the scroll bar. (Int)
+
+=item maxVal
+
+The maximum value of the scroll bar. (Int)
+
+=item pgStep
+
+The page step value of the scroll bar. (Int)
+
+=item arStep
+
+The arrow step value of the scroll bar. (Int)
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $scrollBar = TScrollBar->new(bounds => $bounds);
+
+Initializes an instance of C<TScrollBar> with the specified bounds.
+
+=over
+
+=item bounds
+
+The bounds of the view (TRect).
+
+=back
+
+=head2 draw
+
+  $self->draw();
+
+Draws the scroll bar on the screen.
+
+=head2 drawPos
+
+  $self->drawPos($pos);
+
+=head2 getPalette
+
+  my $palette = $self->getPalette();
+
+Returns the scroll bar's color palette.
+
+=head2 getPos
+
+  my $pos = $self->getPos();
+
+=head2 getSize
+
+  my $size = $self->getSize();
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles an event sent to the scroll bar.
+
+=head2 scrollDraw
+
+  $self->scrollDraw();
+
+Draws the scroll bar's thumb and arrows.
+
+=head2 scrollStep
+
+  my $steps = scrollStep($part);
+
+Scrolls the scroll bar by a specified step.
+
+=head2 setParams
+
+  $self->setParams($aValue, $aMin, $aMax, $aPgStep, $aArStep);
+
+Sets the parameters of the scroll bar.
+
+=head2 setRange
+
+  $self->setRange($aMin, $aMax);
+
+Sets the range of the scroll bar.
+
+=head2 setStep
+
+  $self->setStep($aPgStep, $aArStep);
+
+Sets the step values of the scroll bar.
+
+=head2 setValue
+
+  $self->setValue($aValue);
+
+Returns the current value of the scroll bar.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut
