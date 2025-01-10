@@ -1,0 +1,632 @@
+=head1 TPR-BOOK
+
+This material is used under the Fair Use doctrine for educational and 
+non-commercial purposes. The original text is copyrighted, and all rights are 
+retained by the author. The material is provided "as is" without warranty of 
+any kind. 
+
+Please note the following preliminary remark from Ed Mitchell:
+
+    This chapter is part of the Turbo Pascal Reference electronic freeware book 
+    (C) Copyright 1992 by Ed Mitchell. 
+
+    This freeware book contains supplementary material to Borland Pascal 
+    Developer's Guide, published by Que Corporation, 1992. 
+    
+    However, Que Corporation has no affiliation with nor responsibility for the 
+    content of this free book. 
+    
+    Please see Chapter 1 of the Turbo Pascal Reference for important information
+    about your right to distribute and use this material freely. 
+    
+    If you find this material of use, I would appreciate your purchase of one my
+    books, such as the Borland Pascal Developer's Guide or Secrets of the 
+    Borland C++ Masters, Sams Books, 1992. 
+    
+    Thank you.
+
+=head1 CHAPTER 8 - The Turbo Vision Reference (continue)
+
+Chapter 8 of the Turbo Pascal Reference
+
+For additional information on using Turbo Vision, including a detailed
+tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
+Guide.
+
+=head2 $repeatDelay 
+
+variable
+
+=head3 Declaration
+
+    our $repeatDelay = 8;
+
+=head3 Module
+
+    TV::Drivers::EventQueue
+
+=head3 Purpose
+
+Determines the number of clock ticks that must occur before generating an
+evMouseAuto event. evMouseAuto events are automatically generated while
+the mouse button is held down. A clock tick is 1/18.2 seconds, so the
+default value of 8/18.2 is set at approximately 1/2 second.
+
+See: evXXXX constants, $doubleDelay
+
+=head2 $saveCtrlBreak
+
+variable
+
+=head3 Declaration
+
+    our $saveCtrlBreak = !!0;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+This internal variable is set to the state of the DOS Ctrl-break checking
+at program initialization; at program termination, DOS's Ctrl-break
+trapping is restored to the value saved in SaveCtrlBreak.
+
+See: TSystemError->resume, TSystemError->suspend
+
+=head2 sbXXXX
+
+=head3 Scrollbar constants
+
+    Constant          Value   Usage
+    sbLeftArrow       0       The horizontal scroll bar's left arrow.
+    sbRightArrow      1       Horizontal scroll bar's right arrow.
+    sbPageLeft        2       The page area to the left of the position
+                              indicator.
+    sbPageRight       3       The page indicator to the right of the indicator.
+    sbUpArrow         4       Vertical scroll bar's up arrow.
+    sbDownArrow       5       Vertical scroll bar's down arrow.
+    sbPageUp          6       Paging area above the position indicator.
+    sbPageDown        7       Paging area below the position indicator.
+    sbIndicator       8       Position indicator on the scroll bar.
+    sbHorizontal      0x0000  The scroll bar is horizontal.
+    sbVertical        0x0001  The scroll bar is vertical.
+    sbHandleKeyboard  0x0002  Scroll bar accepts keyboard commands.
+
+Use one of the first 9 sbXXXX constants as a parameter to 
+TScrollBar->scrollStep. The last 3 sbXXXX constants, sbHorizontal, sbVertical, 
+sbHandleKeyboard are used to specify a horizontal, vertical, or keyboard 
+accessible scrollbar when a scroll bar is created using the 
+TWindow->standardScrollBar function.
+
+See: TScrollBar->scrollStep, TScrollBar, TWindow->standardScrollBar
+
+=head2 $screenBuffer
+
+variable
+
+=head3 Declaration
+
+    our $screenBuffer = [];
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+This internal pointer is initialized by InitVideo and keeps track of the
+location of the video screen buffer.
+
+=head2 $screenHeight
+
+variable
+
+=head3 Declaration
+
+    our $screenHeight = 0;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+Holds the current height of the screen, in lines. For example, 25, 43 or
+50 would be typical values.
+
+See: TScreen->setVideoMode
+
+=head2 $screenMode
+
+variable
+
+=head3 Declaration
+
+    our $screenMode = 0;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+Contains the current video mode as determined by the smXXXX constants
+passed to the SetVideoMode subroutine.
+
+See: TScreen->setVideoMode, smXXXX constants
+
+=head2 $screenWidth
+
+variable
+
+=head3 Declaration
+
+    our $screenWidth = 0;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+Holds the current width of the screen in number of characters per line
+(for example, 80).
+
+=head2 SetMemTop
+
+=head2 NoteSV
+
+=head2 CheckSV
+
+subroutine
+
+=head3 Declaration
+
+    sub Devel::Leak::NoteSV;     # $count ($handle)
+    sub Devel::Leak::CheckSV;    # $count ($handle)
+
+=head3 Module
+
+    Devel::Leak
+
+=head3 Purpose
+
+L</NoteSV> searches the Perl-internal table of assigned scalar values (which 
+also contains arrays and hashes), and records their addresses in a table. It 
+returns a count of these I<things> and stores a pointer to the table in its 
+argument.
+
+L</CheckSV> is passed an argument containing a pointer to a table created by 
+L</NoteSV>. It runs through the Perl internals again and calls C<sv_dump()> for 
+all I<things> that were not yet present when NoteSV was called. It returns the 
+number of I<things> now assigned. 
+
+This is particularly useful if you want to check your application for memory 
+leaks, as shown in this example code from L<Devel::Leak>:
+
+  use Devel::Leak;
+  ... setup code
+  my $count = Devel::Leak::NoteSV($handle);
+  ... code that may leak
+  Devel::Leak::CheckSV($handle);
+
+B<Note>: This small Perl utility module is to be used as a replacement for the 
+Pascal implementation of C<SetMemTop>.
+
+=head2 selectMode
+
+Constants for selectMode
+
+=head3 Declaration
+
+  use constant {
+    normalSelect    => 0,
+    enterSelect     => 1,
+    leaveSelect     => 2,
+  };
+
+=head3 Module
+
+    TV::Views::Const
+
+=head3 Purpose
+
+An internal value used by Turbo Vision.
+
+=head2 setVideoMode
+
+subroutine
+
+=head3 Declaration
+
+    sub setVideoMode;    # void ($class, $mode)
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+Use this (or more commonly TProgram->setScreenMode) to select 25 or 43/50
+line screen height, in conjunction with selecting the color, black & white or
+monochrome palettes. To change to the color palette, write,
+
+    TScreen->setVideoMode( smCO80 );
+
+where smCO80 is one of the smXXXX screen mode constants. Optionally, to select
+43/50 line mode, add the smFont8x8 constant to the color selection constant. 
+For example,
+
+    TScreen->setVideoMode( smMono + smFont8x8 );
+
+Normally, you should use TProgram->setScreenMode, which has the same parameter
+value, to change the screen color or screen size. TProgram->setScreenMode 
+properly handles resetting of the application palettes, repositioning the mouse 
+pointer and so on.
+
+See: TProgram->setScreenMode, smXXXX constants
+
+=head2 sfXXXX
+
+State Flag constants
+
+Use TView->setState to set the state bits, from the table below, into a
+TView's State field. Example usage:
+
+    $view->setState( sfCursorIns, TRUE );
+
+where the first parameter is the state value to change, and the second
+parameter is TRUE to enable the selected condition, or FALSE to disable the
+selected condition. Some of the bits are not normally set by the programmer
+but rather by methods in Turbo Vision. You can, however, read and test the
+values in TView->state directly.
+
+    Constant    Value   Usage
+    sfVisible   0x0001  Set when the view is visible in front of its owner (for
+                        example, a button on a dialog) but note that a visible
+                        view's owner may itself be hidden from view. Call
+                        TView->exposed to determine if a view is actually 
+                        visible  on the screen, and use TView->hide to clear 
+                        this bit and  hide the view, and TView->show to set this 
+                        bit and make the view visible.
+    sfCursorVis 0x0002  Set when the view's cursor is visible. Use
+                        TView->showCursor to make the cursor visible and set 
+                        this bit, or TView->hideCursor to hide the cursor and 
+                        clear this bit.
+    sfCursorIns 0x0004  Set when the cursor is a solid block (the "insert" 
+                        cursor), clear when the cursor is an underscore (the 
+                        "overstrike" cursor). Call TView->blockCursor to set 
+                        this bit, and TView->normalCursor to clear the bit.
+    sfShadow    0x0008  Set when the view has a shadow.
+    sfActive    0x0010  Set whenever the view is an active window or a subview
+                        within an active window. For example, when using the app
+                        to edit multiple files, only the editor that you are
+                        currently using is the active window.
+    sfSelected  0x0020  Set when this view is selected. (See TView->selected).
+    sfFocused   0x0040  If the view is part of the focus chain (see Chapter 13,
+                        "More Turbo Vision Features" in the Borland Pascal
+                        Developer's Guide), then this bit is set.
+    sfDragging  0x0080  Set whenever the view is being dragged.
+    sfDisabled  0x0100  Set if the view has been disabled and is no longer
+                        processing events.
+    sfModal     0x0200  Whenever a view is displayed using the ExecView call, 
+                        that view becomes a modal view (as compared to a view 
+                        that has been inserted into the desktop). This bit is 
+                        set when the view is the modal view and controls how 
+                        events are sent through the view hierarchy.
+    sfExposed   0x0800  Set when a view is possibly visible on the screen. Don't
+                        check this flag directly because a visible view can 
+                        still be hidden due to clipping. Instead, call 
+                        TView->exposed to determine if the view is actually 
+                        visible.
+
+See: TView->blockCursor, TView->exposed, TView->hide, TView->hideCursor,
+TView->normalCursor, TView->setState, TView->show, TView->showCursor
+
+=head2 $shadowAttr
+
+variable
+
+=head3 Declaration
+
+    our $shadowAttr = 0x08;
+
+=head3 Module
+
+    TV::Views::View
+
+=head3 Purpose
+
+The $shadowAttr byte contains the video attribute for the color of the
+shadow display on some views and windows. See Chapter 13, "More Turbo
+Vision Features" in the Borland Pascal Developer's Guide for details on
+selecting different colors for video attribute bytes
+
+See: $shadowSize
+
+=head2 $shadowSize
+
+variable
+
+=head3 Declaration
+
+    our $shadowSize => TPoint->new( x => 2, y => 1 );
+
+=head3 Module
+
+    TV::Views::View
+
+=head3 Purpose
+
+$shadowSize determines the size of the shadow area on those views that
+contain a shadow. The default value is 2 characters wide and 1 character
+high.
+
+See: $shadowAttr
+
+=head2 $showMarkers
+
+variable
+
+=head3 Declaration
+
+    our $showMarkers = !!0;
+
+=head3 Module
+
+    TV::Views::View
+
+=head3 Purpose
+
+When using color displays, Turbo Vision uses different colors to highlight
+the default button selections, the location of the list box cursor and so on. 
+When using the monochrome color palette, Turbo Vision adds small marker
+characters to various controls to make them easier to identify and when
+necessary to highlight a default selection. For example, default buttons have
+small right and left arrows to highlight the default button:
+
+    -> [ Okay ] <-    [Cancel]
+
+When the monochrome color palette is selected, $showMarkers is set to TRUE and
+is normally set False for the other color palettes. If you wish, you can set
+$showMarkers True for both cpColor and cpBlackWhite palettes.
+
+=head2 show
+
+subroutine
+
+=head3 Declaration
+
+    sub show;    # void ($class)
+
+=head3 Module
+
+    TV::Drivers::HWMouse
+
+=head3 Purpose
+
+THWMouse->show is the opposite of the THWMouse->hide. Call THWMouse->hide to 
+hide the mouse cursor and simultaneously increment a "mouse hidden counter". 
+THWMouse->show decrements the counter, and when it reaches zero, makes the
+mouse cursor visible again on the screen.
+
+See: THWMouse->hide
+
+=head2 smXXXX
+
+Screen Mode constants
+
+Use the constants from the table below when selecting Black & White, Color or
+Monochrome color palettes, or switching between 25 and 43- or 50 line display
+modes. Use of these constants is described in "The Set Up Program Dialog" in
+Chapter 12, and also in Chapter 13 of the Borland Pascal Developer's Guide.
+
+
+    Constant  Value   Usage
+    smBW80    0x0002  Black and white/gray scale
+    smCO80    0x0003  Color mode
+    smMono    0x0004  Monochrome mode
+    smFont8x8 0x0100  43 or 50 line modes
+
+See: TScreen->setVideoMode, TScreen->screenMode, TProgram->setScreenMode
+
+=head2 $specialChars
+
+variable
+
+=head3 Declaration
+
+    our $specialChars =  [ "\xAF", "\xAE", "\x1A", "\x1B", ' ', ' ' ];
+
+=head3 Module
+
+    TV::Views::View
+
+=head3 Purpose
+
+These constants define the special marker characters used when the
+$showMarkers variable is set to True.
+
+See: $showMarkers
+
+=head2 $startupMode
+
+variable
+
+=head3 Declaration
+
+    our $startupMode = 0xffff;
+
+=head3 Module
+
+    TV::Drivers::Screen
+
+=head3 Purpose
+
+This internal variable stores the existing screen mode before Turbo Vision
+switches to a new screen mode.
+
+See: TScreen->suspend, screenMode
+
+=head2 $statusLine 
+
+variable
+
+=head3 Declaration
+
+    our $statusLine = undef;
+
+=head3 Module
+
+    TV::App::Program
+
+=head3 Purpose
+
+$statusLine is initialized by the call to TProgram->initStatusLine. See
+Chapter 14, Turbo Vision Tutorial for a detailed description of
+initialization a program's status line.
+
+=head2 $sysColorAttr
+
+variable
+
+=head3 Declaration
+
+    our $sysColorAttr = 0x4E4F;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+On DOS color displays, $sysColorAttr specifies the attribute bytes for system
+error messages. ($sysMonoAttr specifies the attribute bytes for monochrome). 
+System error messages are DOS critical errors (such as floppy disk drive
+not accessible) and other device type errors. System errors are displayed
+on the status line in the color specified by the second part of 
+$sysColorAttr, 0x4F, white on red text. The first part, 0x4E, is used for
+highlighting command keys, such as Enter or Esc.
+
+See: TSystemError->sysErr, $sysMonoAttr, Chapter 13, "More Turbo Vision Features".
+
+=head2 $sysErrActive
+
+variable
+
+=head3 Declaration
+
+    our $sysErrActive = !!0;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+If TRUE, then the DOS system error handler is available for use.
+
+=head2 $sysErrorFunc
+
+variable
+
+=head3 Declaration
+
+    our $sysErrorFunc = TSystemError->can('sysErr');
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+$sysErrorFunc points to the DOS system error handling subroutine. You can
+override system error handling by writing your own subroutine and assigning it
+to the $sysErrorFunc variable. The default system error handler is defined as,
+
+    sub TV::Drivers::SystemError::sysErr; # $int ($errorCode, $drive)
+
+where $errorCode is a value from the table below, and $drive is the drive number
+(A=1, B=1, C=3, and so on). sysErr should return 0 if the user requests
+to retry the operation or 1 if the user elected to abort the function.
+
+=head3 Table of System Error Codes
+
+    Error code  Usage
+    0           Disk is write protected
+    1           Critical disk error
+    2           Disk is not ready
+    3           Critical disk error
+    4           Data integrity error
+    5           Critical disk error
+    6           Seek error
+    7           Unknown media type
+    8           Sector not found
+    9           Printer out of paper
+    10          Write fault
+    11          Read fault
+    12          Hardware failure 
+    13          Bad memory image of file allocation table
+    14          Device access error
+    15          Drive swap notification (floppy disks have changed)
+
+See: $sysColorAttr, $sysErrActive, $sysErrorFunc, $sysMonoAttr, 
+TSystemError->sysErr, TSystemError->resume
+
+=head2 $sysMonoAttr
+
+variable
+
+=head3 Declaration
+
+    my $sysMonoAttr = 0x7070;
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+On DOS monochrome displays, $sysMonoAttr specifies the attribute bytes for
+system error messages. ($sysColorAttr specifies the attribute bytes for
+color). System error messages are DOS critical errors (such as floppy disk
+drive not accessible) and other device type errors. See $sysColorAttr for
+more information about the attribute values.
+
+See: $systemError, $sysColorAttr, Chapter 13, "More Turbo Vision Features"
+in Borland Pascal Developer's Guide.
+
+=head2 sysErr
+
+function
+
+=head3 Declaration
+
+    sub sysErr; # $int ($errorCode, $drive)
+
+=head3 Module
+
+    TV::Drivers::SystemError
+
+=head3 Purpose
+
+This function handles system errors (such as DOS critical errors). See
+$sysErrorFunc for details on the parameters and their values. 
+TSystemError->sysErr returns 0 if the user requests that the operation be 
+retried, and 1 if the user elects to cancel the operation.
+
+See: $sysErrorFunc
+
+=head2 TApplication
+
+object
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+      TView
+        TGroup
+          TProgram
+            TApplication
+
