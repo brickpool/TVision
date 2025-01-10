@@ -68,6 +68,7 @@ extends TObject;
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
 our $shadowAttr        = 0x08;
 our $showMarkers       = !!0;
+our $specialChars      = [ "\xAF", "\xAE", "\x1A", "\x1B", ' ', ' ' ];
 our $errorAttr         = 0xcf;
 our $commandSetChanged = !!0;
 our $curCommandSet     = do {    # initCommands
