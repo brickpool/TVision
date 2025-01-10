@@ -32,7 +32,8 @@ sub updateIntlChars {    # void ($class)
   my $class = shift;
   assert ( $class and !ref $class );
   if ( $getCodePage->() != 437 ) {
-    ...;
+    require TV::Views::Frame;
+    $TV::Views::Frame::frameChars->[30] = "\xCD";
   }
   return;
 };
