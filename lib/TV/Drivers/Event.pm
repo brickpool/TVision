@@ -239,6 +239,7 @@ package MessageEvent {
   use Devel::StrictMode;
   use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
+  use Scalar::Util qw( blessed );
   use Tie::Hash;
 
   our %HAS = (

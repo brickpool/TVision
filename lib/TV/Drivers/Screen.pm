@@ -32,7 +32,7 @@ our $screenBuffer   = [];
 our $cursorLines    = 0;
 our $clearOnSuspend = !!1;
 
-INIT: {
+INIT {
   $startupMode   = TScreen->getCrtMode();
   $startupCursor = TScreen->getCursorType();
   $screenBuffer  = THardwareInfo->allocateScreenBuffer()

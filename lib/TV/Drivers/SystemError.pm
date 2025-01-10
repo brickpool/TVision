@@ -42,7 +42,7 @@ sub TSystemError() { __PACKAGE__ }
 our $ctrlBreakHit  = !!0;
 our $saveCtrlBreak = !!0;
 
-INIT: {
+INIT {
   TSystemError->resume();
 }
 

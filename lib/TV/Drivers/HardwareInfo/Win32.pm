@@ -64,6 +64,8 @@ PRIVATE: {
     dwButtonState
     dwControlKeyState2
     dwEventFlags
+    ENABLE_QUICK_EDIT_MODE
+    ENABLE_EXTENDED_FLAGS
   )] ) if eval { require namespace::sweep };
 
   # ConsoleType
@@ -104,6 +106,10 @@ PRIVATE: {
   sub dwButtonState       (){ 3 }
   sub dwControlKeyState2  (){ 4 }
   sub dwEventFlags        (){ 5 }
+
+  # Additional constants which are missing in the Win32::Console module.
+  sub ENABLE_QUICK_EDIT_MODE (){ 0x0040 }
+  sub ENABLE_EXTENDED_FLAGS  (){ 0x0080 }
 }
 
 # declare global variables
@@ -176,7 +182,7 @@ my $isValid = sub {    # $bool ($self)
   return !!$self->Mode();
 };
 
-INIT: {
+INIT {
   my $mod;
 
   if ( ( $mod = $^O ) && ( $mod ne 'MSWin32' ) ) {
@@ -445,6 +451,10 @@ sub getButtonCount {    # $num ($class)
 
 sub cursorOn {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
+  # Disable the Quick Edit mode, which inhibits the mouse.
+  local $consoleMode = $consoleMode;
+  $consoleMode |= ENABLE_EXTENDED_FLAGS;
+  $consoleMode &= ~ENABLE_QUICK_EDIT_MODE;
   $consoleHandle[cnInput]->Mode( $consoleMode | ENABLE_MOUSE_INPUT );
   return;
 }
@@ -563,6 +573,7 @@ sub setCtrlBrkHandler { # $success ($class, $install)
   assert ( $class and !ref $class );
   assert ( !defined $install or !ref $install );
   assert ( @_ == 2 );
+  my $consoleMode = $consoleHandle[cnInput]->Mode() || return;
   return $consoleHandle[cnInput]->Mode(
     $install 
       ? $consoleMode & ~ENABLE_PROCESSED_INPUT 

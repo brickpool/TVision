@@ -40,7 +40,7 @@ our $buttonCount      = 0;
 our $handlerInstalled = !!0;
 our $noMouse          = !!0;
 
-INIT: {
+INIT {
   THWMouse->resume();
 }
 

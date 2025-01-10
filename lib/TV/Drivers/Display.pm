@@ -24,7 +24,7 @@ my $getCodePage = sub {
   return 437;
 };
 
-INIT: {
+INIT {
   TDisplay->updateIntlChars()
 }
 

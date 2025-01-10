@@ -37,7 +37,7 @@ our $lastMouse = MouseEventType->new();
 our $curMouse  = MouseEventType->new();
 our $downMouse = MouseEventType->new();
 
-INIT: {
+INIT {
   TEventQueue->resume();
 }
 
