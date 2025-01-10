@@ -1,4 +1,5 @@
 package TV::toolkit::decorators;
+# ABSTRACT: Apply decorators to your subs.
 
 # Prior to Perl 5.15.4, attribute handlers are executed before the body is 
 # attached, so see it in that intermediate state. (From Perl 5.15.4 onwards, 
@@ -14,7 +15,7 @@ use Exporter              ();
 use Scalar::Util          ();
 use Sub::Util             ();
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 our @EXPORT = qw(
@@ -64,14 +65,14 @@ sub unimport {
   $^H{ __PACKAGE__ . "/$caller" } = 0;
 }
 
-sub FETCH_CODE_ATTRIBUTES {
+sub FETCH_CODE_ATTRIBUTES {    # @attrs ($class, $coderef)
   my ( $class, $coderef ) = @_;
 
   # return just the strings, as expected by attributes ...
   return $ATTRS{ "$coderef" } ? @{ $ATTRS{ "$coderef" } } : ();
 }
 
-sub MODIFY_CODE_ATTRIBUTES {
+sub MODIFY_CODE_ATTRIBUTES {    # @disallowed|undef ($package, $coderef, @attributes, @disallowed)
   my ( $package, $coderef, @attributes, @disallowed ) = @_;
   push @disallowed,
     grep { 
@@ -94,7 +95,7 @@ sub MODIFY_CODE_ATTRIBUTES {
   return;
 } #/ sub MODIFY_CODE_ATTRIBUTES
 
-sub static {
+sub static {    # ($package, $symbol, $referent)
   my ( $package, $symbol, $referent ) = @_;
   no strict 'refs';
   no warnings 'redefine';
@@ -112,7 +113,7 @@ sub static {
   };
 } #/ sub _class_method
 
-sub instance {
+sub instance {    # ($package, $symbol, $referent)
   my ( $package, $symbol, $referent ) = @_;
   no strict 'refs';
   no warnings 'redefine';
@@ -141,33 +142,44 @@ Apply decorators to your subs.
 
 This module manages attributes that can be attached to subroutine declarations.
 
-=head1 DEPENDENCIES
+=head1 REQUIRES
 
-This module depends on the following modules:
+L<5.015004> 
 
-=over
+L<autodie::Scope::Guard> 
 
-=item *
+L<Carp> 
 
-autodie::Scope::Guard
+L<Exporter> 
 
-=item *
+L<Scalar::Util> 
 
-Carp
+L<Sub::Util> 
 
-=item *
+=head2 FETCH_CODE_ATTRIBUTES
 
-Exporter
+  my @attrs = FETCH_CODE_ATTRIBUTES($class, $coderef);
 
-=item *
+=head2 MODIFY_CODE_ATTRIBUTES
 
-Scalar::Util
+  my @disallowed | undef = MODIFY_CODE_ATTRIBUTES($package, $coderef, 
+    @attributes, @disallowed);
 
-=item *
+=head2 import
 
-Sub::Util
+  import();
 
-=back
+=head2 instance
+
+  instance($package, $symbol, $referent);
+
+=head2 static
+
+  static($package, $symbol, $referent);
+
+=head2 unimport
+
+  unimport();
 
 =head1 BUGS AND LIMITATIONS
 
@@ -198,5 +210,20 @@ L<decorators>
 L<Sub::Attributes>
 
 =back
+
+=head1 AUTHOR
+
+J. Schneider <brickpool@cpan.org>
+
+=head1 CONTRIBUTORS
+
+Stevan Little <stevan@cpan.org>
+
+=head1 LICENSE
+
+Copyright (c) 2024-2025 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut

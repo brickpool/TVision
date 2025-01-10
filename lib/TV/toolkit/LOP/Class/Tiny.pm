@@ -160,7 +160,7 @@ The following L<Class::LOP> methods have been overwritten:
 =head1 METHODS
 
 If you need information or further help, you should take a look at the 
-L<Moose::LOP> or L<Class::LOP> documentation.
+L<TV::toolkit::LOP> or L<Class::LOP> documentation.
 
 =head2 new
 
