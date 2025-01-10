@@ -242,7 +242,7 @@ sub dragWindow {    # void ($event, $mode)
   assert ( blessed $event );
   assert ( looks_like_number $mode );
   my $limits = $self->owner->owner->getExtent();
-  my ( $min, $max );
+  my ( $min, $max ) = ( TPoint->new(), TPoint->new() );
   $self->owner->sizeLimits( $min, $max );
   $self->owner->dragView( 
     $event, $self->owner->{dragMode} | $mode, $limits, $min, $max
