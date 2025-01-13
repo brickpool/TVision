@@ -159,10 +159,12 @@ sub DEMOLISH {    # void ()
 }
 
 sub sizeLimits {    # void ($min, $max)
-  my ( $self, $min, $max ) = @_;
+  my ( $self, undef, undef ) = @_;
+  alias: for my $min ( $_[1] ) {
+  alias: for my $max ( $_[2] ) {
   assert ( blessed $self );
-  assert ( blessed $min );
-  assert ( blessed $max );
+  assert ( ref $min );
+  assert ( ref $max );
   $min->{x} = $min->{y} = 0;
   if ( !( $self->{growMode} & gfFixed ) && $self->{owner} ) {
     $max->{x} = $self->{owner}{size}{x};
@@ -172,6 +174,7 @@ sub sizeLimits {    # void ($min, $max)
     $max->{x} = $max->{y} = INT_MAX;
   }
   return;
+  }} #/ alias:
 } #/ sub sizeLimits
 
 sub getBounds {    # $rect ()
@@ -226,7 +229,15 @@ sub containsMouse {    # $bool ($event)
 # Define the range function
 my $range = sub {    # $ ($val, $min, $max)
   my ( $val, $min, $max ) = @_;
-  return ( $val < $min ) ? $min : ( ( $val > $max ) ? $max : $val );
+  $min = $max 
+    if $min > $max;
+  if ( $val < $min ) {
+    return $min;
+  } elsif ( $val > $max ) {
+    return $max;
+  } else {
+    return $val;
+  }
 };
 
 sub locate {    # void ($bounds)
@@ -366,8 +377,6 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
   $self->setState( sfDragging, !!0 );
 } #/ sub dragView
 
-my $grow;
-
 sub calcBounds {    # void ($bounds, $delta);
   my ( $self, undef, $delta ) = @_;
   alias: for my $bounds ( $_[1] ) {
@@ -377,7 +386,7 @@ sub calcBounds {    # void ($bounds, $delta);
 
   my ( $s, $d );
 
-  $grow ||= sub {
+  my $grow = sub {    # ($i)
     if ( $self->{growMode} & gfGrowRel ) {
       $_[0] = ( $_[0] * $s + ( ( $s - $d ) >> 1 ) ) / ( $s - $d );
     }
