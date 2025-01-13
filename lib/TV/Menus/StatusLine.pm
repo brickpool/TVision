@@ -47,7 +47,7 @@ use TV::Views::View;
 use TV::toolkit;
 
 sub TStatusLine() { __PACKAGE__ }
-sub name() { TStatusLine }
+sub name() { 'TStatusLine' }
 sub new_TStatusLine { __PACKAGE__->from(@_) }
 
 extends TView;
@@ -107,6 +107,7 @@ sub DEMOLISH {    # void ()
 
 sub disposeItems {    # void ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $item or blessed $item );
   while ( $item ) {
