@@ -105,11 +105,10 @@ sub DEMOLISH {    # void ()
   return;
 }
 
-sub disposeItems {    # void ($item)
-  assert ( @_ == 2 );
-  my $self = shift;
+sub disposeItems {    # void ($item|undef)
+  my ( $self, $item ) = @_;
   assert ( blessed $self );
-  alias: for my $item ( shift ) {
+  assert ( !defined $item or blessed $item );
   while ( $item ) {
     alias: for my $T ( $item ) {
     $item = $item->next;
@@ -117,7 +116,6 @@ sub disposeItems {    # void ($item)
     } #/ alias
   }
   return;
-  } #/ alias
 }
 
 sub draw {    # void ()
