@@ -30,6 +30,7 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
+  weaken
 );
 
 use TV::Drivers::Const qw( 
@@ -55,15 +56,15 @@ use TV::Menus::Const qw(
 use TV::toolkit;
 
 sub TMenuView() { __PACKAGE__ }
-sub name() { TMenuView }
+sub name() { 'TMenuView' }
 sub new_TMenuView { __PACKAGE__->from(@_) }
 
 extends TView;
 
 # declare attributes
-has parentMenu => ( is => 'rw' );
+has parentMenu => ( is => 'bare' );
 has menu       => ( is => 'rw' );
-has current    => ( is => 'rw' );
+has current    => ( is => 'bare' );
 
 # predeclare private methods
 my (
@@ -78,6 +79,16 @@ my (
   $do_a_select,
   $findHotKey,
 );
+
+my $lock_value = sub {
+  Internals::SvREADONLY( $_[0] => 1 )
+    if exists &Internals::SvREADONLY;
+};
+
+my $unlock_value = sub {
+  Internals::SvREADONLY( $_[0] => 0 )
+    if exists &Internals::SvREADONLY;
+};
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
@@ -96,6 +107,10 @@ sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{eventMask} |= evBroadcast;
+  weaken( $self->{parentMenu} )        if $self->{parentMenu};
+  weaken( $self->{current} )           if $self->{current};
+  $lock_value->( $self->{parentMenu} ) if STRICT;
+  $lock_value->( $self->{current} )    if STRICT;
   return;
 }
 
@@ -103,21 +118,36 @@ sub from {    # $obj ($bounds, | $aMenu|undef, | $aParent );
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 1 && @_ <= 3 );
-  return $class->new( bounds => $_[0], menu => $_[1], parentMenu => $_[3] );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 1 and return $class->new( bounds => $_[0] );
+    $_ == 2 and return $class->new(
+      bounds => $_[0], menu => $_[1], parentMenu => undef );
+    $_ == 3 and return $class->new(
+      bounds => $_[0], menu => $_[1], parentMenu => $_[2] );
+  }
+  return;
 }
 
-sub execute {    # $cmd ()
+sub DEMOLISH {    # void ()
+  my $self = shift;
+  assert ( blessed $self );
+  $unlock_value->( $self->{parentMenu} ) if STRICT;
+  $unlock_value->( $self->{current} )    if STRICT;
+  return;
+}
+
+sub execute {    # $int ()
   my $self        = shift;
   my $autoSelect  = !!0;
   my $action      = 0;
   my $result      = 0;
-  my $itemShown   = 0;
+  my $itemShown   = undef;
   my $target      = undef;
   my $r           = TRect->new();
   my $e           = TEvent->new();
   my $mouseActive = !!0;
 
-  $self->{current} = $self->{menu}{deflt};
+  $self->current( $self->{menu}{deflt} );
   $mouseActive = 0;
   do {
     $action = doNothing;
@@ -139,7 +169,7 @@ sub execute {    # $cmd ()
       $_ == evMouseUp and do {
         $self->$trackMouse( $e, $mouseActive );
         if ( $self->$mouseInOwner( $e ) ) {
-          $self->{current} = $self->{menu}{deflt};
+          $self->current( $self->{menu}{deflt} );
         }
         elsif ( $self->{current} && $self->{current}{name} ) {
           $action = doSelect;
@@ -148,9 +178,10 @@ sub execute {    # $cmd ()
           $action = doReturn;
         }
         else {
-          $self->{current} = $self->{menu}{deflt};
-          $self->{current} = $self->{menu}{items}
-            unless $self->{current};
+          $self->current( $self->{menu}{deflt} 
+            ? $self->{menu}{deflt} 
+            : $self->{menu}{items}
+          );
           $action = doNothing;
         }
         last;
@@ -169,7 +200,7 @@ sub execute {    # $cmd ()
         last;
       };
       $_ == evKeyDown and do {
-        SWITCH: for( my $key = ctrlToArrow( $e->{keyDown}{keyCode} ) ) {
+        SWITCH: for my $key ( ctrlToArrow( $e->{keyDown}{keyCode} ) ) {
           $key == kbUp || 
           $key == kbDown and do {
             if ( $self->{size}{y} != 1 ) {
@@ -193,8 +224,8 @@ sub execute {    # $cmd ()
           $key == kbHome || 
           $key == kbEnd and do {
             if ( $self->{size}{y} != 1 ) {
-              $self->{current} = $self->{menu}{items};
-              $self->$trackKey( 0 ) 
+              $self->current( $self->{menu}{items} );
+              $self->$trackKey( !!0 )
                 if $e->{keyDown}{keyCode} == kbEnd;
             }
             last;
@@ -229,8 +260,8 @@ sub execute {    # $cmd ()
             elsif ( $target == $self ) {
               $autoSelect = !!1 
                 if $self->{size}{y} == 1;
-              $action          = doSelect;
-              $self->{current} = $p;
+              $action = doSelect;
+              $self->current( $p );
             }
             elsif ( $self->{parentMenu} != $target 
               || $self->{parentMenu}{current} != $p 
@@ -254,7 +285,7 @@ sub execute {    # $cmd ()
       };
     }
 
-    { 
+    {
       no warnings 'uninitialized';
       if ( $itemShown != $self->{current} ) {
         $itemShown = $self->{current};
@@ -271,8 +302,8 @@ sub execute {    # $cmd ()
           $self->putEvent( $e );
         }
         $r = $self->getItemRect( $self->{current} );
-        $r->{a}{x} += $self->{origin}{x};
-        $r->{a}{y} += $self->{origin}{y};
+        $r->{a}{x} = $r->{a}{x} + $self->{origin}{x};
+        $r->{a}{y} = $r->{b}{y} + $self->{origin}{y};
         $r->{b} = $self->{owner}{size};
         $r->{a}{x}-- 
           if $self->{size}{y} == 1;
@@ -303,7 +334,8 @@ sub execute {    # $cmd ()
   }
   if ( $self->{current} ) {
     $self->{menu}{deflt} = $self->{current};
-    $self->{current} = undef;
+    weaken $self->{menu}{deflt};
+    $self->current( undef );
     $self->drawView();
   }
   return $result;
@@ -312,6 +344,7 @@ sub execute {    # $cmd ()
 sub findItem {    # $menuItem|undef ($ch)
   my ( $self, $ch ) = @_;
   assert ( blessed $self );
+  assert ( defined $ch and !ref $ch );
   $ch = uc( $ch );
   my $p = $self->{menu}{items};
   while ( $p ) {
@@ -326,7 +359,7 @@ sub findItem {    # $menuItem|undef ($ch)
   return undef;
 } #/ sub findItem
 
-sub getItemRect {    # $rect ($item)
+sub getItemRect {    # $rect ($item|undef)
   assert ( @_ == 2 );
   assert ( blessed $_[0] );
   assert ( !defined $_[1] or blessed $_[1] );
@@ -338,9 +371,10 @@ sub getHelpCtx {    # $int ()
   assert ( blessed $self );
   my $c = $self;
 
-  while ( $c && ( !$c->{current}
-               || $c->{current}{helpCtx} == hcNoContext
-               || !$c->{current}{name} )
+  while ( $c 
+    && ( !$c->{current}
+      || $c->{current}{helpCtx} == hcNoContext
+      || !$c->{current}{name} )
   ) {
     $c = $c->{parentMenu};
   }
@@ -366,34 +400,40 @@ sub handleEvent {    # void ($event)
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $self->{menu} ) {
-    if ( $event->{what} == evMouseDown ) {
-      $self->$do_a_select( $event );
-    }
-    elsif ( $event->{what} == evKeyDown ) {
-      if ( $self->findItem( getAltChar( $event->{keyDown}{keyCode} ) ) ) {
+    SWITCH: for ( $event->{what} ) {
+      $_ == evMouseDown and do {
         $self->$do_a_select( $event );
-      }
-      else {
-        my $p = $self->hotKey( $event->{keyDown}{keyCode} );
-        if ( $p && TView->commandEnabled( $p->{command} ) ) {
-          $event->{what}             = evCommand;
-          $event->{message}{command} = $p->{command};
-          $event->{message}{infoPtr} = undef;
-          $self->putEvent( $event );
-          $self->clearEvent( $event );
+        last;
+      };
+      $_ == evKeyDown and do {
+        if ( $self->findItem( getAltChar( $event->{keyDown}{keyCode} ) ) ) {
+          $self->$do_a_select( $event );
         }
-      } #/ else [ if ( $self->findItem( ...))]
-    } #/ elsif ( $event->{what} eq...)
-    elsif ( $event->{what} == evCommand ) {
-      if ( $event->{message}{command} == cmMenu ) {
-        $self->$do_a_select( $event );
-      }
-    }
-    elsif ( $event->{what} == evBroadcast ) {
-      if ( $event->{message}{command} == cmCommandSetChanged ) {
-        $self->drawView() 
-          if $self->$updateMenu( $self->{menu} );
-      }
+        else {
+          my $p = $self->hotKey( $event->{keyDown}{keyCode} );
+          if ( $p && TView->commandEnabled( $p->{command} ) ) {
+            $event->{what} = evCommand;
+            $event->{message}{command} = $p->{command};
+            $event->{message}{infoPtr} = undef;
+            $self->putEvent( $event );
+            $self->clearEvent( $event );
+          }
+        } #/ else [ if ( $self->findItem( ...))]
+        last;
+      };
+      $_ == evCommand and do {
+        if ( $event->{message}{command} == cmMenu ) {
+          $self->$do_a_select( $event );
+        }
+        last;
+      };
+      $_ == evBroadcast and do {
+        if ( $event->{message}{command} == cmCommandSetChanged ) {
+          $self->drawView() 
+            if $self->$updateMenu( $self->{menu} );
+        }
+        last;
+      };
     }
   } #/ if ( $self->{menu} )
   return;
@@ -406,20 +446,54 @@ sub hotKey {    # $menuItem ($keyCode)
   return $self->$findHotKey( $self->{menu}{items}, $keyCode );
 }
 
-sub newSubView {    # $menuItem ($bounds, $aMenu, $aParentMenu)
+sub newSubView {    # $menuView ($bounds, $aMenu, $aParentMenu)
   my ( $self, $bounds, $aMenu, $aParentMenu ) = @_;
+  assert ( @_ == 4 );
   assert ( blessed $self );
   assert ( ref $bounds );
   assert ( !defined $aMenu       or blessed $aMenu );
   assert ( !defined $aParentMenu or blessed $aParentMenu );
-  return TMenuBox->new( $bounds, $aMenu, $aParentMenu );
+  require TV::Menus::MenuBox;
+  return TV::Menus::MenuBox->new(
+    bounds     => $bounds,
+    menu       => $aMenu,
+    parentMenu => $aParentMenu,
+  );
 }
+
+sub parentMenu {    # $menuView|undef (|$menuView|undef)
+  my ( $self, $menuView ) = @_;
+  assert ( blessed $self );
+  assert ( !defined $menuView or blessed $menuView );
+  if ( @_ == 2 ) {
+    $unlock_value->( $self->{parentMenu} ) if STRICT;
+    weaken $self->{parentMenu}
+      if $self->{parentMenu} = $menuView;
+    $lock_value->( $self->{parentMenu} ) if STRICT;
+  }
+  return $self->{parentMenu};
+} #/ sub parentMenu
+
+sub current {    # $menuItem|undef (|$menuItem|undef)
+  my ( $self, $menuItem ) = @_;
+  assert ( blessed $self );
+  assert ( !defined $menuItem or blessed $menuItem );
+  if ( @_ == 2 ) {
+    $unlock_value->( $self->{current} ) if STRICT;
+    weaken $self->{current}
+      if $self->{current} = $menuItem;
+    $lock_value->( $self->{current} ) if STRICT;
+  }
+  return $self->{current};
+} #/ sub current
 
 $nextItem = sub {    # void ()
   my $self = shift;
-  if ( !( $self->{current} = $self->{current}{next} ) ) {
-    $self->{current} = $self->{menu}{items};
-  }
+  $self->current(
+    $self->{current}{next}
+      ? $self->{current}{next}
+      : $self->{menu}{items}
+  );
   return;
 };
 
@@ -427,39 +501,41 @@ $prevItem = sub {    # void ()
   my $self = shift;
   my $p;
 
+  no warnings 'uninitialized';
   if ( ( $p = $self->{current} ) == $self->{menu}{items} ) {
-    $p = 0;
+    $p = undef;
   }
 
   do {
-    $self->nextItem();
+    $self->$nextItem();
   } while ( $self->{current}{next} != $p );
   return;
 }; #/ $prevItem = sub
 
 $trackKey = sub {    # void ($findNext)
   my ( $self, $findNext ) = @_;
-  return if $self->{current} == 0;
+  return
+    unless $self->{current};
 
   do {
     if ( $findNext ) {
-      $self->nextItem();
+      $self->$nextItem();
     }
     else {
-      $self->prevItem();
+      $self->$prevItem();
     }
-  } while ( $self->{current}{name} == 0 );
+  } while ( !$self->{current}{name} );
   return;
 }; #/ $trackKey = sub
 
 $mouseInOwner = sub {    # $bool ($e)
   my ( $self, $e ) = @_;
-  if ( $self->{parentMenu} == 0 || $self->{parentMenu}{size}{y} != 1 ) {
+  if ( !$self->{parentMenu} || $self->{parentMenu}{size}{y} != 1 ) {
     return !!0;
   }
   else {
     my $mouse = $self->{parentMenu}->makeLocal( $e->{mouse}{where} );
-    my $r     = $self->{parentMenu}->getItemRect( $self->{parentMenu}{current} );
+    my $r = $self->{parentMenu}->getItemRect( $self->{parentMenu}{current} );
     return $r->contains( $mouse );
   }
 }; #/ $mouseInOwner = sub
@@ -467,21 +543,21 @@ $mouseInOwner = sub {    # $bool ($e)
 $mouseInMenus = sub {    # $bool ($e)
   my ( $self, $e ) = @_;
   my $p = $self->{parentMenu};
-  while ( $p != 0 && !$p->mouseInView( $e->{mouse}{where} ) ) {
+  while ( $p && !$p->mouseInView( $e->{mouse}{where} ) ) {
     $p = $p->{parentMenu};
   }
-  return $p != 0;
+  return defined $p;
 };
 
 $trackMouse = sub {    # void ($e, $mouseActive)
-  my ( $self, $e, $mouseActive ) = @_;
+  my ( $self, $e, undef ) = @_;
+  alias: for my $mouseActive ( $_[2] ) {
   my $mouse = $self->makeLocal( $e->{mouse}{where} );
   for (
-    $self->{current} = $self->{menu}{items};
+    $self->current( $self->{menu}{items} );
     $self->{current};
-    $self->{current} = $self->{current}{next}
-    )
-  {
+    $self->current( $self->{current}{next} )
+  ) {
     my $r = $self->getItemRect( $self->{current} );
     if ( $r->contains( $mouse ) ) {
       $mouseActive = !!1;
@@ -489,12 +565,13 @@ $trackMouse = sub {    # void ($e, $mouseActive)
     }
   } #/ for ( $self->{current} ...)
   return;
+  } #/ alias:
 }; #/ sub
 
 $topMenu = sub {    # $menuView ()
   my $self = shift;
   my $p    = $self;
-  while ( $p->{parentMenu} != 0 ) {
+  while ( $p->{parentMenu} ) {
     $p = $p->{parentMenu};
   }
   return $p;
@@ -509,12 +586,12 @@ $updateMenu = sub {    # $bool ($menu)
         if ( $p->{command} == 0 ) {
           $res = !!1
             if $p->{subMenu}
-            && $self->updateMenu( $p->{subMenu} );
+            && $self->$updateMenu( $p->{subMenu} );
         }
         else {
-          no warnings 'uninitialized';
           my $commandState = TView->commandEnabled( $p->{command} );
-          if ( 0+ $p->{disabled} == 0+ $commandState ) {
+          no warnings 'uninitialized';
+          if ( 0+$p->{disabled} == 0+$commandState ) {
             $p->{disabled} = !$commandState;
             $res = !!1;
           }
@@ -528,12 +605,11 @@ $updateMenu = sub {    # $bool ($menu)
 $do_a_select = sub {    # void ($event)
   my ( $self, $event ) = @_;
   $self->putEvent( $event );
-  $event->{message}{command} = $self->{owner}->execView( $self );
-  if ( $event->{message}{command}
-    && TView->commandEnabled( $event->{message}{command} ) )
-  {
+  my $cmd = $self->{owner}->execView( $self );
+  if ( $cmd && TView->commandEnabled( $cmd ) ) {
     $event->{what} = evCommand;
-    $event->{message}{infoPtr} = 0;
+    $event->{message}{command} = $cmd;
+    $event->{message}{infoPtr} = undef;
     $self->putEvent( $event );
   }
   $self->clearEvent( $event );
@@ -551,8 +627,8 @@ $findHotKey = sub {    # $menuItem|undef ($p, $keyCode)
       }
       elsif ( !$p->{disabled}
         && $p->{keyCode} != kbNoKey
-        && $p->{keyCode} == $keyCode )
-      {
+        && $p->{keyCode} == $keyCode
+      ) {
         return $p;
       }
     } #/ if ( $p->{name} )

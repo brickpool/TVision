@@ -45,7 +45,7 @@ use TV::Views::Const qw(
 use TV::toolkit;
 
 sub TMenuBar() { __PACKAGE__ }
-sub name() { TMenuView }
+sub name() { 'TMenuBar' }
 sub new_TMenuBar { __PACKAGE__->from(@_) }
 
 extends TMenuView;
@@ -55,8 +55,15 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   return STRICT ? check( {
     # 'required' arguments (note: 'menu' can be undefined )
-    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
-    menu => { required => 1, allow => sub { !defined $_[0] or blessed $_[0] } },
+    bounds => {
+      required => 1,
+      defined  => 1,
+      allow    => sub { blessed shift }
+    },
+    menu => {
+      required => 1,
+      allow    => sub { !defined $_[0] or blessed $_[0] }
+    },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
@@ -64,7 +71,8 @@ sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{menu} = TMenu->new( items => $self->{menu} )
-    if $self->{menu} && $self->{menu}->isa(TSubMenu);
+    if $self->{menu} 
+    && $self->{menu}->isa(TSubMenu);
   $self->{growMode} = gfGrowHiX;
   $self->{options} |= ofPreProcess;
   return;
@@ -127,11 +135,11 @@ sub draw {    # void ()
   $self->writeBuf( 0, 0, $self->{size}{x}, 1, $b );
 } #/ sub draw
 
-sub getItemRect {    # $rect ($item)
-  no warnings 'uninitialized';
+sub getItemRect {    # $rect ($item|undef)
   my ( $self, $item ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
-  assert ( blessed $item );
+  assert ( !defined $item or blessed $item );
   my $r = TRect->new( ax => 1, ay => 0, bx => 1, by => 1 );
   my $p = $self->{menu}{items};
   while ( 1 ) {
@@ -139,8 +147,11 @@ sub getItemRect {    # $rect ($item)
     if ( $p->{name} ) {
       $r->{b}{x} += cstrlen( $p->{name} ) + 2;
     }
-    return $r 
-      if $p == $item;
+    {
+      no warnings 'uninitialized';
+      return $r
+        if $p == $item;
+    }
     $p = $p->{next};
   }
 } #/ sub getItemRect

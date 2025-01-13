@@ -15,6 +15,7 @@ use TV::Menus::MenuItem;
 use TV::Menus::SubMenu;
 use TV::Menus::MenuView;
 use TV::Menus::MenuBar;
+use TV::Menus::MenuBox;
 use TV::Menus::StatusItem;
 use TV::Menus::StatusDef;
 use TV::Menus::StatusLine;
@@ -27,6 +28,7 @@ sub import {
   TV::Menus::SubMenu->import::into( $target );
   TV::Menus::MenuView->import::into( $target );
   TV::Menus::MenuBar->import::into( $target );
+  TV::Menus::MenuBox->import::into( $target );
   TV::Menus::StatusItem->import::into( $target );
   TV::Menus::StatusDef->import::into( $target );
   TV::Menus::StatusLine->import::into( $target );
@@ -40,6 +42,7 @@ sub unimport {
   TV::Menus::SubMenu->unimport::out_of( $caller );
   TV::Menus::MenuView->unimport::out_of( $caller );
   TV::Menus::MenuBar->unimport::out_of( $caller );
+  TV::Menus::MenuBox->unimport::out_of( $caller );
   TV::Menus::StatusItem->unimport::out_of( $caller );
   TV::Menus::StatusDef->unimport::out_of( $caller );
   TV::Menus::StatusLine->unimport::out_of( $caller );
