@@ -60,13 +60,13 @@ sub L0 {
   $Y       = $y;
   $Count   = $count;
   $Buffer  = $b;
-  $wOffset = $x;
-  $Count  += $x;
+  $wOffset = $X;
+  $Count  += $X;
   $edx     = 0;
 
-  if ( $y >= 0 && $y < $dest->{size}{y} ) {
+  if ( 0 <= $Y && $Y < $dest->{size}{y} ) {
     $X = 0
-      if $x < 0;
+      if $X < 0;
     $Count = $dest->{size}{x}
       if $Count > $dest->{size}{x};
     L10( $dest )
