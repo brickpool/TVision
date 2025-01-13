@@ -180,7 +180,7 @@ sub handleEvent {    # void ($event)
     SWITCH: for ( $event->{message}{command} ) {
       $_ == cmResize and do {
         if ( $self->{flags} & ( wfMove | wfGrow ) ) {
-          $limits = $self->owner->getExtent();
+          $limits = $self->{owner}->getExtent();
           $self->sizeLimits( $min, $max );
           $self->dragView( $event, 
             $self->{dragMode} | ( $self->{flags} & ( wfMove | wfGrow ) ), 
@@ -192,7 +192,7 @@ sub handleEvent {    # void ($event)
       };
       $_ == cmClose and do {
         no warnings 'uninitialized';
-        if ( $self->{flags} & wfClose
+        if ( ( $self->{flags} & wfClose )
           && ( !$event->{message}{infoPtr}
             || 0+$event->{message}{infoPtr} == 0+$self
           ) 
@@ -212,7 +212,7 @@ sub handleEvent {    # void ($event)
       };
       $_ == cmZoom and do {
         no warnings 'uninitialized';
-        if ( $self->{flags} & wfZoom
+        if ( ( $self->{flags} & wfZoom )
           && ( !$event->{message}{infoPtr} 
             || 0+$event->{message}{infoPtr} == 0+$self
           )
@@ -291,13 +291,16 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub sizeLimits {    # void ($min, $max)
-  my ( $self, $min, $max ) = @_;
+  my ( $self, undef, undef ) = @_;
+  alias: for my $min ( $_[1] ) {
+  alias: for my $max ( $_[2] ) {
   assert ( blessed $self );
   assert ( blessed $min );
   assert ( blessed $max );
   $self->SUPER::sizeLimits( $min, $max );
-  @$min{qw(x y)} = @$minWinSize{qw(x y)};
+  $min = $minWinSize->clone();
   return;
+  }} #/ alias:
 }
 
 sub standardScrollBar {    # $scrollBar ($aOptions)

@@ -123,7 +123,7 @@ sub handleEvent {    # void ($event)
       if ( $clickPart != sbIndicator ) {
         do {
           $mouse = $self->makeLocal( $event->{mouse}{where} );
-          if ( $self->$getPartCode() eq $clickPart ) {
+          if ( $self->$getPartCode() == $clickPart ) {
             $self->setValue( $self->{value} + $self->scrollStep( $clickPart ) );
           }
         } while ( $self->mouseEvent( $event, evMouseAuto ) );
@@ -252,8 +252,12 @@ sub scrollStep {    # $steps ($part)
   my ( $self, $part ) = @_;
   assert ( blessed $self );
   assert ( looks_like_number $part );
-  my $step = ( $part & 2 ) ? $self->{pgStep} : $self->{arStep};
-  return ( $part & 1 ) ? $step : -$step;
+  my $step = ( $part & 2 )
+           ? $self->{pgStep} 
+           : $self->{arStep};
+  return ( $part & 1 )
+    ? $step
+    : -$step;
 }
 
 sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
@@ -264,6 +268,7 @@ sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
   assert ( looks_like_number $aMax );
   assert ( looks_like_number $aPgStep );
   assert ( looks_like_number $aArStep );
+
   $aMax   = max( $aMax, $aMin );
   $aValue = max( $aValue, $aMin );
   $aValue = min( $aValue, $aMax );
@@ -349,7 +354,7 @@ sub getSize {   # $size ()
   my $self = shift;
   assert ( blessed $self );
   return $self->{size}{x} == 1 
-    ? $self->{size}{y} 
+    ? $self->{size}{y}
     : $self->{size}{x};
 }
 
@@ -361,8 +366,8 @@ $getPartCode = sub {    # $int ()
 
     # Check for vertical or horizontal size of 2
     if ( ( $self->{size}{x} == 1 && $self->{size}{y} == 2 )
-      || ( $self->{size}{x} == 2 && $self->{size}{y} == 1 ) )
-    {
+      || ( $self->{size}{x} == 2 && $self->{size}{y} == 1 )
+    ) {
       # Set 'part' to left or right arrow only
       if ( $mark < 1 ) {
         $part = sbLeftArrow;
