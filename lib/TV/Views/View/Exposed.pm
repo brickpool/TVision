@@ -37,8 +37,7 @@ sub L0 {    # $bool ($dest)
   return !!0
     unless $dest->{state} & sfExposed;
   return !!0
-    if $dest->{size}{x} <= 0
-    || $dest->{size}{y} <= 0;
+    if 0 >= $dest->{size}{x} || 0 >= $dest->{size}{y};
   return L1( $dest );
 }
 
@@ -60,8 +59,8 @@ sub L10 {    # $bool ($dest)
   my ( $dest ) = @_;
   my $owner = $dest->owner();
   return !!0
-    if $owner->{buffer} != 0
-    || $owner->{lockFlag} != 0;
+    if $owner->{buffer}
+    || $owner->{lockFlag};
   return L11( $owner );
 }
 
