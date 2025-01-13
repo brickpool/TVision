@@ -77,7 +77,8 @@ sub BUILD {    # void (|\%args)
 sub draw {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  my ( $cFrame, $cTitle, $f, $i, $l, $width );
+  my ( $cFrame, $cTitle );
+  my ( $f, $i, $l, $width );
   my $b = TDrawBuffer->new();
 
   if ( ( $self->{state} & sfDragging ) != 0 ) {
@@ -102,19 +103,21 @@ sub draw {    # void ()
   $width = $self->{size}{x};
   $l     = $width - 10;
 
-  $l -= 6 if $self->owner->{flags} & ( wfClose | wfZoom );
+  $l -= 6 
+    if $self->{owner}{flags} & ( wfClose | wfZoom );
   $self->frameLine( $b, 0, $f, $cFrame );
-  if ( $self->owner->{number} != wnNoNumber
-    && $self->owner->{number} < 10
+  if ( $self->{owner}{number} != wnNoNumber
+    && $self->{owner}{number} < 10
   ) {
     $l -= 4;
-    $i = 3;
-    $i += 4 if $self->owner->{flags} & wfZoom;
-    $b->putChar( $width - $i, chr( $self->owner->{number} + ord( '0' ) ) );
+    $i = ( $self->{owner}{flags} & wfZoom ) 
+       ? 7 
+       : 3;
+    $b->putChar( $width - $i, chr( $self->{owner}{number} + ord( '0' ) ) );
   }
 
-  if ( $self->owner ) {
-    my $title = $self->owner->getTitle( $l );
+  if ( $self->{owner} ) {
+    my $title = $self->{owner}->getTitle( $l );
     if ( $title ) {
       $l = min( length( $title ), $width - 10 );
       $l = max( $l, 0 );
@@ -123,22 +126,22 @@ sub draw {    # void ()
       $b->moveBuf( $i, [ unpack 'C*' => $title ], $cTitle, $l );
       $b->putChar( $i + $l, ' ' );
     }
-  } #/ if ( $self->owner )
+  } #/ if ( $self->{owner} )
 
   if ( $self->{state} & sfActive ) {
-    if ( $self->owner->{flags} & wfClose ) {
+    if ( $self->{owner}{flags} & wfClose ) {
       $b->moveCStr( 2, $closeIcon, $cFrame );
     }
-    if ( $self->owner->{flags} & wfZoom ) {
+    if ( $self->{owner}{flags} & wfZoom ) {
       my ( $minSize, $maxSize ) = ( TPoint->new(), TPoint->new() );
-      $self->owner->sizeLimits( $minSize, $maxSize );
-      if ( $self->owner->{size} == $maxSize ) {
+      $self->{owner}->sizeLimits( $minSize, $maxSize );
+      if ( $self->{owner}{size} == $maxSize ) {
         $b->moveCStr( $width - 5, $unZoomIcon, $cFrame );
       }
       else {
         $b->moveCStr( $width - 5, $zoomIcon, $cFrame );
       }
-    } #/ if ( ( $self->owner->...))
+    } #/ if ( ( $self->{owner}...))
   } #/ if ( ( $self->{state} ...))
 
   $self->writeLine( 0, 0, $self->{size}{x}, 1, $b );
@@ -148,7 +151,7 @@ sub draw {    # void ()
   }
   $self->frameLine( $b, $self->{size}{y} - 1, $f + 6, $cFrame );
   if ( $self->{state} & sfActive ) {
-    if ( $self->owner->{flags} & wfGrow ) {
+    if ( $self->{owner}{flags} & wfGrow ) {
       $b->moveCStr( $width - 2, $dragIcon, $cFrame );
     }
   }
@@ -175,23 +178,24 @@ sub handleEvent {    # void ($event)
   if ( $event->{what} == evMouseDown ) {
     my $mouse = $self->makeLocal( $event->{mouse}{where} );
     if ( $mouse->{y} == 0 ) {
-      if ( ( $self->owner->{flags} & wfClose ) != 0
+      if ( ( $self->{owner}{flags} & wfClose ) != 0
         && ( $self->{state} & sfActive )
         && $mouse->{x} >= 2
-        && $mouse->{x} <= 4 )
-      {
-        while ( $self->mouseEvent( $event, evMouse ) ) { }
+        && $mouse->{x} <= 4 
+      ) {
+        while ( $self->mouseEvent( $event, evMouse ) ) {
+        }
         $mouse = $self->makeLocal( $event->{mouse}{where} );
         if ( $mouse->{y} == 0 && $mouse->{x} >= 2 && $mouse->{x} <= 4 ) {
-          $event->{what}             = evCommand;
+          $event->{what} = evCommand;
           $event->{message}{command} = cmClose;
-          $event->{message}{infoPtr} = $self->owner;
+          weaken( $event->{message}{infoPtr} = $self->{owner} );
           $self->putEvent( $event );
           $self->clearEvent( $event );
         }
-      } #/ if ( ( $self->owner->...))
+      } #/ if ( ( $self->{owner}...))
       elsif (
-        ( $self->owner->{flags} & wfZoom ) != 0
+        ( $self->{owner}{flags} & wfZoom ) != 0
         && ( $self->{state} & sfActive )
         && (
           (
@@ -200,23 +204,22 @@ sub handleEvent {    # void ($event)
           )
           || ( $event->{mouse}{eventFlags} & meDoubleClick )
         )
-        )
-      {
-        $event->{what}             = evCommand;
+      ) {
+        $event->{what} = evCommand;
         $event->{message}{command} = cmZoom;
-        weaken( $event->{message}{infoPtr} = $self->owner );
+        weaken( $event->{message}{infoPtr} = $self->{owner} );
         $self->putEvent( $event );
         $self->clearEvent( $event );
-      } #/ elsif ( ( $self->owner->...))
-      elsif ( $self->owner->{flags} & wfMove ) {
+      } #/ elsif ( ( $self->{owner}...))
+      elsif ( $self->{owner}{flags} & wfMove ) {
         $self->dragWindow( $event, dmDragMove );
       }
     } #/ if ( $mouse->{y} == 0 )
-    elsif ( $mouse->{x} >= $self->{size}{x} - 2
+    elsif ( ( $self->{state} & sfActive )
       && $mouse->{y} >= $self->{size}{y} - 1
-      && ( $self->{state} & sfActive ) )
-    {
-      if ( ( $self->owner->{flags} & wfGrow ) != 0 ) {
+      && ( $self->{owner}{flags} & wfGrow )
+    ) {
+      if ( $mouse->{x} >= $self->{size}{x} - 2 ) {
         $self->dragWindow( $event, dmDragGrow );
       }
     }
@@ -226,6 +229,7 @@ sub handleEvent {    # void ($event)
 
 sub setState {    # void ($aState, $enable)
   my ( $self, $aState, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
@@ -241,11 +245,11 @@ sub dragWindow {    # void ($event, $mode)
   assert ( blessed $self );
   assert ( blessed $event );
   assert ( looks_like_number $mode );
-  my $limits = $self->owner->owner->getExtent();
+  my $limits = $self->{owner}{owner}->getExtent();
   my ( $min, $max ) = ( TPoint->new(), TPoint->new() );
-  $self->owner->sizeLimits( $min, $max );
-  $self->owner->dragView( 
-    $event, $self->owner->{dragMode} | $mode, $limits, $min, $max
+  $self->{owner}->sizeLimits( $min, $max );
+  $self->{owner}->dragView( 
+    $event, $self->{owner}{dragMode} | $mode, $limits, $min, $max
   );
   $self->clearEvent( $event );
   return;
