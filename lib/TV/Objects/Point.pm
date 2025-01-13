@@ -68,6 +68,13 @@ sub clone {    # $p ($self)
   return $class->new( %$self );
 }
 
+sub dump {    # $str ()
+  my $self = shift;
+  assert ( blessed $self );
+  require Data::Dumper;
+  return Data::Dumper::Dumper $self;
+}
+
 sub add {    # $p ($one, $two)
   my ( $one, $two ) = @_;
   assert ( ref $one );

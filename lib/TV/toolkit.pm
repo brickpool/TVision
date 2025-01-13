@@ -3,7 +3,7 @@ package TV::toolkit;
 use strict;
 use warnings;
 
-our $VERSION   = '0.04';
+our $VERSION   = '0.05';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Carp ();
@@ -53,6 +53,7 @@ sub import {
     _create_constructor( $caller );
     _install_slots( $caller );
     _import_extends( $caller );
+    _add_dump( $caller ) unless caller->can( 'dump' );
   }
 
   $^H{"TV::toolkit/$caller"} = $name;
@@ -102,7 +103,7 @@ sub _import_extends {    # void ($target)
   assert( $proto );
   my $target = ref $proto || $proto;
   my $me = TV::toolkit::LOP->init( __PACKAGE__ );
-  $me->import_methods( $target, qw( extends ) );
+  $me->import_methods( $target => 'extends' );
   return;
 }
 
@@ -131,5 +132,21 @@ sub _my_moos_has {    # $return (\&next, @_)
   }
   return $next->( $name, %args );
 } #/ sub _my_moos_has
+
+sub _add_dump {
+  my ( $proto ) = @_;
+  assert( $proto );
+  my $target = TV::toolkit::LOP->init( ref $proto || $proto );
+  $target->create_method( 
+    dump => sub {
+      no warnings 'once';
+      my $self = shift;
+      require Data::Dumper;
+      local $Data::Dumper::Maxdepth = shift if @_;
+      return Data::Dumper::Dumper $self;
+    }
+  );
+  return;
+}
 
 1

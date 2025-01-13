@@ -106,6 +106,7 @@ package CharScanType {
   use Devel::StrictMode;
   use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
+  use Scalar::Util qw( blessed );
   use Tie::Hash;
 
   our %HAS = (
@@ -169,6 +170,7 @@ package KeyDownEvent {
   use Devel::StrictMode;
   use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
+  use Scalar::Util qw( blessed );
   use Tie::Hash;
 
   our %HAS = (
@@ -420,6 +422,15 @@ sub from {    # $obj ()
   assert ( $class and !ref $class );
   assert ( @_ == 0 );
   return $class->new();
+}
+
+sub dump {    # $str (|$maxDepth)
+  no warnings 'once';
+  my $self = shift;
+  assert ( blessed $self );
+  require Data::Dumper;
+  local $Data::Dumper::Maxdepth = @_ ? shift : 3;
+  return Data::Dumper::Dumper $self;
 }
 
 sub clone {    # $obj ()

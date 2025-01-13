@@ -109,6 +109,13 @@ sub clone {    # $p ($self)
   );
 }
 
+sub dump {    # $str ()
+  my $self = shift;
+  assert ( blessed $self );
+  require Data::Dumper;
+  return Data::Dumper::Dumper $self;
+}
+
 sub move {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
   assert ( blessed $self );
