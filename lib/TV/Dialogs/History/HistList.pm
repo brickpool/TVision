@@ -97,7 +97,7 @@ $startId = sub {    # void ($id)
   return;
 };
 
-sub historyAdd {    # void ($id, $str)
+sub historyAdd {    # void ($id, $str|undef)
   my ( $id, $str ) = @_;
   assert ( @_ == 2 );
   assert ( looks_like_number $id );

@@ -115,11 +115,7 @@ sub from {    # $obj ($bounds, $aTitle, $aNumber)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 3 );
-  return $class->new(
-    bounds => $_[0],
-    title  => $_[1],
-    number => $_[2],
-  );
+  return $class->new( bounds => $_[0], title => $_[1], number => $_[2] );
 }
 
 sub DEMOLISH {    # void ()
@@ -258,6 +254,7 @@ sub initFrame {    # $frame ($r)
 
 sub setState {    # void ($aState, $enable)
   my ( $self, $aState, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );

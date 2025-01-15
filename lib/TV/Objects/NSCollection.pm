@@ -99,10 +99,7 @@ sub from {    # $obj ($aLimit, $aDelta);
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
-  return $class->new(
-    limit => $_[0], 
-    delta => $_[1],
-  );
+  return $class->new( limit => $_[0], delta => $_[1] );
 }
 
 sub DEMOLISH {    # void ()

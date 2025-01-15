@@ -53,7 +53,8 @@ sub BUILDARGS {    # \%args (%args)
     # check 'isa' (note: 'helpCtx' can be undefined)
     helpCtx => {
       default => hcNoContext,
-      allow   => sub { !defined $_[0] or looks_like_number $_[0] }
+      defined => 1,
+      allow   => sub { looks_like_number $_[0] }
     },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
@@ -62,9 +63,13 @@ sub from {    # $obj ($nm, $key, $helpCtx)
   my $class = shift;
   assert( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 3 );
-  return $class->new(
-    name => $_[0], command => 0, keyCode => $_[1], helpCtx => $_[2]
-  );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 2 and return $class->new(
+      name => $_[0], command => 0, keyCode => $_[1] );
+    $_ == 3 and return $class->new(
+      name => $_[0], command => 0, keyCode => $_[1], helpCtx => $_[2] );
+  }
+  return;
 }
 
 sub add_menu_item {    # $s ($s, $i)

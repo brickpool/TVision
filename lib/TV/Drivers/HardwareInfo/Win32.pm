@@ -570,9 +570,9 @@ sub getKeyEvent {    # $bool ($class, $event)
 
 sub setCtrlBrkHandler { # $success ($class, $install)
   my ( $class, $install ) = @_;
+  assert ( @_ == 2 );
   assert ( $class and !ref $class );
   assert ( !defined $install or !ref $install );
-  assert ( @_ == 2 );
   my $consoleMode = $consoleHandle[cnInput]->Mode() || return;
   return $consoleHandle[cnInput]->Mode(
     $install 
@@ -582,9 +582,9 @@ sub setCtrlBrkHandler { # $success ($class, $install)
 }
 
 sub setCritErrorHandler {  # $bool ($class, $install)
+  assert ( @_ == 2 );
   assert ( $_[0] and !ref $_[0] );
   assert ( !defined $_[1] or !ref $_[1] );
-  assert ( @_ == 2 );
   # Handled by Windows
   return !!1;
 }

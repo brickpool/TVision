@@ -61,7 +61,7 @@ sub from {    # $obj ($aText, $key, $cmd, | $aNext)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 3 && @_ <= 4 );
-  return $class->new( 
+  return $class->new(
     text => $_[0], keyCode => $_[1], command => $_[2], next => $_[3]
   );
 }

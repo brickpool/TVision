@@ -24,8 +24,8 @@ use TV::Drivers::Const qw( evNothing );
 use TV::Drivers::Event;
 
 sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
-  assert ( @_ == 4 );
   my ( $receiver, $what, $command, $infoPtr ) = @_;
+  assert ( @_ == 4 );
   assert ( !defined $receiver or blessed $receiver );
   assert ( looks_like_number $what );
   assert ( looks_like_number $command );

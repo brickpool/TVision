@@ -52,8 +52,8 @@ sub BUILDARGS {    # \%args (%args)
     min => { required => 1, defined => 1, allow => qr/^\d+$/ },
     max => { required => 1, defined => 1, allow => qr/^\d+$/ },
     # check 'isa' (note: 'next' and 'items' can be undefined)
-    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
     items => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
@@ -61,7 +61,14 @@ sub from {    # $obj ($aMin, $aMax, | $someItems, | $aNext)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 4 );
-  return $class->new( min => $_[0], max => $_[1] );
+  SWITCH: for ( scalar @_ ) {
+    $_ == 2 and return $class->new( min => $_[0], max => $_[1] );
+    $_ == 3 and return $class->new( min => $_[0], max => $_[1], 
+      items => $_[2] );
+    $_ == 4 and return $class->new( min => $_[0], max => $_[1], 
+      items => $_[2], next => $_[3] );
+  }
+  return ;
 }
 
 sub add_status_item {    # $s1 ($s1, $s2)

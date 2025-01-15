@@ -13,15 +13,12 @@ our @EXPORT = qw(
   new_TProgram
 );
 our @EXPORT_OK = qw(
+  $application
   $deskTop
 );
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
 use Scalar::Util qw(
   blessed
   looks_like_number

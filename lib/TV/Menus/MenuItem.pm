@@ -59,14 +59,19 @@ sub BUILDARGS {    # \%args (%args)
     name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
     keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
     # check 'isa' (note: args can be undefined)
-    command => { allow => sub { !defined $_[0] or looks_like_number $_[0] } },
+    command => {
+      default => 0,
+      defined => 1,
+      allow   => sub { looks_like_number $_[0] }
+    },
     subMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
     helpCtx => {
       default => hcNoContext,
-      allow   => sub { !defined $_[0] or looks_like_number $_[0] }
+      defined => 1,
+      allow   => sub { looks_like_number $_[0] }
     },
-    param   => { allow => sub { !defined $_[0] or !ref $_[0] } },
-    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    param => { allow => sub { !defined $_[0] or !ref $_[0] } },
+    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
@@ -86,8 +91,22 @@ sub from {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $para
              ? qw(name command keyCode helpCtx param next)
              : qw(name keyCode subMenu helpCtx next);
   @args{@params} = @_;
+  $args{helpCtx} ||= 0;
   return $class->new( %args );
 }
+
+sub DEMOLISH {    # void ()
+  my $self = shift;
+  assert ( blessed $self );
+  undef $self->{name};
+  if ( $self->{command} == 0 ) {
+    undef $self->{subMenu};
+  }
+  else {
+    undef $self->{param};
+  }
+  return;
+} #/ sub DEMOLISH
 
 sub append {    # void ($aNext)
   my ( $self, $aNext ) = @_;
@@ -108,18 +127,5 @@ sub newLine {    # $menuItem ()
     next    => undef,
   );
 } #/ sub newLine
-
-sub DEMOLISH {    # void ()
-  my $self = shift;
-  assert ( blessed $self );
-  undef $self->{name};
-  if ( $self->{command} == 0 ) {
-    undef $self->{subMenu};
-  }
-  else {
-    undef $self->{param};
-  }
-  return;
-} #/ sub DEMOLISH
 
 1
