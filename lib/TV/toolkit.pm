@@ -142,6 +142,7 @@ sub _add_dump {
       no warnings 'once';
       my $self = shift;
       require Data::Dumper;
+      local $Data::Dumper::Varname = sprintf "(0x%x)", $self;
       local $Data::Dumper::Maxdepth = shift if @_;
       return Data::Dumper::Dumper $self;
     }
