@@ -1,10 +1,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
+  unless ( eval { require UNIVERSAL::Object } ) {
+    plan skip_all => 'Test irrelevant without Universal::Object';
+  }
+  else {
+    plan tests => 11;
+  }
   require_ok 'UNIVERSAL::Object';
   use_ok 'slots::less';
 }

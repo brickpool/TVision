@@ -5,13 +5,22 @@ use warnings;
 
 use Test::More qw( no_plan );
 
+
 BEGIN {
-  use_ok 'slots::less';
-  use_ok 'TV::toolkit::LOP::UNIVERSAL::Object';
+  if ( eval { require UNIVERSAL::Object } ) {
+    use_ok 'slots::less';
+    use_ok 'TV::toolkit::LOP::UNIVERSAL::Object';
+  }
   use_ok 'TV::toolkit::LOP::Class::Fields';
-  use_ok 'TV::toolkit::LOP::Class::Tiny';
-  use_ok 'TV::toolkit::LOP::Moo';
-  use_ok 'TV::toolkit::LOP::Moose';
+  if ( eval { require Class::Tiny } ) {
+    use_ok 'TV::toolkit::LOP::Class::Tiny';
+  }
+  if ( eval { require Moo } ) {
+    use_ok 'TV::toolkit::LOP::Moo';
+  }
+  if ( eval { require Moose } ) {
+    use_ok 'TV::toolkit::LOP::Moose';
+  }
   use_ok 'TV::toolkit::LOP';
   use_ok 'TV::toolkit::decorators';
   use_ok 'TV::toolkit';
