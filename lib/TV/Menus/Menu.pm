@@ -30,6 +30,7 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
+  weaken
 );
 
 use TV::toolkit;
@@ -58,6 +59,7 @@ sub BUILD {    # void (| \%args)
   assert( blessed $self );
   $self->{items} ||= undef;
   $self->{deflt} ||= $self->{items};
+  weaken $self->{deflt} if $self->{deflt};
   return;
 }
 
@@ -78,7 +80,7 @@ sub DEMOLISH {    # void ()
   assert( blessed $self );
   while ( $self->{items} ) {
     my $temp = $self->{items};
-    $self->{items} = $self->{items}->{next};
+    $self->{items} = $self->{items}{next};
     undef $temp;
   }
 }

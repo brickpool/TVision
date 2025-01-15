@@ -85,6 +85,7 @@ sub BUILD {    # void (| \%args)
   $self->{eventMask} = 0xffff;
   $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} ||= $self->getExtent();
+  weaken( $self->{current} ) if $self->{current};
   $lock_value->( $self->{current} ) if STRICT;
   return;
 } #/ sub BUILD
@@ -120,18 +121,19 @@ sub shutDown {    # void ()
   return;
 } #/ sub shutDown
 
-sub execView {    # $int ()
-  my ( $self, $p ) = @_;
+sub execView {    # $int ($p|undef)
+  my ( $self, undef ) = @_;
+  alias: for my $p ( $_[1] ) {
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
-  assert ( @_ == 2 );
   return cmCancel
     unless $p;
 
   my $saveOptions  = $p->{options};
   my $saveOwner    = $p->{owner};
   my $saveTopView  = $TheTopView;
-  my $saveCurrent  = $self->current();
+  my $saveCurrent  = $self->{current};
   my $saveCommands = TCommandSet->new();
   $self->getCommands( $saveCommands );
   $TheTopView = $p;
@@ -149,6 +151,7 @@ sub execView {    # $int ()
   $TheTopView = $saveTopView;
   $self->setCommands( $saveCommands );
   return $retval;
+  } #/ alias:
 } #/ sub execView
 
 sub execute {    # $int ()
@@ -180,12 +183,12 @@ sub awaken {    # void ()
   return;
 }
 
-sub insertView {    # void ($self, $p, $Target|undef)
+sub insertView {    # void ($p, $Target|undef)
   my ( $self, $p, $Target ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $p );
   assert ( !defined $Target or blessed $Target );
-  assert ( @_ == 3 );
   $p->owner( $self );
   if ( $Target ) {
     $Target = $Target->prev();
@@ -213,11 +216,12 @@ sub insertView {    # void ($self, $p, $Target|undef)
   return;
 } #/ sub insertView
 
-sub remove {    # void ($p)
-  my ( $self, $p ) = @_;
+sub remove {    # void ($p|undef)
+  my ( $self, undef ) = @_;
+  alias: for my $p ( $_[1] ) {
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
-  assert ( @_ == 2 );
   if ( $p ) {
     my $saveState = $p->{state};
     $p->hide();
@@ -229,6 +233,7 @@ sub remove {    # void ($p)
     }
   } #/ if ( $p )
   return;
+  } #/ alias:
 } #/ sub remove
 
 # The following subroutine was taken from the framework
@@ -239,7 +244,8 @@ sub remove {    # void ($p)
 # I<tgrmv.cpp>
 sub removeView {    # void ($p)
   no warnings qw( uninitialized numeric );
-  my ( $self, $p ) = @_;
+  my ( $self, undef ) = @_;
+  alias: for my $p ( $_[1] ) {
   assert ( blessed $self );
   assert ( blessed $p );
   if ( $self->{last} ) {
@@ -255,8 +261,7 @@ sub removeView {    # void ($p)
     }
     # Note: The $p->{next} field should refer to $p, 
     # but this could generate a cyclical reference.
-    $p = $self->{last}->prev() 
-      if $p != $p->{next};
+    my $p = $p != $p->{next} ? $self->{last}->prev() : $p;
     if ( !isweak $p->{next} ) {
       $unlock_value->( $p->{next} ) if STRICT;
       weaken $p->{next};
@@ -264,6 +269,7 @@ sub removeView {    # void ($p)
     }
   } #/ if ( $self->{last} )
   return;
+  } #/ alias:
 } #/ sub removeView
 
 sub resetCurrent {    # void ()
@@ -274,23 +280,24 @@ sub resetCurrent {    # void ()
   return;
 }
 
-sub setCurrent {    # void ($p, $mode)
+sub setCurrent {    # void ($p|undef, $mode)
   no warnings qw( uninitialized numeric );
   my ( $self, $p, $mode ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
   assert ( looks_like_number $mode );
   return 
-    if $self->current() == $p;
+    if $self->{current} == $p;
 
   $self->lock();
-  $self->$focusView( $self->current(), 0 );
-  $self->current()->setState( sfSelected, 0 )
+  $self->$focusView( $self->{current}, !!0 );
+  $self->{current}->setState( sfSelected, !!0 )
     if $mode != enterSelect 
-    && $self->current();
-  $p->setState( sfSelected, 1 ) 
+    && $self->{current};
+  $p->setState( sfSelected, !!1 ) 
     if $mode != leaveSelect && $p;
-  $p->setState( sfFocused,  1 ) 
+  $p->setState( sfFocused, !!1 ) 
     if ( $self->{state} & sfFocused ) && $p;
   $self->current( $p );
   $self->unlock();
@@ -299,10 +306,10 @@ sub setCurrent {    # void ($p, $mode)
 
 sub selectNext {    # void ($forwards)
   my ( $self, $forwards ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $forwards or !ref $forwards );
-  assert ( @_ == 2 );
-  if ( $self->current() ) {
+  if ( $self->{current} ) {
     my $p = $self->$findNext( $forwards );
     $p->select() if $p;
   }
@@ -312,9 +319,9 @@ sub selectNext {    # void ($forwards)
 sub firstThat {    # $view|undef (\&func, $args|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( ref $func );
-  assert ( @_ == 3 );
   my $temp = $self->{last};
   return undef
     unless $temp;
@@ -329,9 +336,9 @@ sub firstThat {    # $view|undef (\&func, $args|undef)
 
 sub focusNext {    # $bool ($forwards)
   my ( $self, $forwards ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $forwards or !ref $forwards );
-  assert ( @_ == 2 );
   my $p = $self->$findNext( $forwards );
   return $p ? $p->focus() : !!1;
 }
@@ -339,9 +346,9 @@ sub focusNext {    # $bool ($forwards)
 sub forEach {    # void (\&func, $args|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( ref $func );
-  assert ( @_ == 3 );
   weaken( my $term = $self->{last} );
   weaken( my $temp = $self->{last} );
   return 
@@ -356,22 +363,22 @@ sub forEach {    # void (\&func, $args|undef)
   return;
 } #/ sub forEach
 
-sub insert {    # void ($p)
+sub insert {    # void ($p|undef)
   my ( $self, $p ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
-  assert ( @_ == 2 );
   $self->insertBefore( $p, $self->first() );
   return;
 }
 
-sub insertBefore {    # void ($self, $p, $Target|undef)
+sub insertBefore {    # void ($p, $Target|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $p, $Target ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $p );
   assert ( !defined $Target or blessed $Target );
-  assert ( @_ == 3 );
   if ( $p && !$p->{owner} && ( !$Target || $Target->{owner} == $self ) ) {
     $p->{origin}{x} = ( $self->{size}{x} - $p->{size}{x} ) >> 1
       if $p->{options} & ofCenterX;
@@ -473,10 +480,10 @@ my $doSetState = sub {    # void ($p, \%b)
 
 sub setState {    # void ($aState, $enable)
   my ( $self, $aState, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
-  assert ( @_ == 3 );
   my $sb = {
     st => $aState, 
     en => $enable,
@@ -491,8 +498,8 @@ sub setState {    # void ($aState, $enable)
   }
 
   if ( $aState & sfFocused ) {
-    $self->current()->setState( sfFocused, $enable ) 
-      if $self->current();
+    $self->{current}->setState( sfFocused, $enable ) 
+      if $self->{current};
   }
 
   if ( $aState & sfExposed ) {
@@ -548,7 +555,7 @@ sub handleEvent {    # void ($event)
     $self->forEach( $doHandleEvent, $hs );
 
     $self->{phase} = phFocused;
-    $doHandleEvent->( $self->current(), $hs );
+    $doHandleEvent->( $self->{current}, $hs );
 
     $self->{phase} = phPostProcess;
     $self->forEach( $doHandleEvent, $hs );
@@ -584,10 +591,10 @@ sub handleEvent {    # void ($event)
 sub drawSubViews {    # void ($p|undef, $bottom|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $p, $bottom ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
   assert ( !defined $bottom or blessed $bottom );
-  assert ( @_ == 3 );
   while ( $p != $bottom ) {
     $p->drawView();
     $p = $p->nextView();
@@ -722,8 +729,8 @@ sub unlock {    # void ()
 sub resetCursor {    # void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->current()->resetCursor() 
-    if $self->current();
+  $self->{current}->resetCursor() 
+    if $self->{current};
   return;
 }
 
@@ -754,8 +761,8 @@ sub getHelpCtx {    # $int ()
   my $self = shift;
   assert ( blessed $self );
   my $h = hcNoContext;
-  $h = $self->current()->getHelpCtx()
-    if $self->current();
+  $h = $self->{current}->getHelpCtx()
+    if $self->{current};
   $h = $self->SUPER::getHelpCtx()
     if $h == hcNoContext;
   return $h;
@@ -769,9 +776,9 @@ my $isInvalid = sub {    # $bool ($p, \$command)
 sub valid {    # $bool ($command)
   my ( $self, $command ) = @_;
   if ( $command == cmReleasedFocus ) {
-    return $self->current()->valid( $command )
-      if $self->current()
-      && ( $self->current()->{options} & ofValidate );
+    return $self->{current}->valid( $command )
+      if $self->{current}
+      && ( $self->{current}{options} & ofValidate );
   }
   return !$self->firstThat( $isInvalid, \$command );
 }
@@ -808,10 +815,10 @@ $focusView = sub {    # void ($p, $enable)
 
 $selectView = sub {    # void ($p, $enable)
   my ( $self, $p, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $p );
   assert ( !defined $enable or !ref $enable );
-  assert ( @_ == 3 );
   $p->setState( sfSelected, $enable )
     if $p;
   return;
@@ -819,7 +826,7 @@ $selectView = sub {    # void ($p, $enable)
 
 $findNext = sub {
   my ( $self, $forwards ) = @_;
-  my $p      = $self->current();
+  my $p      = $self->{current};
   my $result = undef;
   if ( $p ) {
     do {
@@ -829,10 +836,10 @@ $findNext = sub {
         ( ( $p->{state} & ( sfVisible | sfDisabled ) ) == sfVisible )
         && ( $p->{options} & ofSelectable )
       )
-      && ( $p != $self->current() )
+      && ( $p != $self->{current} )
     );
     $result = $p 
-      if $p != $self->current();
+      if $p != $self->{current};
   } #/ if ( $p )
   return $result;
 }; #/ sub findNext
@@ -1062,13 +1069,13 @@ Inserts a view into the group.
 
 =head2 insertBefore
 
-  $self->insertBefore($self, $p, $Target | undef);
+  $self->insertBefore($p, $Target | undef);
 
 Inserts a view before the specified target.
 
 =head2 insertView
 
-  $self->insertView($self, $p, $Target | undef);
+  $self->insertView($p, $Target | undef);
 
 Inserts a view into the group.
 
@@ -1092,7 +1099,7 @@ Redraws the group.
 
 =head2 remove
 
-  $self->remove($p);
+  $self->remove($p|undef);
 
 Removes a view from the group.
 

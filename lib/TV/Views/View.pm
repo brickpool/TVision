@@ -137,6 +137,8 @@ sub BUILDARGS {    # \%args (%args)
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
+  weaken( $self->{owner} ) if $self->{owner};
+  weaken( $self->{next} )  if $self->{next};
   $lock_value->( $self->{owner} ) if STRICT;
   $lock_value->( $self->{next} )  if STRICT;
   $self->setBounds( $args->{bounds} );
@@ -569,9 +571,9 @@ sub hideCursor {    # void ()
 
 sub drawHide {    # void ($lastView|undef)
   my ( $self, $lastView ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $lastView or blessed $lastView );
-  assert ( @_ == 2 );
   $self->drawCursor();
   $self->drawUnderView( ($self->{state} & sfShadow) != 0, $lastView );
   return;
@@ -579,9 +581,9 @@ sub drawHide {    # void ($lastView|undef)
 
 sub drawShow {    # void ($lastView|undef)
   my ( $self, $lastView ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $lastView or blessed $lastView );
-  assert ( @_ == 2 );
   $self->drawView();
   if ( $self->{state} & sfShadow ) {
     $self->drawUnderView( !!1, $lastView );
@@ -591,10 +593,10 @@ sub drawShow {    # void ($lastView|undef)
 
 sub drawUnderRect {    # void ($r, $lastView|undef)
   my ( $self, $r, $lastView ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( ref $r );
   assert ( !defined $lastView or blessed $lastView );
-  assert ( @_ == 3 );
   $self->{owner}{clip}->intersect( $r );
   $self->{owner}->drawSubViews( $self->nextView(), $lastView );
   $self->{owner}{clip} = $self->{owner}->getExtent();
@@ -603,10 +605,10 @@ sub drawUnderRect {    # void ($r, $lastView|undef)
 
 sub drawUnderView {    # void ($doShadow, $lastView|undef)
   my ( $self, $doShadow, $lastView ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( !defined $doShadow or !ref $doShadow );
   assert ( !defined $lastView or blessed $lastView );
-  assert ( @_ == 3 );
   my $r = $self->getBounds();
   if ( $doShadow ) {
     $r->{b} += $shadowSize;
@@ -800,10 +802,10 @@ sub setCommands {    # void ($commands)
 
 sub setCmdState {    # void ($commands, $enable)
   my ( $class, $commands, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( $class );
   assert ( blessed $commands );
   assert ( !defined $enable or !ref $enable );
-  assert ( @_ == 3 );
   $enable
     ? $class->enableCommands( $commands )
     : $class->disableCommands( $commands );
@@ -896,10 +898,10 @@ sub select {    # void ()
 
 sub setState {    # void ($aState, $enable)
   my ( $self, $aState, $enable ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
-  assert ( @_ == 3 );
 
   if ( $enable ) {
     $self->{state} |= $aState;
@@ -1389,7 +1391,7 @@ Clears the specified event.
 
 =head2 commandEnabled
 
-  my $bool = $self->commandEnabled($command);
+  my $bool = TView->commandEnabled($command);
 
 Checks if the specified command is enabled.
 
