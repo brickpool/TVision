@@ -52,13 +52,13 @@ END {
 
 sub resume {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
-  THardwareInfo->setCtrlBrkHandler( !!1 );
+  THardwareInfo->setCtrlBrkHandler( !!1 ) unless STRICT;
   return;
 }
 
 sub suspend {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
-  THardwareInfo->setCtrlBrkHandler( !!0 );
+  THardwareInfo->setCtrlBrkHandler( !!0 ) unless STRICT;
   return;
 }
 
