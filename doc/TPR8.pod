@@ -509,7 +509,8 @@ on the status line in the color specified by the second part of
 $sysColorAttr, 0x4F, white on red text. The first part, 0x4E, is used for
 highlighting command keys, such as Enter or Esc.
 
-See: TSystemError->sysErr, $sysMonoAttr, Chapter 13, "More Turbo Vision Features".
+See: TSystemError->sysErr, $sysMonoAttr, Chapter 13, 
+"More Turbo Vision Features".
 
 =head2 $sysErrActive
 
@@ -630,3 +631,85 @@ object
           TProgram
             TApplication
 
+=head3 Discussion
+
+The TApplication object is the generic application from which most of the Turbo 
+Vision programs you write will be derived.  For examples, see the C<tvshell> 
+sample programs of Chapters 11-12 in the Borland Pascal Developer's Guide.  As 
+shown in Listing 11.1 (of the Developer's Guide), TShell is defined as an 
+instance of TApplication.  TApplication is nearly identical to TProgram; the 
+only difference is in the BUILD, resume and DEMOLISH, suspend methods.
+
+=head3 Commonly Used Features
+
+Generally, the only methods used are TApplication->new, and TApplication->run, 
+which is inherited from TProgram->run.  See also TProgram for other methods that
+are available to TApplication objects.
+
+=head3 Example
+
+  package TShell;
+  use strict;
+  use warnings;
+  use TV::App;
+  use TV::Views;
+  use TV::Drivers;
+  use TV::Menus;
+  use TV::toolkit;
+
+  extends TApplication;
+
+  use constant cmRunProgram => 1000;
+
+  # Purpose: Defines the pulldown menus used in Shell
+  sub initMenuBar {
+    my ( $class, $bounds ) = @_;
+    $bounds->{b}{y} = $bounds->{a}{y} + 1;
+    return new_TMenuBar( $bounds,
+      new_TSubMenu( '~R~un', 0 ) +
+        new_TMenuItem( '~R~un', cmRunProgram, 0, hcNoContext )
+    );
+  }
+
+  # Purpose: Defines the status line that is displayed in the bottom line of 
+  # the screen within TShell
+  sub initStatusLine {
+    my ( $class, $bounds ) = @_;
+    $bounds->{a}{y} = $bounds->{b}{y} - 1;
+    return new_TStatusLine( $bounds,
+      new_TStatusDef( 0, 0xFFFF ) +
+        new_TStatusItem( '',             kbF10,  cmMenu ) +
+        new_TStatusItem( '~Alt-X~ Exit', kbAltX, cmQuit ) +
+        new_TStatusItem( '~F2~ Copy',    kbF2,   cmCopy ) +
+        new_TStatusItem( '~F3~ Close',   kbF3,   cmClose )
+    );
+  }
+
+  package main;
+
+  # Create an instance of the TShell object
+  my $shell = TShell->new();
+  $shell->run();
+
+=head3 Fields
+
+None
+
+=head3 Methods
+
+=head4 BUILD
+
+Calls initHistory.
+
+=head4 DEMOLISH
+
+Calls doneHistory.
+
+=head4 resume
+
+Calls TSystemError->resume(), TEventQueue->resume(), TScreen->resume().
+
+=head4 suspend
+
+Calls TSystemError->suspend(), TEventQueue->suspend(), TScreen->suspend(), 
+TVMemMgr->suspend().
