@@ -144,42 +144,48 @@ sub handleEvent {    # void ($event)
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
 
-  if ( $event->{what} == evMouseDown ) {
-    my $T;
-    do {
-      my $mouse = $self->makeLocal( $event->{mouse}{where} );
-      if ( $T != $self->$itemMouseIsIn( $mouse ) ) {
-        $self->$drawSelect( $T = $self->$itemMouseIsIn( $mouse ) );
-      }
-    } while ( $self->mouseEvent( $event, evMouseMove ) );
+  SWITCH: for ( $event->{what} ) {
+    $_ == evMouseDown and do {
+      my $T;
+      do {
+        my $mouse = $self->makeLocal( $event->{mouse}{where} );
+        if ( $T != $self->$itemMouseIsIn( $mouse ) ) {
+          $self->$drawSelect( $T = $self->$itemMouseIsIn( $mouse ) );
+        }
+      } while ( $self->mouseEvent( $event, evMouseMove ) );
 
-    if ( $T && $self->commandEnabled( $T->{command} ) ) {
-      $event->{what} = evCommand;
-      $event->{message}{command} = $T->{command};
-      $event->{message}{infoPtr} = undef;
-      $self->putEvent( $event );
-    }
-    $self->clearEvent( $event );
-    $self->drawView();
-  } #/ if ( $event->{what} ==...)
-  elsif ( $event->{what} == evKeyDown ) {
-    my $T = $self->{items};
-    while ( $T ) {
-      if ( $event->{keyDown}{keyCode} == $T->{keyCode}
-        && $self->commandEnabled( $T->{command} ) )
-      {
+      if ( $T && $self->commandEnabled( $T->{command} ) ) {
         $event->{what} = evCommand;
         $event->{message}{command} = $T->{command};
         $event->{message}{infoPtr} = undef;
-        return;
+        $self->putEvent( $event );
       }
-      $T = $T->{next};
-    } #/ while ( $T )
-  } #/ elsif ( $event->{what} ==...)
-  elsif ( $event->{what} == evBroadcast
-    && $event->{message}{command} == cmCommandSetChanged
-  ) {
-    $self->drawView();
+      $self->clearEvent( $event );
+      $self->drawView();
+      last;
+    };
+    $_ == evKeyDown and do {
+      my $T = $self->{items};
+      while ( $T ) {
+        if ( $event->{keyDown}{keyCode} == $T->{keyCode}
+          && $self->commandEnabled( $T->{command} ) )
+        {
+          $event->{what} = evCommand;
+          $event->{message}{command} = $T->{command};
+          $event->{message}{infoPtr} = undef;
+          return;
+        }
+        $T = $T->{next};
+      } #/ while ( $T )
+      last;
+    };
+    $_ == evBroadcast and do {
+      if ( $event->{message}{command} == cmCommandSetChanged
+      ) {
+        $self->drawView();
+      }
+      last;
+    };
   }
   return;
 } #/ sub handleEvent

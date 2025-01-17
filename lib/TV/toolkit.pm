@@ -142,9 +142,11 @@ sub _add_dump {
       no warnings 'once';
       my $self = shift;
       require Data::Dumper;
-      local $Data::Dumper::Varname = sprintf "(0x%x)", $self;
+      local $Data::Dumper::Sortkeys = 1;
       local $Data::Dumper::Maxdepth = shift if @_;
-      return Data::Dumper::Dumper $self;
+      my $str = Data::Dumper::Dumper $self;
+      $str =~ s/(^|\s)\$VAR\d+\b/$1'$self'/g;
+      return $str;
     }
   );
   return;

@@ -72,6 +72,7 @@ sub dump {    # $str ()
   my $self = shift;
   assert ( blessed $self );
   require Data::Dumper;
+  local $Data::Dumper::Sortkeys = 1;
   return Data::Dumper::Dumper $self;
 }
 

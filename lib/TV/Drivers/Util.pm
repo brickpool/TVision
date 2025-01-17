@@ -34,7 +34,7 @@ use TV::Drivers::Const qw(
   kbEnd  kbDel   kbIns kbPgUp kbPgDn kbBack
 );
 
-my @ctrlCodes = (
+my @ctrlCodes = map { $_ & 0xff } (    # lower byte
   kbCtrlS, kbCtrlD, kbCtrlE, kbCtrlX, kbCtrlA,
   kbCtrlF, kbCtrlG, kbCtrlV, kbCtrlR, kbCtrlC, kbCtrlH
 );

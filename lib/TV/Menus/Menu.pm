@@ -40,7 +40,17 @@ sub new_TMenu { __PACKAGE__->from(@_) }
 
 # declare attributes
 has items => ( is => 'rw' );
-has deflt => ( is => 'rw' );
+has deflt => ( is => 'bare' );
+
+my $lock_value = sub {
+  Internals::SvREADONLY( $_[0] => 1 )
+    if exists &Internals::SvREADONLY;
+};
+
+my $unlock_value = sub {
+  Internals::SvREADONLY( $_[0] => 0 )
+    if exists &Internals::SvREADONLY;
+};
 
 sub BUILDARGS {    # \%args (| %args)
   my $class = shift;
@@ -60,6 +70,7 @@ sub BUILD {    # void (| \%args)
   $self->{items} ||= undef;
   $self->{deflt} ||= $self->{items};
   weaken $self->{deflt} if $self->{deflt};
+  $lock_value->( $self->{deflt} ) if STRICT;
   return;
 }
 
@@ -83,6 +94,21 @@ sub DEMOLISH {    # void ()
     $self->{items} = $self->{items}{next};
     undef $temp;
   }
+  $unlock_value->( $self->{deflt} ) if STRICT;
+  return;
 }
+
+sub deflt {    # $view|undef (|$view|undef)
+  my ( $self, $view ) = @_;
+  assert ( blessed $self );
+  assert ( !defined $view or blessed $view );
+  if ( @_ == 2 ) {
+    $unlock_value->( $self->{deflt} ) if STRICT;
+    weaken $self->{deflt}
+      if $self->{deflt} = $view;
+    $lock_value->( $self->{deflt} ) if STRICT;
+  }
+  return $self->{deflt};
+} #/ sub deflt
 
 1

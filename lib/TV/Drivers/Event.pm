@@ -429,6 +429,7 @@ sub dump {    # $str (|$maxDepth)
   my $self = shift;
   assert ( blessed $self );
   require Data::Dumper;
+  local $Data::Dumper::Sortkeys = 1;
   local $Data::Dumper::Maxdepth = @_ ? shift : 3;
   return Data::Dumper::Dumper $self;
 }

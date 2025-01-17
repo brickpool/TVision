@@ -333,8 +333,7 @@ sub execute {    # $int ()
     $self->putEvent( $e );
   }
   if ( $self->{current} ) {
-    $self->{menu}{deflt} = $self->{current};
-    weaken $self->{menu}{deflt};
+    $self->{menu}->deflt( $self->{current} );
     $self->current( undef );
     $self->drawView();
   }

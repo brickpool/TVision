@@ -131,12 +131,12 @@ sub execView {    # $int ($p|undef)
     unless $p;
 
   my $saveOptions  = $p->{options};
-  my $saveOwner    = $p->{owner};
-  my $saveTopView  = $TheTopView;
-  my $saveCurrent  = $self->{current};
+  weaken( my $saveOwner = $p->{owner} );
+  weaken( my $saveTopView = $TheTopView );
+  weaken( my $saveCurrent = $self->{current} );
   my $saveCommands = TCommandSet->new();
   $self->getCommands( $saveCommands );
-  $TheTopView = $p;
+  weaken( $TheTopView = $p );
   $p->{options} &= ~ofSelectable;
   $p->setState( sfModal, !!1 );
   $self->setCurrent( $p, enterSelect );
@@ -148,7 +148,7 @@ sub execView {    # $int ($p|undef)
   $self->setCurrent( $saveCurrent, leaveSelect );
   $p->setState( sfModal, !!0 );
   $p->{options} = $saveOptions;
-  $TheTopView = $saveTopView;
+  weaken( $TheTopView = $saveTopView );
   $self->setCommands( $saveCommands );
   return $retval;
   } #/ alias:

@@ -22,6 +22,7 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
   blessed
   looks_like_number
+  weaken
 );
 
 use TV::App::Const qw( 
@@ -207,8 +208,7 @@ sub getEvent {    # void ($event)
       ( $event->{what} & evKeyDown )
       || ( ( $event->{what} & evMouseDown )
         && $self->firstThat( $hasMouse, $event ) == $statusLine )
-      )
-    {
+    ) {
       $statusLine->handleEvent( $event );
     }
   } #/ if ( $self->{statusLine...})
@@ -366,6 +366,9 @@ sub setScreenMode { # void ($mode)
 sub shutDown {    # void ()
   my $self = shift;
   assert ( blessed $self );
+  weaken $application 
+    if $application 
+    && !isweak $application;
   $statusLine = undef;
   $menuBar    = undef;
   $deskTop    = undef;
@@ -389,14 +392,13 @@ sub initStatusLine {    # $statusLine ($r)
   assert ( $class and !ref $class );
   assert ( ref $r );
   $r->{a}{y} = $r->{b}{y} - 1;
-  return TStatusLine->from(
-    $r,
+  return TStatusLine->from( $r,
     TStatusDef->from( 0, 0xFFFF ) +
       TStatusItem->from( $exitText, kbAltX,   cmQuit ) +
-      TStatusItem->from( 0,         kbF10,    cmMenu ) +
-      TStatusItem->from( 0,         kbAltF3,  cmClose ) +
-      TStatusItem->from( 0,         kbF5,     cmZoom ) +
-      TStatusItem->from( 0,         kbCtrlF5, cmResize )
+      TStatusItem->from( '',        kbF10,    cmMenu ) +
+      TStatusItem->from( '',        kbAltF3,  cmClose ) +
+      TStatusItem->from( '',        kbF5,     cmZoom ) +
+      TStatusItem->from( '',        kbCtrlF5, cmResize )
   );
 } #/ sub initStatusLine
 
