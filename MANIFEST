@@ -1,4 +1,5 @@
 bin/overview.pl
+examples/tvshell.pl
 lib/slots/less.pm
 lib/TV/App.pm
 lib/TV/App/Application.pm
@@ -28,6 +29,7 @@ lib/TV/Menus.pm
 lib/TV/Menus/Const.pm
 lib/TV/Menus/Menu.pm
 lib/TV/Menus/MenuBar.pm
+lib/TV/Menus/MenuBox.pm
 lib/TV/Menus/MenuItem.pm
 lib/TV/Menus/MenuView.pm
 lib/TV/Menus/StatusDef.pm
@@ -147,6 +149,7 @@ t/08Menus/12TMenuItem.t
 t/08Menus/13TSubMenu.t
 t/08Menus/14TMenuView.t
 t/08Menus/15TMenuBar.t
+t/08Menus/16TMenuBox.t
 t/08Menus/21TStatusItem.t
 t/08Menus/22TStatusDef.t
 t/08Menus/23TStatusLine.t
@@ -166,4 +169,5 @@ t/10Views/99Views.t
 xt/01Intro/05FirstDesktop.t
 xt/01pod.t
 xt/02kwalitee.t
+xt/02StatusLineAndMenu/10Menu.t
 xt/11Window/00FirstWindow.t
