@@ -11,6 +11,7 @@ use Import::Into;
 
 use TV::Views::Const;
 use TV::Views::CommandSet;
+use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Group;
@@ -24,6 +25,7 @@ sub import {
   my $target = caller;
   TV::Views::Const->import::into( $target, qw( :all ) );
   TV::Views::CommandSet->import::into( $target );
+  TV::Views::DrawBuffer->import::into( $target );
   TV::Views::Palette->import::into( $target );
   TV::Views::View->import::into( $target );
   TV::Views::Group->import::into( $target );
@@ -38,6 +40,7 @@ sub unimport {
   my $caller = caller;
   TV::Views::Const->unimport::out_of( $caller );
   TV::Views::CommandSet->unimport::out_of( $caller );
+  TV::Views::DrawBuffer->unimport::out_of( $caller );
   TV::Views::Palette->unimport::out_of( $caller );
   TV::Views::View->unimport::out_of( $caller );
   TV::Views::Group->unimport::out_of( $caller );

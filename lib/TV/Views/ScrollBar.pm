@@ -27,7 +27,7 @@ use TV::Drivers::Const qw(
   :kbXXXX
 );
 use TV::Drivers::Util qw( ctrlToArrow );
-use TV::Objects::DrawBuffer;
+use TV::Views::DrawBuffer;
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Views::Const qw(

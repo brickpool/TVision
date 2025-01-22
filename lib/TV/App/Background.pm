@@ -22,8 +22,8 @@ use Params::Check qw(
 use Scalar::Util qw( blessed );
 
 use TV::App::Const qw( cpBackground );
-use TV::Objects::DrawBuffer;
 use TV::Views::Const qw( :gfXXXX );
+use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 

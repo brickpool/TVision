@@ -1,4 +1,4 @@
-package TV::Objects::DrawBuffer;
+package TV::Views::DrawBuffer;
 
 use strict;
 use warnings;

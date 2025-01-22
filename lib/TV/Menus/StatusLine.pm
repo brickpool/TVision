@@ -35,7 +35,7 @@ use Scalar::Util qw(
 use TV::Menus::Const qw( cpStatusLine );
 use TV::Drivers::Const qw( :evXXXX );
 use TV::Drivers::Util qw( cstrlen );
-use TV::Objects::DrawBuffer;
+use TV::Views::DrawBuffer;
 use TV::Views::Const qw(
   cmCommandSetChanged
   :gfXXXX

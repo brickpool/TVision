@@ -26,12 +26,12 @@ use Scalar::Util qw(
 );
 
 use TV::Menus::MenuView;
-use TV::Objects::DrawBuffer;
 use TV::Objects::Rect;
 use TV::Views::Const qw(
   sfShadow
   ofPreProcess
 );
+use TV::Views::DrawBuffer;
 use TV::toolkit;
 
 sub TMenuBox() { __PACKAGE__ }

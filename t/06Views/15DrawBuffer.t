@@ -4,7 +4,7 @@ use warnings;
 use Test::More tests => 15;
 
 BEGIN {
-  use_ok 'TV::Objects::DrawBuffer';
+  use_ok 'TV::Views::DrawBuffer';
 }
 
 # Test object creation

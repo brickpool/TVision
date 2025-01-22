@@ -9,6 +9,7 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Views::Const';
   use_ok 'TV::Views::CommandSet';
+  use_ok 'TV::Views::DrawBuffer';
   use_ok 'TV::Views::Palette';
   use_ok 'TV::Views::View::Cursor';
   use_ok 'TV::Views::View::Exposed';

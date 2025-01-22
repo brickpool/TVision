@@ -30,7 +30,6 @@ use Scalar::Util qw(
 
 use TV::Const qw( INT_MAX );
 use TV::Objects::Object;
-use TV::Objects::DrawBuffer;
 use TV::Objects::Point;
 use TV::Objects::Rect;
 use TV::Drivers::Const qw(
@@ -50,6 +49,7 @@ use TV::Views::Const qw(
   :sfXXXX
 );
 use TV::Views::CommandSet;
+use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::Util qw( message );
 use TV::toolkit;

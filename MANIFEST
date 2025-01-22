@@ -1,4 +1,5 @@
 bin/overview.pl
+examples/demotbac.pl
 examples/tvshell.pl
 lib/slots/less.pm
 lib/TV/App.pm
@@ -39,7 +40,6 @@ lib/TV/Menus/SubMenu.pm
 lib/TV/Objects.pm
 lib/TV/Objects/Collection.pm
 lib/TV/Objects/Const.pm
-lib/TV/Objects/DrawBuffer.pm
 lib/TV/Objects/NSCollection.pm
 lib/TV/Objects/NSSortedCollection.pm
 lib/TV/Objects/Object.pm
@@ -57,6 +57,7 @@ lib/TV/toolkit/LOP/UNIVERSAL/Object.pm
 lib/TV/Views.pm
 lib/TV/Views/CommandSet.pm
 lib/TV/Views/Const.pm
+lib/TV/Views/DrawBuffer.pm
 lib/TV/Views/Frame.pm
 lib/TV/Views/Frame/Line.pm
 lib/TV/Views/Group.pm
@@ -97,7 +98,6 @@ t/03Objects/02Const.t
 t/03Objects/11TObject.t
 t/03Objects/12TPoint.t
 t/03Objects/13TRect.t
-t/03Objects/15DrawBuffer.t
 t/03Objects/21TCollection.t
 t/03Objects/22TSortedCollection.t
 t/03Objects/99Objects.t
@@ -124,6 +124,7 @@ t/06Views/02Const.t
 t/06Views/03message.t
 t/06Views/11TCommandSet.t
 t/06Views/12TPalette.t
+t/06Views/15DrawBuffer.t
 t/06Views/21TView.t
 t/06Views/22TView.t
 t/06Views/23TView.t

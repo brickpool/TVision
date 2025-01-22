@@ -36,7 +36,7 @@ use TV::Drivers::Util qw( cstrlen );
 use TV::Menus::Menu;
 use TV::Menus::MenuView;
 use TV::Menus::SubMenu;
-use TV::Objects::DrawBuffer;
+use TV::Views::DrawBuffer;
 use TV::Objects::Rect;
 use TV::Views::Const qw(
   gfGrowHiX

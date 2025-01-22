@@ -28,7 +28,6 @@ use TV::Drivers::Const qw(
   meDoubleClick
 );
 use TV::Objects::Point;
-use TV::Objects::DrawBuffer;
 use TV::Views::Const qw(
   :cmXXXX
   cpFrame
@@ -38,6 +37,7 @@ use TV::Views::Const qw(
   :wfXXXX
   wnNoNumber
 );
+use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 use TV::toolkit;

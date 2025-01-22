@@ -13,7 +13,6 @@ use TV::Objects::Const;
 use TV::Objects::Object;
 use TV::Objects::Point;
 use TV::Objects::Rect;
-use TV::Objects::DrawBuffer;
 use TV::Objects::NSCollection;
 use TV::Objects::NSSortedCollection;
 use TV::Objects::Collection;
@@ -25,7 +24,6 @@ sub import {
   TV::Objects::Object->import::into( $target );
   TV::Objects::Point->import::into( $target );
   TV::Objects::Rect->import::into( $target );
-  TV::Objects::DrawBuffer->import::into( $target );
   TV::Objects::NSCollection->import::into( $target );
   TV::Objects::NSSortedCollection->import::into( $target );
   TV::Objects::Collection->import::into( $target );
@@ -38,7 +36,6 @@ sub unimport {
   TV::Objects::Object->unimport::out_of( $caller );
   TV::Objects::Point->unimport::out_of( $caller );
   TV::Objects::Rect->unimport::out_of( $caller );
-  TV::Objects::DrawBuffer->unimport::out_of( $caller );
   TV::Objects::NSCollection->unimport::out_of( $caller );
   TV::Objects::NSSortedCollection->unimport::out_of( $caller );
   TV::Objects::Collection->unimport::out_of( $caller );
