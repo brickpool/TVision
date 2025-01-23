@@ -114,7 +114,7 @@ sub BUILDARGS {    # \%args ()
   return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $application = $self;

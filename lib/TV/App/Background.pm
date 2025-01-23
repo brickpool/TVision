@@ -1,4 +1,5 @@
 package TV::App::Background;
+# ABSTRACT: TBackground forms the background for the Turbo Vision applications.
 
 use strict;
 use warnings;
@@ -46,7 +47,7 @@ sub BUILDARGS {    # \%args (%args)
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 } #/ sub BUILDARGS
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
@@ -85,3 +86,75 @@ sub getPalette {    # $palette ()
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::App::Background - forms the background for the Turbo Vision applications.
+
+=head1 DESCRIPTION
+
+TBackground contains the background pattern that forms the backdrop of most 
+Turbo Vision applications.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item pattern
+
+The bit pattern that is replicated to form the background design.
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $background = TBackground->new(bounds => $bounds, pattern => $pattern);
+
+Use TBackground->new to create a new background object with specified size and 
+pattern.
+
+=head2 draw
+
+  $self->draw();
+
+Draws the background pattern on the screen.
+
+=head2 from
+
+  my $background = TBackground->from($bounds, $aPattern);
+
+Creates a TBackground object with specified bounds and pattern.
+
+=head2 getPalette
+
+  my $palette = $self->getPalette();
+
+Retrieves the color palette for the background.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

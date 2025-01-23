@@ -75,7 +75,7 @@ sub BUILDARGS {    # \%args (%args)
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert( blessed $self );
   $self->{disabled} = !TView->commandEnabled( $self->{command} );

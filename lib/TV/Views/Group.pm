@@ -53,11 +53,11 @@ our $TheTopView;
 our $ownerGroup;
 
 # declare attributes
-has last      => ( is => 'rw' );
+has last      => ( is => 'ro' );
 has clip      => ( is => 'rw' );
-has phase     => ( is => 'rw', default => sub { phFocused } );
+has phase     => ( is => 'ro', default => sub { phFocused } );
 has current   => ( is => 'bare' );
-has buffer    => ( is => 'rw' );
+has buffer    => ( is => 'ro' );
 has lockFlag  => ( is => 'rw', default => sub { 0 } );
 has endState  => ( is => 'rw', default => sub { 0 } );
 
@@ -79,7 +79,7 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{eventMask} = 0xffff;
@@ -316,7 +316,7 @@ sub selectNext {    # void ($forwards)
   return;
 } #/ sub selectNext
 
-sub firstThat {    # $view|undef (\&func, $args|undef)
+sub firstThat {    # $view|undef (\&Test, $arg|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
   assert ( @_ == 3 );
@@ -343,7 +343,7 @@ sub focusNext {    # $bool ($forwards)
   return $p ? $p->focus() : !!1;
 }
 
-sub forEach {    # void (\&func, $args|undef)
+sub forEach {    # void (\&action, $arg|undef)
   no warnings qw( uninitialized numeric );
   my ( $self, $func, $args ) = @_;
   assert ( @_ == 3 );
@@ -852,7 +852,7 @@ __END__
 
 =head1 NAME
 
-TGroup - Base class for all group components in Turbo Vision
+TV::Views::Group - a base class for all group components in Turbo Vision.
 
 =head1 SYNOPSIS
 
@@ -924,10 +924,11 @@ The bounds of the view (TRect).
 
 =back
 
-=head2 DEMOLISH
+=head2 DESTROY
 
-  $self->DEMOLISH();
+  $self->DESTROY();
 
+DESTROY first hides the group and then calls destroy for each view's.
 
 =head2 at
 
@@ -1009,7 +1010,7 @@ Returns the first view that matches the specified state and options.
 
 =head2 firstThat
 
-  my $view | undef = $self->firstThat(\&func, $args | undef);
+  my $view | undef = $self->firstThat(\&Test, $arg | undef);
 
 Returns the first view that satisfies the specified function.
 
@@ -1021,7 +1022,7 @@ Moves the focus to the next view.
 
 =head2 forEach
 
-  $self->forEach(\&func, $args | undef);
+  $self->forEach(\&action, $arg | undef);
 
 Applies the specified function to each view in the group.
 

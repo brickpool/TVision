@@ -52,7 +52,7 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
-sub BUILDARGS {    # \%args (| %args)
+sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
   my $args = STRICT ? check( {
@@ -64,7 +64,7 @@ sub BUILDARGS {    # \%args (| %args)
   return $args;
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert( blessed $self );
   $self->{items} ||= undef;

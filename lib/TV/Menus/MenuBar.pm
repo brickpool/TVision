@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::MenuBar - defines the class TMenuBar
-
-=cut
-
 package TV::Menus::MenuBar;
+# ABSTRACT: TMenuBar object manages the menu bar across the top of the app.
 
 use strict;
 use warnings;
@@ -157,3 +150,40 @@ sub getItemRect {    # $rect ($item|undef)
 } #/ sub getItemRect
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::MenuBar - manages the menu bar at the top of the app.
+
+=head1 DESCRIPTION
+
+The TMenuBar object manages the menu bar across the top of the application
+screen.
+
+=head1 METHODS
+
+=head2 new
+
+  my $menuBar = TMenuBar->new(bounds => $bounds, menu => $aMenu | undef);
+
+=head2 DESTROY
+
+  $self->DESTROY();
+
+=head2 draw
+
+  $self->draw();
+
+=head2 from
+
+  my $menuBar = TMenuBar->from($bounds, $aMenu | undef);
+
+=head2 getItemRect
+
+  my $rect = $self->getItemRect($item | undef);
+
+=cut

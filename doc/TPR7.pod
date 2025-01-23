@@ -39,7 +39,7 @@ subroutine
 
 =head3 Declaration
 
-    sub historyAdd; # void ($id, $str)
+    sub historyAdd;    # void ($id, $str)
 
 =head3 Module
 
@@ -65,7 +65,7 @@ variable
 =head3 Purpose
 
 The THistory object allocates a block of memory from the heap in order to store
-the history list. $historyBlock is set to point to this memory block.
+the history list. L</$historyBlock> is set to point to this memory block.
 
 =head2 historyCount
 
@@ -73,7 +73,7 @@ function
 
 =head3 Declaration
 
-    sub historyCount; # $count ($id)
+    sub historyCount;    # $count ($id)
 
 =head3 Module
 
@@ -82,10 +82,10 @@ function
 =head3 Purpose
 
 The THistory history list system, and the associated history list memory
-manager (See historyAdd, $historyBlock, $historySize, historyStr, $historyUsed)
-can manage multiple memory history lists. The historyCount function calculates
-and returns the number of items stored in the history list selected by the $id
-value.
+manager (B<See>: L</historyAdd>, L</$historyBlock>, L</$historySize>, 
+L</historyStr>, L</$historyUsed>) can manage multiple memory history lists. The 
+L</historyCount> function calculates and returns the number of items stored in 
+the history list selected by the $id value.
 
 =head2 $historySize
 
@@ -103,8 +103,8 @@ variable
 
 At program initialization, TApplication->resume calls the doneHistory 
 subroutine to allocate history list memory space. The default allocation is 
-determined by the value stored in $historySize. To change this value, set 
-$historySize to a new size, specified in bytes, before calling 
+determined by the value stored in L</$historySize>. To change this value, set 
+L</$historySize> to a new size, specified in bytes, before calling 
 TApplication->resume.
 
 =head2 historyStr
@@ -113,7 +113,7 @@ function
 
 =head3 Declaration
 
-    sub historyStr; # $str ($id, $index)
+    sub historyStr;    # $str ($id, $index)
 
 =head3 Module
 
@@ -155,7 +155,7 @@ subroutine
 =head3 Purpose
 
 TApplication->resume calls this routine to initialize the history list 
-management system. Also see $historySize and THistory.
+management system. Also see L</$historySize> and THistory.
 
 =head2 inputBox
 
@@ -163,7 +163,7 @@ function
 
 =head3 Declaration
 
-    sub inputBox; # $command ($title, $aLabel, $s; $limit)
+    sub inputBox;    # $command ($title, $aLabel, $s; $limit)
 
 =head3 Module
 
@@ -171,15 +171,16 @@ function
 
 =head3 Purpose
 
-inputBox is not described in the Borland documentation but is contained in the
-file MSGBOX.CPP (and MSGBOX.H).
+L</inputBox> is not described in the Borland documentation but is contained in 
+the file C<MSGBOX.CPP> (and C<MSGBOX.H>).
 
-inputBox displays a simple dialog with a single label and input field,
-plus Okay and Cancel buttons. The Title parameter becomes the dialog box title,
-and the input field is given ALabel as a prompt line. The input field is set to
-Limit bytes in length. inputBox returns either cmOk or cmCancel. 
+L</inputBox> displays a simple dialog with a single label and input field,
+plus I<Okay> and I<Cancel> buttons. The Title parameter becomes the dialog box 
+title, and the input field is given ALabel as a prompt line. The input field is 
+set to Limit bytes in length. L</inputBox> returns either C<cmOk> or 
+C<cmCancel>. 
 
-B<B<See>:> Listing C<DMSGBOX3> for an example of using the message box.
+B<See>: Listing C<DMSGBOX3> for an example of using the message box.
 
 =head2 inputBoxRect
 
@@ -195,10 +196,10 @@ function
 
 =head3 Purpose
 
-inputBoxRect is not described in the Borland documentation but is contained in
+L</inputBoxRect> is not described in the Borland documentation but is contained in
 the file MSGBOX.CPP (and MSGBOX.H). 
 
-inputBoxRect is identical to inputBox except that you can specify a
+L</inputBoxRect> is identical to L</inputBox> except that you can specify a
 bounding rectangle in order to position and size the input box to specific
 coordinates. 
 
@@ -214,7 +215,7 @@ subroutine
 
 =head3 Module
 
-    Drivers;
+    TV::Drivers::EventQueue
 
 =head3 Purpose
 
@@ -284,7 +285,7 @@ $cursorLines.
 
 Keyboard constants
 
-The kbXXXX constants are divided into two groups: a small group for detecting
+The C<kbXXXX> constants are divided into two groups: a small group for detecting
 keyboard shift states, and a large group as equates for the non-standard
 keystrokes such as function and Alt keys.
 
@@ -301,9 +302,9 @@ keystrokes such as function and Alt keys.
     kbInsState      0x0080  Bit set if keyboard is in Ins Lock state
 
 The keyboard shift state constants are used as a bit mask to test a location in
-low memory at 0x40:0x17 for the status of various keyboard keys, such as the 
+low memory at C<0x40:0x17> for the status of various keyboard keys, such as the 
 Ctrl or Shift key. For example, to see if the keyboard is producing shifted
-characters, declare an absolute variable at  0x40:$17 and test the bits like
+characters, declare an absolute variable at C<0x40:0x17> and test the bits like
 this:
 
     my $keyboardShifts = THardwareInfo->getShiftState();
@@ -358,8 +359,8 @@ TEvent->{keyCode} field. For example,
     kbDel       0x5300      kbTab       0x0F09
     kbDown      0x5000      kbUp        0x4800
 
-[*] kbGrayMinus and kbGrayPlus are the - and + keys on the numeric keypad.
-kbLeft and kbRight are the arrow keys.
+[*] C<kbGrayMinus> and C<kbGrayPlus> are the - and + keys on the numeric keypad.
+C<kbLeft> and C<kbRight> are the arrow keys.
 
 =head3 Alt-number key code constants
 
@@ -412,7 +413,7 @@ function
 
 =head3 Declaration
 
-    sub lowMemory; # $bool ()
+    sub lowMemory;    # $bool ()
 
 =head3 Module
 
@@ -420,9 +421,9 @@ function
 
 =head3 Purpose
 
-lowMemory returns TRUE if a memory allocation used a portion of the memory
-safety pool, otherwise lowMemory returns FALSE. Use of the memory safety pool
-is described in Chapter 19.
+L</lowMemory> returns C<TRUE> if a memory allocation used a portion of the 
+memory safety pool, otherwise L</lowMemory> returns C<FALSE>. Use of the memory 
+safety pool is described in Chapter 19.
 
 =head2 maxCollectionSize 
 
@@ -468,7 +469,7 @@ Mouse Button constants
 
 =head3 Purpose
 
-The mbXXXX constants are used to test the $event->{buttons} field of a TEvent
+The C<mbXXXX> constants are used to test the $event->{buttons} field of a TEvent
 hash to determine if the left or right button was pressed.
 
     Constant        Value   Usage
@@ -491,11 +492,12 @@ variable
 
 =head3 Purpose
 
-$menuBar is initialized by TProgram->initMenuBar (via TApplication->initMenuBar,
-which you override in your program when initializing the pulldown menus) to
-point to your application's menu bar. The default value of undef indicates that
-no menu bar is defined for the application. See the examples in the "Turbo
-Vision Tutorial", Chapter 11 in the Borland Pascal Developer's Guide.
+L</$menuBar> is initialized by TProgram->initMenuBar (via 
+TApplication->initMenuBar, which you override in your program when initializing 
+the pulldown menus) to point to your application's menu bar. The default value 
+of C<undef> indicates that no menu bar is defined for the application. See the 
+examples in the "Turbo Vision Tutorial", Chapter 11 in the Borland Pascal 
+Developer's Guide.
 
 =head2 message
 
@@ -503,7 +505,7 @@ subroutine
 
 =head3 Declaration
 
-    sub message; # void ($receiver, $what, $command, $infoPtr)
+    sub message;    # void ($receiver, $what, $command, $infoPtr)
 
 =head3 Module
 
@@ -511,32 +513,32 @@ subroutine
 
 =head3 Purpose
 
-Use message to send messages between views. message creates an evCommand $event
-hash using the parameters $event->{what}, $event->{command} and 
-$event->{infoPtr} and attempts to invoke $receiver->handleEvent to process the 
-$event. If $receiver->handleEvent successfully handles the $event then message 
-sets $event->{infoPtr} from the processed message (which is a reference to the 
-object that handled the message). Otherwise, if the event was not handled, 
-message set $event->{infoPtr} to undef.
+Use L</message> to send messages between views. L</message> creates an 
+C<evCommand> $event hash using the parameters $event->{what}, $event->{command} 
+and $event->{infoPtr} and attempts to invoke $receiver->handleEvent to process 
+the $event. If $receiver->handleEvent successfully handles the $event then 
+L</message> sets $event->{infoPtr} from the processed L</message> (which is a 
+reference to the object that handled the message). Otherwise, if the event was 
+not handled, L</message> set $event->{infoPtr} to C<undef>.
 
-When using message, the $event->{infoPtr} parameter may be used for most any 
+When using L</message>, the $event->{infoPtr} parameter may be used for most any 
 purpose. For example, to pass a block of data to the recipient, set this 
 parameter to reference to a data hash. If you wish to let the recipient of the 
-message know who sent the message, set $event->{infoPtr} to $self.
+L</message> know who sent the message, set $event->{infoPtr} to $self.
 
-The message facility is used for many purposes. One example is a list box and a
-vertical scroll bar. Whenever the scroller position is adjusted (using the
+The L</message> facility is used for many purposes. One example is a list box 
+and a vertical scroll bar. Whenever the scroller position is adjusted (using the
 mouse or keyboard controls), the scroller sends a message informing the world
 that it has changed,
 
     message( TopView, evBroadcast, cmScrollBarChanged, $self );
 
 where TopView is a TView function returning the current modal view (hence, the 
-view that owns the scrollbar), and cmScrollBarChanged is a standard message 
+view that owns the scrollbar), and C<cmScrollBarChanged> is a standard message 
 broadcast to the rest of the views informing the world that it has changed. 
-TopView->handleEvent looks at the cmScrollBarChanged message and passes it along
-to its subviews. Eventually, the list box view receives and processes the 
-message at its HandleEvent method, causing the listbox cursor to move up or 
+TopView->handleEvent looks at the C<cmScrollBarChanged> message and passes it 
+along to its subviews. Eventually, the list box view receives and processes the 
+message at its handleEvent method, causing the listbox cursor to move up or 
 down, or for the contents of the list box to be redrawn.
 
 =head2 messageBox
@@ -545,8 +547,8 @@ function
 
 =head3 Declaration
 
-    sub messageBox; # $ccode ($msg, $aOptions)
-    sub messageBox; # $ccode ($aOptions, $msg, @param)
+    sub messageBox;    # $ccode ($msg, $aOptions)
+    sub messageBox;    # $ccode ($aOptions, $msg, @param)
 
 =head3 Module
 
@@ -554,13 +556,13 @@ function
 
 =head3 Purpose
 
-messageBox is not described in the Borland documentation but is provided in the
-file MSGBOX.CPP.
+L</messageBox> is not described in the Borland documentation but is provided in 
+the bfile C<MSGBOX.CPP>.
 
-messageBox displays a string within a dialog box, inserting optional Params
-parameters, as desired, and displays optional Okay, Cancel, Yes or No buttons
-depending upon the settings of the $aOptions parameter. This function is useful
-for displaying error and warning messages.
+L</messageBox> displays a string within a dialog box, inserting optional @param
+parameters, as desired, and displays optional I<Okay>, I<Cancel>, I<Yes> or 
+I<No> buttons depending upon the settings of the $aOptions parameter. This 
+function is useful for displaying error and warning messages.
 
 The $msg string and the @params parameter are both passed to the sprintf
 subroutine for formatting. Because of this, you can insert variable parameters
@@ -595,7 +597,8 @@ The $aOptions values select the type of message box to display and the type of
 buttons to display in the message box. Select only one Message box type, and or
 it with the button types shown in the Button flags table.
 
-The messageBox function returns either cmOk, cmCancel, cmYes or cmNo.
+The L</messageBox> function returns either C<cmOk>, C<cmCancel>, C<cmYes> or 
+C<cmNo>.
 
 =head3 Table of Message Box Types
 
@@ -615,10 +618,10 @@ The messageBox function returns either cmOk, cmCancel, cmYes or cmNo.
     mfYesNoCancel           Show a Yes, No and a Cancel button
     mfOkCancel              Show an Okay and a Cancel button
 
-B<Important>: messageBox only works within Turbo Vision applications. Do not 
-attempt to use messageBox in non-Turbo Vision applications.
+B<Important>: L</messageBox> only works within Turbo Vision applications. Do not 
+attempt to use L</messageBox> in non-Turbo Vision applications.
 
-B<See>: sprintf, messageBoxRect, TStaticText
+B<See>: sprintf, L</messageBoxRect>, TStaticText
 
 =head2 messageBoxRect
 
@@ -626,7 +629,7 @@ function
 
 =head3 Declaration
 
-    sub messageBoxRect; # $ccode ($r, $msg, $aOptions)
+    sub messageBoxRect;    # $ccode ($r, $msg, $aOptions)
 
 =head3 Module
 
@@ -634,7 +637,7 @@ function
 
 =head3 Purpose
 
-messageBoxRect is identical to messageBox, except that you can specify a
+L</messageBoxRect> is identical to L</messageBox>, except that you can specify a
 specific location and size for the message box using the $r parameter. For
 example,
 
@@ -642,9 +645,9 @@ example,
     my $control = messageBoxRect( $r, 'Problem Renaming %s', @errMsg, 
         mfError | mfCancel );
 
-B<See>: messageBox
+B<See>: L</messageBox>
 
-=head2 minWinSize
+=head2 $minWinSize
 
 variable
 
@@ -658,8 +661,8 @@ variable
 
 =head3 Purpose
 
-$minWinSize sets the minimum allowed width and height for all objects descended
-from TWindow. The default is 16 characters wide and 6 characters high
+L</$minWinSize> sets the minimum allowed width and height for all objects 
+descended from TWindow. The default is 16 characters wide and 6 characters high
 (including the shadow). You can see how these values are used by sizing an
 editor window in the Borland DOS IDE to the minimum size.
 
@@ -669,7 +672,7 @@ function
 
 =head3 Declaration
 
-    sub getButtonCount; # $mouseButtons ()
+    sub getButtonCount;    # $mouseButtons ()
 
 =head3 Module
 
@@ -677,7 +680,7 @@ function
 
 =head3 Purpose
 
-Contains the current state of the mouse buttons. See the mbXXXX constants for
+Contains the current state of the mouse buttons. See the C<mbXXXX> constants for
 the bit settings in this variable.
 
 =head2 $mouseEvents
@@ -695,8 +698,8 @@ variable
 =head3 Purpose
 
 The TEventQueue->resume subroutine detects the presence of a mouse, and if a 
-mouse is found, sets $mouseEvents to TRUE. If no mouse is found, then 
-$mouseEvents is set to FALSE and no mouse event processing occurs.
+mouse is found, sets L</$mouseEvents> to C<TRUE>. If no mouse is found, then 
+L</$mouseEvents> is set to C<FALSE> and no mouse event processing occurs.
 
 =head2 $mouseReverse
 
@@ -712,8 +715,8 @@ variable
 
 =head3 Purpose
 
-When set to TRUE, this field causes the TEvent->{buttons} field to reverse the
-mbLeftButton and mbRightButton flags.
+When set to C<TRUE>, this field causes the TEvent->{buttons} field to reverse 
+the C<mbLeftButton> and C<mbRightButton> flags.
 
 =head2 moveBuf 
 
@@ -721,7 +724,7 @@ method
 
 =head3 Declaration
 
-    sub moveBuf; # void ($indent, \@source, $attr, $count)
+    sub moveBuf;    # void ($indent, \@source, $attr, $count)
 
 =head3 Module
 
@@ -729,14 +732,14 @@ method
 
 =head3 Purpose
 
-moveBuf is typically used for copying text and video attribute bytes to a
+L</moveBuf> is typically used for copying text and video attribute bytes to a
 TDrawBuffer-type array. Such an array holds character bytes in the low bytes of
-each word, and attribute values in the high bytes. moveBuf copies Count bytes
-from Source into the low bytes of the Dest destination parameter, setting each
-high byte to the Attr byte value (or leaving the attribute bytes as is if Attr
-equals zero).
+each word, and attribute values in the high bytes. L</moveBuf> copies $count 
+bytes from @source into the low bytes of the Dest destination parameter, setting
+each high byte to the $attr byte value (or leaving the attribute bytes as is if 
+$attr equals zero).
 
-B<See>: moveChar, TDrawBuffer, TView->writeBuf and TView->writeLine.
+B<See>: L</moveChar>, TDrawBuffer, TView->writeBuf and TView->writeLine.
 
 =head2 moveChar
 
@@ -752,12 +755,12 @@ method
 
 =head3 Purpose
 
-Similar to moveBuf, except that this copies the single character $c, $count
+Similar to L</moveBuf>, except that this copies the single character $c, $count
 number of times, into each low byte of the TDrawBuffer object parameter, and if 
 $attr is non-zero, copies $attr to each high byte position in the (internal 
 data) array.
 
-B<See>: moveBuf, TDrawBuffer, TView->writeBuf and TView->writeLine.
+B<See>: L</moveBuf>, TDrawBuffer, TView->writeBuf and TView->writeLine.
 
 =head2 moveCStr
 
@@ -773,31 +776,33 @@ method
 
 =head3 Purpose
 
-moveCStr copies a string to a TDrawBuffer array such that the text is
-alternately one of two different colors. moveCStr copies the $str string
+L</moveCStr> copies a string to a TDrawBuffer array such that the text is
+alternately one of two different colors. L</moveCStr> copies the $str string
 parameter to the TDrawBuffer (internal array) and sets each character's
 attributes using either the low or high byte of the $attr word. Initially,
-moveCStr uses the low byte of $attr, but upon encountering a "~" tilde
-character, moveCStr switches to the high byte of $attr. Each tilde in the string
-causes moveCStr to toggle to the other $attr attribute byte. moveCStr is used by
-Turbo Vision for setting up pulldown menu strings where the hot keys are set
-off in a different color from the rest of the text. For example,
+L</moveCStr> uses the low byte of $attr, but upon encountering a C<~> tilde
+character, L</moveCStr> switches to the high byte of $attr. Each tilde in the 
+string causes L</moveCStr> to toggle to the other $attr attribute byte. 
+L</moveCStr> is used by Turbo Vision for setting up pulldown menu strings where 
+the hot keys are set off in a different color from the rest of the text. For 
+example,
 
     TSubMenu->new('~R~un', 0, hcNoContext, TMenuItem->new( ...
 
-You use moveCStr like this:
+You use L</moveCStr> like this:
 
     my $aBuffer = TDrawBuffer->new();
     ...
     $aBuffer->moveCStr( 0, 'This ~is~ some text.', 0x0770 );
     $view->writeLine( 10, 10, 18, 1, $aBuffer );
 
-This sets the word 'is' to the attribute 0x07 and the rest of the text to 0x70.
+This sets the word "is" to the attribute C<0x07> and the rest of the text to 
+C<0x70>.
 
-B<See>: TDrawBuffer, moveChar, moveBuf, moveStr, TView->writeBuf and 
+B<See>: TDrawBuffer, L</moveChar>, L</moveBuf>, L</moveStr>, TView->writeBuf and 
 TView->writeLine, see also "Setting Color Palettes" in Chapter 13, 
-"More Turbo Vision Features" in the Borland Pascal Developer's Guide, cpColor, 
-cpMonochrome, cpBlackWhite
+"More Turbo Vision Features" in the Borland Pascal Developer's Guide, 
+C<cpColor>, C<cpMonochrome>, C<cpBlackWhite>
 
 =head2 moveStr
 
@@ -813,12 +818,12 @@ method
 
 =head3 Purpose
 
-moveStr copies the $str string parameter to the TDrawBuffer (internal array) and
-sets each character's attributes to the video attribute contained in $attr.
+L</moveStr> copies the $str string parameter to the TDrawBuffer (internal array)
+and sets each character's attributes to the video attribute contained in $attr.
 
-B<See>: TDrawBuffer, moveChar, moveBuf, moveStr, TView->writeBuf and 
+B<See>: TDrawBuffer, L</moveChar>, L</moveBuf>, L</moveStr>, TView->writeBuf and
 TView->writeLine, see also "Setting Color Palettes" of Chapter 13 in the 
-Borland Pascal Developer's Guide, cpColor, cpMonochrome, cpBlackWhite
+Borland Pascal Developer's Guide, C<cpColor>, C<cpMonochrome>, C<cpBlackWhite>
 
 =head2 newLine
 
@@ -826,7 +831,7 @@ function
 
 =head3 Declaration
 
-    sub newLine; # $menuItem ()
+    sub newLine;    # $menuItem ()
 
 =head3 Module
 
@@ -834,9 +839,9 @@ function
 
 =head3 Purpose
 
-Use newLine to insert horizontal separator lines into pulldown menus. You can
-place newLine anywhere that you would use a newItem function. See Chapter 14,
-Turbo Vision Tutorial.
+Use L</newLine> to insert horizontal separator lines into pulldown menus. You 
+can place L</newLine> anywhere that you would use a newItem function. See 
+Chapter 14, Turbo Vision Tutorial.
 
 =head2 newStr
 
@@ -844,7 +849,7 @@ function
 
 =head3 Declaration
 
-    sub newStr; # $string ($str);
+    sub newStr;    # $string ($str);
 
 =head3 Module
 
@@ -852,9 +857,9 @@ function
 
 =head3 Purpose
 
-Use newStr to dynamically a string variable. newStr is especially useful for
-creating arrays or collections of strings. See listing, below, for an example
-of an array of strings. 
+Use L</newStr> to dynamically a string variable. L</newStr> is especially useful
+for creating arrays or collections of strings. See listing, below, for an 
+example of an array of strings. 
 
 =head3 Sample code
 
@@ -866,15 +871,15 @@ of an array of strings.
     }
     say( $_ ) for @aStrArray;
 
-B<See>: Chapter 14,"Collections" in the Borland Pascal Developer's Guide.
+B<See>: Chapter 14, "Collections" in the Borland Pascal Developer's Guide.
 
-=head2 TSubMenu->new
+=head2 new_TSubMenu
 
-class
+function
 
 =head3 Declaration
 
-    sub new; # $menu ($nm, $key, | $helpCtx)
+    sub new_TSubMenu;    # $menu ($nm, $key, | $helpCtx)
 
 =head3 Module
 
@@ -882,11 +887,11 @@ class
 
 =head3 Purpose
 
-TSubMenu creates an individual pulldown menu within the menu bar
+L</new_TSubMenu> creates an individual pulldown menu within the menu bar
 initialization. See Chapter 11, "Turbo Vision Tutorial" in the Borland Pascal
 Developer's Guide for examples of menu creation.
 
-B<See>: TMenu, newLine
+B<See>: TMenu, L</newLine>
 
 =head2 ofXXXX 
 
@@ -894,7 +899,7 @@ TView->options field bit positions constants
 
 =head3 Purpose
 
-The ofXXXX constants select options available in all TView-derived objects. 
+The C<ofXXXX> constants select options available in all TView-derived objects. 
 Setting the bit position to a 1 sets the indicated attribute; clearing the bit 
 position to 0 disables the indicated attributes.
 
@@ -956,7 +961,7 @@ position to 0 disables the indicated attributes.
     ofCenterY       0x0200  When this bit is set, a view is centered in the 
                             vertical direction (especially useful when switching
                             between 25 and 43/50 line modes).
-    ofCentered      0x0300  Same as setting both ofCenterX and ofCenterY: 
+    ofCentered      0x0300  Same as setting both C<ofCenterX> and C<ofCenterY>: 
                             centers the view in both vertical and horizontal 
                             directions.
 
@@ -970,12 +975,12 @@ constant
 
 =head3 Module
 
-    Views
+    TV::Views::Const
 
 =head3 Purpose
 
 You can force events and messages to route as if they are positional events by 
-setting positionalEvents to the event's evXXXX constant. By adding your own 
+setting positionalEvents to the event's C<evXXXX> constant. By adding your own 
 event classes (by setting the bit patterns) you can create broadcast messages 
 that route the same as a positional $event.
 

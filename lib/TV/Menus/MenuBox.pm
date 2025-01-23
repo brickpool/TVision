@@ -75,7 +75,7 @@ sub BUILDARGS {    # \%args (%args)
   return $args;
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert( blessed $self );
   $self->{state} |= sfShadow;

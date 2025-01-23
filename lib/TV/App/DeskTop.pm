@@ -1,4 +1,5 @@
 package TV::App::DeskTop;
+# ABSTRACT: TDeskTop manages the screen area, owning different views.
 
 use strict;
 use warnings;
@@ -62,7 +63,7 @@ sub BUILDARGS {    # \%args (%args)
   return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
@@ -290,3 +291,83 @@ sub shutDown {    # void ()
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::App::DeskTop - manages the screen area, owning different views.
+
+=head1 DESCRIPTION
+
+Each application has one TDeskTop object, controlled by $deskTop, managing the 
+screen area between the menu bar and status line, owning the TBackground and 
+other windows/dialogs.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item background
+
+The TBackground object that forms the backdrop of the desktop.
+
+=item tileColumnsFirst
+
+A flag indicating whether tiling should prioritize columns first.
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  $deskTop = TDeskTop->new(bounds => $bounds);
+
+Creates a new TDeskTop object with specified bounds.
+
+=head2 cascade
+
+  $self->cascade($r);
+
+Arranges windows in a cascading manner.
+
+=head2 from
+
+  $deskTop = TDeskTop->from($bounds);
+
+Creates a TDeskTop object from specified bounds.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Handles events for the TDeskTop object.
+
+=head2 initBackground
+
+  my $background = TDeskTop->initBackground($r);
+
+Initializes the background with specified bounds.
+
+=head2 shutDown
+
+  $self->shutDown();
+
+Shuts down the TDeskTop object.
+
+=head2 tile
+
+  $self->tile($r);
+
+Arranges windows in a tiled manner.
+
+=head2 tileError
+
+  $self->tileError();
+
+Handles errors related to tiling windows.
+
+=cut

@@ -201,7 +201,7 @@ In some of the chapters you will see reference to "figures", such as "Figure
     ***03tpr02.pcx***
 
 This notation means that the illustration is contained in "pcx" format graphics
-file named 03TPR02.PCX. You can read and print .pcx files using the Microsoft
+file named C<03TPR02.PCX>. You can read and print .pcx files using the Microsoft
 PaintBrush program that comes with Microsoft Windows. Many other graphics
 programs can also display and print these .pcx format files. All of the .pcx
 files are included in this electronic book.

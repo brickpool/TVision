@@ -39,13 +39,13 @@ Total pages in the electronic book:
 
 =over
 
-=item L<This introduction|TVision>
+=item L<This introduction|/TPR-BOOK>
 
-=item L<Copyright information|TVision>
+=item L<Copyright information|/TPR-BOOK>
 
-=item L<Table of Contents for Turbo Pascal Reference|/"Table of Contents">
+=item L<Table of Contents for Turbo Pascal Reference|/TPR-BOOK>
 
-=item L<Table of Contents for Borland Pascal Developer's Guide|TVision>
+=item L<Table of Contents for Borland Pascal Developer's Guide|/TPR-BOOK>
 
 =back
 

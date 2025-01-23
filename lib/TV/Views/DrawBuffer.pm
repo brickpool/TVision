@@ -1,4 +1,5 @@
 package TV::Views::DrawBuffer;
+# ABSTRACT: TDrawBuffer stores a line of text for output in Turbo Vision 2.0.
 
 use strict;
 use warnings;
@@ -157,3 +158,96 @@ sub moveStr {    # void ($indent, $str, $attrs)
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TDrawBuffer - stores a line of text for output in Turbo Vision 2.0.
+
+=head1 SYNOPSIS
+
+  use TV::Views;
+
+  my $buffer = TDrawBuffer->new();
+  $buffer->moveStr(0, 'Financial Results for FY1991', $view->getColor(1));
+  $view->writeLine(1, 3, 28, 1, $buffer);
+
+=head1 DESCRIPTION
+
+TDrawBuffer stores a line of text for screen output, with each word's low byte 
+holding the character value and the high byte holding the video attribute.
+
+=head1 METHODS
+
+=head2 new
+
+  my $obj = TDrawBuffer->new();
+
+Creates a new object instance.
+
+=head2 from
+
+  my $obj = TDrawBuffer->from();
+
+An alternative constructor to L</new> that uses positional parameters.
+
+=head2 moveBuf
+
+  $self->moveBuf($indent, \@source, $attr, $count);
+
+Moves a buffer of characters with specified attributes.
+
+=head2 moveCStr
+
+  $self->moveCStr($indent, $str, $attrs);
+
+Moves a Tilde style string with specified attributes.
+
+=head2 moveChar
+
+  $self->moveChar($indent, $c, $attr, $count);
+
+Moves a single character with specified attributes.
+
+=head2 moveStr
+
+  $self->moveStr($indent, $str, $attrs);
+
+Moves a string with specified attributes.
+
+=head2 putAttribute
+
+  $self->putAttribute($indent, $attr);
+
+Sets the attribute at a specified position.
+
+=head2 putChar
+
+  $self->putChar($indent, $c);
+
+Places a character at a specified position.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

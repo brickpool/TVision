@@ -1,29 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Objects::NSCollection - defines the class TNSCollection
-
-=head1 DESCRIPTION
-
-In this Perl module, the class I<TNSCollection> is created, which contains the 
-same methods as the Borland C++ class. 
-
-The NS variants of collections are Not Storable.  These are needed for 
-internal use in the stream manager.  There are storable variants of each of 
-these classes for use by the rest of the library.
-
-=head2 Methods
-
-The methods I<new>, I<DEMOLISH>, I<shutDown>, I<at>, I<atRemove>, I<atFree>, 
-I<atInsert>, I<atPut>, I<remove>, I<removeAll>, I<free>, I<freeAll>, 
-I<freeItem>, I<indexOf>, I<insert>, I<error>, I<firstThat>, I<lastThat>, 
-I<forEach>, I<pack> and I<setLimit> are implemented to provide the same behavior
-as in Borland C++.
-
-=cut
-
 package TV::Objects::NSCollection;
+# ABSTRACT: defines the class TNSCollection
 
 use strict;
 use warnings;
@@ -79,7 +55,7 @@ my (
   $freeItem,
 );
 
-sub BUILDARGS {    # \%args (| %args)
+sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
   return STRICT ? check( {
@@ -88,14 +64,14 @@ sub BUILDARGS {    # \%args (| %args)
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my ( $self, $args ) = @_;
   assert( blessed $self );
   $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD
 
-sub from {    # $obj ($aLimit, $aDelta);
+sub from {    # $obj ($aLimit, $aDelta)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
@@ -109,7 +85,7 @@ sub DEMOLISH {    # void ()
   return;
 }
 
-sub shutDown {    # void ($shift)
+sub shutDown {    # void ()
   my $self = shift;
   assert ( blessed $self );
   if ( $self->{shouldDelete} ) {
@@ -193,7 +169,7 @@ sub remove {    # void ($item)
   return;
 }
 
-sub removeAll {    # void ($self)
+sub removeAll {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $self->{count} = 0;
@@ -210,7 +186,7 @@ sub free {    # void ($item)
   return;
 }
 
-sub freeAll {    # void ($self)
+sub freeAll {    # void ()
   my $self = shift;
   assert ( blessed $self );
   $self->$freeItem( $self->at( $_ ) ) 
@@ -248,37 +224,37 @@ sub error {    # void ($code, $info)
   Carp::croak sprintf("Error code: %d, Info: %s\n", $code, $info);
 }
 
-sub firstThat {    # $item|undef (\&test, $arg|undef)
-  my ( $self, $test, $arg ) = @_;
-  assert ( blessed $self );
-  assert ( ref $test );
+sub firstThat {    # $item|undef (\&Test, $arg|undef)
+  my ( $self, $Test, $arg ) = @_;
   assert ( @_ == 3 );
+  assert ( blessed $self );
+  assert ( ref $Test );
   my $that;
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
-    return $_ if $test->( $_, $arg );
+    return $_ if $Test->( $_, $arg );
   }
   return undef;
 }
 
-sub lastThat {    # $item|undef (\&test, $arg|undef)
-  my ( $self, $test, $arg ) = @_;
-  assert ( blessed $self );
-  assert ( ref $test );
+sub lastThat {    # $item|undef (\&Test, $arg|undef)
+  my ( $self, $Test, $arg ) = @_;
   assert ( @_ == 3 );
+  assert ( blessed $self );
+  assert ( ref $Test );
   my $that;
   for my $i ( reverse 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
-    return $_ if $test->( $_, $arg );
+    return $_ if $Test->( $_, $arg );
   }
   return undef;
 }
 
 sub forEach {    # void (\&action, $arg|undef)
   my ( $self, $action, $arg ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( ref $action );
-  assert ( @_ == 3 );
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
     $action->( $_, $arg );
@@ -286,7 +262,7 @@ sub forEach {    # void (\&action, $arg|undef)
   return;
 }
 
-sub pack {    # void ($self)
+sub pack {    # void ()
   my $self  = shift;
   assert ( blessed $self );
   my $count = 0;
@@ -333,3 +309,203 @@ $freeItem = sub {
 };
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Objects::NSCollection provides a mechanism for managing any data collection.
+
+=head1 DESCRIPTION
+
+In this Perl module, the class I<TNSCollection> is created, which contains the 
+same methods as the Borland C++ class. 
+
+The NS variants of collections are Not Storable.  These are needed for 
+internal use in the stream manager.  There are storable variants of each of 
+these classes for use by the rest of the library.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item items
+
+A list of items contained in the collection.
+
+=item count
+
+The current number of items in the collection.
+
+=item limit
+
+The maximum number of items the collection can hold.
+
+=item delta
+
+The amount by which the collection size increases when the limit is reached.
+
+=item shouldDelete
+
+A flag indicating whether items should be deleted when removed from the 
+collection.
+
+=back
+
+=head1 METHODS
+
+The methods I<new>, I<DEMOLISH>, I<shutDown>, I<at>, I<atRemove>, I<atFree>, 
+I<atInsert>, I<atPut>, I<remove>, I<removeAll>, I<free>, I<freeAll>, 
+I<freeItem>, I<indexOf>, I<insert>, I<error>, I<firstThat>, I<lastThat>, 
+I<forEach>, I<pack> and I<setLimit> are implemented to provide the same behavior
+as in Borland C++.
+
+=head2 new
+
+  my $collection = TNSCollection->new(limit => $aLimit, delta => $aDelta);
+
+Creates a new TNSCollection with specified limit and delta.
+
+=head2 DESTROY
+
+  $self->DESTROY();
+
+Destroys the TNSCollection object.
+
+=head2 at
+
+  my $item = $self->at($index);
+
+Retrieves the item at the specified index.
+
+=head2 atFree
+
+  $self->atFree($index);
+
+Frees the item at the specified index.
+
+=head2 atInsert
+
+  $self->atInsert($index, $item | undef);
+
+Inserts an item at the specified index.
+
+=head2 atPut
+
+  $self->atPut($index, $item | undef);
+
+Puts an item at the specified index.
+
+=head2 atRemove
+
+  $self->atRemove($index);
+
+Removes the item at the specified index.
+
+=head2 error
+
+  $self->error($code, $info);
+
+Handles errors with the given code and info.
+
+=head2 firstThat
+
+  my $item | undef = $self->firstThat(\&Test, $arg | undef);
+
+Finds the first item that matches the test function.
+
+=head2 forEach
+
+  $self->forEach(\&action, $arg | undef);
+
+Executes an action for each item in the collection.
+
+=head2 free
+
+  $self->free($item);
+
+Frees the specified item.
+
+=head2 freeAll
+
+  $self->freeAll();
+
+Frees all items in the collection.
+
+=head2 from
+
+  my $collection = TNSCollection->from($aLimit, $aDelta);
+
+Creates a TNSCollection from specified limit and delta.
+
+=head2 indexOf
+
+  my $index = $self->indexOf($item | undef);
+
+Returns the index of the specified item.
+
+=head2 insert
+
+  my $index = insert($item | undef);
+
+Inserts an item into the collection.
+
+=head2 lastThat
+
+  my $item | undef = $self->lastThat(\&Test, $arg | undef);
+
+Finds the last item that matches the test function.
+
+=head2 pack
+
+  $self->pack();
+
+Packs the collection to remove gaps.
+
+=head2 remove
+
+  $self->remove($item);
+
+Removes the specified item from the collection.
+
+=head2 removeAll
+
+  $self->removeAll();
+
+Removes all items from the collection.
+
+=head2 setLimit
+
+  $self->setLimit($aLimit);
+
+Sets the limit for the collection.
+
+=head2 shutDown
+
+  $self->shutDown();
+
+Shuts down the collection.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

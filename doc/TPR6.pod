@@ -251,9 +251,9 @@ variable
 
 =head3 Purpose
 
-TApplication->new, via TProgram->BUILD, sets $application to $self, hence,
-$application points to the application object. TProgram->DESTROY resets
-$application to undef.
+TApplication->new, via TProgram->BUILD, sets L</$application> to $self, hence,
+L</$application> points to the application object. TProgram->DESTROY resets
+L</$application> to C<undef>.
 
 =head2 $appPalette
 
@@ -269,10 +269,10 @@ variable
 
 =head3 Purpose
 
-Holds the current application color palette selection (either apColor,
-apBlackWhite or apMonoChrome). 
+Holds the current application color palette selection (either C<apColor>,
+C<apBlackWhite> or C<apMonoChrome>). 
 
-B<See>: TView->setScreenMode, apXXXX constants
+B<See>: TView->setScreenMode, C<apXXXX> constants
 
 =head2 apXXXX
 
@@ -284,15 +284,15 @@ Application Palette constants
 
 =head3 Purpose
 
-These values are kept in $appPalette, indicating which application color palette
-is in use.
+These values are kept in L</$appPalette>, indicating which application color 
+palette is in use.
 
     Constant        Value   Usage
     apColor         0       Selects color screen palette
     apBlackWhite    1       Selects black & white palette
     apMonoChrome    2       Selects the monochrome screen palette
 
-B<See>: $appPalette
+B<See>: L</$appPalette>
 
 =head2 bfXXXX
 
@@ -300,11 +300,11 @@ Button Flags constants
 
 =head3 Module
 
-    TV::Dialogs
+    TV::Dialogs::Const
 
 =head3 Purpose
 
-The bfXXXX values are passed as a bit mask to TButton->new and specify button
+The C<bfXXXX> values are passed as a bit mask to TButton->new and specify button
 attributes, as shown in the table:
 
     Constant        Value   Usage
@@ -313,9 +313,9 @@ attributes, as shown in the table:
     bfLeftAdjust    0x02    If OR'd with either bfNormal or bfDefault, 
                             the button label will be left justified instead of 
                             centered.
-    bfBroadcast     0x04    If this bit is set, when a button is pressed, TButton
-                            sends an evBroadcast message. If not set, TButton 
-                            inserts a new event with putEvent.
+    bfBroadcast     0x04    If this bit is set, when a button is pressed, 
+                            TButton sends an evBroadcast message. If not set, 
+                            TButton inserts a new event with putEvent.
 
 B<Caution>: It's up to the programmer to ensure that each TGroup entity (TDialog
 is descended from TGroup) has only one default button.
@@ -337,11 +337,11 @@ variable
 
 =head3 Purpose
 
-If a mouse is installed, $buttonCount holds the number of buttons on the mouse.
-If zero, then no mouse is installed. 
+If a mouse is installed, L</$buttonCount> holds the number of buttons on the 
+mouse. If zero, then no mouse is installed. 
 
-Check the value of $buttonCount when your program needs to know if a mouse is 
-installed.
+Check the value of L</$buttonCount> when your program needs to know if a mouse 
+is installed.
 
 =head2 $checkSnow
 
@@ -357,12 +357,12 @@ variable
 
 =head3 Purpose
 
-If a CGA adaptor is detected, Turbo Vision sets $checkSnow to TRUE. Older CGA
+If a CGA adaptor is detected, Turbo Vision sets $checkSnow to C<TRUE>. Older CGA
 video adaptor cards require special programming to avoid "snow" or static-like
 lines on the display. 
 
 If the CGA video adaptor does not require snow checking, the program may set 
-$checkSnow to FALSE, resulting in faster output to the screen. Do not set or 
+$checkSnow to C<FALSE>, resulting in faster output to the screen. Do not set or 
 check $checkSnow until after calling TApplication->new.
 
 =head2 cpXXXX
@@ -371,20 +371,20 @@ Color Palette constants
 
 See "Using Color Palettes" in chapter 13, "More Turbo Vision Features" in the
 Borland Pascal Developer's Guide for complete details regarding use of the
-color palettes. Except for cpColor, cpBlackWhite and cpMonoChrome, all of the
-color palette constants contain indices into their owner's palette. For cpColor,
-cpBlackWhite and cpMonoChrome, each entry contains an actual BIOS video color
-attribute byte.
+color palettes. Except for C<cpColor>, C<cpBlackWhite> and C<cpMonoChrome>, all 
+of the color palette constants contain indices into their owner's palette. For 
+C<cpColor>, C<cpBlackWhite> and C<cpMonoChrome>, each entry contains an actual 
+BIOS video color attribute byte.
 
 You can use these color palette maps to determine what color a particular
 object or component will have when it appears on the screen. For example, if
 you place a TButton object into a TDialog object, you can trace through the
 color palettes to determine what color it will have. A "normal" button will
 have the attribute "Text Normal" shown in the first byte of the cpButton color
-palette. This color entry is an index into its owner's palette, cpDialog.
-Looking at the 10th entry of cpDialog, we see that this maps to entry 41 in the
-application-level palette. In the case of cpColor (color display in use), this
-corresponds to black lettering on a green background.
+palette. This color entry is an index into its owner's palette, C<cpDialog>.
+Looking at the 10th entry of C<cpDialog>, we see that this maps to entry 41 in 
+the application-level palette. In the case of C<cpColor> (color display in use),
+this corresponds to black lettering on a green background.
 
 =head3 cpBackground
 
@@ -527,7 +527,7 @@ B<Note>: used for TMenuBar and TMenuBox
     [ 5] Selected Disabled  6
     [ 6] Selected Shortcut  7
 
-=head3 cpColor 
+=head3 cpColor
 
 B<Note>: for TProgram and TApplication
 
@@ -896,7 +896,7 @@ Command constants
 
 =head3 Purpose
 
-The cmXXXX constants are the predefined commands within Turbo Vision and are
+The C<cmXXXX> constants are the predefined commands within Turbo Vision and are
 passed to handleEvent methods in the $event->{command} field. 
 
 Constant values of 0 to 99, and 256 to 999 are reserved for use by Turbo Vision.
@@ -924,7 +924,7 @@ to 65535.
                             handleEvent method (also see the wfClose
                             constants). Typically a status line item such as
                             Alt-F3 is mapped to the cmClose command. The
-                            C<TVSHELL1> program in Chapter 14 uses the F3 key 
+                            TVSHELL1 program in Chapter 14 uses the F3 key 
                             to generate cmClose for opening and closing
                             subdirectories.
     cmZoom              5   The cmZoom flag is generated when the window is
@@ -985,7 +985,7 @@ Collection Error constants
 
 =head3 Module
 
-    TV::Objects:.Const
+    TV::Objects::Const
 
 =head3 Purpose
 
@@ -1004,7 +1004,7 @@ function
 
 =head3 Declaration
 
-    sub cstrlen; # $int ($s)
+    sub cstrlen;    # $int ($s)
 
 =head3 Module
 
@@ -1013,7 +1013,7 @@ function
 =head3 Purpose
 
 Returns the length of control strings, which are any strings containing
-short-cut characters surrounded by tilde '~' characters, minus the number of
+short-cut characters surrounded by tilde C<~> characters, minus the number of
 tilde characters. For example,
 
     cstrlen( '~F~ile' )
@@ -1034,9 +1034,10 @@ variable
 
 =head3 Purpose
 
-Whenever the user presses Ctrl-Break at the keyboard, this flag is set to TRUE.
+Whenever the user presses Ctrl-Break at the keyboard, this flag is set to 
+C<TRUE>.
 
-You can clear it any time by resetting to FALSE.
+You can clear it any time by resetting to C<FALSE>.
 
 =head2 ctrlToArrow
 
@@ -1044,7 +1045,7 @@ function
 
 =head3 Declaration
 
-    sub ctrlToArrow; # $int ($keyCode)
+    sub ctrlToArrow;    # $int ($keyCode)
 
 =head3 Module
 
@@ -1053,16 +1054,16 @@ function
 =head3 Purpose
 
 This esoteric function converts certain control-key combinations to standard
-kbXXXX constant values.
+C<kbXXXX> constant values.
 
 The original Wordstar word processor used a standard set of Ctrl-letter 
 combinations as equivalents to IBM cursor movement keys and set a standard 
 interpretation of these keys when used in word processing. 
 
 To assist in providing Wordstar compatibility, ctrlToArrow can be used to 
-convert $event->{keyCode} values to their corresponding kbXXXX values. 
+convert $event->{keyCode} values to their corresponding C<kbXXXX> values. 
 
-The following chart shows the mapping from control keys to kbXXXX values.
+The following chart shows the mapping from control keys to C<kbXXXX> values.
 
     Control key     keyCode & 0xff  Maps to
     Ctrl-A          0x01            kbHome
@@ -1095,9 +1096,9 @@ For example, on a CGA screen a character is made up of 8 scan lines, with the
 topmost scan line being 0 and the bottommost scan line being 7 (the number of
 scan lines varies according to the type of the video adaptor card in use). 
 
-The shape of the character cursor is determined with BIOS interrupt 10H, 
-function 01H. For more information, consult the DOS Programmer's Reference, 2nd 
-Edition, Que Books, page 424 "BIOS INT 10H Function 01h Set Cursor Type". 
+The shape of the character cursor is determined with BIOS interrupt <0x10>,
+function <0x01>. For more information, consult the DOS Programmer's Reference, 
+2nd  Edition, Que Books, page 424 "BIOS INT 10H Function 01h Set Cursor Type". 
 
 B<See>: TView->showCursor, TView->hideCursor, TView->normalCursor (to set cursor
 shape to an underline), TView->blockCursor (to set cursor to a solid block).
@@ -1133,17 +1134,17 @@ Drag Mode constants
 
 The TView->dragMode field controls whether or not a view can be dragged or have
 its size changed. The dragMode field is stored in a scalar, with the bits set by
-the constants shown in the following table, and Limits is a TRect parameter to
+the constants shown in the following table, and $limits is a TRect parameter to
 TView->dragView.
 
     Constant        Value    Usage
     dmDragMove      0x01     Allow the view to move.
     dmDragGrow      0x02     Allow the view to change size.
-    dmLimitLoX      0x10     The left hand side cannot move outside Limits.
-    dmLimitLoY      0x20     The top side cannot move outside Limits.
-    dmLimitHiX      0x40     The right hand side cannot move outside Limits.
-    dmLimitHiY      0x80     The bottom side cannot move outside Limits.
-    dmLimitAll      0xF0     None of the view can move outside Limits.
+    dmLimitLoX      0x10     The left hand side cannot move outside $limits.
+    dmLimitLoY      0x20     The top side cannot move outside $limits.
+    dmLimitHiX      0x40     The right hand side cannot move outside $limits.
+    dmLimitHiY      0x80     The bottom side cannot move outside $limits.
+    dmLimitAll      0xF0     None of the view can move outside $limits.
 
 =head2 TEventQueue->resume
 
@@ -1197,7 +1198,7 @@ subroutine
 
 This internal Turbo Vision routine is called automatically by
 TApplication->resume to free up all memory buffers that were allocated by
-allocateDiscardable.
+L</allocateDiscardable>.
 
 =head2 TSystemError->resume
 
@@ -1213,8 +1214,8 @@ allocateDiscardable.
 
 This internal routine is called automatically by TApplication->resume,
 terminating Turbo Vision's system error trapping and restoring the interrupt
-vectors 09h, 1bh, 21h, 23h and 24h and the Ctrl-Break checking of DOS, to their
-original settings.
+vectors 0x09, 0x1b, 0x21, 0x23 and 0x24 and the Ctrl-Break checking of DOS, to 
+their original settings.
 
 =head2 TScreen->resume
 
@@ -1247,12 +1248,12 @@ variable
 
 =head3 Purpose
 
-$doubleDelay holds the time interval (in 1/18.2 of a second intervals) defining
-how quickly two mouse clicks must occur in order to be treated as a double
-click (rather than two separate single clicks). 
+L</$doubleDelay> holds the time interval (in 1/18.2 of a second intervals) 
+defining how quickly two mouse clicks must occur in order to be treated as a 
+double click (rather than two separate single clicks). 
 
 By default, the two mouse clicks must occur with 8/18'ths of a second to be 
-considered a double click event (with TEvent->{double} set to TRUE).
+considered a double click event (with TEvent->{double} set to C<TRUE>).
 
 =head2 $errorAttr
 
@@ -1270,8 +1271,8 @@ variable
 
 If the TView->getColor method is unable to map a color palette index into a
 video attribute byte because the index is out of range, TView->getColor returns
-this value. $CF is the video attribute for flashing white characters on a red
-background - if you see flashing white on red, you need to check or override
+this value. C<0xCF> is the video attribute for flashing white characters on a 
+red background - if you see flashing white on red, you need to check or override
 the getPalette method. 
 
 An example of how this works can be seen in the C<TVSHELL> program. If the 
@@ -1299,7 +1300,7 @@ constants
 
 =head3 Purpose
 
-The evXXXX constants are used to designate event types and event masks,
+The C<evXXXX> constants are used to designate event types and event masks,
 particularly as used in the What field of an event record but also in other
 places within Turbo Vision.
 
@@ -1320,7 +1321,7 @@ places within Turbo Vision.
 
 B<See>: "Introduction to Events and the HandleEvent Method", in Chapter 11, 
 "Turbo Vision Tutorial" in the Borland Pascal Developer's Guide. Also see
-positionalEvents and focusedEvents.
+C<positionalEvents> and L</focusedEvents>.
 
 =head2 focusedEvents
 
@@ -1336,20 +1337,20 @@ constant
 
 =head3 Purpose
 
-focusedEvents contains a bit mask for identifying events that are focused. Any
-event that is neither a focused event nor a positional event, is classed as a
-broadcast event. 
+L</focusedEvents> contains a bit mask for identifying events that are focused. 
+Any event that is neither a focused event nor a positional event, is classed as 
+a broadcast event. 
 
-B<See>: positionalEvents variable, and "Positional Events" in Chapter 13, 
+B<See>: C<positionalEvents> constant, and "Positional Events" in Chapter 13, 
 "More Turbo Vision Features" in the Borland Pascal Developer's Guide.
 
-=head2 TVMemMgr->freeDiscardable
+=head2 freeDiscardable
 
 subroutine
 
 =head3 Declaration
 
-    sub freeDiscardable; # void ($p)
+    sub TVMemMgr::freeDiscardable;    # void ($p)
 
 =head3 Module
 
@@ -1357,7 +1358,8 @@ subroutine
 
 =head3 Purpose
 
-Frees up the cache buffer pointed to by $p. See allocateDiscardable for details.
+Frees up the cache buffer pointed to by $p. See L</allocateDiscardable> for 
+details.
 
 =head2 getAltChar
 
@@ -1365,7 +1367,7 @@ function
 
 =head3 Declaration
 
-    sub getAltChar; # $char ($keyCode)
+    sub getAltChar;    # $char ($keyCode)
 
 =head3 Module
 
@@ -1379,8 +1381,8 @@ example,
 
     say( getAltChar( kbAltA ));
 
-prints the single letter A. Procedure getAltCode maps characters back to Alt-Ch
-combinations.
+prints the single letter C<A>. Procedure getAltCode maps characters back to 
+Alt-Ch combinations.
 
 =head2 getAltCode
 
@@ -1388,7 +1390,7 @@ function
 
 =head3 Declaration
 
-    sub getAltCode; # $int($ch)
+    sub getAltCode;    # $int($ch)
 
 =head3 Module
 
@@ -1396,21 +1398,21 @@ function
 
 =head3 Purpose
 
-Maps a single character 'A' to 'Z' to the Keycode equivalent value for pressing
-Alt-Ch. For example,
+Maps a single character C<A> to C<Z> to the Keycode equivalent value for 
+pressing Alt-Ch. For example,
 
     getAltCode('A')
 
-returns 0x1E00, which is the value of kbAltA. getAltCode is the inverse function
-to getAltChar.
+returns C<0x1E00>, which is the value of C<kbAltA>. getAltCode is the inverse 
+function to getAltChar.
 
-=head2 TVMemMgr->allocateDiscardable
+=head2 allocateDiscardable
 
 subroutine
 
 =head3 Declaration
 
-    sub allocateDiscardable; # void ($p; $size)
+    sub TVMemMgr::allocateDiscardable;    # void ($p; $size)
 
 =head3 Module
 
@@ -1420,12 +1422,12 @@ subroutine
 
 Used to allocate a cache buffer where the cache buffer is a heap allocation that
 may be moved or disposed of at any time by the memory manager. As a result, the 
-pointer variable passed to allocateDiscardable may be changed by the memory 
+pointer variable passed to L</allocateDiscardable> may be changed by the memory 
 manager at any time during program execution to point to a different memory 
-area, or even be reset to undef.
+area, or even be reset to C<undef>.
 
 Turbo Vision uses cache buffers to speed up output the screen (also see 
-TView->options field and the ofXXXX constants) by having views store their 
+TView->options field and the C<ofXXXX> constants) by having views store their 
 display image in memory so that, if possible, the screen can be updated quickly 
 merely by copying the memory image back to the screen (this is faster than 
 regenerating the text and other data in the Draw method).
@@ -1449,7 +1451,7 @@ other function.
 Cache buffers are useful for speeding up access to items that can always be 
 recreated.
 
-B<See>: freeDiscardable.
+B<See>: L</freeDiscardable>.
 
 =head2 getKeyEvent
 
@@ -1457,7 +1459,7 @@ subroutine
 
 =head3 Declaration
 
-    sub getKeyEvent; # void ($event)
+    sub getKeyEvent;    # void ($event)
 
 =head3 Module
 
@@ -1465,13 +1467,13 @@ subroutine
 
 =head3 Purpose
 
-Uses the BIOS function INT 16H, Function 01H "Read Keyboard Status" to
+Uses the BIOS function INT 0x16, Function 0x01 "Read Keyboard Status" to
 determine if a key has been pressed on the keyboard. If so, $event->{what} is 
-set to evKeyDown and Event.Keycode is set to the scan code of the key. If no 
-keys have been pressed, $event->{what} is set to evNothing. This is an internal
-subroutine called by TProgram->getEvent. 
+set to C<evKeyDown> and $event->{keyCode} is set to the scan code of the key. If
+no keys have been pressed, $event->{what} is set to C<evNothing>. This is an 
+internal subroutine called by TProgram->getEvent. 
 
-B<See>: evXXXX constants, also DOS Programmer's Reference, 2nd Edition, Que 
+B<See>: C<evXXXX> constants, also DOS Programmer's Reference, 2nd Edition, Que 
 Books, page 496,
 
 =head2 getMouseEvent
@@ -1480,7 +1482,7 @@ subroutine
 
 =head3 Declaration
 
-    sub getMouseEvent; # void ($event)
+    sub getMouseEvent;    # void ($event)
 
 =head3 Module
 
@@ -1488,12 +1490,13 @@ subroutine
 
 =head3 Purpose
 
-Similar to getKeyEvent, but for mouse events. This internal subroutine checks
-Turbo Vision's internal mouse event queue, and if a mouse event has occurred,
-sets $event->{what} to the appropriate evMouseXXXX constant; $event->{buttons} 
-to mbLeftButton or mbRightButton; $event->{double} to TRUE or FALSE; and 
-$event->{where} to the mouse position in TApplication coordinates. If no mouse 
-events have occurred, $event->{what} is set to evNothing.
+Similar to L</getKeyEvent>, but for mouse events. This internal subroutine 
+checks Turbo Vision's internal mouse event queue, and if a mouse event has 
+occurred, sets $event->{what} to the appropriate C<evMouseXXXX> constant; 
+$event->{buttons} to C<mbLeftButton> or C<mbRightButton>; $event->{double} to 
+C<TRUE> or C<FALSE>; and $event->{where} to the mouse position in TApplication 
+coordinates. If no mouse events have occurred, $event->{what} is set to 
+C<evNothing>.
 
 =head2 gfXXXX
 
@@ -1505,7 +1508,7 @@ TView->growMode field constants
 
 =head3 Purpose
 
-The gfXXXX constants set the TView->growMode field, which controls how a view
+The C<gfXXXX> constants set the TView->growMode field, which controls how a view
 grows in relation to the view that owns it.
 
     Constant      Value     Usage

@@ -93,7 +93,7 @@ sub BUILDARGS {    # \%args (%args)
   return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (| \%args)
+sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{zoomRect} = $self->getBounds();
@@ -358,7 +358,7 @@ __END__
 
 =head1 NAME
 
-TWindow - A class for managing windows in Turbo Vision 2.0.
+TV::Views::Window - a base class for managing windows in Turbo Vision 2.0.
 
 =head1 SYNOPSIS
 

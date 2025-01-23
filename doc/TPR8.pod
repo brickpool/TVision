@@ -48,11 +48,11 @@ variable
 =head3 Purpose
 
 Determines the number of clock ticks that must occur before generating an
-evMouseAuto event. evMouseAuto events are automatically generated while
+evMouseAuto event. C<evMouseAuto> events are automatically generated while
 the mouse button is held down. A clock tick is 1/18.2 seconds, so the
 default value of 8/18.2 is set at approximately 1/2 second.
 
-See: evXXXX constants, $doubleDelay
+B<See>: C<evXXXX> constants, $doubleDelay
 
 =head2 $saveCtrlBreak
 
@@ -72,7 +72,7 @@ This internal variable is set to the state of the DOS Ctrl-break checking
 at program initialization; at program termination, DOS's Ctrl-break
 trapping is restored to the value saved in SaveCtrlBreak.
 
-See: TSystemError->resume, TSystemError->suspend
+B<See>: TSystemError->resume, TSystemError->suspend
 
 =head2 sbXXXX
 
@@ -93,13 +93,13 @@ See: TSystemError->resume, TSystemError->suspend
     sbVertical        0x0001  The scroll bar is vertical.
     sbHandleKeyboard  0x0002  Scroll bar accepts keyboard commands.
 
-Use one of the first 9 sbXXXX constants as a parameter to 
-TScrollBar->scrollStep. The last 3 sbXXXX constants, sbHorizontal, sbVertical, 
-sbHandleKeyboard are used to specify a horizontal, vertical, or keyboard 
-accessible scrollbar when a scroll bar is created using the 
-TWindow->standardScrollBar function.
+Use one of the first 9 C<sbXXXX> constants as a parameter to 
+TScrollBar->scrollStep. The last 3 C<sbXXXX> constants, C<sbHorizontal>, 
+C<sbVertical>, C<sbHandleKeyboard> are used to specify a horizontal, vertical, 
+or keyboard accessible scrollbar when a scroll bar is created using the 
+TWindow->standardScrollBar method.
 
-See: TScrollBar->scrollStep, TScrollBar, TWindow->standardScrollBar
+B<See>: TScrollBar->scrollStep, TScrollBar, TWindow->standardScrollBar
 
 =head2 $screenBuffer
 
@@ -115,7 +115,7 @@ variable
 
 =head3 Purpose
 
-This internal pointer is initialized by InitVideo and keeps track of the
+This internal reference is initialized by initScreen and keeps track of the
 location of the video screen buffer.
 
 =head2 $screenHeight
@@ -135,7 +135,7 @@ variable
 Holds the current height of the screen, in lines. For example, 25, 43 or
 50 would be typical values.
 
-See: TScreen->setVideoMode
+B<See>: TScreen->setVideoMode
 
 =head2 $screenMode
 
@@ -151,10 +151,10 @@ variable
 
 =head3 Purpose
 
-Contains the current video mode as determined by the smXXXX constants
-passed to the SetVideoMode subroutine.
+Contains the current video mode as determined by the C<smXXXX> constants
+passed to the setVideoMode subroutine.
 
-See: TScreen->setVideoMode, smXXXX constants
+B<See>: TScreen->setVideoMode, C<smXXXX> constants
 
 =head2 $screenWidth
 
@@ -183,8 +183,8 @@ subroutine
 
 =head3 Declaration
 
-    sub Devel::Leak::NoteSV;     # $count ($handle)
-    sub Devel::Leak::CheckSV;    # $count ($handle)
+    my $count = Devel::Leak::NoteSV($handle);
+    my $count = Devel::Leak::CheckSV($handle);
 
 =head3 Module
 
@@ -194,13 +194,13 @@ subroutine
 
 L</NoteSV> searches the Perl-internal table of assigned scalar values (which 
 also contains arrays and hashes), and records their addresses in a table. It 
-returns a count of these I<things> and stores a pointer to the table in its 
+returns a count of these I<things> and stores a reference to the table in its 
 argument.
 
-L</CheckSV> is passed an argument containing a pointer to a table created by 
+L</CheckSV> is passed an argument containing a reference to a table created by 
 L</NoteSV>. It runs through the Perl internals again and calls C<sv_dump()> for 
-all I<things> that were not yet present when NoteSV was called. It returns the 
-number of I<things> now assigned. 
+all I<things> that were not yet present when L</NoteSV> was called. It returns 
+the  number of I<things> now assigned. 
 
 This is particularly useful if you want to check your application for memory 
 leaks, as shown in this example code from L<Devel::Leak>:
@@ -212,7 +212,7 @@ leaks, as shown in this example code from L<Devel::Leak>:
   Devel::Leak::CheckSV($handle);
 
 B<Note>: This small Perl utility module is to be used as a replacement for the 
-Pascal implementation of C<SetMemTop>.
+Pascal implementation of I<SetMemTop>.
 
 =head2 selectMode
 
@@ -240,7 +240,7 @@ subroutine
 
 =head3 Declaration
 
-    sub setVideoMode;    # void ($class, $mode)
+    TScreen->setVideoMode($mode);
 
 =head3 Module
 
@@ -254,31 +254,31 @@ monochrome palettes. To change to the color palette, write,
 
     TScreen->setVideoMode( smCO80 );
 
-where smCO80 is one of the smXXXX screen mode constants. Optionally, to select
-43/50 line mode, add the smFont8x8 constant to the color selection constant. 
-For example,
+where C<smCO80> is one of the C<smXXXX> screen mode constants. Optionally, to 
+select 43/50 line mode, add the C<smFont8x8> constant to the color selection 
+constant.  For example,
 
     TScreen->setVideoMode( smMono + smFont8x8 );
 
 Normally, you should use TProgram->setScreenMode, which has the same parameter
 value, to change the screen color or screen size. TProgram->setScreenMode 
 properly handles resetting of the application palettes, repositioning the mouse 
-pointer and so on.
+reference and so on.
 
-See: TProgram->setScreenMode, smXXXX constants
+B<See>: TProgram->setScreenMode, C<smXXXX> constants
 
 =head2 sfXXXX
 
 State Flag constants
 
 Use TView->setState to set the state bits, from the table below, into a
-TView's State field. Example usage:
+TView's state field. Example usage:
 
     $view->setState( sfCursorIns, TRUE );
 
 where the first parameter is the state value to change, and the second
-parameter is TRUE to enable the selected condition, or FALSE to disable the
-selected condition. Some of the bits are not normally set by the programmer
+parameter is C<TRUE> to enable the selected condition, or C<FALSE> to disable 
+the selected condition. Some of the bits are not normally set by the programmer
 but rather by methods in Turbo Vision. You can, however, read and test the
 values in TView->state directly.
 
@@ -310,7 +310,7 @@ values in TView->state directly.
     sfDragging  0x0080  Set whenever the view is being dragged.
     sfDisabled  0x0100  Set if the view has been disabled and is no longer
                         processing events.
-    sfModal     0x0200  Whenever a view is displayed using the ExecView call, 
+    sfModal     0x0200  Whenever a view is displayed using the execView call, 
                         that view becomes a modal view (as compared to a view 
                         that has been inserted into the desktop). This bit is 
                         set when the view is the modal view and controls how 
@@ -321,7 +321,7 @@ values in TView->state directly.
                         TView->exposed to determine if the view is actually 
                         visible.
 
-See: TView->blockCursor, TView->exposed, TView->hide, TView->hideCursor,
+B<See>: TView->blockCursor, TView->exposed, TView->hide, TView->hideCursor,
 TView->normalCursor, TView->setState, TView->show, TView->showCursor
 
 =head2 $shadowAttr
@@ -338,12 +338,12 @@ variable
 
 =head3 Purpose
 
-The $shadowAttr byte contains the video attribute for the color of the
+The L</$shadowAttr> byte contains the video attribute for the color of the
 shadow display on some views and windows. See Chapter 13, "More Turbo
 Vision Features" in the Borland Pascal Developer's Guide for details on
 selecting different colors for video attribute bytes
 
-See: $shadowSize
+B<See>: L</$shadowSize>
 
 =head2 $shadowSize
 
@@ -359,11 +359,11 @@ variable
 
 =head3 Purpose
 
-$shadowSize determines the size of the shadow area on those views that
+L<$shadowSize> determines the size of the shadow area on those views that
 contain a shadow. The default value is 2 characters wide and 1 character
 high.
 
-See: $shadowAttr
+B<See>: L</$shadowAttr>
 
 =head2 $showMarkers
 
@@ -388,9 +388,10 @@ small right and left arrows to highlight the default button:
 
     -> [ Okay ] <-    [Cancel]
 
-When the monochrome color palette is selected, $showMarkers is set to TRUE and
-is normally set False for the other color palettes. If you wish, you can set
-$showMarkers True for both cpColor and cpBlackWhite palettes.
+When the monochrome color palette is selected, L</$showMarkers> is set to 
+C<TRUE> and is normally set C<FALSE> for the other color palettes. If you wish, 
+you can set L</$showMarkers> C<TRUE> for both C<cpColor> and C<cpBlackWhite> 
+palettes.
 
 =head2 show
 
@@ -398,7 +399,7 @@ subroutine
 
 =head3 Declaration
 
-    sub show;    # void ($class)
+    THWMouse->show();
 
 =head3 Module
 
@@ -407,11 +408,11 @@ subroutine
 =head3 Purpose
 
 THWMouse->show is the opposite of the THWMouse->hide. Call THWMouse->hide to 
-hide the mouse cursor and simultaneously increment a "mouse hidden counter". 
+hide the mouse cursor and simultaneously increment a I<mouse hidden counter>. 
 THWMouse->show decrements the counter, and when it reaches zero, makes the
 mouse cursor visible again on the screen.
 
-See: THWMouse->hide
+B<See>: THWMouse->hide
 
 =head2 smXXXX
 
@@ -429,7 +430,7 @@ Chapter 12, and also in Chapter 13 of the Borland Pascal Developer's Guide.
     smMono    0x0004  Monochrome mode
     smFont8x8 0x0100  43 or 50 line modes
 
-See: TScreen->setVideoMode, TScreen->screenMode, TProgram->setScreenMode
+B<See>: TScreen->setVideoMode, TScreen->screenMode, TProgram->setScreenMode
 
 =head2 $specialChars
 
@@ -446,9 +447,9 @@ variable
 =head3 Purpose
 
 These constants define the special marker characters used when the
-$showMarkers variable is set to True.
+L</$showMarkers> variable is set to True.
 
-See: $showMarkers
+B<See>: L</$showMarkers>
 
 =head2 $startupMode
 
@@ -467,7 +468,7 @@ variable
 This internal variable stores the existing screen mode before Turbo Vision
 switches to a new screen mode.
 
-See: TScreen->suspend, screenMode
+B<See>: TScreen->suspend, screenMode
 
 =head2 $statusLine 
 
@@ -483,7 +484,7 @@ variable
 
 =head3 Purpose
 
-$statusLine is initialized by the call to TProgram->initStatusLine. See
+L</$statusLine> is initialized by the call to TProgram->initStatusLine. See
 Chapter 14, Turbo Vision Tutorial for a detailed description of
 initialization a program's status line.
 
@@ -501,15 +502,15 @@ variable
 
 =head3 Purpose
 
-On DOS color displays, $sysColorAttr specifies the attribute bytes for system
-error messages. ($sysMonoAttr specifies the attribute bytes for monochrome). 
-System error messages are DOS critical errors (such as floppy disk drive
-not accessible) and other device type errors. System errors are displayed
+On DOS color displays, L</$sysColorAttr> specifies the attribute bytes for 
+system error messages. (L</$sysMonoAttr> specifies the attribute bytes for 
+monochrome). System error messages are DOS critical errors (such as floppy disk 
+drive not accessible) and other device type errors. System errors are displayed
 on the status line in the color specified by the second part of 
-$sysColorAttr, 0x4F, white on red text. The first part, 0x4E, is used for
-highlighting command keys, such as Enter or Esc.
+L</$sysColorAttr>, C<0x4F>, white on red text. The first part, C<0x4E>, is used 
+for highlighting command keys, such as Enter or Esc.
 
-See: TSystemError->sysErr, $sysMonoAttr, Chapter 13, 
+B<See>: TSystemError->sysErr, L</$sysMonoAttr>, Chapter 13, 
 "More Turbo Vision Features".
 
 =head2 $sysErrActive
@@ -526,7 +527,7 @@ variable
 
 =head3 Purpose
 
-If TRUE, then the DOS system error handler is available for use.
+If C<TRUE>, then the DOS system error handler is available for use.
 
 =head2 $sysErrorFunc
 
@@ -542,15 +543,16 @@ variable
 
 =head3 Purpose
 
-$sysErrorFunc points to the DOS system error handling subroutine. You can
+L</$sysErrorFunc> points to the DOS system error handling subroutine. You can
 override system error handling by writing your own subroutine and assigning it
-to the $sysErrorFunc variable. The default system error handler is defined as,
+to the L</$sysErrorFunc> variable. The default system error handler is defined 
+as,
 
-    sub TV::Drivers::SystemError::sysErr; # $int ($errorCode, $drive)
+    my $int = TSystemError->sysErr($errorCode, $drive);
 
 where $errorCode is a value from the table below, and $drive is the drive number
-(A=1, B=1, C=3, and so on). sysErr should return 0 if the user requests
-to retry the operation or 1 if the user elected to abort the function.
+(A=1, B=1, C=3, and so on). L</sysErr> should return 0 if the user requests
+to retry the operation or 1 if the user elected to abort the method.
 
 =head3 Table of System Error Codes
 
@@ -572,7 +574,7 @@ to retry the operation or 1 if the user elected to abort the function.
     14          Device access error
     15          Drive swap notification (floppy disks have changed)
 
-See: $sysColorAttr, $sysErrActive, $sysErrorFunc, $sysMonoAttr, 
+B<See>: L</$sysColorAttr>, L</$sysErrActive>, L</$sysErrorFunc>, L</$sysMonoAttr>, 
 TSystemError->sysErr, TSystemError->resume
 
 =head2 $sysMonoAttr
@@ -581,7 +583,7 @@ variable
 
 =head3 Declaration
 
-    my $sysMonoAttr = 0x7070;
+    our $sysMonoAttr = 0x7070;
 
 =head3 Module
 
@@ -589,22 +591,22 @@ variable
 
 =head3 Purpose
 
-On DOS monochrome displays, $sysMonoAttr specifies the attribute bytes for
-system error messages. ($sysColorAttr specifies the attribute bytes for
+On DOS monochrome displays, L</$sysMonoAttr> specifies the attribute bytes for
+system error messages. (L</$sysColorAttr> specifies the attribute bytes for
 color). System error messages are DOS critical errors (such as floppy disk
-drive not accessible) and other device type errors. See $sysColorAttr for
+drive not accessible) and other device type errors. See L</$sysColorAttr> for
 more information about the attribute values.
 
-See: $systemError, $sysColorAttr, Chapter 13, "More Turbo Vision Features"
+B<See>: L</sysErr>, L</$sysColorAttr>, Chapter 13, "More Turbo Vision Features"
 in Borland Pascal Developer's Guide.
 
 =head2 sysErr
 
-function
+subroutine
 
 =head3 Declaration
 
-    sub sysErr; # $int ($errorCode, $drive)
+    my $int = TSystemError->sysErr($errorCode, $drive);
 
 =head3 Module
 
@@ -612,33 +614,49 @@ function
 
 =head3 Purpose
 
-This function handles system errors (such as DOS critical errors). See
-$sysErrorFunc for details on the parameters and their values. 
+This method handles system errors (such as DOS critical errors). See
+L</$sysErrorFunc> for details on the parameters and their values. 
 TSystemError->sysErr returns 0 if the user requests that the operation be 
 retried, and 1 if the user elects to cancel the operation.
 
-See: $sysErrorFunc
+B<See>: L</$sysErrorFunc>
 
 =head2 TApplication
 
-object
+    .------------------+-------------------------------------------------------.
+    | module           | TV::App::Application                                  |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::App::Program                                      |
+    | classes          | TV::Views::Group                                      |
+    |                  | TV::Views::View                                       |
+    |                  | TV::Objects::Object                                   |
+    |                  | TV::App::ProgInit                                     |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD()                                               |
+    |                  | DEMOLISH()                                            |
+    |                  | TApplication()                                        |
+    |                  | new_TApplication()                                    |
+    |                  | resume()                                              |
+    |                  | suspend()                                             |
+    '------------------+-------------------------------------------------------'
 
 =head3 Turbo Vision Hierarchy
 
     TObject
-      TView
-        TGroup
-          TProgram
-            TApplication
+        TView
+            TGroup
+                TProgram
+                    TApplication
 
 =head3 Discussion
 
 The TApplication object is the generic application from which most of the Turbo 
-Vision programs you write will be derived.  For examples, see the C<tvshell> 
+Vision programs you write will be derived.  For examples, see the C<TVSHELL> 
 sample programs of Chapters 11-12 in the Borland Pascal Developer's Guide.  As 
 shown in Listing 11.1 (of the Developer's Guide), TShell is defined as an 
 instance of TApplication.  TApplication is nearly identical to TProgram; the 
-only difference is in the BUILD, resume and DEMOLISH, suspend methods.
+only difference is in the I<BUILD>, L</resume> and I<DEMOLISH>, L</suspend> 
+methods.
 
 =head3 Commonly Used Features
 
@@ -656,11 +674,11 @@ are available to TApplication objects.
   use TV::Drivers;
   use TV::Menus;
   use TV::toolkit;
-
+  
   extends TApplication;
-
+  
   use constant cmRunProgram => 1000;
-
+  
   # Purpose: Defines the pulldown menus used in Shell
   sub initMenuBar {
     my ( $class, $bounds ) = @_;
@@ -670,7 +688,7 @@ are available to TApplication objects.
         new_TMenuItem( '~R~un', cmRunProgram, 0, hcNoContext )
     );
   }
-
+  
   # Purpose: Defines the status line that is displayed in the bottom line of 
   # the screen within TShell
   sub initStatusLine {
@@ -684,9 +702,9 @@ are available to TApplication objects.
         new_TStatusItem( '~F3~ Close',   kbF3,   cmClose )
     );
   }
-
+  
   package main;
-
+  
   # Create an instance of the TShell object
   my $shell = TShell->new();
   $shell->run();
@@ -697,19 +715,1320 @@ None
 
 =head3 Methods
 
-=head4 BUILD
+=head4 new
+
+    my $app = TApplication->new();
 
 Calls initHistory.
 
-=head4 DEMOLISH
+=head4 DESTROY
+
+    $self->DESTROY();
 
 Calls doneHistory.
 
 =head4 resume
 
+    $self->resume();
+
 Calls TSystemError->resume(), TEventQueue->resume(), TScreen->resume().
 
 =head4 suspend
 
+    $self->suspend();
+
 Calls TSystemError->suspend(), TEventQueue->suspend(), TScreen->suspend(), 
 TVMemMgr->suspend().
+
+=head2 TBackground
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::App::Background                                   |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::Views::View                                       |
+    | classes          | TV::Objects::Object                                   |
+    +------------------+-------------------------------------------------------+
+    | fields           | pattern                                               |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD()                                               |
+    |                  | BUILDARGS()                                           |
+    |                  | TBackground()                                         |
+    |                  | draw()                                                |
+    |                  | from()                                                |
+    |                  | getPalette()                                          |
+    |                  | new_TBackground()                                     |
+    |                  | pattern()                                             |
+    '------------------+-------------------------------------------------------'
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TBackground
+
+=head3 Discussion
+
+L</TBackground> contains the background pattern that forms the backdrop of
+most Turbo Vision applications.  L</TBackground> is automatically initialized
+by the L</TDeskTop> object that owns all of the application views.  
+
+=head3 Commonly Used Features
+
+Normally, you will have no need to directly use the L</TBackground> object. 
+However, if you wish to create a different background object, you will
+need to override TProgram.InitDeskTop, to instantiate a new L</TDeskTop> with
+an overridden TDeskTop->initBackground method.  L</initBackground>, in turn,
+creates the new L</TBackground> object by calling L</TBackground>.new to specify
+a new background pattern.
+
+=head3 Example
+
+   1  # DEMOTBAC.pl
+   2  # program demo TBackground
+   3  
+   4  use 
+   5    TV::Objects; use TV::App; use TV::Views;
+   6  
+   7  { 
+   8    package TSampleProgram; use parent ::TApplication;
+   9      sub initDeskTop;
+  10  }
+  11  
+  12  {
+  13    package TNewDeskTop; use parent ::TDeskTop;
+  14      sub initBackground;
+  15  }
+  16  
+  17  my
+  18    $sampleProgram;
+  19  
+  20  
+  21  sub TNewDeskTop::initBackground { shift;
+  22  my (
+  23    $bounds,
+  24    $temp,
+  25  );
+  26    # Program never gets here ????
+  27    $bounds = shift;
+  28    $temp = TBackground->new(
+  29      bounds => $bounds, pattern => chr( 0xFF ) );
+  30    return $temp;
+  31  }
+  32  
+  33  
+  34  sub TSampleProgram::initDeskTop { shift;
+  35  my (
+  36    $bounds,
+  37  ) = @_;
+  38    $bounds->{a}{y}++; $bounds->{b}{y}--;
+  39    return TNewDeskTop->new( bounds => $bounds );
+  40  }
+  41  
+  42  
+  43  package main;
+  44    with: for ( $sampleProgram )
+  45    {
+  46      $_ = TSampleProgram->new;
+  47      $_->run;
+  48      $_ = undef;
+  49    }
+  50  exit;
+  51  
+
+=head3 Fields
+
+=head4 pattern
+
+    has pattern => ( is => 'rw', type => Str );
+
+Contains the bit pattern describing the background's appearance.  This
+value is initialized by TDeskTop->initBackground calling TBackground->init.
+
+=head3 Methods
+
+=head4 draw
+
+    $self->draw();
+
+Using the palette returned by getPalette, draws the background using the
+specified pattern.  You can override this method to create a new type of
+background, say perhaps one containing text or boxes or what ever you
+desire.  To do that, derive a new L</TDeskTop> object and a new L</TBackground>
+object, using the method outline in the sample Listing above, and override
+TBackground->draw to display the background in the format that your
+require.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object to the C<cpBackground> color palette.  To change the 
+color scheme, you need to override this method (see TBackground->draw, above).
+
+=head4 new
+
+    my $background = TBackground->new(bounds => $bounds, pattern => $pattern);
+
+Call TBackground->new via TDeskTop->initBackground, to create a new
+background object of the size specified by $bounds, and having the
+replicated bit pattern indicated by $aPattern. 
+
+B<See>: TDeskTop->initBackground
+
+=head2 TButton
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TButton
+
+=head3 Discussion
+
+Use the TButton object to place button controls into dialog boxes.  Each
+time that a button is I<pressed> by clicking on it with the mouse, or using
+a keyboard shortcut key or tabbing to the button and pressing SpaceBar or
+Enter, the button generates a C<cmXXXX> command.
+
+=head3 Commonly Used Features
+
+Generally, you need only I<new> a TButton object and insert it in to the
+owning TGroup, which is typically a L</TDialog>.  You rarely need to override
+any of its methods or reference its fields.
+
+=head3 Example
+
+  for ( $dialog )
+  {
+    # Create the Okay and Cancel buttons
+    $bounds = new_TRect( 7, 10, 16, 12 );
+    $_->insert( new_TButton( $bounds, '~O~kay', cmOk,
+      bfDefault )));
+    $bounds = new_TRect( 24, 10, 33, 12 );
+    $_->insert( new_TButton( $bounds, '~C~ancel', cmCancel,
+      bfNormal )));
+    ...
+  } #/ for ( $dialog)
+  $control = $deskTop->execView( $dialog );
+
+=head3 Fields
+
+=head4 amDefault
+
+    has amDefault => ( is => 'ro', isa => Bool );
+
+When C<TRUE>, this button is the default button, and when C<FALSE>, this is a
+normal button.
+
+=head4 command
+
+    has command => ( is => 'ro', isa => Int );
+
+Holds the command code value that is generated when the button is pressed.
+
+=head4 flags
+
+    has flags => ( is => 'ro', isa => Int );
+
+The flags byte is a bit mapped field indicating if the label text is left
+justified or center, and if the button is the default button in the group,
+or is a normal, non-default button.  See C<bfXXXX> constants
+
+=head4 title
+
+    has title => ( is => 'ro', isa => Str );
+
+Points the string containing the button's label text.
+
+=head3 Methods
+
+=head4 DESTROY
+
+    $self->DESTROY();
+
+Delete the scalar from title and calls TView->DEMOLISH.
+
+=head4 draw
+
+    $self->draw();
+
+I<Override>: If needed.
+
+Draws the button using the palette returned by L</getPalette>, and by
+referencing the L</flags>, L</amDefault> and TView->state fields to display the
+button as a normal button, default button or disabled button, with left
+justified or centered title.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+I<Override>: If needed.
+
+Returns a TPalette object to the C<cpButton> color palette, but can be 
+overridden to provide other color choices.  C<cpButton> entries are intended to 
+map into the C<cpDialog> palette.  If, for some reason the TButton is not 
+inserted into a TDialog group, you will almost certainly have to override this 
+method.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+I<Override>: If needed.
+
+Processes events received by the button.  These include mouse clicks,
+keyboard short cut keys, Enter, SpaceBar, and several internal commands
+used to process C<evBroadcast> messages notifying buttons when the default
+button changes.
+
+=head4 new
+
+    my $button = TButton->new(bounds => $bounds, title => $aTitle, 
+        command => $aCommand, flags => $aFlags);
+
+new is the only method that you are likely to use for the TButton object.
+Use new to create a button with a size and location specified in $bounds,
+and a button label specified by $aTitle.  Pass the C<cmXXXX> command constant
+to $aCommand, to be returned if the button is pressed.  For the $aFlags
+parameter, you can pass one of the C<bfXXXX> constants to initialize this
+button as the C<bfDefault> or C<bfNormal> button, and can optionally or one of
+the constants with C<bfLeftJustify> left justify the button label instead of
+using the centering default. 
+
+=head4 makeDefault
+
+    $self->makeDefault($enable);
+
+Call a button's L</makeDefault> method to force the button to become the
+default button, by setting Enable to C<TRUE>.  If Enable is C<FALSE>, the
+default status of this button is removed.   Normally, this is handled
+internally to the L</TDialog> object that owns the button.
+
+=head4 setState
+
+    $self->setState($aState, $enable);
+
+If needed, call this method to change the TView->state field inherited from
+TView.  If the button becomes C<sfSelected> or C<sfActive>, L</setState>
+automatically handles making the button the default or non-default, as
+needed.
+
+=head2 TCheckBoxes
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TCluster
+                TRadioButtons
+                TCheckBoxes
+          
+=head3 Discussion
+
+Use L</TCheckBoxes> to implement groups of check box controls in dialogs. 
+Each group can have up to 16 check boxes, any number of which may be
+I<checked> at the same time.  See Chapter 11, "Turbo Vision Tutorial" in
+the Borland Pascal Developer's Guide contains a tutorial on the creation
+and use of the L</TCheckBoxes> object.
+
+=head3 Commonly Used Features
+
+Normally, you create groups of checkboxes using the inherited BUILD/BUILDARGS 
+method. Rarely will you have a need to use or override the other methods.
+
+B<See>: L</TCluster>, TRadioButtons
+
+=head3 Fields
+
+None
+
+=head3 Methods
+
+=head4 draw
+
+    $self->draw();
+
+Draws the checkboxes by calling TCluster->drawBox and sets each checkbox
+indicator to C<[ ]> if the item is not checked, and to C<[X]> if the item
+is checked.  See TCluster->drawBox for instructions on using that method to
+draw the indicators.  You only need to override this method if you plan to
+use a different type of indicator for checkboxes.
+
+=head4 mark
+
+    my $bool = $self->mark($item);
+
+The items in the check box cluster are numbered from 0 up to a maximum of
+15 items.  By passing the item number corresponding to a specific check
+box, you can test to see if the Item'th check box has been set to 
+C<[X]>.
+
+B<See>: TCheckBox->press
+
+=head4 press
+
+    $self->press($item);
+
+press sets or clears a check box item.  Like mark, the parameter $item
+specifies which of the check boxes, from 0 up to a maximum of 15 to set or
+clear.  Press toggles the check box:  if the checked box is already
+checked, then Press clears it and vice versa.
+
+B<See>: TCheckBox->mark
+
+=head2 TCluster
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TCluster
+                TRadioButtons
+                TCheckBoxes
+
+=head3 Discussion
+
+The L</TCluster> objects are used to create groups of dialog box controls.  
+Both TRadioButtons and L</TCheckBoxes> inherit almost all of their
+functionality from L</TCluster> due to their strong similarities.  
+
+=head3 Commonly Used Features
+
+Generally, you will use either TRadioButtons or L</TCheckBoxes> and directly
+insert those controls into dialogs.  While L</TCluster> provides several
+fields and methods, these are primarily of interest if you are building a
+new cluster-type control.
+
+=head3 Fields
+
+=head4 sel
+
+    has sel => ( is => 'ro', isa => Int );
+
+L</sel> indicates which of the buttons or check boxes is currently the active
+one.
+
+=head4 strings
+
+    has strings => ( is => 'ro', isa => TStringCollection );
+
+L</strings> is a collection containing the text of all the items in the
+control group.
+
+=head4 value
+
+    has value => ( is => 'ro', isa => Int );
+
+L</value> holds the current setting of the control.  For L</TCheckBoxes>, 
+L</value> is a bit pattern where each bit indicates the state of a checked box, 
+and for TRadioButtons, L</value> is the item number of the button that is 
+pressed.
+
+=head3 Methods
+
+=head4 DESTROY
+
+    $self->DESTROY();
+
+Disposes of the L</strings> collection and calls TView->DEMOLISH.
+
+=head4 dataSize
+
+    $int = $self->dataSize();
+
+This method is used in conjunction with L</getData> and L</setData>, to obtain
+the size of L</value>.
+
+=head4 drawBox
+
+    $self->drawBox($icon, $marker);
+
+L</drawBox> draws the status indicator for each check box or icon and is
+called by TCheckBoxes->draw or TRadioButtons->draw.  The $icon parameter
+holds C<[ ]> for check boxes, or C<( )> for radio buttons.  $marker contains
+the character to indicate the item is selected (for example, C<x> for
+checkboxes). 
+
+=head4 getData
+
+    $self->getData(\@rec);
+
+Used to copy the value field to $rec when retrieving dialog data.
+
+=head4 getHelpCtx
+
+    my $int = $self->getHelpCtx();
+
+Returns C<helpCtx + sel>, where L</sel> is the current active item in the
+cluster.  Using this method you can produce context sensitive help for
+individual items in each cluster.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object to C<cpCluster> color palette.  Override this method 
+to implement a different color scheme for cluster items.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+Handles selection of cluster items through the keyboard movement keys and
+SpaceBar (to toggle a selection).  Other events are passed through to
+TView->handleEvent.
+
+=head4 new
+
+    my $cluster = TCluster->new(bounds => $bounds, strings => $sItem);
+
+Use new and nested calls to new_TSItem to create an entire list of cluster
+items within the area described by $bounds.  Normally, TCluster->new is
+called via the derived objects TRadioButtons->new or TCheckBoxes->new, as
+shown in this example:
+
+    $bounds->assign( 24, 2, 40, 5);
+    $colorOptions = new_TRadioButtons( $bounds,
+                new_TSItem('~C~olor' ) +
+                new_TSItem('~M~onochrome ) +
+                new_TSItem('~B~&W )
+            );
+    $self->insert( $colorOptions );
+    $bounds->assign( 24, 1, 40, 2);
+    $self->insert( new_TLabel( $bounds, 'Color schemes',
+        $colorOptions ) );
+
+=head4 mark
+
+    my $bool = mark($item);
+
+L</mark> is always overridden by the object that is derived from L</TCluster> 
+and is used to obtain the setting of the $item'th control in the cluster.  If
+the $item'th control is set, as for example, a check box is currently selected, 
+then L</mark> should return C<TRUE>.  If the control is not currently set, then 
+L</mark> should return C<FALSE>.
+
+B<See>: TCheckBoxes->mark, TRadioButtons->mark
+
+=head4 movedTo
+
+    $self->movedTo($item);
+
+L</movedTo> moves the active location within the cluster to the $item'th
+control.
+
+=head4 press
+
+    $self->press($item)
+
+L</press> is always overridden by L</TCluster> descendants to set or clear a 
+check box item, or to set or clear a specific radio button.  
+
+=head4 setData
+
+    $self->setData(\@rec);
+
+L</setData> copies value field from Rec and draw's the cluster.  L</setData> is
+used in conjunction with L</getData> to access the dialog data.  See Chapter
+12, "Turbo Vision List Boxes" in the Borland Pascal Developer's Guide for
+an example.
+
+=head4 setState
+
+    $self->setState($aState, $enable);
+
+TCluster->setState passes its parameters to TView->setState, and if the
+view's state is C<sfSelected>, then calls TView->drawView.
+
+=head2 TCollection
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::Objects::Collection                               |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::Objects::NSCollection                             |
+    | classes          | TV::Objects::Object                                   |
+    +------------------+-------------------------------------------------------+
+    | fields           | items [TV::Objects::NSCollection]                     |
+    |                  | count [TV::Objects::NSCollection]                     |
+    |                  | limit [TV::Objects::NSCollection]                     |
+    |                  | delta [TV::Objects::NSCollection]                     |
+    |                  | shouldDelete [TV::Objects::NSCollection]              |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD() [TV::Objects::NSCollection]                   |
+    |                  | BUILDARGS() [TV::Objects::NSCollection]               |
+    |                  | DEMOLISH() [TV::Objects::NSCollection]                |
+    |                  | TCollection()                                         |
+    |                  | at() [TV::Objects::NSCollection]                      |
+    |                  | atFree() [TV::Objects::NSCollection]                  |
+    |                  | atInsert() [TV::Objects::NSCollection]                |
+    |                  | atPut() [TV::Objects::NSCollection]                   |
+    |                  | atRemove() [TV::Objects::NSCollection]                |
+    |                  | count() [TV::Objects::NSCollection]                   |
+    |                  | delta() [TV::Objects::NSCollection]                   |
+    |                  | error() [TV::Objects::NSCollection]                   |
+    |                  | firstThat() [TV::Objects::NSCollection]               |
+    |                  | forEach() [TV::Objects::NSCollection]                 |
+    |                  | free() [TV::Objects::NSCollection]                    |
+    |                  | freeAll() [TV::Objects::NSCollection]                 |
+    |                  | from() [TV::Objects::NSCollection]                    |
+    |                  | indexOf() [TV::Objects::NSCollection]                 |
+    |                  | insert() [TV::Objects::NSCollection]                  |
+    |                  | items() [TV::Objects::NSCollection]                   |
+    |                  | lastThat() [TV::Objects::NSCollection]                |
+    |                  | limit() [TV::Objects::NSCollection]                   |
+    |                  | name()                                                |
+    |                  | new_TCollection()                                     |
+    |                  | pack() [TV::Objects::NSCollection]                    |
+    |                  | remove() [TV::Objects::NSCollection]                  |
+    |                  | removeAll() [TV::Objects::NSCollection]               |
+    |                  | setLimit() [TV::Objects::NSCollection]                |
+    |                  | shouldDelete() [TV::Objects::NSCollection]            |
+    |                  | shutDown() [TV::Objects::NSCollection]                |
+    '------------------+-------------------------------------------------------'
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TCollection
+            TSortedCollection
+            TStringCollection
+
+=head3 Discussion
+
+Collections provide a mechanism for storing and accessing arbitrary
+collections of data.  You can think of a collection as working like a
+dynamically sizeable array of data, that can be enlarged as your data
+requirements increase.  Several specialized collections are derived from
+TCollection, including TSortedCollection, TStringCollection and
+TResourceCollection.  The latter is used internally to the resource file
+mechanism and is not generally used by application programs.
+
+While collections are defined within Turbo Vision, you can also use
+collections in standard, non-Turbo Vision applications.
+
+In the description of the methods below, each method using an index
+parameter checks to insure that the index is in the valid range between 0
+and L</count> (the number of items in the collection).  If the index is out
+range, these methods call TCollection->error which, by default, halts the
+program with a run time error.  You can trap any collection error by
+overriding L</error> in your derived collection.
+
+B<See>: Chapter 14, "Collections" in the Borland Pascal Developer's Guide
+for complete details and a tutorial on the use of the TCollections object
+type.
+
+=head3 Commonly Used Features
+
+TCollection->count field, TCollection->new, the access methods L</at>, 
+L</atPut>, L</atRemove>, L</atFree>, the iterators L</firstThat>, L</forEach> 
+and L</lastThat>, the L</indexOf> method.
+
+=head3 Example
+
+See Chapter 14, "Collections" in the Borland Pascal Developer's Guide, for
+several examples.
+
+=head3 Fields
+
+=head4 count
+
+    has count => ( is => 'rw', isa => Int );
+
+Holds the number of items currently stored in the collection.
+
+=head4 delta
+
+    has delta => ( is => 'rw', isa => Int );
+
+Because one of the features of collections is that they can grow, L</delta>
+holds the number of elements by which the collection should be enlarged
+when the L</count> reaches the current maximum size specified by L</limit>.
+
+When this occurs, L</limit> is increased by L</delta> and additional space is 
+allocated  for the necessary item references.  Generally, L</limit> should 
+initially be set to a sufficient size for most operations on the collection, 
+and L</delta> should be set large enough so that expansion of the collection 
+occurs  infrequently to avoid the fairly intensive overhead of dynamically 
+resizing the collection.
+
+B<See>: TCollection->new, TCollection->limit, TCollection->items
+
+=head4 items
+
+    has items => (is => 'rw', isa => TItemList );
+
+L</items> points to an array that contains references to the individual items in
+the collection.
+
+=head4 limit
+
+    has limit => ( is => 'rw', isa => Int );
+
+Holds the current number of elements allocated to the collection.
+
+B<See>: delta, TCollection->new
+
+=head3 Methods
+
+=head4 at
+
+    my $item = $self->at($index);
+
+Use L</at> to access the collection as if it were an array.  
+
+L<at($index)|/at> returns a scalar (reference) to the $index'th item in the 
+array, where $index ranges from 0 up to count.  
+
+B<See>: TCollection->indexOf() as the inverse of L</at>
+
+=head4 atFree
+
+    $self->atFree($index);
+
+L</atFree> works like L</atRemove>, except that the specific item being 
+weakened is also deleted of.  If you do not need to retain a reference to the 
+specific item in the collection for future processing, you will probably want 
+to use L</atFree> in place of L</atRemove> for deleting items from the 
+collection. 
+
+B<See>: TCollection->atRemove, TCollection->remove, TCollection->free
+
+=head4 atInsert
+
+    $self->atInsert($index, $item | undef);
+
+L</atInsert> puts a new $item into the collection at the $index location by
+sliding all of the following items over by one position.  If adding the 
+new element would exceed the size of the collection, TCollection->setLimit 
+is called to automatically expand the size.
+
+B<See>: TCollection->at, TCollection->atPut, TCollection->setLimit
+
+=head4 atPut
+
+    $self->atPut($index, $item | undef);
+
+Use L</atPut> when you need to replace an existing item with a new item. 
+L</atPut> copies the new $item reference to the location specified by $index.
+
+=head4 atRemove
+
+    $self->atRemove($index);
+
+L</atRemove> deletes the item at the location specified by $index, and slides
+all of the following items in the collection over to fill in the now
+vacant hole and decrements L</count> by 1.  L</atRemove> does weaken the 
+actual item that was in the location.  Therefore, be sure to save a 
+reference to the item first, and then to separately remove of the specific 
+item using C<undef>. 
+
+B<See>: TCollection->atFree, TCollection->remove, TCollection->free
+
+=head4 DESTROY
+
+    $self->DESTROY();
+
+Do not call the L</DESTROY> method of a collection to dispose all elements and 
+free the memory used by the collection. This is done automatically if the scope 
+is exited and the reference counter goes to 0.
+
+=head4 error
+
+    $self->error($code, $info);
+
+I<Override>: As needed.
+
+All collection errors result in a call to L</error>, with error information
+passed in $code and $info.
+
+B<See>: coXXXX constants.
+
+=head4 firstThat
+
+    my $item | undef = $self->firstThat(\&Test, $arg | undef);
+
+L</firstThat> is one of the iterator functions and is normally used to search
+through the collection for a specific item.  $Test should point to a
+locally defined sub code reference, returning C<TRUE> when it matches the 
+search pattern and C<FALSE> otherwise.  For each item in the collection until
+finding a match, L</firstThat> calls the $Test method.
+
+B<See>: Chapter 14, "Collections" for a detailed example.
+
+=head4 forEach
+
+    $self->forEach(\&action, $arg | undef);
+
+L</forEach> is an iterator method to scan through every item in the
+collection, and call the sub specified by the $action reference,
+passing to it a reference to each individual item.  
+
+B<See>: Chapter 14, "Collections" for a detailed example.
+
+=head4 free
+
+    $self->free($item);
+
+This method is similar to L</remove>, except that L</free> also disposes of the
+memory occupied by the $item.  L</free> is equivalent to calling,
+
+    $self->remove($item);
+    $self->freeItem($item);
+
+Although, Borland recommends not calling L</freeItem> directly.
+
+B<See>: TCollection->atFree, TCollection->atRemove, TCollection->remove,
+TCollection->freeAll
+
+=head4 freeAll
+
+    $self->freeAll();
+
+Delete of each item in the collection and sets L</count> to 0.
+
+=head4 indexOf
+
+     my $index = $self->indexOf($item | undef);
+
+Given a reference to an $item, L</indexOf> returns the index position in the
+collection where the $item is located.  L</indexOf> is the opposite of
+L<at($index)|/at> which returns a reference to the item.
+
+B<See>: TCollection->at
+
+=head4 new
+
+    my $collection = TNSCollection->new(limit => $aLimit, delta => $aDelta);
+
+TCollection->new creates a new collection with space initially allocated
+for the number of elements specified by $aLimit, and the ability to
+dynamically increase the size of the collection in $aDelta increments.
+
+B<See>: maxCollectionSize
+
+=head4 insert
+
+    $self->insert($item);
+
+Inserts or adds the specified $item to the end of the collection and is
+equivalent to calling $c->atInsert($item, $c->count).
+
+B<See>: TCollection->atInsert
+
+=head4 lastThat
+
+    my $item | undef = $self->lastThat(\&Test, $arg | undef);
+
+L</lastThat> searches backwards through the collection, beginning at the last
+item and moving forwards.  For each item, L</lastThat> calls the sub reference
+specified by $Test, until $Test returns a C<TRUE> result.  By having $Test point
+to a sub reference that makes a comparison between a search criteria and an
+item in the collection, you can use L</lastThat> to quickly scan backwards in
+a collection.
+
+B<See>: TCollection->firstThat, TCollection->forEach
+
+=head4 pack
+
+    $self->pack();
+
+Use L</pack> to eliminate all undefined references that may have been stored 
+into the collection.
+
+=head4 remove
+
+    $self->remove($item);
+
+The $items in a collection can be accessed via their index location or by
+way of the reference to the item.  When you have a reference to an item and 
+wish to remove it, you can call L<remove($item)|/remove> directly.  
+Alternatively, you can use the L<indexOf()|/indexOf> method to translate the 
+reference into an index value and then use L</atRemove>, like this,
+
+    $self->atRemove( $self->indexOf( $item ) );
+
+After an item is deleted, L</count> is decremented by 1.
+
+B<See>: TCollection->atRemove, TCollection->atFree, TCollection->free,
+TCollection->indexOf
+
+=head4 removeAll
+
+    $self->removeAll();
+
+Sets L</count> to 0, effectively deleting all L</items> in the collection.
+
+B<See>: TCollection->atRemove, TCollection->remove
+
+=head4 setLimit
+
+    $self->setLimit($aLimit);
+
+Use L</setLimit> to manually adjust the number of elements allocated to the
+collection.  L</setLimit> operates by allocating a new L</items> array and 
+copying the appropriate number of elements from the old L</items> array into 
+the new array.
+
+B<See>: TCollection->items, TCollection->limit
+
+=head2 TCommandSet 
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::Views::CommandSet                                 |
+    +------------------+-------------------------------------------------------+
+    | methods          | TCommandSet()                                         |
+    |                  | clone()                                               |
+    |                  | disableCmd()                                          |
+    |                  | enableCmd()                                           |
+    |                  | equal()                                               |
+    |                  | exclude()                                             |
+    |                  | from()                                                |
+    |                  | has()                                                 |
+    |                  | include()                                             |
+    |                  | intersect()                                           |
+    |                  | intersect_assign()                                    |
+    |                  | isEmpty()                                             |
+    |                  | new()                                                 |
+    |                  | new_TCommandSet()                                     |
+    |                  | not_equal()                                           |
+    |                  | union()                                               |
+    |                  | union_assign()                                        |
+    +------------------+-------------------------------------------------------+
+    | overloads        | (!=()                                                 |
+    |                  | (&()                                                  |
+    |                  | (&=()                                                 |
+    |                  | ((()                                                  |
+    |                  | ()()                                                  |
+    |                  | (+=()                                                 |
+    |                  | (-=()                                                 |
+    |                  | (==()                                                 |
+    |                  | (|()                                                  |
+    |                  | (|=()                                                 |
+    '------------------+-------------------------------------------------------'
+
+=head3 Declaration:       
+    
+    package TV::Views::CommandSet;
+    sub new {
+      bless [ ( 0 ) x 32 ] => shift;
+    }
+
+=head3 Module
+
+    TV::Views::CommandSet
+
+=head3 Purpose
+
+In Turbo Vision, command codes are assigned values from 0 to 65535, with
+values in the range of 0 to 255 reserved for items that can be selectively
+disabled.  L</TCommandSet> is used to hold a set of up to 256 commands,
+specifically those that can be disabled, and is used as a parameter for the
+TView methods, enableCommands, disableCommands, getCommands and setCommands.
+
+Listing C<TCMDSET> illustrates the use of a TCommandSet object.
+
+   1  # TCMDSET.pl
+   2  # Example using TCommandSet; from TVSHELL8.PAS
+   3  
+   4    my $commandsOn = TCommandSet->new()
+   5    my $commandsOff = TCommandSet->new();
+   6    ...
+   7    $commandsOn += cmUseDOS + cmDelete;
+   8    $commandsOff = $commandsOn->clone();
+   9  
+  10    if ( ( $setUpData->progOptions & 2 ) == 2 ) {
+  11      $commandsOff -= cmUseDOS;
+  12    }
+  13    if ( ( $setUpData->progOptions & 4 ) == 4 ) {
+  14      $commandsOff -= cmDelete;
+  15  
+  16    $commandsOn = $commandsOn - $commandsOff;
+  17  
+  18    $self->disableCommands( $commandsOff );
+  19    $self->enableCommands( $commandsOn );
+
+
+=head2 TDeskTop
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::App::DeskTop                                      |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::Views::Group                                      |
+    |                  | TV::App::DeskInit                                     |
+    | classes          | TV::Views::View                                       |
+    |                  | TV::Objects::Object                                   |
+    +------------------+-------------------------------------------------------+
+    | fields           | background                                            |
+    |                  | tileColumnsFirst                                      |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD()                                               |
+    |                  | BUILDARGS()                                           |
+    |                  | TDeskTop()                                            |
+    |                  | background()                                          |
+    |                  | cascade()                                             |
+    |                  | from()                                                |
+    |                  | handleEvent()                                         |
+    |                  | initBackground()                                      |
+    |                  | name()                                                |
+    |                  | new_TDeskTop()                                        |
+    |                  | shutDown()                                            |
+    |                  | tile()                                                |
+    |                  | tileColumnsFirst()                                    |
+    |                  | tileError()                                           |
+    '------------------+-------------------------------------------------------'
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+        TGroup
+            TDeskTop
+            TWindow
+            TProgram
+
+=head3 Discussion
+
+Each application has one L</TDeskTop> object, pointed to by the global
+variable, $deskTop, that controls the area on the screen between the menu
+bar and the status line. The L</TDeskTop> object owns the L</TBackground> that
+forms the backdrop for the screen, and typically owns other windows and
+dialogs that become inserted into the desktop during program execution.  
+
+=head3 Commonly Used Features
+
+L</TDeskTop> provides two functions for rearranging the windows:  L</cascade> 
+and L</tile>.  Most applications will not need to manipulate the L</TDeskTop> 
+object other than to insert windows and control the operation of dialogs through
+the inherited execView method.  If you wish to change the background
+object, you'll need to derive a new L</TDeskTop> object and override the
+L</initBackground> method described below.
+
+=head3 Example
+
+Windows used by the application are normally inserted into the L</TDeskTop>
+object.  For example, the C<TVSHELL> sample program (see Chapters 11-12 of
+the Borland Pascal Developer's Guide) creates and inserts a directory
+window using the global $deskTop reference, like this:
+
+  $self->getExtent( $bounds );
+  $bounds->{b}{y} = $bounds->{b}{y} - 2;  # We leave space for the status
+                                          # line
+  my $dirWindow = new_TDirectoryWindow( $bounds, 'Directory Listing', 0 );
+  $deskTop->insert($dirWindow);
+
+Modal dialog boxes are displayed on the desktop by calling the execView
+method, like this:
+
+  # Let the user fiddle with the dialog box
+  my $control = $deskTop->execView( $dialog );
+  if ( $control != cmCancel )
+  {
+    $dialog->getData( $self->setUpData );
+    ...
+  }
+
+Non-modal dialog boxes are treated the same as a window and are inserted
+directly using Insert, as shown in the directory window example above.
+
+For an example of deriving a L</TDeskTop> object to implement a new
+background, see L</TBackground>.
+
+=head3 Fields
+
+=head2 background
+
+    has background => ( is => 'rw', isa => TBackground );
+
+Points to the L</TBackground> object owned by this L</TDeskTop> (note: This 
+field is omitted from the Borland documentation).
+
+=head2 tileColumnsFirst
+
+    has tileColumnsFirst => ( is => 'rw', isa => Bool );
+
+=head3 Methods
+
+=head4 cascade
+
+    $self->cascade($r);
+
+Calling cascade method a I<cascade effect> of all the windows currently
+owned by the desktop.  The effect is identical to that used by the Borland DOS 
+IDE editor when multiple files are opened:  the window that appears farthest
+to the back is drawn to occupy the entire screen, and then each subsequent
+window is sized and positioned such that its upper left corner appears one
+line down and one character to the right of the window behind it.  
+
+B<See>: TDeskTop->tile
+
+=head4 new
+
+    $deskTop = TDeskTop->new(bounds => $bounds);
+
+new creates a new L</TDeskTop> with the size and position given by $bounds,
+and then calls L</initBackground> to create a new L</TBackground> object.
+
+B<See>: TBackground, TDeskTop->initBackground
+
+=head4 initBackground
+
+    my $background = TDeskTop->initBackground($r);
+
+I<Override>: As needed to create new L</TBackground> objects
+
+L</initBackground> calls TBackground->new to instantiate a new background
+object, and sets L</background> to point to the L</TBackground> object.  If you
+wish to create a different appearing background than the default
+background, there are two ways to go about it.  One is to merely insert a
+new L</TBackground> object into the desktop so that it hides the previous
+desktop.  To do this, you would write,
+
+    $deskTop->insert( new_TBackground( $bounds, chr 0xFF ) );
+
+where $bounds defines the size and location of the new background object,
+and C<0xFF> is a hexadecimal character describing the pattern to use in
+drawing the new backdrop.  While this method is easy to implement, the
+original background continues to occupy memory.  A better approach is to
+use the method given as an example in the L</TBackground> section, where a new
+L</TDeskTop> object is derived and its initBackground method is overridden
+to instantiate a new L</TBackground>.  Using this approach, when the
+application runs, it automatically calls your TDesktop-derived object's
+L</initBackground> method, creating only one new background. 
+
+B<See>: L</TBackground> for complete details.
+
+B<Important>: Borland's Pascal documentation describes a method called
+I<newBackground> to perform the operation of L</initBackground>.  However, in 
+the original implementation of Turbo Vision, I<newBackground> was replaced with
+L</initBackground>.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+TDeskTop->handleEvent exists primarily to intercept the F6 key, used to
+cycle through the collection of windows that it owns.
+
+=head4 tile
+
+    $self->tile($r);
+
+Displays tileable windows, in tiled format, on to the screen.
+
+=head4 tileError
+
+    $self->tileError();
+
+I<Override>: As needed.
+
+If for some reason Turbo Vision is unable to rearrange and draw the
+windows in either cascaded or tiled format, Turbo Vision will call the
+TDeskTop->tileError sub.  Normally, this method does nothing and
+returns.  However, if you wish to detect the condition and provide a
+message to the user, you can override this sub.
+
+=head2 TDialog
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TGroup
+                TWindow
+                    TDialog
+
+=head3 Discussion
+
+Use L</TDialog> to derive new types of dialog box objects.  In most cases, you
+will use the existing L</TDialog>-type directly, and only reference its Init
+method.  Dialogs are then inserted into the desktop, or executed via
+$deskTop->execView.  Generally, you will not need to access the dialog
+methods directly.  By default, dialog boxes cannot grow, but can be
+dragged or closed via a close icon.
+
+=head3 Fields
+
+None
+
+=head3 Methods
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+I<Override>: As needed to define new color mappings.
+
+Returns a TPalette object to the C<cpDialog> palette, defining the basic color
+mappings for dialogs and all the controls that are inserted into dialogs. 
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+Adds special processing of events to generate C<cmCancel>, C<cmDefault>, 
+C<cmYes> or C<cmNo> commands in response to the appropriate inputs.
+
+=head4 new
+
+    my $dialog = TDialog->new(bounds => $bounds, title => $aTitle);
+
+Passes the parameters $bounds and $aTitle to TWindow->new to create a
+dialog box window with defaults set such that the dialog window cannot
+grow but can be dragged or closed.
+
+=head3 valid
+
+    my $bool = $self->valid($command);
+
+If the $command parameter equals C<cmCommand>, then L</valid> returns C<TRUE>. 
+Otherwise, when command is C<cmValid> (or zero), L</valid> checks the valid
+method of each of the controls that it owns in order to determine if the
+entire dialog was constructed satisfactorily.  All of the controls must
+return C<TRUE> in order for L</TDialog> to return C<TRUE>.
+
+B<See>: TView->valid, Chapters 16 and 19.
+
+=head2 TDrawBuffer
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::Views::DrawBuffer                                 |
+    +------------------+-------------------------------------------------------+
+    | methods          | TDrawBuffer()                                         |
+    |                  | from()                                                |
+    |                  | moveBuf()                                             |
+    |                  | moveCStr()                                            |
+    |                  | moveChar()                                            |
+    |                  | moveStr()                                             |
+    |                  | new()                                                 |
+    |                  | new_TDrawBuffer()                                     |
+    |                  | putAttribute()                                        |
+    |                  | putChar()                                             |
+    '------------------+-------------------------------------------------------'
+
+=head3 Declaration
+
+    package TV::Views::DrawBuffer;
+    ...
+    sub new {
+      bless [ ( 0 ) x maxViewWidth ] => shift;
+    }
+
+=head3 Module
+
+    TV::Views::DrawBuffer
+
+=head3 Purpose
+
+L</TDrawBuffer> is used to create temporary storage areas for a line of text
+to be written to the screen where the low byte of each word contains the
+character value, and the high byte contains the video attribute byte.  You
+can use the Turbo Vision procedures, L</moveBuf>, L</moveChar>, L</moveCStr>, 
+and L</moveStr> to set up the buffer and then use one of the TView method's
+writeBuf or writeLine within a draw method to write the output to the
+screen.  Here's an example using L</TDrawBuffer>:
+
+    my $buffer = TDrawBuffer->new();
+    ...
+    $buffer->moveStr( 0, 'Financial Results for FY1991', $self->getColor(1) );
+    $self->writeLine( 1, 3, 28, 1, $buffer );
+
+B<See>: TView methods writeBuf and writeLine.
+
+=head2 TEvent
+
+    .------------------+-------------------------------------------------------.
+    | module           | TV::Drivers::Event                                    |
+    +------------------+-------------------------------------------------------+
+    | parents          | Tie::Hash                                             |
+    +------------------+-------------------------------------------------------+
+    | fields           | keyDown                                               |
+    |                  | message                                               |
+    |                  | mouse                                                 |
+    |                  | what                                                  |
+    '------------------+-------------------------------------------------------'
+    | methods          | CLEAR()                                               |
+    |                  | DELETE()                                              |
+    |                  | EXISTS()                                              |
+    |                  | FETCH()                                               |
+    |                  | FIRSTKEY()                                            |
+    |                  | NEXTKEY()                                             |
+    |                  | SCALAR()                                              |
+    |                  | STORE()                                               |
+    |                  | TEvent()                                              |
+    |                  | TIEHASH()                                             |
+    |                  | clone()                                               |
+    |                  | dump()                                                |
+    |                  | from()                                                |
+    |                  | getKeyEvent()                                         |
+    |                  | getMouseEvent()                                       |
+    |                  | new()                                                 |
+    |                  | new_TEvent()                                          |
+    '------------------+-------------------------------------------------------'
+
+=head3 Declaration
+
+The L</TEvent> type, as defined in C<SYSTEM.H> and C<TEVENT.CPP> for Turbo 
+Vision 2.0, (C) Copyright 1994, by Borland Intl. Following the representation 
+in Perl:
+
+   1  tie (
+   2    what => Int,
+   3    mouse => bless {
+   4      where => TPoint,
+   5      eventFlags => Bool,
+   6      buttons => Int,
+   7      controlKeyState => Int,
+   8    } => 'MouseEventType',
+   9    keyDown => tie (
+  10      keyCode => Int,
+  11      charScan => {
+  12        charCode => Int,
+  13        scanCode => Int,
+  14      },
+  15      controlKeyState => Int,
+  16    ) => 'CharScanType',
+  17    message => tie (
+  18      command => Int,
+  19      infoPtr => Any,
+  20      infoLong => Int,
+  21      infoWord => Int,
+  22      infoInt  => Int,
+  23      infoByte => Int,
+  24      infoChar => Str, 
+  25    ) => 'KeyDownEvent',
+  26  } => TEvent;
+  27
+
+=head3 Module
+
+    TV::Drivers::Event
+
+=head3 Purpose
+
+L</TEvent> is a case tied hash defining each type of event used in Turbo
+Vision.  When a routine receives an event, it can look in the L</TEvent> fields 
+to determine what type of event occurred and use other information provided to
+appropriately process that event.  For example, when the TEvent->{what} field
+contains C<evMouse>, you can check TEvent->{mouse}{buttons} to see which mouse 
+button was pressed (0=none, 1=left, 2=right).  The TEvent->{mouse}{eventFlags} 
+flag is set if two mouse clicks occurred within the $doubleDelay time interval.  
+Lastly, for each mouse event, TEvent->{mouse}{where} contains the coordinates 
+of the mouse.
+
+When the event hash contains broadcast C<evMessage> events, several variant 
+fields are provided for passing additional information with the message. 
+TEvent->{message}{infoPtr} can be used, for instance, to pass a scalar, a 
+reference or another object. 
+
+B<See>: Chapter 13, "More Turbo Vision Features" in the Borland Pascal
+Developer's Guide for additional information regarding event processing, and
+also see the handleEvent method defined in various object types.
