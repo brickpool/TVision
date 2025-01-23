@@ -1,6 +1,4 @@
 package TShell;
-use strict;
-use warnings;
 use TV::App;
 use TV::Views;
 use TV::Drivers;
