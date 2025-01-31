@@ -36,7 +36,7 @@ my (
 }
 
 package main;
-  for ( $sampleProgram )
+  with: for ( $sampleProgram )
   {
     $_ = TSampleProgram->new;
     $_->run;

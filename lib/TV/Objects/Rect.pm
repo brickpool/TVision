@@ -99,6 +99,20 @@ sub from {    # $obj ($ax, $ay, $bx, $by)
   return $class->new( ax => $_[0], ay => $_[1], bx => $_[2], by => $_[3] );
 }
 
+sub assign {    # void ($ax, $ay, $bx, $by)
+  my ( $self, $ax, $ay, $bx, $by ) = @_;
+  assert( blessed $self );
+  assert( looks_like_number $ax );
+  assert( looks_like_number $ay );
+  assert( looks_like_number $bx );
+  assert( looks_like_number $by );
+  $self->{a}{x} = $ax;
+  $self->{a}{y} = $ay;
+  $self->{b}{x} = $bx;
+  $self->{b}{y} = $by;
+  return;
+} #/ sub assign
+
 sub clone {    # $p ($self)
   my $self = shift;
   assert ( blessed $self );

@@ -58,7 +58,7 @@ is( $view1->owner(), undef, 'remove sets owner to undef' );
 is( $view1->next(),  undef, 'remove sets next to undef' );
 
 # Test last clear
-$group->last(undef);
+$group->{last} = undef;
 is( $group->last(), undef, 'last(undef) sets last to undef' );
 
 # Test removeView method
