@@ -1,0 +1,1502 @@
+=head1 TPR-BOOK
+
+This material is used under the Fair Use doctrine for educational and 
+non-commercial purposes. The original text is copyrighted, and all rights are 
+retained by the author. The material is provided "as is" without warranty of 
+any kind. 
+
+Please note the following preliminary remark from Ed Mitchell:
+
+    This chapter is part of the Turbo Pascal Reference electronic freeware book 
+    (C) Copyright 1992 by Ed Mitchell. 
+
+    This freeware book contains supplementary material to Borland Pascal 
+    Developer's Guide, published by Que Corporation, 1992. 
+    
+    However, Que Corporation has no affiliation with nor responsibility for the 
+    content of this free book. 
+    
+    Please see Chapter 1 of the Turbo Pascal Reference for important information
+    about your right to distribute and use this material freely. 
+    
+    If you find this material of use, I would appreciate your purchase of one my
+    books, such as the Borland Pascal Developer's Guide or Secrets of the 
+    Borland C++ Masters, Sams Books, 1992. 
+    
+    Thank you.
+
+=head1 CHAPTER 9 - The Turbo Vision Reference (continue)
+
+Chapter 9 of the Turbo Pascal Reference
+
+For additional information on using Turbo Vision, including a detailed
+tutorial, please see Chapters 11 through 16 of the Borland Pascal Developer's
+Guide.
+
+=head2 TFrame
+
+    .------------------+-------------------------------------------------------.
+    | class            | TV::Views::Frame                                      |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::Views::View                                       |
+    | classes          | TV::Objects::Object                                   |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD()                                               |
+    |                  | TFrame()                                              |
+    |                  | dragWindow()                                          |
+    |                  | draw()                                                |
+    |                  | frameLine()                                           |
+    |                  | getPalette()                                          |
+    |                  | handleEvent()                                         |
+    |                  | name()                                                |
+    |                  | new_TFrame()                                          |
+    |                  | setState()                                            |
+    '------------------+-------------------------------------------------------'
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TFrame
+
+=head3 Discussion
+
+TFrame objects, like many of the objects in Turbo Vision, are automatically
+managed by Turbo Vision and you will rarely need to instantiate, let
+alone, directly access any of its methods.  The TFrame object defines the
+border or "frame" that wraps around each window and is automatically
+created by TWindow.Init which calls TWindow.InitFrame.
+
+=head3 Fields
+
+None
+
+=head3 Methods
+
+=head4 new
+
+    my $frame = TFrame->new(bounds => $bounds);
+
+Creates a new L</TFrame> object having the size and location specified by
+Bounds.  This method is called by TWindow->initFrame.
+
+B<See>: TWindow->initFrame
+
+=head4 draw
+
+    $self->draw();
+
+This method draws the frame, adding the owner's Title string, and the
+appropriate icons such as the close box, the zoom icon and the resize
+icon, as specified by the inherited TView->state flags.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object to the default palette cpFrame.  In the unlikely event
+that you need to change a L</TFrame>'s color, you need to override
+TWindow->initFrame to instantiate a new, TFrame-derived object with an
+overridden L</getPalette>.  The overridden L</getPalette> then returns a 
+TPalette  object to the modified color palette mapping.  You need to go through 
+this indirect approach of overriding both TWindow->initFrame and creating a new
+TFrame-type object because L</TFrame> is normally used only internally to
+Turbo Vision.  Hence, you must override the routine in TWindow that
+actually instantiates the L</TFrame>.  You can see an example of this type of
+operation in the description of TBackground.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+Calls TView->handleEvent for general event processing, and then processes
+events for the L</TFrame> icons.
+
+=head4 setState
+
+    $self->setState($aState, $enable);
+
+TFrame->setState passes its parameters to TView->setState, and then checks
+TView->state to see if either C<sfActive> or C<sfDragging> are set.  If these
+bits are set, then TFrame->setState calls TView->drawView.
+
+=head2 TGroup
+
+    .------------------+-------------------------------------------------------.
+    | class            | TV::Views::Group                                      |
+    +------------------+-------------------------------------------------------+
+    | parents          | TV::Views::View                                       |
+    | classes          | TV::Objects::Object                                   |
+    +------------------+-------------------------------------------------------+
+    | methods          | BUILD()                                               |
+    |                  | DEMOLISH()                                            |
+    |                  | TGroup()                                              |
+    |                  | at()                                                  |
+    |                  | awaken()                                              |
+    |                  | buffer()                                              |
+    |                  | changeBounds()                                        |
+    |                  | clip()                                                |
+    |                  | current()                                             |
+    |                  | dataSize()                                            |
+    |                  | draw()                                                |
+    |                  | drawSubViews()                                        |
+    |                  | endModal()                                            |
+    |                  | eventError()                                          |
+    |                  | execView()                                            |
+    |                  | execute()                                             |
+    |                  | first()                                               |
+    |                  | firstMatch()                                          |
+    |                  | firstThat()                                           |
+    |                  | focusNext()                                           |
+    |                  | forEach()                                             |
+    |                  | freeBuffer()                                          |
+    |                  | getBuffer()                                           |
+    |                  | getData()                                             |
+    |                  | getHelpCtx()                                          |
+    |                  | handleEvent()                                         |
+    |                  | indexOf()                                             |
+    |                  | insert()                                              |
+    |                  | insertBefore()                                        |
+    |                  | insertView()                                          |
+    |                  | last()                                                |
+    |                  | lock()                                                |
+    |                  | matches()                                             |
+    |                  | name()                                                |
+    |                  | new_TGroup()                                          |
+    |                  | redraw()                                              |
+    |                  | remove()                                              |
+    |                  | removeView()                                          |
+    |                  | resetCurrent()                                        |
+    |                  | resetCursor()                                         |
+    |                  | selectNext()                                          |
+    |                  | setCurrent()                                          |
+    |                  | setData()                                             |
+    |                  | setState()                                            |
+    |                  | shutDown()                                            |
+    |                  | unlock()                                              |
+    |                  | valid()                                               |
+    '------------------+-------------------------------------------------------'
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TGroup
+                TWindow
+                    TDialog
+                TDeskTop
+                TProgram
+
+=head3 Discussion
+
+The L</TGroup> object manages groups of objects, all of which are descended
+from TView.  In effect, L</TGroup> keeps track of a group of subviews, such as
+multiple windows on the desktop, or all of the controls within a dialog. 
+L</TGroup> provides the functionality to manipulate the grouped views as if
+they were a single view, although L</TGroup> itself, surprisingly, is an
+invisible view.  That's because each of the subviews contained within a
+group defines the group itself.  For example, a TDialog contains a window,
+a frame, a dialog interior and a collection of controls such as input
+lines, checkboxes and buttons.  The TDialog object is the manager of these
+dialog box components and is actually invisible.  When TDialog->draw is
+called to draw itself on the screen, it doesn't actually draw anything; 
+instead, TDialog->draw calls each of the subview's L</draw> methods (the
+window, the frame, the buttons and so on).
+
+=head3 Commonly Used Features
+
+For most applications you will use only a few of the methods provided by
+L</TGroup>, including the L</new> constructor (via the subview's inherited new
+methods), L</execView> to execute a modal dialog box, L</insert> to add a 
+subview to the group, and L</getData> and L</setData> to read and write the data
+fields of the owned views (particularly for dialogs).   L</TGroup> is an 
+internal object used to support other Turbo Vision objects (such as TWindow or 
+TDialog), and the remaining methods are used to implement their specific
+functionality.  It is unlikely that you will need to instantiate a L</TGroup>
+directly.
+
+=head3 Example
+
+B<See>: TApplication, TDeskTop, TDialog, TWindow
+
+=head3 Fields
+
+=head4 buffer
+
+    has buffer => ( is => 'ro', isa => ArrayRef );
+
+When caching of views is in effect, the contents of the group of views is
+stored in a temporary cache buffer to speed up screen redrawing.  L</buffer>
+refer to an array used for caching, or is C<undef> if no cache buffer
+has been defined.
+
+B<See>: TGroup->draw, TGroup->lock, TGroup->unlock
+
+=head4 current
+
+    has current => ( is => 'ro', isa => TView );
+
+Is a weaken reference to the currently selected view (the view whose I<select>
+method has been called). 
+
+B<See>: TView->select, Chapters 16 and 18.
+
+=head4 last
+
+    has last => ( is => 'ro', isa => TView );
+
+L</last> is a reference to the subview that is on the bottom of the Z-ordered
+list of views.  Each view contains a TView->next reference that points to the
+next view in the list.
+
+=head4 phase
+
+    has phase => ( is => 'ro', isa => Int, default => sub { phFocused } );
+
+Subviews can examine this field to determine at which phase (C<phFocused>, 
+C<phPreProcess>, C<phPostProcess>) in the event processing their L</handleEvent>
+method was called.  See Chapter 13, "More Turbo Vision Features" in the Borland
+Pascal Developer's Guide for a more in depth discussion of phased event 
+processing.
+
+=head3 Methods
+
+=head4 new
+
+    my $group = TGroup->new(bounds => $bounds);
+
+TGroup's new method calls TView->BUILD, and sets the TView->options variable
+to C<ofSelectable> and C<ofBuffered>.  The latter option enables cache buffering
+of the view's L</draw> output, if sufficient memory is available.  TView's
+I<eventMask> field is set to 0xFFFF which causes this view (or group) to
+respond to all classes of events.
+
+=head4 DESTROY
+
+    $self->DESTROY();
+
+Call L</DESTROY> to cleanup of the group and its contents.  L</DESTROY> first 
+I<hides> the group and then calls I<destroy> for each view's, and finally 
+cleanup of itself.
+
+=head4 changeBounds
+
+    $self->changeBounds($bounds);
+
+I<Override>: Never
+
+A group is resized or moved by calling L</changeBounds>, which, in turn, calls
+TView->calcBounds to recalculate new boundaries for its subviews, and then
+L</changeBounds> to reposition the subviews.  These calls are made for every
+subview in the group.
+
+=head4 dataSize
+
+    my $int = dataSize();
+
+Calls each subview's L</dataSize> method and creates a total data size value
+for the entire group.  This method is normally used in conjunction with
+L</getData> and L</setData> for retrieiving specific field values.
+
+=head4 draw
+
+    $self->draw();
+
+If L</buffer> is C<undef>, then TGroup->draw calls each subview's L</draw> 
+method.  If L</buffer> is not C<undef>, then L</draw> calls TView->writeBuf to 
+copy the cached view image to the screen. 
+
+B<See>: TGroup->buffer
+
+=head4 endModal
+
+    $self->endModal($command);
+
+I<Override>: Never
+
+When the currently active dialog, for instance, that has been placed on
+the screen with the TGroup->execView method, it is the current modal view. 
+A call to this procedure terminates the modal nature of the view and
+passes the Command value to L</execView>, which in turn, returns $command to
+the caller.  If a group is not currently a modal view, TGroup->endModal
+calls TView->endModal which has approximately the same result, causing
+L</execView> to return $command to its caller.
+
+B<See>: TView->endModal
+
+=head4 eventError
+
+    $self->eventError($event);
+
+If TGroup.Execute encounters an event that it cannot handle, it first
+calls TGroup.EventError, which attempts to call its owner's EventError
+method.  You can override this method to intercept errors, if needed.
+
+=head4 execView
+
+    my $int = $self->execView();
+
+Besides L</new>, L</DESTROY> and L</insert>, this is one of the most commonly 
+used methods in a L</TGroup> object.  Call L</execView> to display a modal view, 
+such as a dialog box, on the screen.  When a modal view is on the screen, all
+events are handled by the modal view.  You can not, for instance, make
+menu selections or press short cut keys to activate non-dialog box
+functions.  You must first terminate the modal dialog before resuming
+regular program operation.  L</execView> returns the command code that caused
+the view to complete.  This might be C<cmOk>, C<cmCancel> or some other code
+that you have defined as part of the dialog definition.
+
+B<See>: TGroup->insert, Chapter 12
+
+=head4 execute
+
+    my $int = $self->execute();
+
+L</execute> is the TGroup's main event processing loop, fetching events and
+then calling L</handleEvent> to process each event.  The loop is terminated
+when a view calls L</endModal>.  L</execute> returns the command code that 
+caused the termination, and that is passed to L</execView> for return to the 
+caller.
+
+B<See>: TGroup->endModal, TGroup->handleEvent
+
+=head4 first
+
+    my $view | undef = $self->first();
+
+Returns a reference to the subview within the group that is currently "on
+top" or closest to the screen.  If, for some reason, this is called when
+the group has no subviews, L</first> returns C<undef>.
+
+=head4 firstThat
+
+    my $view | undef = $self->firstThat(\&Test, $arg | undef);
+
+$Test is a code reference to a sub having one reference parameter and
+returning either C<TRUE> or C<FALSE>.  This iterator sub operates
+identically to the TCollection->firstThat iterator, except that
+TGroup->firstThat scans through the list of subviews within the group, in
+Z-order (see Chapter 13, "More Turbo Vision Features".)
+
+B<See>: Chapter 14, "Collections", TCollection->firstThat
+
+=head4 forEach
+
+    $self->forEach(\&action, $arg | undef);
+
+$action is a code reference to a sub having one reference (or TView)
+parameter.  L</forEach> scans through the subviews in Z-order, and for each
+subview it calls the $action sub with a reference to the subview. 
+TGroup->forEach operates similarly to TCollection->forEach, except that you
+should normally call TGroup->lock prior to calling TGroup->forEach, and
+TGroup->unlock after calling L</forEach>.  This is particularly important when
+the L</forEach> iterator is used such that each subview is redrawn on the
+screen and L</TGroup> is using a cache L</buffer>.  Lock causes subsequent 
+screen writes to go only to the cache L</buffer>, and L</unlock> then copies the
+entire L</buffer> to the screen.  If you do not use L</lock>/L</unlock>, each of
+the subviews will repaint on the screen individually, causing a potentially 
+annoying visual effect.
+
+B<See>: Chapter 14, "Collections", TGroup->buffer, TGroup->lock, TGroup->unlock
+
+=head4 getData
+
+    $self->getData(\@rec);
+
+Calls each subview's L</getData> method in reverse Z-order, copy each
+subview's data to the $rec variable.  After calling each subview's L</getData>
+method, L</getData> adds the subview's L</dataSize> value to $rec so that $rec
+now referees past the data it just copied, making it ready to read the next
+subview's data.
+
+B<See>: TView->dataSize, TGroup->setData
+
+=head4 getHelpCtx
+
+    my $int = $self->getHelpCtx();
+
+Calls the currently selected subview's L</getHelpCtx> to return the subview's
+context sensitive help index.  If the subview doesn't have any context
+sensitive help, then L</getHelpCtx> returns the value of the help context for
+the entire L</TGroup>.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+The TGroup-handleEvent method passes most events onto the appropriate
+subview's L</handleEvent> method according to whether the event is a focused
+event, positional event or broadcast event.  See Chapters 12 and 13 in the
+Borland Pascal Developer's Guide for a detailed description of event
+processing.
+
+=head4 insert
+
+    $self->insert($p);
+
+Use L</insert> to place a non-modal view into the group.  For example, 
+L</insert> is used to place windows onto the TDeskTop group object, as well as 
+all of the individual controls within a dialog object.
+
+B<See>: TGroup->execView, TGroup->insertBefore
+
+=head4 insertBefore
+
+    $self->insertBefore($p, $Target | undef);
+
+L</insertBefore> enables you to insert a view at any location within an
+existing group.  The view $p becomes inserted before (in Z-Order) the view
+specified by $Target.  If $Target is C<undef>, then $p is inserted at the very
+back of the view, furthest from the screen.
+
+=head4 lock
+
+    $self->lock();
+
+When using the cache L</buffer> to speed up screen output, setting L</lock>
+prevents the L</buffer> contents from being written to the screen.  This way,
+multiple items or views can be written to the L</buffer> without causing
+annoying flicker, and then by calling L</unlock>, the entire L</buffer> is 
+copied to the screen in one operation.  L</lock> operates by incrementing a lock
+counter each time that it is called.  L</unlock> decrements the counter and
+once the counter reaches zero, copies the L</buffer> to the screen.
+
+B<Important>: L</lock> and L</unlock> must always be called in matched pairs to
+avoid leaving the L</buffer> in a locked state.  If that happens, no output
+will be sent to the screen.
+
+B<See>: TGroup->forEach, TGroup->unlock
+
+=head4 redraw
+
+    $self->redraw();
+
+L</redraw> forces an actual screen draw to occur, rather than merely copying
+from the cache L</buffer>.  Otherwise, L</redraw> is the same as TGroup->draw.
+
+=head4 remove
+
+  $self->remove($p|undef);
+
+Use L</remove> to delete a previously inserted view from a group.  For
+example, if you have inserted a view, like this,
+
+    $self->insert($dirWindow);
+    
+you delete the subview by calling,
+
+    $self->remove($dirWindow);
+
+=head4 selectNext
+
+    $self->selectNext($forwards);
+
+L</selectNext> complements the TView->select method for making a view the
+focused view.   If  $forwards is C<TRUE>, then the next subview in Z-Order
+from the currently selected view becomes the focused view.  If Forwards is
+C<FALSE>, then L</selectNext> moves to the previous subview.
+
+=head4 setData
+
+    $self->setData(\@rec);
+
+L</setData> is used in conjunction with L</getData> for accessing the data in 
+the group.  L</setData> calls each subview's L</setData> method, copying data 
+from $rec to the subviews.
+
+=head4 setState
+
+    $self->setState($aState, $enable);
+
+TGroup->setState sets or clears the bits in each subview's I<state> field, to
+accommodate setting focused, active, exposed or dragging bits within I<state>.
+
+B<See>: TView->setState, C<sfXXXX> constants
+
+=head4 unlock
+
+    $self->unlock();
+
+Unlocks a previously locked cache L</buffer> and copies the contents of the
+L</buffer> to the screen.
+
+B<See>: TGroup->locked
+
+=head4 valid
+
+    my $bool = $self->valid($command);
+
+If all of the subview's L</valid> methods return C<TRUE>, then TGroup->valid
+returns C<TRUE>, otherwise TGroup->valid returns C<FALSE>.  Since L</valid> is 
+called when the L</execute> method is going to exit, a subview can retain 
+control and prohbit the group from terminating by setting its L</valid> method 
+to return C<FALSE>.
+
+B<See>: TGroup->execute, TView->valid
+
+=head2 THistory
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            THistory
+
+=head3 Discussion
+
+L</THistory> implements the history windows that display a down arrow icon on
+the right hand side of dialog input fields.  Using L</THistory>, a history of
+previously entered data is retained for future reference.  Each time you
+enter a new value into an input field that is linked to a L</THistory> object,
+the old value is stored away in a L</THistory> list.  Later, when you return
+to the input field, you can press down arrow or click on the down arrow
+icon to open a small list viewer showing your previous entries.  This
+feature is especially useful in applications such as the Turbo Pascal IDE,
+where you tend to refer back to files you have opened previously.  Hence,
+the open file dialog contains a history of the files you have recently
+opened.
+
+The L</THistory> object is surprisingly easy to use considering the
+functions that is provides.  All that needs to be done is to create the
+object using its L</new> constructor and insert it into the dialog.  Data is
+then automatically copied from the L</TInputLine> field to the L</THistory> and
+back again, as appropriate.
+
+It is not recommended that you attempt to override any of the
+defined methods, except perhaps THistory->getPalette.  If you must override
+any of the methods, you are strongly encouraged to view the Turbo Vision
+source, available as a separate product from Borland.
+
+=head3 Example
+
+This short example demonstrates the use of the L</THistory> object in a
+dialog, by modifying the TShell->configureData method of C<TVSHELL8> (and
+example program shown in the Borland Pascal Developer's Guide), so that
+the $editorName field now contains a L</THistory> list.  The variable $aHistory
+is declared as a L</THistory> object.  In the original method, $editorName
+is declared as a TView so it is recast to a L</TInputLine> for passing to the
+THistory->new constructor.  To use L</THistory>, define a $bounds rectangle for
+the L</THistory> icon, typically immediately to the right of the input field,
+call the L</new> constructor, passing to it the location, a reference to the
+linked input field, and a numeric value.  The numeric value (from 0 to
+255) uniquely defines this L</THistory> list so that you could gain access to
+it from other fields.  That means, more than one input field can reference
+the same history list by always referencing the same history list number. 
+Alternatively, you can use different history identification numbers for
+each input field and have as many separate history lists as your
+application requires.
+
+    # Editor name
+    $bounds->assign(18, 2, 50, 3);
+    $editorName = TInputLine->new(bounds => $bounds, maxLen => $configNameSize);
+    $self->insert($editorName);
+
+    # Define the location for the THistory down arrow icon
+    $bounds->assign(50, 2, 52, 3);
+    $aHistory = THistory->new(
+        bounds => $bounds, link => $editorName, historyId => 1);
+    $self->insert($aHistory);
+    
+    $bounds->assign(2, 2, 15, 3);
+    $self->insert(TLabel->new(
+        bounds => $bounds, text => '~E~ditor name:',
+        link => $editorName));
+
+=head3 Fields
+
+=head4 historyId
+
+    has historyId => ( is => 'ro', isa => Int );
+
+Contains the history list number assigned as the third parameter to the
+new constructor.
+
+=head4 link
+
+    has link => ( is => 'ro', isa => TInputLine );
+
+Refers to the input line field's L</TInputLine> object that is associated with
+this history list.
+
+=head3 Methods
+
+=head4 new
+
+    my $history = THistory->new(bounds => $bounds, link => $aLink, 
+        historyId => $aHistoryId);
+
+Creates the L</THistory> object, defining its location at $bounds, and linking
+to the $aLink input field.  $aHistoryId is a number assigned by you to
+uniquely identify this particular history list.   If you want, you can
+initialize other L</THistory> objects that are linked to other input fields
+using the same $aHistoryId number.  When the input fields have the same
+$aHistoryId number, they will all share the same history list.
+
+=head4 draw
+
+    $self->draw();
+
+Displays the icon representing the L</THistory> object, at the location
+determined by the bounds parameter to new.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPallette object to the C<cpHistory> color palette, which is intended 
+for mapping onto the C<cpDialog> color palette.
+
+=head2 THistoryViewer
+
+class
+
+=head3 Turbo Vision Hierarchy
+    TObject
+        TView
+            TListViewer
+                THistoryViewer
+
+=head3 Discussion
+
+L</THistoryViewer> manages the history list viewer that is displayed and owned
+by L</THistory>.  Normally, you will access the L</THistory> object when you 
+wish to use history lists in your applications, and will unlikely have any need
+to directly use L</THistoryViewer>.
+
+=head3 Fields
+
+=head4 historyId
+
+    has historyId => ( is => 'ro', isa => Int );
+
+This contains the history identification number (see L</THistory>) selecting
+which history list is to be displayed in the list box managed by
+L</THistoryViewer>.
+
+=head3 Methods
+
+=head4 new
+
+    my $historyViewer = THistoryViewer->new(bounds => $bounds, 
+        hScrollBar => $aHScrollBar, vScrollBar => $aVScrollBar, 
+        historyId => $aHistoryId);
+
+Calls TListViewer->new to create a single column listbox with the
+specified scroll bars, and links it to the L</THistory> specified by $aHistory.
+Basically, when the L</THistory> object is made active by selecting its icon
+or pressing the down arrow key, L</THistory> creates a L</THistoryWindow> object
+by calling initHistoryWindow, and the L</THistoryWindow> object, in turn,
+creates this L</TListViewer> object to display the history list and manage the
+selections.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object of C<cpHistoryViewer>.
+
+=head4 getText
+
+    $self->getText(\$dest, $item, $maxLen);
+
+L</getText> is the overridden L</TListViewer> method, implemented here to 
+return the specific history list string indexed by $item, such that the returned
+string is less than or equal to $maxLen in size.
+
+B<See>: TListViewer->getText
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+L</handleEvent> processes mouse double clicks and the Enter key for selecting
+a file from the list box, and pressing the Esc key in order to cancel the
+list box.
+
+=head4 historyWidth
+
+    my $int = $self->historyWidth();
+
+Determines the longest string in the history list.
+
+=head2 THistoryWindow
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TGroup
+                TWindow
+                    THistoryWindow
+
+=head3 Discussion
+
+When the L</THistory> history list icon is selected, the L</THistory> object
+creates a TWindow object in which to insert the L</THistoryViewer>. 
+Therefore,the L</THistoryWindow> is primarily useful to the implementation of
+L</THistory> and is not likely to be used directly by your programs.  See the
+L</THistory> object for an example use of history lists.
+
+=head3 Fields
+
+=head4 viewer
+
+    has viewer => ( is => 'rw', isa => TListViewer );
+
+Contains a reference to the L</THistoryViewer> list box that is created by this
+object.
+
+=head3 Methods
+
+=head4 new
+
+    my $win = THistoryWindow->new(bounds => $bounds, historyId => $historyId);
+
+Creates the L</THistoryWindow> by calling TWindow->BUILD and BUILDARGS with 
+appropriate parameters, and then calls L</initViewer>.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object to C<cpHistoryWindow>, which is designed to map onto a
+dialog palette.
+
+=head4 getSelection
+
+    $self->getSelection(\$dest);
+
+Determines which list box item in the L</THistoryViewer> has the focus, and
+returns that specific string in $dest.
+
+=head4 initViewer
+
+    my $listViewer = THistoryWindow->initViewer($historyId);
+
+This is the class method that creates the L</THistoryViewer> list box.
+
+=head2 TInputLine
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TInputLine
+
+=head3 Discussion
+
+Use L</TInputLine> as an edit field in dialog boxes when you need to have the
+user type in information such as a filename or other text.  L</TInputLine> is
+a powerful single line editor, providing horizontal scrolling, line
+editing, text selection and block deletion.  If the size of the input line
+field is less than the maximum permitted length of the input, then
+TInputLine will automatically provide left and right scrolling.
+
+=head3 Commonly Used Methods and Fields
+
+When L</TInputLine> is inserted into a dialog, you will generally use
+only TInputLine->new to create the input field and will not likely have
+use for any of the other methods or fields.  The L</TInputLine> will become
+active when it receives the focus and will automatically process its input
+via its HandleEvent method.
+
+TInputLine processes string input however you could override
+several of its methods in order to process other types of data.  For
+instance, to handle numeric input, you would create a new
+TInputLine-derived object and override TInputLine->valid to check for valid
+numeric entries, and modify GetData to convert the entered string into a
+numeric representation for processing.  You would also need to modify
+SetData, and if you intend to use the object with streams, you'd need to
+create new versions of Load and Store.
+
+=head3 Example
+
+This example shows instantiating a L</TInputLine> object having a maximum
+input length of 40 character, and places within the rectangle defined by
+C<(3, 3, 44, 4)>.  The L</TInputLine> object is then inserted into the dialog
+group, and a L</TLabel> is attached as a prompt.  (See also L</TLabel>).  At the
+completion of the $dialog setup, the $dialog will be displayed for editing
+with  C<< $control = $deskTop->execView( $dialog ) >>;  Be sure to look at the
+examples in the C<TVSHELL> program described in Chapters 11-12 of the Borland
+Pascal Developer's Guide:
+
+    with: for ( $dialog )
+    {
+        ...  
+        # Add the Rename from this filename item
+        $bounds->assign(3, 3, 44, 4);
+        $oldFileName = TInputLine->new(bounds => $bounds, historyId => 40);
+        $_->insert($oldFileName);
+        $bounds->assign(2, 2, 44, 3);
+        $_->insert( TLabel->new(bounds => $bounds, text => 'Rename this file:',
+            link => $oldFileName ));
+        ...
+    } #/ with: for ( $dialog)
+
+
+=head3 Fields
+
+=head4 curPos
+
+    has curPos => ( is => 'rw', isa => Int );
+
+This field is used internally to keep track of the cursor's location
+within the input field.
+
+=head4 data
+
+    has data => ( is => 'rw', isa => Str );
+
+Contains the string that is being edited by the L</TInputLine>.
+
+=head4 firstPos
+
+    has firstPos => ( is => 'rw', isa => Int );
+
+When horizontal scrolling is being used to display portions of the line
+that do not fit within the specified bounds of the L</TInputLine>, L</firstPos>
+contains the index of the first byte that appears at the left of the
+field.
+
+=head4 maxLen
+
+    has maxLen => ( is => 'rw', isa => Int );
+
+L</maxLen> contains the maximum number of characters for the line length, as
+specified in the TInputLine->new constructor.
+
+=head3 Methods
+
+=head4 new
+
+    my $inputLine = TInputLine->new(bounds => $bounds, maxLen => $aMaxLen, 
+        | valid => $aValid);
+
+Use TInputLine->new to create a new L</TInputLine> object located at the
+position specified by $bounds (which specifies the length of the visible
+data entry field) and $aMaxLen (which specifies the maximum length that the
+entered string can become).
+
+B<Note>: $bounds should describe a one line input field; if you specify a 
+multi-line rectangle, L</TInputLine> will not behave correctly.
+
+=head4 DESTROY
+
+    $self->DESTROY();
+
+Disposes of the fields used by L</TInputLine> and cleanup of the object.
+
+=head4 dataSize
+
+    $int = $self->dataSize();
+
+L</getData> and L</setData> call L</dataSize> to determine how much space needs 
+to be reserved for the data returned by L</TInputLine>.  Normally this is equal 
+to L</maxLen> + 1, which is the maximum number of characters that can be 
+entered, plus the length byte.
+
+B<See>: TInputLine->getData, TInputLine->setData
+
+=head4 draw
+
+    $self->draw();
+
+L</draw> takes care of displaying the input line text on the screen, adding
+arrows when horizontal scrolling is in effect.
+
+=head4 getData
+
+    $self->getData(\@rec);
+
+Copies the L</data> text string to $rec.
+
+B<See>: TInputLine->dataSize, TInputLine->setData
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+Returns a TPalette object to the C<cpInputLine> color palette.  If you desire to
+use a different color mapping, you should derive a new object from 
+L</TInputLine> and override L</getPalette> as per the instructions in Chapter 
+13, "More Turbo Vision Features", of the Borland Pascal Developer's Guide.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+When the input line is the focused event, TInputLine->handleEvent process
+the mouse and editing keystroke events, including entering and selecting
+text, horizontal scrolling and so on.
+
+=head4 selectAll
+
+    $self->selectAll($enable);
+
+If $enable is C<TRUE>, L</selectAll> block selects the entire data input line 
+and resets all the internal pointers (such as L</curPos> cursor location) to the
+beginning of the string.  If $enable is C<FALSE>, all selection is turned off.
+In both cases, the resultant input field is displayed on the screen by
+calling the inherited TView->drawView.
+
+=head4 setData
+
+Copies the string value in $rec to L</data> and calls L</selectAll>.
+
+B<See>: TInputLine->selectAll
+
+=head4 setState
+
+Calls TView->setState (See TView->setState for more information) and
+performs additional processing for L</TInputLine>.
+
+=head2 %ITEMS
+
+variable
+
+=head3 Declaration
+
+    our %ITEMS = ();
+
+=head3 Module
+
+    TV::Objects::NSCollection
+
+=head3 Purpose
+
+This is an internal global variable used for maintaining the references
+in all TCollection objects.
+
+The TCollection items are stored as a reference in this variable; the keys are
+determined with L<Hash::Util::FieldHash::id|Hash::Util::FieldHash>. 
+
+B<See>: L<Scalar::Util::refaddr|Scalar::Util>.
+
+=head2 TLabel
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+            TStaticText
+                TLabel
+
+=head3 Discussion
+
+L</TLabel> objects are similar to TStaticText in that they are typically used
+to display a prompt line for dialog box controls such as an input field or
+a group of radio buttons.  L</TLabel> objects differ from TStaticText only in
+that they are explicitly linked to the control such that if you click with
+the mouse to select the L</TLabel> object you actually select the attached
+control.  Using this feature, you can use keyboard Alt-letter shortcut
+keys to reach input fields and other controls in a dialog box.
+
+=head3 Example
+
+    # Create an input line field 40 spaces wide
+    $bounds->assign(3, 3, 44, 4);
+    $oldFileName = TInputLine->new(bounds => $bounds, historyId => 40);
+    $_->insert($oldFileName);
+    # Create a prompt label for the input field and link to the
+    # $oldFileName inputLine field
+    $bounds->assign(2, 2, 44, 3);
+    $_->insert( TLabel->new(bounds => $bounds, text => 'Rename this file:',
+        link => $oldFileName ));
+
+=head3 Fields
+
+=head4 link
+
+    has link => ( is => 'ro', isa => TView );
+
+When a L</TLabel> object is linked to a control, such as an input line, this
+field contains a pointer to that control.
+
+=head4 light
+
+    has light => ( is => 'ro', isa => Bool );
+
+=head3 Methods
+
+=head4 new
+
+    my $label = TLabel->new(bounds => $bounds, text => $aText, link => $aLink);
+
+The L</new> constructor creates a new L</TLabel> object with the size and
+location specified in $bounds, and assigns to the label the text specified
+in $aText.  The last parameter specifies a reference to the control that is
+associated with this label.
+
+=head4 draw
+
+    $self->draw();
+
+I<Override>: Never
+
+Draws the L</TLabel> object using the color palette returned by L</getPalette>.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+I<Override>: As needed to change colors.
+
+Returns a TPalette object to the C<cpLabel> color palette.  To change the colors
+of the L</TLabel> object, override this method to return a TPalette object to 
+a different color palette.  The C<cpLabel> color palette is defined to properly
+map onto a dialog's color palette.  If, for some reason, you are creating
+a label to be placed on top of some other type of object, you will almost
+certainly need to override this method.
+
+B<See>: Chapter 13, "More Turbo Vision Features".
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+I<Override>: Never
+
+L</handleEvent> performs the usual event processing by calling
+TStaticText->handleEvent to do most of the work.  However,
+TLabel->handleEvent intercepts certain mouse down and keyboard shortcut
+keys in order to select attached controls.
+
+=head2 TListBox
+
+class
+
+=head3 Turbo Vision Hierarchy:
+    TObject
+        TView
+            TListViewer
+                TListBox
+
+=head3 Discussion
+
+Use L</TListBox> to implement list boxes containing collections of
+strings.  For example, a dialog box to open a file typically contains a
+list of filenames and subdirectories.  To use L</TListBox> you must create and
+initialize a collection of strings containing the items to appear in the
+list box, and then instantiate and initialize the list box.  While
+L</TListBox> is intended for use with string data, you can optionally override
+TListBox->getText to process non-string data.  L</TListBox> is derived from
+L</TListViewer>, so all of L</TListViewer>'s methods and fields are available to
+L</TListBox> objects.
+
+B<See>: L</TListViewer>
+
+=head3 Commonly Used Features
+
+To use the L</TListBox>, you'll call new to create the box, and then 
+L</newList> to initialize the list that is displayed.  If you wish to display 
+items other than simple strings, you'll need to override L</getText>.
+
+=head3 Example
+
+L</TListBox> is nearly identical to L</TListViewer>except that L</TListBox> does
+not support the horizontal scroll bar.  Further, L</TListBox> manages the data
+list internally since its designed, by default to have L</getText> return a
+string.  To use L</TListBox>, you call TListBox->new in a manner identical to
+TListViewer->new (except that there is no horizontal scroll bar).  Next,
+you call TListBox->newList to pass a collection of strings to the L</TListBox>
+for display.
+
+=head3 Fields
+
+=head4 list
+
+    has list => ( is => 'ro', isa => TCollection );
+
+Holds a reference to the collection of items to display.  Typically this
+would be a collection of strings, however, if you store other object
+types you will also need to override L</getText>.
+
+B<See>: TListBox->getText
+
+=head3 Methods
+
+=head4 new
+
+    my $listBox = TListBox->new(bounds => $bounds, numCols => $aNumCols, 
+        scrollBar => $aScrollBar);
+
+L</new> creates the new L</TListBox> object using the size provided in $bounds,
+the number of columns specified by $aNumCols, and links it to the scroll
+bar passed as the $aScrollBar parameter, or C<undef> if there is no scroll bar. 
+If you do add a scroll bar, you'll need to instantiate the TScroller
+object prior to calling L</new>, and you'll need to insert both the list box
+and the scroller into the owner's view.  After calling L</new>, you should
+call L</newList> to assign the data collection to this list box.
+
+There is no DEMOLISH destructor for L</TListBox> since it is inherited from
+L</TListViewer>.  However, you do need to dispose of the contents of List. 
+One way to do that is to call L<newList(undef)|/newList> which then disposes of 
+the current list and sets L</list> to C<undef>.
+
+B<See>: TListBox->newList
+
+=head4 dataSize
+
+    $int = $self->dataSize();
+
+I<Override>: As needed.
+
+This method is used in conjunction with the TListBox->getData and L</setData>
+methods for writing and retrieving L</TListBox> dialog data.  The default
+definition of L</dataSize> returns count of L</list> entries + 1 (for 
+I<focused>).
+
+B<See>: L</getData>, L</setData>, "The List Box Viewer", in Chapter 12, "Turbo
+Vision Dialogs and Events", in the Borland Pascal Developer's Guide.
+
+=head4 getData
+
+    $self->getData(\@rec);
+
+I<Override>: As needed.
+
+L</getData> copies the L</list> and I<focused> (from L</TListViewer>) fields to 
+$rec.
+
+B<See>: L</dataSize>, L</setData>, Chapter 12
+
+=head4 getText
+
+    $self->getText(\$dest, $item, $maxLen);
+
+L</getText> is called by the inherited TListViewer->draw method to obtain the
+string to draw on the display.  The standard implementation retrieves the
+$item'th entry in the L</list> collection as,
+
+    my ( $self, undef, $item, $maxLen ) = @_;
+    ...
+    for my $dest ( $_[1] ) {
+        weaken( $dest = $self->list->at( $item ) );
+    }
+
+Its possible to store non-string items in a L</TListBox> type, but to do so
+you will need to override L</getText>.
+
+=head4 newList
+
+    $self->newList($aList);
+
+After calling L</new> to create a new L</TListBox> object, you need to link a
+data collection to the list box.  You do this by passing the collection as
+a parameter to the L</newList> method, which sets L</list> to point to the
+collection, and sets the list box I<range> to the collection's I<count> field
+and draw's the list box view by calling I</drawView>.  If L</list> is not 
+C<undef> when L</newList> is called, L</newList> disposes of the previous 
+collection before setting L</list> to the new collection.
+
+=head4 setData
+
+    $self->setData(\@rec);
+
+Copies values from $rec into the L</list> and I<focused> fields and then calls
+newList($self->list) in order to reset and display the new list.
+
+B<See>: L</dataSize>, L</getData>
+
+=head2 TListViewer
+
+class
+
+=head3 Turbo Vision Hierarchy:
+
+    TObject
+        TView
+            TListViewer
+                TListBox
+
+=head3 Discussion
+
+Use the L</TListViewer> object type for creating various types of list
+box viewers.  List boxes typically contain lists of information, such as
+filenames, through which you can scroll and select the desired item. 
+Using the L</TListViewer> object, you can create both vertical and horizontal
+scroll bars.  Horizontal scroll bars might be used when creating a simple
+file viewer for viewing text wider than the list box.
+
+=head3 Commonly Used Features
+
+Call TListViewer->new to create the list viewer.  While the L</TListViewer>
+manages the display of the list box it is up to you to provide the data
+structures that store the data shown within the box.  You do this by
+deriving a new L</TListViewer> object type and overriding the L</getText>
+method, which returns a string containing one line of text.  L</getText> has
+two parameters, an item index and a maximum length value.  Its up to
+L</getText> to retrieve the I<item>'th entry in the list and format it into a
+string of no longer than the specified maximum length.  If you insert the
+L</TListViewer> into any other L</TGroup> besides TDialog, you will almost
+certainly need to override L</getPalette> so that the color mapping works
+correctly.
+
+=head3 Example
+
+    # Define TDirList, derived from TListViewer
+    package TDirList;
+    use TV::Dialogs;
+    use parent TListViewer;
+    sub getText {
+        my ($self, $item, $maxLen) = @_;
+        ...
+    }
+    sub getPalette {
+        my $self = shift;
+        ...
+    }
+    sub handleEvent {
+        my ($self, $event) = @_;
+        ...
+    }
+    ...
+    # Instantiate a scroll bar object
+    my $listScroller = TScrollerBar->new(bounds => $barBounds);
+    # Instantiate a list viewer and link it to the scroll bar
+    my $listViewer = TDirList->new(bounds => $bounds, numCols => 1, 
+        hScrollBar => undef, vScrollBar => $listScroller);
+    # Insert both objects into the controlling group view
+    $self->insert($listScroller);
+    $self->insert($listViewer);
+
+=head3 Fields
+
+=head4 hScrollBar
+
+    has hScrollBar => ( is => 'ro', isa => TScrollBar );
+
+Holds the pointer to the horizontal scroll bar object attached to this
+list viewer, or is C<undef> if there is no horizontal scroll bar.
+
+=head4 vScrollBar
+
+    has vScrollBar => ( is => 'ro', isa => TScrollBar );
+
+Holds the pointer to the vertical scroll bar object attached to this list
+viewer, or is C<undef> if there is no vertical scroll bar.
+
+=head4 numCols
+
+    has numCols => ( is => 'ro', isa => Int );
+
+This stores the number of columns specified for the list viewer and is
+initialized with the new constructor.
+
+=head4 topItem
+
+    has topItem => ( is => 'rw', isa => Int );
+
+TopItem specifies the item appearing at the top of the list box viewer. 
+TopItem varies from 0 to L</range>-1.
+
+=head4 focused
+
+    has focused => ( is => 'ro', isa => Int );
+
+Focused specifies the item number of the focused or selected item and
+ranges from 0 to L</range>-1.  Keyboard navigation keys, scroll bar movements
+and mouse clicks and drags all cause the focused item to be updated to
+point to the current location of the list box cursor.
+
+=head4 range
+
+    has range => ( is => 'ro', isa => Int );
+
+Holds the total number of items in the list.
+
+B<See>: TListViewer->setRange
+
+=head3 Methods
+
+=head4 new
+
+    my $listViewer = TListViewer->new(bounds => $bounds, numCols => $aNumCols,
+        hScrollBar => $aHScrollBar, vScrollBar => $aVScrollBar);
+
+Creates a L</TListViewer> object with the size specified by $bounds and the
+number of columns specified by $aNumCols.  If you wish to have scroll bars,
+create the TScroller objects before calling new, and then pass objects
+to those scroll bars to the $aHScrollBar and $aVScrollBar parameters, for
+horizontal or vertical scroll bars, respectively, to link them to the list
+box.  Use a value of C<undef> if one or both scroll bars is not defined for
+this list box.
+
+=head4 changeBounds
+
+    $self->changeBounds($bounds);
+
+Call L</changeBounds> to resize the list box viewer to the size specified by
+the $bounds parameter.
+
+=head4 draw
+
+    $self->draw();
+
+I<Override>: Never.
+
+Draws the list viewer object by calling L</getText> for each of the objects
+that could be shown on the screen.
+
+=head4 focusItem
+
+    $self->focusItem($item);
+
+I<Override>: Never.
+
+Use L</focusItem> to make a specific Item in the list box become the focused
+item.  This method automatically causes the scroll bar to be adjusted
+accordingly.
+
+=head4 getPalette
+
+    my $palette = $self->getPalette();
+
+I<Override>: As needed.
+
+Returns a TPalette object to the color palette for L</TListViewer> objects.  The
+default palette, C<cpListViewer> is intended to map directly into a C<cpDialog>
+palette.  If you insert the L</TListViewer> object into a view other than the
+TDialog, you must override the L</getPalette> method.
+
+B<See>: C<cpListViewer>, C<cpDialog>, Chapter 19, More on Turbo Vision
+
+=head4 getText
+
+    $self->getText(\$dest, $item, $maxLen);
+
+I<Override>: Always
+
+You must implement your own L</getText> method to return a string representing
+the data that should appear in the list box at the I<item>'th position. Your
+data can be stored in whatever internal representation is appropriate for
+your application.  This might include a collection, an array of records, a
+linked list, or a simple string array, as shown in this example code:
+
+    # Fetch data item from internal data structure
+    my $strBuffer = $myData[$item];
+    # Truncate data string if too long
+    substr( $strBuffer, $self->maxLen ) = ''
+        if length( $strBuffer ) > $self->maxLen;
+    $$dest = $strBuffer;
+
+=head4 isSelected
+
+    my $bool = $self->isSelected($item);
+
+Use L</isSelected> to check if a specific item is also the focused item. 
+L</isSelected> returns C<TRUE> if the entry specified by $item is currently
+selected, C<FALSE> otherwise.
+
+=head4 handleEvent
+
+    $self->handleEvent($event);
+
+I<Override>: As needed.
+
+Performs event processing for the L</TListViewer>, including mouse navigation
+and clicking in the list box to select an item, the use of the space bar
+to perform keyboard selection, and all keyboard navigation keys (up and
+down arrow, PgUp, PgDn, Home, End, etc).  Navigation events that move
+through the list automatically cause the associated scroll bars to update
+themselves.
+
+B<See>: See Chapter 11, "Turbo Vision Tutorial" in the Borland Pascal
+Developer's Guide for an example.
+
+=head4 selectItem
+
+    $self->selectItem($item);
+
+This is intended to be used and overridden by descendants, to make the
+Item'th entry in the list selected.  This routine is essentially
+equivalent to TListViewer->focusItem.
+
+=head4 setRange
+
+    $self->setRange($aRange);
+
+Sets the L</range> field to $aRange or the number of items in the list and
+automatically adjusts the scroll bars, as needed.  If the new range would
+put the current L</focused> item value out of range, then L</focused> is reset 
+to zero.
+
+B<See>: TListViewer->range
+
+=head4 setState
+
+    $self->setState($aState, $enable);
+
+Basically, this calls TView->setState to set or reset the C<sfOptions> bits in
+the TView->state variable.
+
+B<See>: C<sfOptions>, TView->state
+
+=head2 TMenuBar
+
+class
+
+=head3 Turbo Vision Hierarchy
+
+    TObject
+        TView
+        TMenuView
+            TMenuBar
+            TMenuBox
+
+=head3 Discussion
+
+The TMenuBar object manages the menu bar across the top of the application
+screen.  Most applications merely call the new_TMenuBar subroutine with a
+series of nested new_TMenu, new_TSubMenu, newLine and new_TMenuItem subroutine 
+calls to create an entire list of pull down menu items.  It's unlikely that you
+will use any other TMenuBar methods.
+
+=head3 Example
+
+    sub initMenuBar {
+        my ($class, $bounds) = @_;
+        $bounds->{b}{y} = $bounds->{a}{y} + 1;
+        return new_TMenuBar($bounds,
+            new_TSubMenu('~R~un', hcNoContext) +
+                new_TMenuItem('~R~un', cmRunProgram, 0, hcNoContext) +
+                new_TMenuItem('~E~dit', cmEdit, kbAltE, hcNoContext, 'Alt-E') +
+                new_TMenuItem('~V~iew', cmView, kbAltV, hcNoContext, 'Alt-V') +
+                new_TMenuItem('~S~hell', cmDOS, kbAltS, hcNoContext, 'Alt-S') +
+                new_TMenuItem('E~x~it', cmQuit, kbAltX, hcNoContext, 'Alt-X')
+        );
+    }
+
+=head3 Fields
+
+None
+
+=head3 Methods
+
+=head4 new
+
+    my $menuBar = TMenuBar->new(bounds => $bounds, menu => $aMenu);
+
+Creates an initializes the menu bar.  See the example above, and also look
+at new_TMenu, new_TSubMenu, new_TMenuItem, and newLine subroutines.
+
+=head4 draw
+
+    $self->draw();
+
+Draws the menu bar on the display and highlights the selected item.
+
+=head4 getItemRect
+
+    my $rect = $self->getItemRect($item | undef);
+
+This internal method is used to determine if a mouse click occurred on a
+particular menu $item.
