@@ -41,9 +41,53 @@ This port is based on the original codebase of Borland C++ 4.02
 (Turbo Vision 2.0 sources including bug fixes by Eric Woodruff: 
 L<tv2fixed.zip|http://www.sigala.it/sergio/tvision/source/tv2fixed.zip>).
 
-Perl TVision allows developers to use the powerful text-based user interfaces of
-Turbo Vision in Perl, significantly simplifying the development of applications 
-on console based systems.
+Perl TVision wanted to enable developers to use the powerful text-based user 
+interfaces of Turbo Vision in Perl. Unfortunately, this failed. See why ...
+
+=head3 I STOP HERE
+
+Languages with automatic garbage collection (like Perl) have complementary 
+problems compared to languages without garbage collection (like C/C++). For 
+every issue, there is a bug characteristic of non-GC languages and a bug 
+characteristic of GC languages, along with programmer responsibilities in both 
+types.
+
+Perl programmers might think they are relieved from freeing objects, but objects
+hold other resources besides memory that often need to be released 
+appropriately. Where a C++ programmer might have a dangling reference (often 
+not a bug due to some flag or state marking it as not to be used), a Perl 
+programmer has a memory leak. Thus, the C++ programmer is responsible for 
+ensuring C<free/delete> is called appropriately, while the Perl programmer must 
+ensure unwanted references are nulled or otherwise disposed of properly.
+
+Perl 5 supports weak references so that programmers can deliberately avoid 
+creating reference cycles. If data structures contain reference cycles, these 
+are only reclaimed by the Perl runtime when the parent thread is switched off. 
+This is seen as a welcome compromise, as opposed to implementing overhead cycle 
+detection, which would slow down execution time.
+
+It is claimed that a few calls to C<weaken> or using 
+L<Proxy Objects|https://www.perl.com/pub/2002/08/07/proxyobject.html/> can 
+handle this. This might be true, but Turbo Vision sources use many dangling 
+references in various tree structures or collections. To break all these cycles 
+and ensure timely disposal of garbage memory, the Perl implementation must have 
+an intelligent scheme.
+
+This is not easy - firstly because you could just as well use a non-GC 
+language, and secondly because it would break important conventions in Perl. 
+Turbo Vision C++ code relies heavily on the convention of resource allocation 
+and ensures reliable and timely destructor calls. In Perl, which works with 
+cycles, this is not possible.
+ 
+If you interrupt a garbage cycle, you can't know which destructor to call first 
+without causing dependency problems - it might even be impossible, since there 
+are more cyclic dependencies than just memory references. All other resources 
+have to be cleaned up manually, like in Pascal or C++, without the advantages 
+of Perl.
+
+The result is that much cleanup that is I<automated> in Perl must now be done 
+manually. I<Automated> needs quotes because the programmer is responsible for 
+ensuring this - but then there are different responsibilities in GC languages.
 
 =head3 Key Features of the Port
 
