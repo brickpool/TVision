@@ -6,10 +6,10 @@ use Test::Exception;
 
 BEGIN {
   unless ( eval { require Moos } ) {
-    plan skip_all => 'Test irrelevant without Moose';
+    plan skip_all => 'Test irrelevant without Moos';
   }
   else {
-    plan tests => 8;
+    plan tests => 10;
   }
   require_ok 'Moos';
   use_ok 'TV::toolkit';
@@ -20,6 +20,7 @@ BEGIN {
   use TV::toolkit;
   has x => ( is => 'rw' );
   has y => ( is => 'rw' );
+  sub DEMOLISH { ::pass 'DEMOLISH was called from '. caller }
   $INC{"MyObject.pm"} = 1;
 }
 
@@ -34,5 +35,8 @@ isa_ok( $obj, 'Moos::Object' );
 can_ok( $obj, qw( x y ) );
 lives_ok { $obj->x() } 'x works correctly';
 lives_ok { $obj->y( 1 ) } 'y works correctly';
+
+# Test DEMOLISHALL in DESTROY
+lives_ok { undef $obj } 'cleanup is working properly';
 
 done_testing();

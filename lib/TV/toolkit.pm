@@ -3,7 +3,7 @@ package TV::toolkit;
 use strict;
 use warnings;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Carp ();
@@ -11,6 +11,9 @@ use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Import::Into;
 use Module::Loaded;
+
+BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
+BEGIN { require Devel::GlobalDestruction unless $] >= 5.014 }
 
 our $name;
 BEGIN {
@@ -29,10 +32,12 @@ BEGIN {
   sub is_UNIVERSAL (){ $name eq 'UNIVERSAL::Object' }
 }
 
+my %added = ();
+
 sub import {
   my $caller = caller();
   return if $caller eq 'main';
-  return if $^H{"TV::toolkit/$caller"};
+  return if $^H{ __PACKAGE__ . "/$caller" };
 
   if ( is_Moose ) {
     require Moose;
@@ -41,11 +46,13 @@ sub import {
   elsif ( is_Moos ) {
     require Moos;
     Moos->import::into( $caller );
-    _around_hook( $caller, 'has', \&_my_moos_has );
+    _around_hook( $caller, has => \&_my_moos_has );
+    _add_demolish( 'Moos::Object' ) unless $added{DEMOLISH}++;
   }
   elsif ( is_Moo ) {
     require Moo;
     Moo->import::into( $caller );
+    _add_dump( 'Moo::Object' ) unless $added{dump}++;
   }
   else {
     require TV::toolkit::LOP;
@@ -53,17 +60,18 @@ sub import {
     _create_constructor( $caller );
     _install_slots( $caller );
     _import_extends( $caller );
-    _add_dump( $caller ) unless caller->can( 'dump' );
+    _add_dump( is_UNIVERSAL ? 'UNIVERSAL::Object' : 'UNIVERSAL' )
+      unless $added{dump}++;
   }
 
-  $^H{"TV::toolkit/$caller"} = $name;
+  $^H{ __PACKAGE__ . "/$caller" } = $name;
 } #/ sub import
 
 sub unimport {
   my $caller = caller();
-  return unless $^H{"TV::toolkit/$caller"};
+  return unless $^H{ __PACKAGE__ . "/$caller" };
 
-  $^H{"TV::toolkit/$caller"} = 0;
+  $^H{ __PACKAGE__ . "/$caller" } = 0;
 }
 
 sub extends {
@@ -107,6 +115,7 @@ sub _import_extends {    # void ($target)
   return;
 }
 
+# An around method modifier without checking of an existing method
 sub _around_hook {    # void ($class, $name, \&code)
   my ( $class, $name, $code ) = @_;
   assert( defined $class and !ref $class );
@@ -122,24 +131,23 @@ sub _around_hook {    # void ($class, $name, \&code)
   return;
 } #/ sub _around_hook
 
-sub _my_moos_has {    # $return (\&next, @_)
-  my $next = shift;
-  return $next->( @_ ) unless @_ % 2;
-  my ( $name, %args ) = @_;
+sub _my_moos_has {    # $return (\&orig, $self, @_)
+  my ( $orig, $self, %args ) = @_;
   if ( exists $args{is} && $args{is} eq 'bare' ) {
     $args{is} = 'rw';
     $args{_skip_setup} = 1;
   }
-  return $next->( $name, %args );
+  return $self->$orig( %args );
 } #/ sub _my_moos_has
 
-sub _add_dump {
+sub _add_dump {    # void ($target)
   my ( $proto ) = @_;
   assert( $proto );
-  my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  $target->create_method( 
+  my $target = ref $proto || $proto;
+  _around_hook( $target, 
     dump => sub {
       no warnings 'once';
+      my $orig = shift;
       my $self = shift;
       require Data::Dumper;
       local $Data::Dumper::Sortkeys = 1;
@@ -147,6 +155,34 @@ sub _add_dump {
       my $str = Data::Dumper::Dumper $self;
       $str =~ s/(^|\s)\$VAR\d+\b/$1'$self'/g;
       return $str;
+    }
+  );
+  return;
+}
+
+sub _add_demolish {    # void ($target)
+  my ( $proto ) = @_;
+  assert( $proto );
+  my $target = ref $proto || $proto;
+  _around_hook( $target, 
+    DESTROY => sub {
+      my $orig = shift;
+      my $self = shift;
+      assert( $self );
+      my $class = ref $self || $self;
+
+      my $in_global_destruction = defined ${^GLOBAL_PHASE}
+        ? ${^GLOBAL_PHASE} eq 'DESTRUCT'
+        : Devel::GlobalDestruction::in_global_destruction();
+
+      # Call all DEMOLISH methods starting with the derived classes.
+      foreach ( @{ mro::get_linear_isa( $class ) } ) {
+        no strict 'refs';
+        my $demolish = *{$_.'::DEMOLISH'}{CODE};
+        next unless $demolish;
+        $self->$demolish( $in_global_destruction )
+      }
+      return;
     }
   );
   return;
