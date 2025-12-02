@@ -69,6 +69,7 @@ use vars qw(
   *appPalette = \${ TProgram . '::appPalette' };
 }
 
+# declare attributes
 has flags    => (
   is => 'rw', 
   default => sub { wfMove | wfGrow | wfClose | wfZoom }
@@ -118,9 +119,10 @@ sub from {    # $obj ($bounds, $aTitle, $aNumber)
   return $class->new( bounds => $_[0], title => $_[1], number => $_[2] );
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
+  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   $self->{title} = undef;
   return;
 }
@@ -429,7 +431,7 @@ The unique identifier number of the window. (Int)
 
 =head2 DEMOLISH
 
-  $self->DEMOLISH();
+  $self->DEMOLISH($in_global_destruction);
 
 Destroys the window and releases its resources.
 

@@ -783,15 +783,15 @@ a new background pattern.
 
 =head3 Example
 
-   1  # DEMOTBAC.pl
-   2  # program demo TBackground
-   3  
-   4  use 
-   5    TV::Objects; use TV::App; use TV::Views;
-   6  
-   7  { 
-   8    package TSampleProgram; use parent ::TApplication;
-   9      sub initDeskTop;
+  01  # DEMOTBAC.pl
+  02  # program demo TBackground
+  03  
+  04  use 
+  05    TV::Objects; use TV::App; use TV::Views;
+  06  
+  07  { 
+  08    package TSampleProgram; use parent ::TApplication;
+  09      sub initDeskTop;
   10  }
   11  
   12  {
@@ -1634,15 +1634,15 @@ TView methods, enableCommands, disableCommands, getCommands and setCommands.
 
 Listing C<TCMDSET> illustrates the use of a TCommandSet object.
 
-   1  # TCMDSET.pl
-   2  # Example using TCommandSet; from TVSHELL8.PAS
-   3  
-   4    my $commandsOn = TCommandSet->new()
-   5    my $commandsOff = TCommandSet->new();
-   6    ...
-   7    $commandsOn += cmUseDOS + cmDelete;
-   8    $commandsOff = $commandsOn->clone();
-   9  
+  01  # TCMDSET.pl
+  02  # Example using TCommandSet; from TVSHELL8.PAS
+  03  
+  04    my $commandsOn = TCommandSet->new()
+  05    my $commandsOff = TCommandSet->new();
+  06    ...
+  07    $commandsOn += cmUseDOS + cmDelete;
+  08    $commandsOff = $commandsOn->clone();
+  09  
   10    if ( ( $setUpData->progOptions & 2 ) == 2 ) {
   11      $commandsOff -= cmUseDOS;
   12    }
@@ -1980,15 +1980,15 @@ The L</TEvent> type, as defined in C<SYSTEM.H> and C<TEVENT.CPP> for Turbo
 Vision 2.0, (C) Copyright 1994, by Borland Intl. Following the representation 
 in Perl:
 
-   1  tie (
-   2    what => Int,
-   3    mouse => bless {
-   4      where => TPoint,
-   5      eventFlags => Bool,
-   6      buttons => Int,
-   7      controlKeyState => Int,
-   8    } => 'MouseEventType',
-   9    keyDown => tie (
+  01  tie (
+  02    what => Int,
+  03    mouse => bless {
+  04      where => TPoint,
+  05      eventFlags => Bool,
+  06      buttons => Int,
+  07      controlKeyState => Int,
+  08    } => 'MouseEventType',
+  09    keyDown => tie (
   10      keyCode => Int,
   11      charScan => {
   12        charCode => Int,

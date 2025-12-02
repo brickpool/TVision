@@ -653,6 +653,7 @@ for mapping onto the C<cpDialog> color palette.
 class
 
 =head3 Turbo Vision Hierarchy
+
     TObject
         TView
             TListViewer

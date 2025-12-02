@@ -39,7 +39,7 @@ sub BUILD {    # void (|\%args)
   return;
 }
 
-sub DEMOLISH {    # void ()
+sub DEMOLISH {    # void ($in_global_destruction)
   assert ( blessed $_[0] );
   doneHistory();
   return;
@@ -85,7 +85,7 @@ Calls initHistory.
 
 =head2 DEMOLISH
 
-  $self->DEMOLISH();
+  $self->DEMOLISH($in_global_destruction);
 
 Calls doneHistory.
 

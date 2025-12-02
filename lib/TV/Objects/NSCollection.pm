@@ -78,9 +78,10 @@ sub from {    # $obj ($aLimit, $aDelta)
   return $class->new( limit => $_[0], delta => $_[1] );
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
+  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   $self->shutDown();
   return;
 }

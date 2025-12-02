@@ -188,7 +188,7 @@ function
 
 =head3 Declaration
 
-    sub inputBoxRect; $command ($bounds, $title, $aLabel, $s, $limit)
+    sub inputBoxRect;    # $command ($bounds, $title, $aLabel, $s, $limit)
 
 =head3 Module
 

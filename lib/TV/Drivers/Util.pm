@@ -49,7 +49,7 @@ if ( STRICT && exists &Internals::SvREADONLY ) {
   map { Internals::SvREADONLY $arrowCodes[$_] => 1 } 0 .. $#arrowCodes;
 }
 
-sub ctrlToArrow {    # $keyCode ($keyCode)
+sub ctrlToArrow($) {    # $keyCode ($keyCode)
   assert( @_ == 1 );
   my $keyCode = shift;
   assert( looks_like_number $keyCode );
@@ -61,7 +61,7 @@ sub ctrlToArrow {    # $keyCode ($keyCode)
   return $keyCode;
 } #/ sub ctrlToArrow
 
-sub cstrlen {    # $len ($s)
+sub cstrlen($) {    # $len ($s)
   $_[0] =~ tr/~//c;
 }
 
@@ -73,7 +73,7 @@ if ( STRICT && exists &Internals::SvREADONLY ) {
   map { Internals::SvREADONLY $altCodes2[$_] => 1 } 0 .. $#altCodes2;
 }
 
-sub getAltChar {    # $char ($keyCode)
+sub getAltChar($) {    # $char ($keyCode)
   assert ( @_ == 1 );
   my $keyCode = shift;
   assert ( looks_like_number $keyCode );
@@ -94,7 +94,7 @@ sub getAltChar {    # $char ($keyCode)
   return "\0";
 } #/ sub getAltChar
 
-sub getAltCode {    # $keyCode ($c)
+sub getAltCode($) {    # $keyCode ($c)
   assert ( @_ == 1 );
   my $c = shift;
   assert ( defined $c and !ref $c );
@@ -119,7 +119,7 @@ sub getAltCode {    # $keyCode ($c)
   return 0;
 } #/ sub getAltCode
 
-sub getCtrlChar {    # $char ($keyCode)
+sub getCtrlChar($) {    # $char ($keyCode)
   assert ( @_ == 1 );
   my $keyCode = shift;
   assert ( looks_like_number $keyCode );
@@ -129,7 +129,7 @@ sub getCtrlChar {    # $char ($keyCode)
         : "\0";
 }
 
-sub getCtrlCode {    # $keyCode ($ch)
+sub getCtrlCode($) {    # $keyCode ($ch)
   assert ( @_ == 1 );
   my $ch = shift;
   assert ( defined $ch and !ref $ch );

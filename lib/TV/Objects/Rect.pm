@@ -41,7 +41,6 @@ use if STRICT => 'Hash::Util';
 use Scalar::Util qw( 
   blessed 
   looks_like_number
-  reftype
 );
 
 sub TRect() { __PACKAGE__ }
