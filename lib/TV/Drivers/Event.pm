@@ -241,7 +241,10 @@ package MessageEvent {
   use Devel::StrictMode;
   use Devel::Assert STRICT ? 'on' : 'off';
   use Hash::Util qw( lock_hash );
-  use Scalar::Util qw( blessed );
+  use Scalar::Util qw(
+    blessed
+    weaken
+  );
   use Tie::Hash;
 
   our %HAS = (
@@ -255,6 +258,7 @@ package MessageEvent {
       my ( $this, $info ) = @_;
       if ( @_ > 1 ) {
         $this->[1] = $info;
+        weaken $this->[1] if ref $info;
       }
       $this->[1];
     },

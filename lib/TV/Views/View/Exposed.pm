@@ -8,6 +8,8 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
+use Scalar::Util qw( weaken );
+
 use TV::Views::Const qw(
   sfExposed
   sfVisible
@@ -66,7 +68,7 @@ sub L10 {    # $bool ($dest)
 
 sub L11 {    # $bool ($dest)
   my ( $dest ) = @_;
-  $target = $dest;
+  weaken( $target = $dest );
   $eax += $dest->{origin}{y};
   $ebx += $dest->{origin}{x};
   $ecx += $dest->{origin}{x};
@@ -150,7 +152,7 @@ sub L23 {    # $bool ($next)
   $eax    = $_eax;
   $ecx    = $_ecx;
   $ebx    = $_esi;
-  $target = $_target;
+  weaken( $target = $_target );
   return L20( $next )
     if $b;
   return !!0;

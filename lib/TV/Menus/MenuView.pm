@@ -21,6 +21,7 @@ our @EXPORT = qw(
   new_TMenuView
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(
@@ -128,24 +129,33 @@ sub from {    # $obj ($bounds, | $aMenu|undef, | $aParent );
   return;
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
   $unlock_value->( $self->{parentMenu} ) if STRICT;
   $unlock_value->( $self->{current} )    if STRICT;
   return;
 }
 
+# The following subroutine was taken from the framework
+# "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
+#
+# Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
+#
+# I<tmnuview.cpp>
 sub execute {    # $int ()
-  my $self        = shift;
-  my $autoSelect  = !!0;
-  my $action      = 0;
-  my $result      = 0;
-  my $itemShown   = undef;
-  my $target      = undef;
-  my $r           = TRect->new();
-  my $e           = TEvent->new();
-  my $mouseActive = !!0;
+  my $self = shift;
+  assert( blessed $self );
+  my $autoSelect     = !!0;
+  my $firstEvent     = !!1;
+  my $action         = 0;
+  my $result         = 0;
+  my $itemShown      = undef;
+  my $target         = undef;
+  my $lastTargetItem = undef;
+  my $r              = TRect->new();
+  my $e              = TEvent->new();
+  my $mouseActive    = !!0;
 
   $self->current( $self->{menu}{deflt} );
   $mouseActive = 0;
@@ -158,8 +168,20 @@ sub execute {    # $int ()
           || $self->$mouseInOwner( $e ) 
         ) {
           $self->$trackMouse( $e, $mouseActive );
-          $autoSelect = !!1 
-            if $self->{size}{y} == 1;
+          # autoSelect makes it possible to open the selected submenu directly
+          # on a MouseDown event. This should be avoided, however, when said
+          # submenu was just closed by clicking on its name, or when this is
+          # not a menu bar.
+          if ( $self->{size}{y} == 1 ) {
+            no warnings 'uninitialized';
+            $autoSelect = !$self->{current}
+              || $lastTargetItem != $self->{current};
+          }
+          # A submenu will close if the MouseDown event takes place on the
+          # parent menu, except when this submenu has just been opened.
+          elsif ( !$firstEvent && $self->$mouseInOwner( $e ) ) {
+            $action = doReturn;
+          }
         }
         else {
           $action = doReturn;
@@ -171,19 +193,42 @@ sub execute {    # $int ()
         if ( $self->$mouseInOwner( $e ) ) {
           $self->current( $self->{menu}{deflt} );
         }
-        elsif ( $self->{current} && $self->{current}{name} ) {
-          $action = doSelect;
-        }
-        elsif ( $mouseActive ) {
+        elsif ( $self->{current} ) {
+          if ( $self->{current}{name} ) {
+            no warnings 'uninitialized';
+            if ( $self->{current} != $lastTargetItem ) {
+              $action = doSelect;
+            }
+            elsif ( $self->{size}{y} == 1 ) {
+              # If a menu bar entry was closed, exit and stop listening
+              # for events.
+              $action = doReturn;
+            }
+            else {
+              # MouseUp won't open up a submenu that was just closed by 
+              # clicking on its name.
+              $action = doNothing;
+              # But the next one will.
+              $lastTargetItem = undef;
+            }
+          } #/ if ( $self->{current}{...})
+        } #/ elsif ( $self->{current} )
+        elsif ( $mouseActive && !$self->mouseInView( $e->{mouse}{where} ) ) {
           $action = doReturn;
         }
-        else {
-          $self->current( $self->{menu}{deflt} 
-            ? $self->{menu}{deflt} 
+        elsif ( $self->{size}{y} == 1 ) {
+          # When MouseUp happens inside the Box but not on a highlightable
+          # entry (e.g. on a margin, or a separator), either the default or the
+          # first entry will be automatically highlighted. This was added in
+          # Turbo Vision 2.0. But this doesn't make sense in a menu bar, which
+          # was the original behavior.
+          $self->current(
+            $self->{menu}{deflt}
+            ? $self->{menu}{deflt}
             : $self->{menu}{items}
           );
           $action = doNothing;
-        }
+        } #/ elsif ( $self->{size}{y} ...)
         last;
       };
       $_ == evMouseMove and do {
@@ -275,6 +320,7 @@ sub execute {    # $int ()
       $_ == evCommand and do {
         if ( $e->{message}{command} == cmMenu ) {
           $autoSelect = !!0;
+          $lastTargetItem = undef;
           $action = doReturn
             if $self->{parentMenu};
         }
@@ -287,6 +333,13 @@ sub execute {    # $int ()
 
     {
       no warnings 'uninitialized';
+      # If a submenu was closed by clicking on its name, and the mouse is 
+      # dragged to another menu entry, then the submenu will be opened the next 
+      # time it is hovered over.
+      if ( $lastTargetItem != $self->{current} ) {
+        $lastTargetItem = undef;
+      }
+
       if ( $itemShown != $self->{current} ) {
         $itemShown = $self->{current};
         $self->drawView();
@@ -297,7 +350,7 @@ sub execute {    # $int ()
       && $self->{current}
       && $self->{current}{name}
     ) {
-      if ( $self->{current}{command} == 0 ) {
+      if ( $self->{current}{command} == 0 && !$self->{current}{disabled} ) {
         if ( $e->{what} & ( evMouseDown | evMouseMove ) ) {
           $self->putEvent( $e );
         }
@@ -312,6 +365,8 @@ sub execute {    # $int ()
         );
         $result = $self->{owner}->execView( $target );
         $self->destroy( $target );
+        weaken( $lastTargetItem = $self->{current} );
+        $self->{menu}->deflt( $self->{current} );
       } #/ if ( $self->{current}{...})
       elsif ( $action == doSelect ) {
         $result = $self->{current}{command};
@@ -325,6 +380,8 @@ sub execute {    # $int ()
     else {
       $result = 0;
     }
+
+    $firstEvent = !!0;
   } while ( $action != doReturn );
 
   if ( $e->{what} != evNothing
@@ -590,7 +647,7 @@ $updateMenu = sub {    # $bool ($menu)
         else {
           my $commandState = TView->commandEnabled( $p->{command} );
           no warnings 'uninitialized';
-          if ( 0+$p->{disabled} == 0+$commandState ) {
+          if ( $p->{disabled} == $commandState ) {
             $p->{disabled} = !$commandState;
             $res = !!1;
           }

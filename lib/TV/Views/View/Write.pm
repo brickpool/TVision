@@ -8,6 +8,8 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
+use Scalar::Util qw( weaken );
+
 use TV::Drivers::HardwareInfo;
 use TV::Drivers::HWMouse;
 use TV::Drivers::Screen;
@@ -59,7 +61,7 @@ sub L0 {
   $X       = $x;
   $Y       = $y;
   $Count   = $count;
-  $Buffer  = $b;
+  weaken( $Buffer = $b );
   $wOffset = $X;
   $Count  += $X;
   $edx     = 0;
@@ -79,7 +81,7 @@ sub L10 {
   my ( $dest ) = @_;
   my $owner = $dest->owner();
   if ( ( $dest->{state} & sfVisible ) && $owner ) {
-    $Target = $dest;
+    weaken( $Target = $dest );
     $Y       += $dest->{origin}{y};
     $X       += $dest->{origin}{x};
     $Count   += $dest->{origin}{x};

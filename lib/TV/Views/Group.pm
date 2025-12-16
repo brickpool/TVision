@@ -79,6 +79,13 @@ my $unlock_value = sub {
     if exists &Internals::SvREADONLY;
 };
 
+my $weaken = sub {
+  # warn join(',' => caller()), "\n";
+  $unlock_value->( $_[0] ) if STRICT;
+  weaken $_[0];
+  $lock_value->( $_[0] ) if STRICT;
+};
+
 sub BUILD {    # void (|\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
@@ -90,11 +97,12 @@ sub BUILD {    # void (|\%args)
   return;
 } #/ sub BUILD
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
+  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   $unlock_value->( $self->{current} ) if STRICT;
-  $self->shutDown() unless ${^GLOBAL_PHASE} && ${^GLOBAL_PHASE} eq 'DESTRUCT';
+  $self->shutDown() unless $in_global_destruction;
   return;
 }
 
@@ -103,16 +111,15 @@ sub shutDown {    # void ()
   assert ( blessed $self );
   my $p = $self->{last};
   if ( $p ) {
-    weaken $p;
     do {
       $p->hide();
-      weaken( $p = $p->prev() );
+      $p = $p->prev();
     } while ( $p && $p != $self->{last} );
 
     while ( $p && $self->{last} ) {
-      weaken( my $T = $p->prev() );
+      my $T = $p->prev();
       $self->destroy( $p );
-      weaken( $p = $T ); 
+      $p = $T; 
     }
   } #/ if ( $p )
   $self->freeBuffer();
@@ -130,10 +137,10 @@ sub execView {    # $int ($p|undef)
   return cmCancel
     unless $p;
 
-  my $saveOptions  = $p->{options};
-  weaken( my $saveOwner = $p->{owner} );
-  weaken( my $saveTopView = $TheTopView );
-  weaken( my $saveCurrent = $self->{current} );
+  my $saveOptions = $p->{options};
+  my $saveOwner = $p->{owner};
+  my $saveTopView = $TheTopView;
+  my $saveCurrent = $self->{current};
   my $saveCommands = TCommandSet->new();
   $self->getCommands( $saveCommands );
   weaken( $TheTopView = $p );
@@ -191,9 +198,30 @@ sub insertView {    # void ($p, $Target|undef)
   assert ( !defined $Target or blessed $Target );
   $p->owner( $self );
   if ( $Target ) {
+    assert ( $Target->{owner} == $self );
+    assert ( $self->{last} );
+
+    # Check if the cycle needs to be weakened again.
+    my $weak_cycle = $self->{last} == $Target;
+
+    # Insert new element (as originally)
     $Target = $Target->prev();
     $p->next( $Target->{next} );
     $Target->next( $p );
+
+    q/*
+      warn "\t\$Target => $Target\n";
+      warn "\t\$p => $p\n";
+      my $s = $self->{last};
+      while ( $s->{next} && $s->{next} != $self->{last} ) {
+        warn "\t\t\$" . $s . "->{next} => \\%" . $s->{next} . "\n";
+        $s = $s->{next};
+      }
+      warn "\t\t\$" . $s . "->{next} => " . ( $s->{next} || 'undef' ) . "\n";
+    */ if 0;
+
+    # Set new weak reference if necessary
+    $weaken->( $self->{last}->prev()->{next} ) if $weak_cycle;
   }
   else {
     if ( !$self->{last} ) {
@@ -204,21 +232,19 @@ sub insertView {    # void ($p, $Target|undef)
       $self->{last}->next( $p );
     }
     $self->{last} = $p;
+
+    # Set new weak reference
+    $weaken->( $p->prev()->{next} );
   } #/ else [ if ( $Target ) ]
-  # Note: The $p->{next} field should refer to $p, 
-  # but this could generate a cyclical reference.
-  $p = $self->{last}->prev();
-  if ( !isweak $p->{next} ) {
-    $unlock_value->( $p->{next} ) if STRICT;
-    weaken $p->{next};
-    $lock_value->( $p->{next} ) if STRICT;
-  }
+  q/*
+    require Devel::Cycle; 
+    warn $_ if local $_ = Devel::Cycle::find_cycle( $p );
+  */ if 0;
   return;
 } #/ sub insertView
 
 sub remove {    # void ($p|undef)
-  my ( $self, undef ) = @_;
-  alias: for my $p ( $_[1] ) {
+  my ( $self, $p ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
@@ -233,7 +259,6 @@ sub remove {    # void ($p|undef)
     }
   } #/ if ( $p )
   return;
-  } #/ alias:
 } #/ sub remove
 
 # The following subroutine was taken from the framework
@@ -244,32 +269,41 @@ sub remove {    # void ($p|undef)
 # I<tgrmv.cpp>
 sub removeView {    # void ($p)
   no warnings qw( uninitialized numeric );
-  my ( $self, undef ) = @_;
-  alias: for my $p ( $_[1] ) {
+  my ( $self, $p ) = @_;
   assert ( blessed $self );
   assert ( blessed $p );
   if ( $self->{last} ) {
     my $s = $self->{last};
+
+    # Check if the cycle needs to be weakened again.
+    my $weak_cycle = $s == $p || $s == $p->{next};
+
     while ( $s->{next} != $p ) {
       return
         if $s->{next} == $self->{last};
       $s = $s->{next};
     }
-    $s->next( $p->next );
+    $s->next( $p->{next} );
+
+    # Weaken the {next} field of the removed entry.
+    $weaken->( $p->{next} ) unless isweak $p->{next};
+
     if ( $p == $self->{last} ) {
-      $self->{last} = $p == $p->{next} ? undef : $s;
-    }
-    # Note: The $p->{next} field should refer to $p, 
-    # but this could generate a cyclical reference.
-    my $p = $p != $p->{next} ? $self->{last}->prev() : $p;
-    if ( !isweak $p->{next} ) {
-      $unlock_value->( $p->{next} ) if STRICT;
-      weaken $p->{next};
-      $lock_value->( $p->{next} ) if STRICT;
-    }
+      if ( $p == $p->{next} ) {
+        $self->{last} = undef;
+        return;
+      }
+      $self->{last} = $s;
+    } 
+
+    # Set new weak reference if necessary
+    $weaken->( $self->{last}->prev()->{next} ) if $weak_cycle;
+    q/*
+      require Devel::Cycle; 
+      warn $_ if local $_ = Devel::Cycle::find_cycle( $p );
+    */ if 0;
   } #/ if ( $self->{last} )
   return;
-  } #/ alias:
 } #/ sub removeView
 
 sub resetCurrent {    # void ()
@@ -349,15 +383,15 @@ sub forEach {    # void (\&action, $arg|undef)
   assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( ref $func );
-  weaken( my $term = $self->{last} );
-  weaken( my $temp = $self->{last} );
+  my $term = $self->{last};
+  my $temp = $self->{last};
   return 
     unless $temp;
 
-  weaken( my $next = $temp->{next} );
+  my $next = $temp->{next};
   do {
-    weaken( $temp = $next );
-    weaken( $next = $temp->{next} );
+    $temp = $next;
+    $next = $temp->{next};
     $func->( $temp, $args );
   } while ( $temp != $term );
   return;

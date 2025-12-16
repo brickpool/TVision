@@ -14,6 +14,7 @@ our @EXPORT = qw(
   new_TView
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
@@ -152,8 +153,8 @@ sub from {    # $obj ($bounds)
   return $class->new( bounds => $_[0] );
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
   $unlock_value->( $self->{owner} ) if STRICT;
   $unlock_value->( $self->{next} )  if STRICT;
@@ -399,6 +400,7 @@ sub calcBounds {    # void ($bounds, $delta);
 
   $bounds = $self->getBounds();
 
+  assert ( $self->{owner} );
   $s = $self->{owner}{size}{x};
   $d = $delta->{x};
 
@@ -597,6 +599,7 @@ sub drawUnderRect {    # void ($r, $lastView|undef)
   assert ( blessed $self );
   assert ( ref $r );
   assert ( !defined $lastView or blessed $lastView );
+  assert ( blessed $self->{owner} );
   $self->{owner}{clip}->intersect( $r );
   $self->{owner}->drawSubViews( $self->nextView(), $lastView );
   $self->{owner}{clip} = $self->{owner}->getExtent();
@@ -787,7 +790,7 @@ sub getCommands {    # void ($commands)
   my ( $class, $commands ) = @_;
   assert ( $class );
   assert ( blessed $commands );
-  $commands = $curCommandSet;
+  @$commands = @$curCommandSet;
   return;
 }
 
@@ -796,7 +799,7 @@ sub setCommands {    # void ($commands)
   assert ( $class );
   assert ( blessed $commands );
   $commandSetChanged ||= $curCommandSet != $commands;
-  $curCommandSet = $commands;
+  @$curCommandSet = @$commands;
   return;
 }
 
@@ -1003,20 +1006,18 @@ sub nextView {    # $view|undef ()
   no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
-  return $self->{next}
-    if $self->{owner}
-    && $self != $self->{owner}{last};
-  return undef;
+  return !$self->{owner} || $self == $self->{owner}{last}
+    ? undef
+    : $self->{next};
 }
 
 sub prevView {    # $view|undef ()
   no warnings qw( uninitialized numeric );
   my $self = shift;
   assert ( blessed $self );
-  return $self->prev()
-    if $self->{owner} 
-    && $self != $self->{owner}->first();
-  return undef;
+  return !$self->{owner} || $self == $self->{owner}->first()
+    ? undef 
+    : $self->prev();
 }
 
 sub prev {    # $view|undef ()
@@ -1024,13 +1025,14 @@ sub prev {    # $view|undef ()
   my $self = shift;
   assert ( blessed $self );
   my $res = $self;
-  while ( $res && $res->{next} != $self ) {
+  while ( $res->{next} != $self ) {
+    return undef unless $res->{next};
     $res = $res->{next};
   }
   return $res;
 }
 
-sub next {    # $view (|$view|undef)
+sub next {    # $view|undef (|$view|undef)
   my ( $self, $view ) = @_;
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
@@ -1045,7 +1047,7 @@ sub next {    # $view (|$view|undef)
 sub makeFirst {    # $void ()
   my $self = shift;
   assert ( blessed $self );
-  $self->putInFrontOf( $self->{owner}->first() ) 
+  $self->putInFrontOf( $self->{owner}->first() )
     if $self->{owner};
   return;
 }

@@ -180,6 +180,15 @@ sub union_assign {    # $self ($tc)
   return $self;
 }
 
+sub dump {    # $str ()
+  my $self = shift;
+  assert ( blessed $self );
+  my $dump = "$self=";
+  $dump .= join ':' => map { sprintf("%02x", $self->[$_]) } 0 .. 31;
+  $dump .= "\n";
+  return $dump;
+}
+
 use overload
   '+=' => \&include,
   '-=' => \&exclude,

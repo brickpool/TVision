@@ -26,12 +26,19 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
   blessed
   reftype
+  weaken
+  isweak
 );
 
 use TV::toolkit;
 
 sub TObject() { __PACKAGE__ }
 sub new_TObject { __PACKAGE__->from(@_) }
+
+my $unlock_value = sub {
+  Internals::SvREADONLY( $_[0] => 0 )
+    if exists &Internals::SvREADONLY;
+};
 
 sub BUILDARGS {    # \%args ()
   my $class = shift;
@@ -54,6 +61,12 @@ sub destroy {    # void ($class|$self, $o|undef)
   if ( defined $o ) {
     assert ( blessed $o );
     $o->shutDown();
+    for ( keys %$o ) {
+      if ( ref $o->{$_} && !isweak $o->{$_} ) {
+        $unlock_value->( $o->{$_} ) if STRICT;
+        weaken $o->{$_};
+      }
+    }
     undef $o;
   }
   return;
