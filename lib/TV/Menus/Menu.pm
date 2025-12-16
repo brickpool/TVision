@@ -86,9 +86,9 @@ sub from {    # $obj (| $itemList, | $TheDefault)
   return;
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
-  assert( blessed $self );
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
+  assert ( blessed $self );
   while ( $self->{items} ) {
     my $temp = $self->{items};
     $self->{items} = $self->{items}{next};

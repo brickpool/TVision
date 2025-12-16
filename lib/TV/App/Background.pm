@@ -14,6 +14,7 @@ our @EXPORT = qw(
   new_TBackground
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(

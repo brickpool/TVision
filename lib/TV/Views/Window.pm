@@ -14,6 +14,7 @@ our @EXPORT = qw(
   new_TWindow
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(
@@ -23,7 +24,6 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
-  weaken
 );
 
 use TV::App::Program;
@@ -122,7 +122,6 @@ sub from {    # $obj ($bounds, $aTitle, $aNumber)
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
-  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   $self->{title} = undef;
   return;
 }
@@ -192,7 +191,7 @@ sub handleEvent {    # void ($event)
         no warnings 'uninitialized';
         if ( ( $self->{flags} & wfClose )
           && ( !$event->{message}{infoPtr}
-            || 0+$event->{message}{infoPtr} == 0+$self
+            ||  $event->{message}{infoPtr} == $self
           ) 
         ) {
           $self->clearEvent( $event );
@@ -212,7 +211,7 @@ sub handleEvent {    # void ($event)
         no warnings 'uninitialized';
         if ( ( $self->{flags} & wfZoom )
           && ( !$event->{message}{infoPtr} 
-            || 0+$event->{message}{infoPtr} == 0+$self
+            ||  $event->{message}{infoPtr} == $self
           )
         ) {
           $self->zoom();

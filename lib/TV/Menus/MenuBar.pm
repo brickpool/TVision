@@ -14,6 +14,7 @@ our @EXPORT = qw(
   new_TMenuBar
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(
@@ -78,8 +79,8 @@ sub from {    # $obj ($bounds, $aMenu|undef)
   return $class->new( bounds => $_[0], menu => $_[1] );
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
   undef $self->{menu};
   return;

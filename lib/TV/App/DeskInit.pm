@@ -13,6 +13,7 @@ our @EXPORT = qw(
   new_TDeskInit
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(

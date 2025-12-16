@@ -21,6 +21,7 @@ our @EXPORT = qw(
   new_TStatusItem
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(
@@ -69,7 +70,6 @@ sub from {    # $obj ($aText, $key, $cmd, | $aNext)
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
-  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   undef $self->{text};
   return;
 }

@@ -95,8 +95,8 @@ sub from {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $para
   return $class->new( %args );
 }
 
-sub DEMOLISH {    # void ()
-  my $self = shift;
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( blessed $self );
   undef $self->{name};
   if ( $self->{command} == 0 ) {

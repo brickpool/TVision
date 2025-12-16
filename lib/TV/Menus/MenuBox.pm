@@ -13,6 +13,7 @@ our @EXPORT = qw(
   new_TMenuBox
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( max );
