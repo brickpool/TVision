@@ -51,7 +51,7 @@ BEGIN {
     return;
   }
 
-  # Create new window. Windows are not usually opened modally, as you usually 
+  # Create new window. A window are not usually opened modally, as you usually 
   # want to open several of them.
   sub newWindows {
     my $self = shift;

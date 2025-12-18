@@ -55,7 +55,7 @@ BEGIN {
     $r->{b}{y} = $r->{a}{y} + 1;
     return
       new_TMenuBar( $r, 
-        new_TSubMenu( '~F~ile', kbAltF ) + 
+        new_TSubMenu( '~F~ile', hcNoContext ) + 
           new_TMenuItem( 'E~x~it', cmQuit, kbAltX, hcNoContext, 'Alt-X' )
       );
   }
