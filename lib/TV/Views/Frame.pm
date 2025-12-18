@@ -20,7 +20,6 @@ use List::Util qw( min max );
 use Scalar::Util qw(
   blessed
   looks_like_number
-  weaken
 );
 
 use TV::Drivers::Const qw(
@@ -189,7 +188,7 @@ sub handleEvent {    # void ($event)
         if ( $mouse->{y} == 0 && $mouse->{x} >= 2 && $mouse->{x} <= 4 ) {
           $event->{what} = evCommand;
           $event->{message}{command} = cmClose;
-          weaken( $event->{message}{infoPtr} = $self->{owner} );
+          $event->{message}{infoPtr} = $self->{owner};
           $self->putEvent( $event );
           $self->clearEvent( $event );
         }
@@ -207,7 +206,7 @@ sub handleEvent {    # void ($event)
       ) {
         $event->{what} = evCommand;
         $event->{message}{command} = cmZoom;
-        weaken( $event->{message}{infoPtr} = $self->{owner} );
+        $event->{message}{infoPtr} = $self->{owner};
         $self->putEvent( $event );
         $self->clearEvent( $event );
       } #/ elsif ( ( $self->{owner}...))

@@ -162,9 +162,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub sizeLimits {    # void ($min, $max)
-  my ( $self, undef, undef ) = @_;
-  alias: for my $min ( $_[1] ) {
-  alias: for my $max ( $_[2] ) {
+  my ( $self, $min, $max ) = @_;
   assert ( blessed $self );
   assert ( ref $min );
   assert ( ref $max );
@@ -177,7 +175,6 @@ sub sizeLimits {    # void ($min, $max)
     $max->{x} = $max->{y} = INT_MAX;
   }
   return;
-  }} #/ alias:
 } #/ sub sizeLimits
 
 sub getBounds {    # $rect ()
@@ -1176,7 +1173,7 @@ sub writeStr {    # void ($x, $y, $str, $color)
   return;
 } #/ sub writeStr
 
-sub owner {    # $group (|$group|undef)
+sub owner {    # $group|undef (|$group|undef)
   my ( $self, $group ) = @_;
   assert ( blessed $self );
   assert ( !defined $group or blessed $group );

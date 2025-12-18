@@ -204,6 +204,7 @@ sub getEvent {    # void ($event)
   }
 
   if ( $statusLine ) {
+    no warnings 'uninitialized';
     if (
       ( $event->{what} & evKeyDown )
       || ( ( $event->{what} & evMouseDown )

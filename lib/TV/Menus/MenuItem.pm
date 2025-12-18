@@ -116,7 +116,7 @@ sub append {    # void ($aNext)
   return;
 }
 
-sub newLine {    # $menuItem ()
+sub newLine () {    # $menuItem ()
   assert( @_ == 0 );
   return TMenuItem->new(
     name    => '',

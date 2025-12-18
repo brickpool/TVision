@@ -79,7 +79,7 @@ sub L0 {
 
 sub L10 {
   my ( $dest ) = @_;
-  my $owner = $dest->owner();
+  my $owner = $dest->{owner};
   if ( ( $dest->{state} & sfVisible ) && $owner ) {
     weaken( $Target = $dest );
     $Y       += $dest->{origin}{y};
@@ -91,7 +91,7 @@ sub L10 {
         if $X < $owner->{clip}{a}{x};
       $Count = $owner->{clip}{b}{x}
         if $Count > $owner->{clip}{b}{x};
-      L20( $owner->last() )
+      L20( $owner->{last} )
         if $X < $Count;
     }
   } #/ if ( ( $dest->{state} ...))
@@ -100,7 +100,7 @@ sub L10 {
 
 sub L20 {
   my ( $dest ) = @_;
-  my $next = $dest->next();
+  my $next = $dest->{next};
   if ( $next == $Target ) {
     L40( $next );
   }
@@ -184,14 +184,14 @@ sub L30 {
   $edx     = $_edx;
   $esi     = $_esi;
   $wOffset = $_wOffset;
-  $Target  = $_Target;
+  weaken( $Target = $_Target );
   $X       = $esi;
   return;
 } #/ sub L30
 
 sub L40 {
   my ( $dest ) = @_;
-  my $owner = $dest->owner();
+  my $owner = $dest->{owner};
   if ( $owner->{buffer} ) {
     no warnings 'uninitialized';
     if ( $owner->{buffer} != $screenBuffer ) {
@@ -230,17 +230,17 @@ sub L50 {
 } #/ sub L50
 
 # On Windows and DOS, Turbo Vision stores a byte of text and a byte of
-# attributes for every cell. On Windows, all TGroup buffers follow this schema
-# except the topmost one, which interfaces with the Win32 Console API.
+# attributes for every cell. On Windows, all TGroup buffers follow this scheme, 
+# with the exception of the top one, which corresponds to the Win32 console API.
 
 sub copyShort {
   my ( $dst, $src ) = @_;
   if ( $edx == 0 ) {
-    # must be a copy of each element
-    $dst->[$_] = $src->[$_] for 0 .. $Count - $X;
+    my $n = $Count - $X;
+    @$dst[ 0 .. $n - 1 ] = @$src[ 0 .. $n - 1 ];
   }
   else {
-    for ( my $i = 0 ; $i < $Count - $X ; $i++ ) {
+    for ( my $i = 0 ; $i < $Count - $X ; ++$i ) {
       my ( $c, $color ) = unpack 'CC' => pack 'v'  => $src->[$i];
       $dst->[$i]        = unpack 'v'  => pack 'CC' => $c, applyShadow( $color );
     }
@@ -253,10 +253,8 @@ sub copyShort2CharInfo {
   my $i;
   if ( $edx == 0 ) {
     # Expand character/attribute pair
-    for ( $i = 0 ; $i < $Count - $X ; ++$i ) {
-      my ( $c, $color ) = unpack 'CC' => pack 'v' => $src->[$i];
-      splice( @$dst, 2 * $i, 2, $c, $color );
-    }
+    my $n = $Count - $X;
+    @$dst[ 0 .. 2 * $n - 1 ] = unpack 'C*' => pack "v*" => @$src[ 0 .. $n - 1 ];
   }
   else {
     # Mix in shadow attribute

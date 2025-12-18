@@ -10,6 +10,7 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use List::Util qw( min max );
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -40,13 +41,13 @@ sub TV::Views::Frame::frameLine {
   my $x;
 
   substr( $FrameMask, 0, 1, substr( $initFrame, $n, 1 ) );
-  for ( $x = 1 ; $x < $size_x - 1 ; $x++ ) {
+  for ( $x = 1 ; $x < $size_x - 1 ; ++$x ) {
     substr( $FrameMask, $x, 1, substr( $initFrame, $n + 1, 1 ) );
   }
   substr( $FrameMask, $size_x - 1, 1, substr( $initFrame, $n + 2, 1 ) );
 
-  my $v = $self->{owner}{last}->next;
-  for ( ; $v != $self ; $v = $v->next ) {
+  my $v = $self->{owner}{last}{next};
+  for ( ; $v != $self ; $v = $v->{next} ) {
     if ( ( $v->{options} & $self->{ofFramed} )
       && ( $v->{state} & $self->{sfVisible} ) )
     {
@@ -64,11 +65,8 @@ sub TV::Views::Frame::frameLine {
       }
 
       if ( $mask ) {
-        my $start = $v->{origin}{x} > 1 ? $v->{origin}{x} : 1;
-        my $end =
-          $v->{origin}{x} + $v->{size}{x} < $size_x - 1
-          ? $v->{origin}{x} + $v->{size}{x}
-          : $size_x - 1;
+        my $start = max( $v->{origin}{x}, 1 );
+        my $end   = min( $v->{origin}{x} + $v->{size}{x}, $size_x - 1 );
         if ( $start < $end ) {
           my $maskLow  = $mask & 0x00FF;
           my $maskHigh = ( $mask & 0xFF00 ) >> 8;
