@@ -171,4 +171,6 @@ xt/01Intro/05FirstDesktop.t
 xt/01pod.t
 xt/02kwalitee.t
 xt/02StatusLineAndMenu/10Menu.t
+xt/02StatusLineAndMenu/15MenuExpanded.t
 xt/11Window/00FirstWindow.t
+xt/11Window/05OpenNewAndCloseWindow.t

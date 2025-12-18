@@ -42,9 +42,9 @@ This port is based on the original codebase of Borland C++ 4.02
 L<tv2fixed.zip|http://www.sigala.it/sergio/tvision/source/tv2fixed.zip>).
 
 Perl TVision wanted to enable developers to use the powerful text-based user 
-interfaces of Turbo Vision in Perl. Unfortunately, this failed. See why ...
+interfaces of Turbo Vision in Perl. 
 
-=head3 I STOP HERE
+=head3 Porting notes
 
 Languages with automatic garbage collection (like Perl) have complementary 
 problems compared to languages without garbage collection (like C/C++). For 
@@ -84,10 +84,6 @@ without causing dependency problems - it might even be impossible, since there
 are more cyclic dependencies than just memory references. All other resources 
 have to be cleaned up manually, like in Pascal or C++, without the advantages 
 of Perl.
-
-The result is that much cleanup that is I<automated> in Perl must now be done 
-manually. I<Automated> needs quotes because the programmer is responsible for 
-ensuring this - but then there are different responsibilities in GC languages.
 
 =head3 Key Features of the Port
 
