@@ -47,6 +47,7 @@ extends TMenuView;
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     # 'required' arguments (note: 'menu' can be undefined )
     bounds => {

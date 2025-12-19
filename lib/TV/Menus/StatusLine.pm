@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::StatusLine - defines the class TStatusLine
-
-=cut
-
 package TV::Menus::StatusLine;
+# ABSTRACT: Message line for the bottom of the application screen
 
 use strict;
 use warnings;
@@ -54,8 +47,8 @@ sub new_TStatusLine { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-has items => ( is => 'rw' );
-has defs  => ( is => 'rw' );
+has items => ( is => 'ro' );
+has defs  => ( is => 'ro' );
 
 # predeclare private methods
 my (
@@ -70,6 +63,7 @@ my $hintSeparator;
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     # 'required' arguments (note: 'defs' can be undefined)
     bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
@@ -79,6 +73,7 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   $self->{options}   |= ofPreProcess;
   $self->{eventMask} |= evBroadcast;
@@ -96,6 +91,7 @@ sub from {    # $obj ($bounds, $aDefs|undef);
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   while ( $self->{defs} ) {
     my $T = $self->{defs};
@@ -121,7 +117,8 @@ sub disposeItems {    # void ($item|undef)
 }
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->$drawSelect( undef );
   return;
@@ -129,7 +126,8 @@ sub draw {    # void ()
 
 my $palette;
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpStatusLine, 
@@ -141,6 +139,7 @@ sub getPalette {    # $palette ()
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
@@ -192,13 +191,15 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub hint {    # $str ($aHelpCtx)
-  assert ( blessed shift );
-  assert ( looks_like_number shift );
+  assert ( @_ == 2 );
+  assert ( blessed $_[0] );
+  assert ( looks_like_number $_[1] );
   return '';
 }
 
 sub update {    # void
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $p = $self->TopView();
   my $h = $p ? $p->getHelpCtx() : hcNoContext;
@@ -295,3 +296,13 @@ $itemMouseIsIn = sub {    # $statusItem|undef ($mouse)
 }; #/ sub itemMouseIsIn
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::StatusLine - defines the class TStatusLine
+
+=cut

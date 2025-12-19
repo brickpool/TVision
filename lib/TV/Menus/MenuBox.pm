@@ -1,4 +1,5 @@
 package TV::Menus::MenuBox;
+# ABSTRACT: Pull-down or pop-up menu box
 
 use strict;
 use warnings;

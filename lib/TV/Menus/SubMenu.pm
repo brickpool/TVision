@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::SubMenu - defines the class TSubMenu
-
-=cut
-
 package TV::Menus::SubMenu;
+# ABSTRACT: Class for a submenu off a menu bar or menu box 
 
 use strict;
 use warnings;
@@ -121,3 +114,13 @@ use overload
   fallback => 1;
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::SubMenu - defines the class TSubMenu
+
+=cut

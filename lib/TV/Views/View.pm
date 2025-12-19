@@ -129,7 +129,7 @@ my $unlock_value = sub {
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
-  # 'required' arguments
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };

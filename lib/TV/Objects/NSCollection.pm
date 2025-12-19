@@ -58,6 +58,7 @@ my (
 sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     limit => { default => 0, defined => 1, allow => qr/^\d+$/ },
     delta => { default => 0, defined => 1, allow => qr/^\d+$/ },

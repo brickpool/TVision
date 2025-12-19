@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::MenuItem - defines the class TMenuItem
-
-=cut
-
 package TV::Menus::MenuItem;
+# ABSTRACT: Class linking text, hot key, command, and help for use within a menu
 
 use strict;
 use warnings;
@@ -129,3 +122,13 @@ sub newLine () {    # $menuItem ()
 } #/ sub newLine
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::MenuItem - defines the class TMenuItem
+
+=cut

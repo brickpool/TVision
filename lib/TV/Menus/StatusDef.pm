@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::StatusDef - defines the class TStatusDef
-
-=cut
-
 package TV::Menus::StatusDef;
+# ABSTRACT: Class linking a range of helps with a list of status line items
 
 use strict;
 use warnings;
@@ -48,6 +41,7 @@ has items => ( is => 'rw' );
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     # 'required' arguments
     min => { required => 1, defined => 1, allow => qr/^\d+$/ },
@@ -119,3 +113,13 @@ use overload
   fallback => 1;
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::StatusDef - defines the class TStatusDef
+
+=cut

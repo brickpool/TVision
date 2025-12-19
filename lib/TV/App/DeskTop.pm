@@ -16,10 +16,6 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
 use Scalar::Util qw(
   blessed
   weaken

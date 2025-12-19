@@ -172,6 +172,7 @@ our %EXPORT_TAGS = (
 
   cpXXXX => [qw(
     cpFrame
+    cpScroller
     cpScrollBar
     cpBlueWindow
     cpCyanWindow
@@ -393,6 +394,11 @@ use constant {
 use constant {
   # TFrame palette
   cpFrame => "\x01\x01\x02\x02\x03",
+};
+
+use constant {
+  # cpScroller palette
+  cpScroller => "\x06\x07",
 };
 
 use constant {

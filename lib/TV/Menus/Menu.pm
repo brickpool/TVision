@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::Menu - defines the class TMenu
-
-=cut
-
 package TV::Menus::Menu;
+# ABSTRACT: Linked list of TMenuItem records
 
 use strict;
 use warnings;
@@ -55,6 +48,7 @@ my $unlock_value = sub {
 sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   my $args = STRICT ? check( {
     items   => { allow => sub { !defined $_[0] or blessed $_[0] } },
     default => { allow => sub { !defined $_[0] or blessed $_[0] } },
@@ -112,3 +106,13 @@ sub deflt {    # $view|undef (|$view|undef)
 } #/ sub deflt
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::Menu - defines the class TMenu
+
+=cut

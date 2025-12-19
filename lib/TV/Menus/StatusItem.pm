@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::StatusItem - defines the class TStatusItem
-
-=cut
-
 package TV::Menus::StatusItem;
+# ABSTRACT: Class linking text, hot key, and command for use on a status line 
 
 use strict;
 use warnings;
@@ -75,3 +68,13 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::StatusItem - defines the class TStatusItem
+
+=cut

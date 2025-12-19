@@ -1,5 +1,5 @@
 package TV::Views::ScrollBar;
-# ABSTRACT: Scroll bar class for window components in Turbo Vision
+# ABSTRACT: Class defining a scroll bar in Turbo Vision
 
 use strict;
 use warnings;
@@ -103,6 +103,7 @@ my $extent = TRect->new();
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   
@@ -237,12 +238,13 @@ sub handleEvent {    # void ($event)
       } #/ if ( ( $self->{state} ...))
       last;
     }; #/ do
-    }
+  } #/ SWITCH: for ( $event->{what} ...)
   return;
 } #/ sub handleEvent
 
 sub scrollDraw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   message( $self->owner, evBroadcast, cmScrollBarChanged, $self );
   return;
@@ -250,6 +252,7 @@ sub scrollDraw {    # void ()
 
 sub scrollStep {    # $steps ($part)
   my ( $self, $part ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $part );
   my $step = ( $part & 2 )
@@ -262,6 +265,7 @@ sub scrollStep {    # $steps ($part)
 
 sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
   my ( $self, $aValue, $aMin, $aMax, $aPgStep, $aArStep ) = @_;
+  assert ( @_ == 6 );
   assert ( blessed $self );
   assert ( looks_like_number $aValue );
   assert ( looks_like_number $aMin );
@@ -291,6 +295,7 @@ sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
 
 sub setRange {    # void ($aMin, $aMax)
   my ( $self, $aMin, $aMax ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aMin );
   assert ( looks_like_number $aMax );
@@ -301,6 +306,7 @@ sub setRange {    # void ($aMin, $aMax)
 
 sub setStep {    # void ($aPgStep, $aArStep)
   my ( $self, $aPgStep, $aArStep ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aPgStep );
   assert ( looks_like_number $aArStep );
@@ -311,6 +317,7 @@ sub setStep {    # void ($aPgStep, $aArStep)
 
 sub setValue {    # void ($aValue)
   my ( $self, $aValue ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $aValue );
   $self->setParams( $aValue, $self->{minVal}, $self->{maxVal}, $self->{pgStep},
@@ -320,6 +327,9 @@ sub setValue {    # void ($aValue)
 
 sub drawPos {    # void ($pos)
   my ( $self, $pos ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( looks_like_number $pos );
   my $b = TDrawBuffer->new();
   my $s = $self->getSize() - 1;
   $b->moveChar( 0, substr($self->{chars}, 0, 1), $self->getColor( 2 ), 1 );
@@ -336,7 +346,8 @@ sub drawPos {    # void ($pos)
 } #/ sub drawPos
 
 sub getPos {    # $pos ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $r = $self->{maxVal} - $self->{minVal};
   return 1 
@@ -351,7 +362,8 @@ sub getPos {    # $pos ()
 } #/ sub getPos
 
 sub getSize {   # $size ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   return $self->{size}{x} == 1 
     ? $self->{size}{y}

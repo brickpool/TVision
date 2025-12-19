@@ -1,5 +1,5 @@
 package TV::Views::Frame;
-# ABSTRACT: Frame class for window components in Turbo Vision
+# ABSTRACT: Frame class used by windows in Turbo Vision
 
 use strict;
 use warnings;
@@ -74,7 +74,8 @@ sub BUILD {    # void (|\%args)
 }
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my ( $cFrame, $cTitle );
   my ( $f, $i, $l, $width );
@@ -160,7 +161,8 @@ sub draw {    # void ()
 
 my $palette;
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpFrame, 
@@ -171,6 +173,7 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
@@ -237,10 +240,11 @@ sub setState {    # void ($aState, $enable)
     $self->drawView();
   }
   return;
-}
+} #/ sub setState
 
 sub dragWindow {    # void ($event, $mode)
   my ( $self, $event, $mode ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $event );
   assert ( looks_like_number $mode );

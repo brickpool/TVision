@@ -42,6 +42,7 @@ has pattern => ( is => 'rw', default => sub { die 'required' } );
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
   return STRICT ? check( {
     bounds  => { required => 1, defined => 1, allow => sub { blessed shift } },
     pattern => { required => 1, defined => 1, allow => sub { !ref shift } },

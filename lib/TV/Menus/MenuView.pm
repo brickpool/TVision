@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Menus::MenuView - defines the class TMenuView
-
-=cut
-
 package TV::Menus::MenuView;
+# ABSTRACT: Abstract class for menu bars and menu boxes in Turbo Vision
 
 use strict;
 use warnings;
@@ -64,7 +57,7 @@ extends TView;
 
 # declare attributes
 has parentMenu => ( is => 'bare' );
-has menu       => ( is => 'rw' );
+has menu       => ( is => 'ro' );
 has current    => ( is => 'bare' );
 
 # predeclare private methods
@@ -106,6 +99,7 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
+	assert( @_ == 2 );
   assert ( blessed $self );
   $self->{eventMask} |= evBroadcast;
   weaken( $self->{parentMenu} )        if $self->{parentMenu};
@@ -131,6 +125,7 @@ sub from {    # $obj ($bounds, | $aMenu|undef, | $aParent );
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+	assert( @_ == 2 );
   assert ( blessed $self );
   $unlock_value->( $self->{parentMenu} ) if STRICT;
   $unlock_value->( $self->{current} )    if STRICT;
@@ -144,7 +139,8 @@ sub DEMOLISH {    # void ($in_global_destruction)
 #
 # I<tmnuview.cpp>
 sub execute {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+	assert( @_ == 1 );
   assert( blessed $self );
   my $autoSelect     = !!0;
   my $firstEvent     = !!1;
@@ -399,6 +395,7 @@ sub execute {    # $int ()
 
 sub findItem {    # $menuItem|undef ($ch)
   my ( $self, $ch ) = @_;
+	assert( @_ == 2 );
   assert ( blessed $self );
   assert ( defined $ch and !ref $ch );
   $ch = uc( $ch );
@@ -423,7 +420,8 @@ sub getItemRect {    # $rect ($item|undef)
 }
 
 sub getHelpCtx {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $c = $self;
 
@@ -442,7 +440,8 @@ sub getHelpCtx {    # $int ()
 
 my $palette;
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new( 
     data => cpMenuView, 
@@ -453,6 +452,7 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $self->{menu} ) {
@@ -497,6 +497,7 @@ sub handleEvent {    # void ($event)
 
 sub hotKey {    # $menuItem ($keyCode)
   my ( $self, $keyCode ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $keyCode );
   return $self->$findHotKey( $self->{menu}{items}, $keyCode );
@@ -519,6 +520,7 @@ sub newSubView {    # $menuView ($bounds, $aMenu, $aParentMenu)
 
 sub parentMenu {    # $menuView|undef (|$menuView|undef)
   my ( $self, $menuView ) = @_;
+  assert ( @_ >= 1 && @_ <= 2 );
   assert ( blessed $self );
   assert ( !defined $menuView or blessed $menuView );
   if ( @_ == 2 ) {
@@ -532,6 +534,7 @@ sub parentMenu {    # $menuView|undef (|$menuView|undef)
 
 sub current {    # $menuItem|undef (|$menuItem|undef)
   my ( $self, $menuItem ) = @_;
+  assert ( @_ >= 1 && @_ <= 2 );
   assert ( blessed $self );
   assert ( !defined $menuItem or blessed $menuItem );
   if ( @_ == 2 ) {
@@ -694,3 +697,13 @@ $findHotKey = sub {    # $menuItem|undef ($p, $keyCode)
 }; #/ sub $findHotKey
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Menus::MenuView - defines the class TMenuView
+
+=cut
