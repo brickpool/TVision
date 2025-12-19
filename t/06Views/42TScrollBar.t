@@ -117,7 +117,7 @@ subtest 'setRange' => sub {
 };
 
 # Test case for the setValue method
-subtest 'setRange' => sub {
+subtest 'setValue' => sub {
   can_ok( $scrollBar, 'setValue' );
   lives_ok { $scrollBar->setValue( 5 ) }
     'TScrollBar setValue method executed';

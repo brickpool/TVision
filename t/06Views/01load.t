@@ -19,6 +19,8 @@ BEGIN {
   use_ok 'TV::Views::Frame::Line';
   use_ok 'TV::Views::Frame';
   use_ok 'TV::Views::ScrollBar';
+  use_ok 'TV::Views::Scroller';
+  use_ok 'TV::Views::Window';
   use_ok 'TV::Views::WindowInit';
 }
 
@@ -28,4 +30,11 @@ isa_ok( TView->new( bounds => TRect->new() ), TView );
 isa_ok( TGroup->new( bounds => TRect->new() ), TGroup );
 isa_ok( TFrame->new( bounds => TRect->new() ), TFrame );
 isa_ok( TScrollBar->new( bounds => TRect->new() ), TScrollBar );
+isa_ok(
+  TScroller->new(
+    bounds      => TRect->new(), 
+    aHScrollBar => TScrollBar->new( bounds => TRect->new() ), 
+    aVScrollBar => TScrollBar->new( bounds => TRect->new() ),
+  ), TScroller
+);
 isa_ok( TWindowInit->new( cFrame => sub { } ), TWindowInit );
