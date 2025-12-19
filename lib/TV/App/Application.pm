@@ -40,6 +40,7 @@ sub BUILD {    # void (|\%args)
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
+  assert ( @_ == 2 );
   assert ( blessed $_[0] );
   doneHistory();
   return;

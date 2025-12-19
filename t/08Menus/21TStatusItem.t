@@ -22,7 +22,7 @@ isa_ok( $status_item2, TStatusItem, 'Object is of class TStatusItem' );
 
 # Test DEMOLISH method
 can_ok( $status_item1, 'DEMOLISH' );
-lives_ok { $status_item1->DEMOLISH() }
+lives_ok { $status_item1->DEMOLISH(0) }
   'DEMOLISH works correctly';
 
 done_testing;

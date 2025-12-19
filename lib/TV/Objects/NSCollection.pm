@@ -81,13 +81,15 @@ sub from {    # $obj ($aLimit, $aDelta)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   $self->shutDown();
   return;
 }
 
 sub shutDown {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   if ( $self->{shouldDelete} ) {
     $self->freeAll();
@@ -102,6 +104,7 @@ sub shutDown {    # void ()
 
 sub at {    # $item ($index)
   my ( $self, $index ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
   $self->error( EINVAL, "Index out of bounds" )
@@ -111,6 +114,7 @@ sub at {    # $item ($index)
 
 sub atRemove {    # void ($index)
   my ( $self, $index ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
   $self->error( EINVAL, "Index out of bounds" )
@@ -122,6 +126,7 @@ sub atRemove {    # void ($index)
 
 sub atFree {    # void ($index)
   my ( $self, $index ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
   my $item = $self->at( $index );
@@ -132,9 +137,9 @@ sub atFree {    # void ($index)
 
 sub atInsert {    # void ($index, $item|undef)
   my ( $self, $index, $item ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
-  assert ( @_ == 3 );
   $self->error( EINVAL, "Index out of bounds" )
     if $index < 0;
   $self->setLimit( $self->{count} + $self->{delta} )
@@ -150,9 +155,9 @@ sub atInsert {    # void ($index, $item|undef)
 
 sub atPut {    # void ($index, $item|undef)
   my ( $self, $index, $item ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
-  assert ( @_ == 3 );
   $self->error( EINVAL, "Index out of bounds" )
     if $index >= $self->{count};
 
@@ -164,14 +169,15 @@ sub atPut {    # void ($index, $item|undef)
 
 sub remove {    # void ($item)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   $self->atRemove( $self->indexOf( $item ) );
   return;
 }
 
 sub removeAll {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{count} = 0;
   $self->{items} = [];
@@ -180,15 +186,16 @@ sub removeAll {    # void ()
 
 sub free {    # void ($item)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   $self->remove( $item );
   $self->$freeItem( $item );
   return;
 }
 
 sub freeAll {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->$freeItem( $self->at( $_ ) ) 
     for 0 .. $self->{count} - 1;
@@ -198,8 +205,8 @@ sub freeAll {    # void ()
 
 sub indexOf {    # $index ($item|undef)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   for my $i ( 0 .. $self->{count} - 1 ) {
     my $id = id($item) || 0;
     return $i if $self->{items}->[$i] eq $id;
@@ -210,8 +217,8 @@ sub indexOf {    # $index ($item|undef)
 
 sub insert {    # $index ($item|undef)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   my $loc = $self->{count};
   $self->atInsert( $self->{count}, $item );
   return $loc;
@@ -219,6 +226,7 @@ sub insert {    # $index ($item|undef)
 
 sub error {    # void ($code, $info)
   my ( $self, $code, $info ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $code );
   assert ( defined $info and !ref $info );
@@ -264,7 +272,8 @@ sub forEach {    # void (\&action, $arg|undef)
 }
 
 sub pack {    # void ()
-  my $self  = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $count = 0;
   for my $i ( 0 .. $self->{count} - 1 ) {
@@ -285,6 +294,7 @@ sub pack {    # void ()
 
 sub setLimit {    # void ($aLimit)
   my ( $self, $aLimit ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $aLimit );
   $aLimit = $self->{count} if $aLimit < $self->{count};

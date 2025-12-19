@@ -40,7 +40,7 @@ isa_ok( $group, TGroup, 'Object is of class TGroup' );
 
 # Test DEMOLISH method
 can_ok( $group, 'DEMOLISH' );
-lives_ok { $group->DEMOLISH() }
+lives_ok { $group->DEMOLISH(0) }
   'DEMOLISH method works correctly';
 
 # Test shutDown method

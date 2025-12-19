@@ -99,6 +99,7 @@ sub BUILD {    # void (|\%args)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $in_global_destruction or !ref $in_global_destruction );
   $unlock_value->( $self->{current} ) if STRICT;
@@ -107,7 +108,8 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub shutDown {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $p = $self->{last};
   if ( $p ) {
@@ -162,7 +164,8 @@ sub execView {    # $int ($p|undef)
 } #/ sub execView
 
 sub execute {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   do {
     $self->{endState} = 0;
@@ -184,7 +187,8 @@ my $doAwaken = sub {    # void ($v, $p)
 };
 
 sub awaken {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->forEach( $doAwaken, undef );
   return;
@@ -268,10 +272,11 @@ sub remove {    # void ($p|undef)
 #
 # I<tgrmv.cpp>
 sub removeView {    # void ($p)
-  no warnings qw( uninitialized numeric );
   my ( $self, $p ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $p );
+  no warnings qw( uninitialized numeric );
   if ( $self->{last} ) {
     my $s = $self->{last};
 
@@ -307,7 +312,8 @@ sub removeView {    # void ($p)
 } #/ sub removeView
 
 sub resetCurrent {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->setCurrent( $self->firstMatch( sfVisible, ofSelectable ),
     normalSelect );
@@ -350,12 +356,12 @@ sub selectNext {    # void ($forwards)
   return;
 } #/ sub selectNext
 
-sub firstThat {    # $view|undef (\&Test, $arg|undef)
-  no warnings qw( uninitialized numeric );
+sub firstThat {    # $view|undef (\&Test, |$arg|undef)
   my ( $self, $func, $args ) = @_;
-  assert ( @_ == 3 );
+  assert ( @_ >= 2 && @_ <= 3 );
   assert ( blessed $self );
   assert ( ref $func );
+  no warnings qw( uninitialized numeric );
   my $temp = $self->{last};
   return undef
     unless $temp;
@@ -377,12 +383,12 @@ sub focusNext {    # $bool ($forwards)
   return $p ? $p->focus() : !!1;
 }
 
-sub forEach {    # void (\&action, $arg|undef)
-  no warnings qw( uninitialized numeric );
+sub forEach {    # void (\&action, |$arg|undef)
   my ( $self, $func, $args ) = @_;
-  assert ( @_ == 3 );
+  assert ( @_ >= 2 && @_ <= 3 );
   assert ( blessed $self );
   assert ( ref $func );
+  no warnings qw( uninitialized numeric );
   my $term = $self->{last};
   my $temp = $self->{last};
   return 
@@ -407,12 +413,12 @@ sub insert {    # void ($p|undef)
 }
 
 sub insertBefore {    # void ($p, $Target|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $p, $Target ) = @_;
   assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $p );
   assert ( !defined $Target or blessed $Target );
+  no warnings qw( uninitialized numeric );
   if ( $p && !$p->{owner} && ( !$Target || $Target->{owner} == $self ) ) {
     $p->{origin}{x} = ( $self->{size}{x} - $p->{size}{x} ) >> 1
       if $p->{options} & ofCenterX;
@@ -430,6 +436,7 @@ sub insertBefore {    # void ($p, $Target|undef)
 
 sub current {    # $view|undef (|$view|undef)
   my ( $self, $view ) = @_;
+  assert ( @_ >= 1 && @_ <= 2 );
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {
@@ -443,6 +450,7 @@ sub current {    # $view|undef (|$view|undef)
 
 sub at {    # $view|undef ($index)
   my ( $self, $index ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
   my $temp = $self->{last};
@@ -455,6 +463,7 @@ sub at {    # $view|undef ($index)
 sub firstMatch {    # $view|undef ($aState, $aOptions)
   no warnings qw( uninitialized numeric );
   my ( $self, $aState, $aOptions ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aState );
   assert ( looks_like_number $aOptions );
@@ -475,6 +484,7 @@ sub firstMatch {    # $view|undef ($aState, $aOptions)
 sub indexOf {    # $int ($p)
   no warnings qw( uninitialized numeric );
   my ( $self, $p ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $p );
   return 0 
@@ -494,7 +504,8 @@ sub matches {    # $bool ($p)
 }
 
 sub first {    # $view|undef ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   return $self->{last} ? $self->{last}{next} : undef;
 }
@@ -575,6 +586,7 @@ my $hasMouse = sub {    # $bool ($p, $s)
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
@@ -623,12 +635,12 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub drawSubViews {    # void ($p|undef, $bottom|undef)
-  no warnings qw( uninitialized numeric );
   my ( $self, $p, $bottom ) = @_;
   assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( !defined $p or blessed $p );
   assert ( !defined $bottom or blessed $bottom );
+  no warnings qw( uninitialized numeric );
   while ( $p != $bottom ) {
     $p->drawView();
     $p = $p->nextView();
@@ -646,6 +658,7 @@ my $doCalcChange = sub {    # void ($p, $d)
 
 sub changeBounds {    # void ($self, $bounds)
   my ( $self, $bounds ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $bounds );
   my $d = TPoint->new(
@@ -674,7 +687,8 @@ my $addSubviewDataSize = sub {    # void ($p, $T)
 };
 
 sub dataSize {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $T = 0;
   $self->forEach( $addSubviewDataSize, \$T );
@@ -683,6 +697,7 @@ sub dataSize {    # $int ()
 
 sub getData {    # void (\@rec)
   my ( $self, $rec ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $rec );
   my $i = 0;
@@ -700,6 +715,7 @@ sub getData {    # void (\@rec)
 
 sub setData {    # void (\@rec)
   my ( $self, $rec ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $rec );
   my $i = 0;
@@ -716,7 +732,8 @@ sub setData {    # void (\@rec)
 } #/ sub setData
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   if ( !$self->{buffer} ) {
     $self->getBuffer();
@@ -738,14 +755,16 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub redraw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->drawSubViews( $self->first(), undef );
   return;
 }
 
 sub lock {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{lockFlag}++ 
     if $self->{buffer} || $self->{lockFlag};
@@ -753,7 +772,8 @@ sub lock {    # void ()
 }
 
 sub unlock {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->drawView() 
     if $self->{lockFlag} && --$self->{lockFlag} == 0;
@@ -761,7 +781,8 @@ sub unlock {    # void ()
 }
 
 sub resetCursor {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{current}->resetCursor() 
     if $self->{current};
@@ -770,6 +791,7 @@ sub resetCursor {    # void ()
 
 sub endModal {    # void ($command)
   my ( $self, $command ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $command );
   if ( $self->{state} & sfModal ) {
@@ -783,6 +805,7 @@ sub endModal {    # void ($command)
 
 sub eventError {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $self->{owner} ) {
@@ -792,7 +815,8 @@ sub eventError {    # void ($event)
 }
 
 sub getHelpCtx {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $h = hcNoContext;
   $h = $self->{current}->getHelpCtx()
@@ -809,6 +833,9 @@ my $isInvalid = sub {    # $bool ($p, \$command)
 
 sub valid {    # $bool ($command)
   my ( $self, $command ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( looks_like_number $command );
   if ( $command == cmReleasedFocus ) {
     return $self->{current}->valid( $command )
       if $self->{current}
@@ -818,7 +845,8 @@ sub valid {    # $bool ($command)
 }
 
 sub freeBuffer {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   if ( ( $self->{options} & ofBuffered ) && $self->{buffer} ) {
     $self->{buffer} = undef;
@@ -827,7 +855,8 @@ sub freeBuffer {    # void ()
 }
 
 sub getBuffer {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{buffer} = [ (0) x ( $self->{size}{x} * $self->{size}{y} * 2 ) ]
     if ( $self->{state} & sfExposed )

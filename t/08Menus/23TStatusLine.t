@@ -35,7 +35,7 @@ subtest 'destructor' => sub {
   my $bounds      = new_TRect( 0, 0, 10, 10 );
   my $defs        = new_TStatusDef( 0, 0 );
   my $status_line = new_TStatusLine( $bounds, $defs );
-  $status_line->DEMOLISH();
+  $status_line->DEMOLISH(0);
   ok( !$status_line->{defs}, 'TStatusLine object destroyed' );
 };
 

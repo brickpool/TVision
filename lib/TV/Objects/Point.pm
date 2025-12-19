@@ -62,14 +62,16 @@ sub from {    # $obj ($x, $y)
 }
 
 sub clone {    # $p ($self)
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $class = ref $self || $self;
   return $class->new( %$self );
 }
 
 sub dump {    # $str ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
@@ -83,7 +85,7 @@ sub add {    # $p ($one, $two)
   return TPoint->new( x => $one->{x} + $two->{x}, y => $one->{y} + $two->{y} );
 }
 
-sub subtract {    # $p ($one, $two)
+sub subtract {    # $p ($one, $two, | $swap)
   my ( $one, $two, $swap ) = @_;
   assert ( ref $one );
   assert ( ref $two );

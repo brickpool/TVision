@@ -37,7 +37,7 @@ isa_ok( $newline, TMenuItem, 'newLine returns a TMenuItem object' );
 
 # Test DEMOLISH method
 can_ok( $menu_item, 'DEMOLISH' );
-lives_ok { $menu_item->DEMOLISH() }
+lives_ok { $menu_item->DEMOLISH(0) }
   'DEMOLISH works correctly';
 
 done_testing;

@@ -413,9 +413,10 @@ sub findItem {    # $menuItem|undef ($ch)
 } #/ sub findItem
 
 sub getItemRect {    # $rect ($item|undef)
+  my ( $self, $item ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $_[0] );
-  assert ( !defined $_[1] or blessed $_[1] );
+  assert ( blessed $self );
+  assert ( !defined $item or blessed $item );
   return TRect->new();
 }
 

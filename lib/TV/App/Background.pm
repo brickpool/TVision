@@ -67,7 +67,8 @@ sub from {    # $obj ($bounds, $aPattern)
 }
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $b = TDrawBuffer->new();
 
@@ -78,7 +79,8 @@ sub draw {    # void ()
 
 my $palette;
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpBackground, 

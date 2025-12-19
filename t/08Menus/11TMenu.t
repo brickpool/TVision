@@ -39,7 +39,7 @@ isa_ok( $menu_with_hash, TMenu,
 
 # Test DEMOLISH method
 can_ok( $menu_with_items, 'DEMOLISH' );
-lives_ok { $menu_with_items->DEMOLISH() }
+lives_ok { $menu_with_items->DEMOLISH(0) }
   'DEMOLISH works correctly';
 
 done_testing;

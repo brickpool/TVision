@@ -100,6 +100,7 @@ sub from {    # $obj ($ax, $ay, $bx, $by)
 
 sub assign {    # void ($ax, $ay, $bx, $by)
   my ( $self, $ax, $ay, $bx, $by ) = @_;
+  assert ( @_ == 5 );
   assert( blessed $self );
   assert( looks_like_number $ax );
   assert( looks_like_number $ay );
@@ -113,7 +114,8 @@ sub assign {    # void ($ax, $ay, $bx, $by)
 } #/ sub assign
 
 sub clone {    # $p ($self)
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $class = ref $self || $self;
   return $class->new(
@@ -123,7 +125,8 @@ sub clone {    # $p ($self)
 }
 
 sub dump {    # $str ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
@@ -132,6 +135,7 @@ sub dump {    # $str ()
 
 sub move {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aDX );
   assert ( looks_like_number $aDY );
@@ -144,6 +148,7 @@ sub move {    # void ($aDX, $aDY)
 
 sub grow {    # void ($aDX, $aDY)
   my ( $self, $aDX, $aDY ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $aDX );
   assert ( looks_like_number $aDY );
@@ -156,6 +161,7 @@ sub grow {    # void ($aDX, $aDY)
 
 sub intersect {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   $self->{a}{x} = max( $self->{a}{x}, $r->{a}{x} );
@@ -167,6 +173,7 @@ sub intersect {    # void ($r)
 
 sub Union {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   $self->{a}{x} = min( $self->{a}{x}, $r->{a}{x} );
@@ -178,6 +185,7 @@ sub Union {    # void ($r)
 
 sub contains {    # $bool ($p)
   my ( $self, $p ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $p );
   return
@@ -206,7 +214,8 @@ sub not_equal {    # $bool ($r)
 }
 
 sub isEmpty {    # $bool ($self)
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   return $self->{a}{x} >= $self->{b}{x} 
       || $self->{a}{y} >= $self->{b}{y};

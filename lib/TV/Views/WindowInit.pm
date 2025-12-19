@@ -52,6 +52,7 @@ sub from {    # $obj ($cFrame)
 
 sub createFrame {    # $frame ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   return $self->{createFrame}->( bounds => $r );

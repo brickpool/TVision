@@ -80,7 +80,8 @@ sub BUILD {    # void (|\%args)
 }
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->drawPos( $self->getPos() );
   return;
@@ -88,7 +89,8 @@ sub draw {    # void ()
 
 my $palette;
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpScrollBar, 

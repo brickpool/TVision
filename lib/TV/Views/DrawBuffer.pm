@@ -62,6 +62,7 @@ sub from {    # $obj ()
 
 sub putAttribute {    # void ($indent, $attr)
   my ( $self, $indent, $attr ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( looks_like_number $attr );
@@ -71,6 +72,7 @@ sub putAttribute {    # void ($indent, $attr)
 
 sub putChar {    # void ($indent, $c)
   my ( $self, $indent, $c ) = @_;
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( !ref $c and length $c );
@@ -80,6 +82,7 @@ sub putChar {    # void ($indent, $c)
 
 sub moveBuf {    # void ($indent, \@source, $attr, $count)
   my ( $self, $indent, $source, $attr, $count ) = @_;
+  assert ( @_ == 5 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( ref $source );
@@ -101,6 +104,7 @@ sub moveBuf {    # void ($indent, \@source, $attr, $count)
 
 sub moveChar {    # void ($indent, $c, $attr, $count)
   my ( $self, $indent, $c, $attr, $count ) = @_;
+  assert ( @_ == 5 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( !ref $c and length $c );
@@ -122,6 +126,7 @@ sub moveChar {    # void ($indent, $c, $attr, $count)
 
 sub moveCStr {    # void ($indent, $str, $attrs)
   my ( $self, $indent, $str, $attrs ) = @_;
+  assert ( @_ == 4 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( defined $str and !ref $str );
@@ -145,6 +150,7 @@ sub moveCStr {    # void ($indent, $str, $attrs)
 
 sub moveStr {    # void ($indent, $str, $attrs)
   my ( $self, $indent, $str, $attr ) = @_;
+  assert ( @_ == 4 );
   assert ( blessed $self );
   assert ( looks_like_number $indent );
   assert ( defined $str and !ref $str );

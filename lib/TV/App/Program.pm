@@ -148,14 +148,16 @@ sub from {    # $obj ()
   return $class->new();
 }
 
-sub DEMOLISH {    # void ()
-  assert ( blessed $_[0] );
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
+  assert ( blessed $self );
   $application = undef;
   return;
 }
 
 sub canMoveFocus {    # $bool ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   return $deskTop->valid( cmReleasedFocus );
 }
@@ -163,6 +165,7 @@ sub canMoveFocus {    # $bool ()
 sub executeDialog {    # $int ($pD, \@data)
   my ( $self, undef, $data ) = @_;
   alias: for my $pD ( $_[1] ) {
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $pD );
   my $c = cmCancel;
@@ -188,6 +191,7 @@ my $hasMouse = sub {    # $bool ($p, $s)
 sub getEvent {    # void ($event)
   my ( $self, undef ) = @_;
   alias: for my $event ( $_[1] ) {
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $pending->{what} != evNothing ) {
@@ -219,7 +223,8 @@ sub getEvent {    # void ($event)
 
 my ( $color, $blackwhite, $monochrome, @palettes );
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $color ||= TPalette->new(
     data => cpAppColor, 
@@ -239,6 +244,7 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $event->{what} == evKeyDown ) {
@@ -266,7 +272,8 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub idle {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $statusLine->update() 
     if $statusLine;
@@ -279,7 +286,8 @@ sub idle {    # void ()
 }
 
 sub initScreen { # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   if ( ( $screenMode & 0x00FF ) != smMono ) {
     if ( $screenMode & smFont8x8 ) {
@@ -307,13 +315,16 @@ sub initScreen { # void ()
 } #/ sub initScreen
 
 sub outOfMemory {    # void ()
-  assert ( blessed shift );
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   # Handle out of memory
   return;
 }
 
 sub putEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $pending = $event->clone();
@@ -321,7 +332,8 @@ sub putEvent {    # void ($event)
 }
 
 sub run {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->execute();
   return;
@@ -330,6 +342,7 @@ sub run {    # void ()
 sub insertWindow {    # $window|undef ($pWin|undef)
   my ( $self, undef ) = @_;
   alias: for my $pWin ( $_[1] ) {
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $pWin );
   if ( $self->validView( $pWin ) ) {
@@ -347,6 +360,7 @@ sub insertWindow {    # $window|undef ($pWin|undef)
 
 sub setScreenMode { # void ($mode)
   my ( $self, $mode ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $mode );
   my $r;
@@ -365,7 +379,8 @@ sub setScreenMode { # void ($mode)
 } #/ sub setScreenMode
 
 sub shutDown {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   weaken $application 
     if $application 
@@ -379,17 +394,22 @@ sub shutDown {    # void ()
 } #/ sub shutDown
 
 sub suspend {    # void ()
-  assert ( blessed shift );
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   return;
 }
 
 sub resume {    # void ()
-  assert ( blessed shift );
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   return;
 }
 
 sub initStatusLine {    # $statusLine ($r)
   my ( $class, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( $class and !ref $class );
   assert ( ref $r );
   $r->{a}{y} = $r->{b}{y} - 1;
@@ -405,6 +425,7 @@ sub initStatusLine {    # $statusLine ($r)
 
 sub initMenuBar {    # $menuBar ($r)
   my ( $class, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( $class and !ref $class );
   assert ( ref $r );
   $r->{b}{y} = $r->{a}{y} + 1;
@@ -413,6 +434,7 @@ sub initMenuBar {    # $menuBar ($r)
 
 sub initDeskTop {    # $deskTop ($r)
   my ( $class, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( $class and !ref $class );
   assert ( ref $r );
   $r->{a}{y}++;
@@ -423,8 +445,8 @@ sub initDeskTop {    # $deskTop ($r)
 sub validView {    # $view|undef ($view)
   my ( $self, undef ) = @_;
   alias: for my $p ( $_[1] ) {
-  assert( blessed $self );
-  assert( @_ == 2 );
+  assert ( @_ == 2 );
+  assert ( blessed $self );
   return undef unless $p;
   if ( lowMemory() ) {
     $self->destroy( $p );

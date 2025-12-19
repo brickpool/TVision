@@ -137,11 +137,11 @@ sub getPalette {    # $palette ()
 }
 
 sub handleEvent {    # void ($event)
-  no warnings 'uninitialized';
   my ( $self, $event ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
+  no warnings 'uninitialized';
   $self->SUPER::handleEvent( $event );
 
   SWITCH: for ( $event->{what} ) {
@@ -191,9 +191,10 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub hint {    # $str ($aHelpCtx)
+  my ( $self, $aHelpCtx ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $_[0] );
-  assert ( looks_like_number $_[1] );
+  assert ( blessed $self );
+  assert ( looks_like_number $aHelpCtx );
   return '';
 }
 

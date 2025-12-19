@@ -273,13 +273,16 @@ sub tile {    # void ($r)
 } #/ sub tile
 
 sub tileError {    # void ()
-  assert( blessed $_[0] );
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   # Handle tile error
   return;
 }
 
 sub shutDown {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{background} = undef;
   $self->SUPER::shutDown();

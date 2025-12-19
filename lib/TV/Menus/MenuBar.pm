@@ -82,13 +82,15 @@ sub from {    # $obj ($bounds, $aMenu|undef)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   undef $self->{menu};
   return;
 }
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $color;
   my ( $x, $l );

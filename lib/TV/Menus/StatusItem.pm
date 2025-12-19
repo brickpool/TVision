@@ -62,6 +62,7 @@ sub from {    # $obj ($aText, $key, $cmd, | $aNext)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   undef $self->{text};
   return;

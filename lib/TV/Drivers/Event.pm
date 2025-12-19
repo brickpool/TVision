@@ -85,7 +85,8 @@ package MouseEventType {
   } #/ sub MouseEventType::new
 
   sub clone {    # $obj ()
-    my $self = shift;
+    my ( $self ) = @_;
+    assert ( @_ == 1 );
     assert ( blessed $self );
     my $class = ref $self || return;
     my $clone = bless { %$self }, $class;
@@ -139,7 +140,8 @@ package CharScanType {
   }
 
   sub clone {    # $obj ()
-    my $self = shift;
+    my ( $self ) = @_;
+    assert ( @_ == 1 );
     assert ( blessed $self );
     my $class = ref $self || return;
     my $clone = bless {}, $class;
@@ -209,7 +211,8 @@ package KeyDownEvent {
   }
 
   sub clone {    # $obj ()
-    my $self = shift;
+    my ( $self ) = @_;
+    assert ( @_ == 1 );
     assert( blessed $self );
     my $class = ref $self || return;
     my $clone = bless {}, $class;
@@ -309,7 +312,8 @@ package MessageEvent {
   } #/ sub new
 
   sub clone {    # $obj ()
-    my $self = shift;
+    my ( $self ) = @_;
+    assert ( @_ == 1 );
     assert( blessed $self );
     my $class = ref $self || return;
     my $clone = bless {}, $class;
@@ -429,9 +433,10 @@ sub from {    # $obj ()
 }
 
 sub dump {    # $str (|$maxDepth)
-  no warnings 'once';
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
+  no warnings 'once';
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
   local $Data::Dumper::Maxdepth = @_ ? shift : 3;
@@ -439,7 +444,8 @@ sub dump {    # $str (|$maxDepth)
 }
 
 sub clone {    # $obj ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert( blessed $self );
   my $class = ref $self || return;
   my $clone = bless {}, $class;
@@ -475,9 +481,10 @@ sub getMouseEvent {    # void ($self)
 }
 
 sub getKeyEvent {    # void ($self)
-  assert ( blessed $_[0] );
-  if ( THardwareInfo->getKeyEvent( $_[0] ) ) {
-    my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+  if ( THardwareInfo->getKeyEvent( $self ) ) {
 
     # Need to handle special case of Alt-Space, Ctrl-Ins, Shift-Ins,
     # Ctrl-Del, Shift-Del
@@ -510,7 +517,7 @@ sub getKeyEvent {    # void ($self)
     } #/ SWITCH: for ( $self->{keyDown}{...})
   } #/ if ( THardwareInfo->getKeyEvent...)
   else {
-    $_[0]->{what} = evNothing;
+    $self->{what} = evNothing;
   }
   return;
 } #/ sub getKeyEvent

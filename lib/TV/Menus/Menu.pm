@@ -82,6 +82,7 @@ sub from {    # $obj (| $itemList, | $TheDefault)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   while ( $self->{items} ) {
     my $temp = $self->{items};
@@ -94,6 +95,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
 
 sub deflt {    # $view|undef (|$view|undef)
   my ( $self, $view ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( !defined $view or blessed $view );
   if ( @_ == 2 ) {

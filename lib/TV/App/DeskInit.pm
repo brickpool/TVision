@@ -51,6 +51,7 @@ sub from {    # $obj ($cBackground)
 
 sub createBackground {    # $background ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   return $self->{createBackground}->( bounds => $r );

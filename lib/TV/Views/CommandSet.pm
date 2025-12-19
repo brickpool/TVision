@@ -77,7 +77,8 @@ sub from {    # $obj (|$tc)
 }
 
 sub clone {    # $clone ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my @data = @$self;
   return bless [ @data ], ref $self;
@@ -107,7 +108,8 @@ sub enableCmd {    # void ($cmd|$tc)
 }
 
 sub isEmpty {    # $bool ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   for ( 0 .. 31 ) {
     return !!0 if $self->[$_] != 0;
@@ -181,7 +183,8 @@ sub union_assign {    # $self ($tc)
 }
 
 sub dump {    # $str ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $dump = "$self=";
   $dump .= join ':' => map { sprintf("%02x", $self->[$_]) } 0 .. 31;

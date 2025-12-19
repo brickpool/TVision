@@ -53,7 +53,8 @@ sub from {    # $obj ($tp|$d, $len)
 }
 
 sub clone {    # $clone ($self)
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $data = $$self;
   return bless \$data, ref $self;
@@ -61,6 +62,7 @@ sub clone {    # $clone ($self)
 
 sub assign {    # $self ($tp)
   my ( $self, $tp ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $tp );
   $$self = $$tp;
@@ -69,6 +71,7 @@ sub assign {    # $self ($tp)
 
 sub at {    # $byte ($index)
   my ( $self, $index ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $index );
   return ord bytes::substr( $$self, $index, 1 );

@@ -16,7 +16,11 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-use TV::Views::Const qw( cpFrame );
+use TV::Views::Const qw(
+  cpFrame
+  ofFramed
+  sfVisible
+);
 require TV::Views::Frame;
 
 use vars qw( 
@@ -48,9 +52,7 @@ sub TV::Views::Frame::frameLine {
 
   my $v = $self->{owner}{last}{next};
   for ( ; $v != $self ; $v = $v->{next} ) {
-    if ( ( $v->{options} & $self->{ofFramed} )
-      && ( $v->{state} & $self->{sfVisible} ) )
-    {
+    if ( ( $v->{options} & ofFramed ) && ( $v->{state} & sfVisible ) ) {
       my $mask = 0;
       if ( $y < $v->{origin}{y} ) {
         if ( $y == $v->{origin}{y} - 1 ) {

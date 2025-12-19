@@ -90,6 +90,7 @@ sub from {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $para
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   undef $self->{name};
   if ( $self->{command} == 0 ) {
@@ -103,6 +104,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
 
 sub append {    # void ($aNext)
   my ( $self, $aNext ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $aNext );
   $self->{next} = $aNext;

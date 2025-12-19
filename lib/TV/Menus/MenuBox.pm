@@ -78,7 +78,7 @@ sub BUILDARGS {    # \%args (%args)
 }
 
 sub BUILD {    # void (|\%args)
-  my $self = shift;
+  my ( $self ) = @_;
   assert( blessed $self );
   $self->{state} |= sfShadow;
   $self->{options} |= ofPreProcess;
@@ -95,7 +95,8 @@ sub from {    # $obj ($bounds, $aMenu|undef, $aParent|undef);
 my ( $cNormal, $color );
 
 sub draw {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my $b = TDrawBuffer->new();
 

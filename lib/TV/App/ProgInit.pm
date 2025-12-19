@@ -61,6 +61,7 @@ sub from {    # $obj ($cStatusLine, $cMenuBar, $cDeskTop)
 
 sub createStatusLine {    # $statusLine ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   return $self->{createStatusLine}->( bounds => $r );
@@ -68,6 +69,7 @@ sub createStatusLine {    # $statusLine ($r)
 
 sub createMenuBar {    # $menuBar ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   return $self->{createMenuBar}->( bounds => $r );
@@ -75,6 +77,7 @@ sub createMenuBar {    # $menuBar ($r)
 
 sub createDeskTop {    # $deskTop ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   return $self->{createDeskTop}->( bounds => $r );

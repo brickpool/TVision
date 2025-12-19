@@ -122,6 +122,7 @@ sub from {    # $obj ($bounds, $aTitle, $aNumber)
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   $self->{title} = undef;
   return;
@@ -129,6 +130,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
 
 sub close {    # void ()
   alias: for my $self ( $_[0] ) {    # Maybe we are destroying ourselves
+  assert ( @_ == 1 );
   assert ( blessed $self );
   if ( $self->valid( cmClose ) ) {
     # so we don't try to use the frame after it's been deleted
@@ -141,7 +143,8 @@ sub close {    # void ()
 
 my ( $blue, $cyan, $gray, @palettes );
 sub getPalette {    # $palette ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $blue ||= TPalette->new(
     data => cpBlueWindow,
@@ -161,6 +164,7 @@ sub getPalette {    # $palette ()
 
 sub getTitle {    # $str ($maxSize)
   my ( $self, $maxSize ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $maxSize );
   return $self->{title};
@@ -168,6 +172,7 @@ sub getTitle {    # $str ($maxSize)
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   my $limits = TRect->new();
@@ -249,6 +254,7 @@ sub handleEvent {    # void ($event)
 
 sub initFrame {    # $frame ($r)
   my ( $class, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( $class );
   assert ( ref $r );
   return TFrame->new( bounds => $r );
@@ -293,6 +299,7 @@ sub sizeLimits {    # void ($min, $max)
   my ( $self, undef, undef ) = @_;
   alias: for my $min ( $_[1] ) {
   alias: for my $max ( $_[2] ) {
+  assert ( @_ == 3 );
   assert ( blessed $self );
   assert ( blessed $min );
   assert ( blessed $max );
@@ -304,6 +311,9 @@ sub sizeLimits {    # void ($min, $max)
 
 sub standardScrollBar {    # $scrollBar ($aOptions)
   my ( $self, $aOptions ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( looks_like_number $aOptions );
   my $r = $self->getExtent();
   if ( $aOptions & sbVertical ) {
     $r = TRect->new(
@@ -327,7 +337,8 @@ sub standardScrollBar {    # $scrollBar ($aOptions)
 } #/ sub standardScrollBar
 
 sub zoom {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   my ( $minSize, $maxSize ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $minSize, $maxSize );
@@ -345,7 +356,8 @@ sub zoom {    # void ()
 } #/ sub zoom
 
 sub shutDown {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{frame} = undef;
   $self->SUPER::shutDown();
