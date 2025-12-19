@@ -31,7 +31,6 @@ BEGIN {
 
 BEGIN {
   package TMyApp;
-  use v5.10;
 
   use TV::App;        # TApplication
   use TV::Objects;    # Window section (TRect)
@@ -77,8 +76,9 @@ BEGIN {
   # Create new window. A window are not usually opened modally, as you usually 
   # want to open several of them.
   sub newWindows {
-    state $winCounter = 0;
     my $self = shift;
+    use feature 'state';
+    state $winCounter = 0;
     my $r    = new_TRect( 0, 0, 60, 20 );
     my $win  = new_TWindow( $r, 'Window', ++$winCounter );
     # If there is insufficient memory for a new window, then count backdown -1.
