@@ -215,11 +215,11 @@ sub getRect {    # $rect ($bounds, $aMenu|undef)
 $frameLine = sub {    # void ($b, $n)
   my ( $self, $b, $n ) = @_;
   $b->moveBuf(
-    0, [ unpack 'C*' => substr( $frameChars, $n, 2 ) ], $cNormal, 2 );
+    0, [ unpack 'W*' => substr( $frameChars, $n, 2 ) ], $cNormal, 2 );
   $b->moveChar(
     2, substr( $frameChars, $n + 2, 1 ), $color, $self->{size}{x} - 4 );
   $b->moveBuf( $self->{size}{x} - 2,
-    [ unpack 'C*' => substr( $frameChars, $n + 3, 2 ) ], $cNormal, 2 );
+    [ unpack 'W*' => substr( $frameChars, $n + 3, 2 ) ], $cNormal, 2 );
   return;
 };
 

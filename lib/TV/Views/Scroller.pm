@@ -92,12 +92,12 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
-	assert ( blessed $self );
-	$self->{delta}{x} = $self->{delta}{y} = 0;
-	$self->{limit}{x} = $self->{limit}{y} = 0;
-	$self->{options}   |= ofSelectable;
-	$self->{eventMask} |= evBroadcast;
-	return;
+  assert ( blessed $self );
+  $self->{delta}{x} = $self->{delta}{y} = 0;
+  $self->{limit}{x} = $self->{limit}{y} = 0;
+  $self->{options}   |= ofSelectable;
+  $self->{eventMask} |= evBroadcast;
+  return;
 }
 
 sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar)
@@ -110,7 +110,7 @@ sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar)
 
 sub changeBounds {    # void ($bounds)
   my ( $self, $bounds ) = @_;
-	assert( @_ == 2 );
+  assert( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $bounds );
   $self->setBounds( $bounds );
@@ -125,7 +125,7 @@ sub changeBounds {    # void ($bounds)
 my $palette;
 sub getPalette {    # $palette ()
   my ( $self ) = @_;
-	assert( @_ == 1 );
+  assert( @_ == 1 );
   assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpScroller, 
@@ -136,7 +136,7 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
-	assert( @_ == 2 );
+  assert( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
@@ -152,7 +152,7 @@ sub handleEvent {    # void ($event)
 
 sub scrollDraw {    # void ()
   my ( $self ) = @_;
-	assert( @_ == 1 );
+  assert( @_ == 1 );
   assert ( blessed $self );
   my $d = TPoint->new();
 
@@ -186,7 +186,7 @@ sub scrollDraw {    # void ()
 
 sub scrollTo {    # void ($x, $y)
   my ( $self, $x, $y ) = @_;
-	assert( @_ == 3 );
+  assert( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $x );
   assert ( looks_like_number $y );
@@ -202,7 +202,7 @@ sub scrollTo {    # void ($x, $y)
 
 sub setLimit {    # void ($x, $y)
   my ( $self, $x, $y ) = @_;
-	assert( @_ == 3 );
+  assert( @_ == 3 );
   assert ( blessed $self );
   assert ( looks_like_number $x );
   assert ( looks_like_number $y );
@@ -229,16 +229,16 @@ sub setLimit {    # void ($x, $y)
 }
 
 sub setState {    # void ($aState, $enable)
-	my ( $self, $aState, $enable ) = @_;
-	assert( @_ == 3 );
-	assert( blessed $self );
-	assert( looks_like_number $aState );
-	assert( !defined $enable or !ref $enable );
-	$self->SUPER::setState( $aState, $enable );
-	if ( ( $aState & ( sfActive | sfDragging ) ) != 0 ) {
-		$self->drawView();
-	}
-	return;
+  my ( $self, $aState, $enable ) = @_;
+  assert( @_ == 3 );
+  assert( blessed $self );
+  assert( looks_like_number $aState );
+  assert( !defined $enable or !ref $enable );
+  $self->SUPER::setState( $aState, $enable );
+  if ( ( $aState & ( sfActive | sfDragging ) ) != 0 ) {
+    $self->drawView();
+  }
+  return;
 } #/ sub setState
 
 sub checkDraw {    # void ()

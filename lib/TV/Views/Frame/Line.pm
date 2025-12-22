@@ -40,15 +40,9 @@ sub TV::Views::Frame::frameLine {
   assert ( looks_like_number $n );
   assert ( looks_like_number $color );
 
-  my $size_x    = $self->{size}{x};
-  my $FrameMask = "\0" x $size_x;
-  my $x;
-
-  substr( $FrameMask, 0, 1, substr( $initFrame, $n, 1 ) );
-  for ( $x = 1 ; $x < $size_x - 1 ; ++$x ) {
-    substr( $FrameMask, $x, 1, substr( $initFrame, $n + 1, 1 ) );
-  }
-  substr( $FrameMask, $size_x - 1, 1, substr( $initFrame, $n + 2, 1 ) );
+  my @FrameMask = ( ord substr( $initFrame, $n + 1, 1 ) ) x $self->{size}{x};
+  $FrameMask[0] = ord substr( $initFrame, $n, 1 );
+  $FrameMask[$self->{size}{x} - 1] = ord substr( $initFrame, $n + 2, 1 );
 
   my $v = $self->{owner}{last}{next};
   for ( ; $v != $self ; $v = $v->{next} ) {
@@ -68,24 +62,15 @@ sub TV::Views::Frame::frameLine {
 
       if ( $mask ) {
         my $start = max( $v->{origin}{x}, 1 );
-        my $end   = min( $v->{origin}{x} + $v->{size}{x}, $size_x - 1 );
+        my $end = min( $v->{origin}{x} + $v->{size}{x}, $self->{size}{x} - 1 );
         if ( $start < $end ) {
           my $maskLow  = $mask & 0x00FF;
           my $maskHigh = ( $mask & 0xFF00 ) >> 8;
-          substr(
-            $FrameMask, $start - 1, 1,
-            chr( ord( substr( $FrameMask, $start - 1, 1 ) ) | $maskLow )
-          );
-          substr(
-            $FrameMask, $end, 1,
-            chr( ord( substr( $FrameMask, $end, 1 ) ) | ( $maskLow ^ $maskHigh ) )
-          );
+          $FrameMask[$start - 1] |= $maskLow;
+          $FrameMask[$end] |= $maskLow ^ $maskHigh;
           if ( $maskLow ) {
-            for ( $x = $start ; $x < $end ; ++$x ) {
-              substr(
-                $FrameMask, $x, 1,
-                chr( ord( substr( $FrameMask, $x, 1 ) ) | $maskHigh )
-              );
+            for my $x ($start .. $end - 1) {
+              $FrameMask[$x] |= $maskHigh;
             }
           }
         } #/ if ( $start < $end )
@@ -93,11 +78,8 @@ sub TV::Views::Frame::frameLine {
     } #/ if ( ( $v->{options} &...))
   } #/ for ( ; $v != $self ; $v...)
 
-  for ( $x = 0 ; $x < $size_x ; ++$x ) {
-    $frameBuf->putChar(
-      $x,
-      substr( $frameChars, ord( substr( $FrameMask, $x, 1 ) ), 1 )
-    );
+  for my $x ( 0 .. $self->{size}{x} -1 ) {
+    $frameBuf->putChar( $x, substr( $frameChars, $FrameMask[$x], 1 ) );
     $frameBuf->putAttribute( $x, $color );
   }
 } #/ sub TV::Views::Frame::frameLine

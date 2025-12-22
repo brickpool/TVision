@@ -16,11 +16,13 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Encode qw( encode );
 use List::Util qw( min max );
 use Scalar::Util qw(
   blessed
   looks_like_number
 );
+use utf8;
 
 use TV::Drivers::Const qw(
   :evXXXX
@@ -52,15 +54,12 @@ our $initFrame =
   "\x06\x0A\x0C\x05\x00\x05\x03\x0A\x09\x16\x1A\x1C\x15\x00\x15\x13\x1A\x19";
 
 # for UnitedStates code page
-# "   └ │┌├ ┘─┴┐┤┬┼   ╚ ║╔╟ ╝═╧╗╢╤ ";
-our $frameChars =
-  "\x20\x20\x20\xC0\x20\xB3\xDA\xC3\x20\xD9\xC4\xC1\xBf\xB4\xC2\xC5".
-  "\x20\x20\x20\xC8\x20\xBA\xC9\xC7\x20\xBC\xCD\xCF\xBB\xB6\xD1\x20";
+our $frameChars = encode('cp437' => "   └ │┌├ ┘─┴┐┤┬┼   ╚ ║╔╟ ╝═╧╗╢╤ ");
 
 our $closeIcon  = "[~\xFE~]";    # "[~■~]"
 our $zoomIcon   = "[~\x18~]";    # "[~↑~]"
 our $unZoomIcon = "[~\x12~]";    # "[~↕~]"
-our $dragIcon   = "~\xC4\xD9~";  # "~─┘~"
+our $dragIcon   = encode('cp437' => "~─┘~");
 
 # import frameLine
 require TV::Views::Frame::Line;
@@ -123,7 +122,7 @@ sub draw {    # void ()
       $l = max( $l, 0 );
       $i = ( $width - $l ) >> 1;
       $b->putChar( $i - 1, ' ' );
-      $b->moveBuf( $i, [ unpack 'C*' => $title ], $cTitle, $l );
+      $b->moveBuf( $i, [ unpack 'W*' => $title ], $cTitle, $l );
       $b->putChar( $i + $l, ' ' );
     }
   } #/ if ( $self->{owner} )
