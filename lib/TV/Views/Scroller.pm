@@ -29,9 +29,7 @@ use Scalar::Util qw(
 use TV::Drivers::Const qw( 
   evBroadcast
 );
-use TV::Drivers::Util qw( ctrlToArrow );
 use TV::Objects::Point;
-use TV::Objects::Rect;
 use TV::Views::Const qw(
   cmScrollBarChanged
   cpScroller
