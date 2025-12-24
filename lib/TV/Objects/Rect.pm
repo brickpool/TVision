@@ -22,7 +22,7 @@ package TV::Objects::Rect;
 use strict;
 use warnings;
 
-use List::Util qw(min max);
+use List::Util qw( min max );
 use TV::Objects::Point;
 
 our $VERSION = '2.000_001';

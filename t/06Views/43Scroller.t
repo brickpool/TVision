@@ -24,18 +24,17 @@ use Test::More tests => 17;
 use Test::Exception;
 
 BEGIN {
-    use_ok 'TV::Objects::Rect';
-    use_ok 'TV::Objects::Point';
-    use_ok 'TV::Views::Palette';
-    use_ok 'TV::Views::Scroller';
-    use_ok 'TV::Views::ScrollBar';
-    use_ok 'TV::Drivers::Const', qw( evBroadcast );
-    use_ok 'TV::Views::Const', qw(
-      cmScrollBarChanged 
-      sfActive 
-      sfDragging
-    );
-    use_ok 'TV::Drivers::Event';
+  use_ok 'TV::Objects::Rect';
+  use_ok 'TV::Views::Palette';
+  use_ok 'TV::Views::Scroller';
+  use_ok 'TV::Views::ScrollBar';
+  use_ok 'TV::Drivers::Const', qw( evBroadcast );
+  use_ok 'TV::Views::Const', qw(
+    cmScrollBarChanged 
+    sfActive 
+    sfDragging
+  );
+  use_ok 'TV::Drivers::Event';
 }
 
 # ScrollBars
