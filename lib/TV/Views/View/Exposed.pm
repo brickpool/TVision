@@ -197,7 +197,7 @@ I<tvexposd.asm>, I<tvexposd.cpp>
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2019-2025 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
+Copyright (c) 2019-2026 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
 part of the distribution).

@@ -445,7 +445,7 @@ Cleans up resources and clears references to scroll bars.
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2021-2025 the L</AUTHORS> as listed above.
+Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
 part of the distribution). This documentation is provided under the same terms 

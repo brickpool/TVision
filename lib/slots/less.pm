@@ -207,7 +207,7 @@ Michael G Schwern <schwern@pobox.com>
 
 =head1 LICENSE
 
-Copyright (c) 2024-2025 the L</AUTHOR> and L</CONTRIBUTORS> as listed above.
+Copyright (c) 2024-2026 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
