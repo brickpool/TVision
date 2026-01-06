@@ -17,14 +17,7 @@ our @EXPORT = qw(
 use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
+use Scalar::Util qw( blessed );
 
 use TV::Views::Const qw( hcNoContext );
 use TV::Menus::Menu;
@@ -36,32 +29,15 @@ sub new_TSubMenu { __PACKAGE__->from(@_) }
 
 extends TMenuItem;
 
-sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
-    # 'required' arguments
-    name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
-    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    # check 'isa' (note: 'helpCtx' can be undefined)
-    helpCtx => {
-      default => hcNoContext,
-      defined => 1,
-      allow   => sub { looks_like_number $_[0] }
-    },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
-}
-
-sub from {    # $obj ($nm, $key, $helpCtx)
+sub from {    # $obj ($nm, $key, | $helpCtx)
   my $class = shift;
   assert( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 3 );
   SWITCH: for ( scalar @_ ) {
-    $_ == 2 and return $class->new(
-      name => $_[0], command => 0, keyCode => $_[1] );
-    $_ == 3 and return $class->new(
-      name => $_[0], command => 0, keyCode => $_[1], helpCtx => $_[2] );
+    $_ == 2 and return $class->new( name => $_[0], keyCode => $_[1], 
+      helpCtx => hcNoContext );
+    $_ == 3 and return $class->new( name => $_[0], keyCode => $_[1], 
+      helpCtx => $_[2] );
   }
   return;
 }

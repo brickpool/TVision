@@ -65,12 +65,8 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args = STRICT ? check( {
-    bounds => {
-      required => 1,
-      defined  => 1,
-      allow    => sub { blessed shift }
-    },
+	my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = STRICT ? check( {
     aHScrollBar => {
       required => 1,
       defined  => 1,
@@ -83,9 +79,9 @@ sub BUILDARGS {    # \%args (%args)
     },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   # 'init_arg' is not the same as the field name.
-  $args->{hScrollBar} = delete $args->{aHScrollBar};
-  $args->{vScrollBar} = delete $args->{aVScrollBar};
-  return $args;
+  $args2->{hScrollBar} = delete $args2->{aHScrollBar};
+  $args2->{vScrollBar} = delete $args2->{aVScrollBar};
+  return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (|\%args)

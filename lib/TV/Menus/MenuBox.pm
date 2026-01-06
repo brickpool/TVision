@@ -57,13 +57,9 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args = STRICT ? check( {
+	my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = STRICT ? check( {
     # 'required' arguments (note: 'menu' and 'parentMenu' can be undefined)
-    bounds => {
-      required => 1, 
-      defined  => 1, 
-      allow => sub { blessed shift },
-    },
     menu => {
       required => 1, 
       allow    => sub { !defined $_[0] or blessed $_[0] },
@@ -73,8 +69,8 @@ sub BUILDARGS {    # \%args (%args)
       allow    => sub { !defined $_[0] or blessed $_[0] },
     },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
-  $args->{bounds} = $class->getRect( $args->{bounds}, $args->{menu} );
-  return $args;
+  $args1->{bounds} = $class->getRect( $args1->{bounds}, $args2->{menu} );
+  return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (|\%args)

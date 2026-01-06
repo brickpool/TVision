@@ -43,10 +43,11 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
-    bounds  => { required => 1, defined => 1, allow => sub { blessed shift } },
+	my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = STRICT ? check( {
     pattern => { required => 1, defined => 1, allow => sub { !ref shift } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  return { %$args1, %$args2 };
 } #/ sub BUILDARGS
 
 sub BUILD {    # void (|\%args)

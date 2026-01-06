@@ -76,7 +76,7 @@ has flags    => (
 );
 has zoomRect => ( is => 'rw' );
 has number   => ( is => 'rw', default => sub { die 'required' } );
-has palette  => ( is => 'rw' );
+has palette  => ( is => 'rw', default => sub { wpBlueWindow  } );
 has frame    => ( is => 'rw' );
 has title    => ( is => 'rw', default => sub { die 'required' } );
 
@@ -84,22 +84,19 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = STRICT ? check( {
-    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
-    title  => { required => 1, defined => 1, allow => sub { !ref shift } },
+  my $args1 = TGroup->BUILDARGS( @_ );
+  my $args2 = STRICT ? check( {
     number => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    title  => { required => 1, defined => 1, allow => sub { !ref shift } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
-  my $args2 = TWindowInit->BUILDARGS(
-    cFrame => $class->can( 'initFrame' ),
-  );
-  return { %$args1, %$args2 };
+  my $args3 = TWindowInit->BUILDARGS( cFrame => $class->can( 'initFrame' ) );
+  return { %$args1, %$args2, %$args3 };
 }
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
   $self->{zoomRect} = $self->getBounds();
-  $self->{palette}  = wpBlueWindow;
 
   $self->{state}   |= sfShadow;
   $self->{options} |= ofSelectable | ofTopSelect;

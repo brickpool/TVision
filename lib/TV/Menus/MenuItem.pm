@@ -52,19 +52,11 @@ sub BUILDARGS {    # \%args (%args)
     name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
     keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
     # check 'isa' (note: args can be undefined)
-    command => {
-      default => 0,
-      defined => 1,
-      allow   => sub { looks_like_number $_[0] }
-    },
+    command => { allow => sub { !defined $_[0] or $_[0] =~ /^\d+$/ } },
     subMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    helpCtx => {
-      default => hcNoContext,
-      defined => 1,
-      allow   => sub { looks_like_number $_[0] }
-    },
-    param => { allow => sub { !defined $_[0] or !ref $_[0] } },
-    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    helpCtx => { allow => sub { !defined $_[0] or $_[0] =~ /^\d+$/ } },
+    param   => { allow => sub { !defined $_[0] or !ref $_[0] } },
+    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
 }
 
