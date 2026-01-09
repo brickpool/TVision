@@ -69,13 +69,11 @@ sub BUILDARGS {    # \%args (%args)
   my $args2 = STRICT ? check( {
     aHScrollBar => {
       required => 1,
-      defined  => 1,
-      allow    => sub { blessed shift }
+      allow    => sub { !defined $_[0] or blessed $_[0] }
     },
     aVScrollBar => {
       required => 1,
-      defined  => 1,
-      allow    => sub { blessed shift }
+      allow    => sub { !defined $_[0] or blessed $_[0] }
     },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   # 'init_arg' is not the same as the field name.
@@ -318,15 +316,16 @@ Prevents redraw during batch updates.
 
 Boolean flag indicating whether a redraw is pending. (Bool)
 
-=item hScrollBar
+=item aHScrollBar
 
 Reference to the horizontal scroll bar object (I<TScrollBar>).  
-Required during construction.
+I<aHScrollBar> should be undef if you do not want a horizontal scroll bar.
 
-=item vScrollBar
+=item aVScrollBar
 
 Reference to the vertical scroll bar object (I<TScrollBar>).  
-Required during construction.
+Similarly to L</aHScrollBar>, I<aVScrollBar> should be undef if you do not want 
+a vertical scroll bar. 
 
 =item limit
 
