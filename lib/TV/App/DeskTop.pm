@@ -110,6 +110,7 @@ my $doCascade = sub {    # void ($p, $r)
 
 sub cascade {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   my $min = TPoint->new();
@@ -134,6 +135,7 @@ sub cascade {    # void ($r)
 
 sub handleEvent {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   $self->SUPER::handleEvent( $event );
@@ -159,6 +161,7 @@ sub handleEvent {    # void ($event)
 
 sub initBackground {    # $background ($r)
   my ( $class, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( $class );
   assert ( ref $r );
   return TBackground->new( bounds => $r, pattern => $defaultBkgrnd );
@@ -249,6 +252,7 @@ my $doTile = sub {    # void ($p, $r)
 
 sub tile {    # void ($r)
   my ( $self, $r ) = @_;
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
   $numTileable = 0;

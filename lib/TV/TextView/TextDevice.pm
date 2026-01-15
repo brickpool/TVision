@@ -49,7 +49,10 @@ sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
-  $self->close() if $self->opened();
+  unless ( $in_global_destruction ) {
+    $self->close()
+      if $self->opened();
+  }
   return;
 }
 
@@ -126,8 +129,9 @@ $append_to_egress = sub {    # void ($data)
 
 sub print {    # $success (@list)
   my ( $self, @list ) = @_;
-  assert ( @_ >= 1 );
+  assert ( @_ >= 2 );
   assert ( blessed $self );
+  assert ( scalar @list );
   $self->$append_to_egress( join( '', @list ) );
   $self->flush() if $self->{autoflush};
   return 1;
@@ -145,16 +149,18 @@ sub printf {   # $success ($format, @list)
 
 sub printflush {    # $success (@list)
   my ( $self, @list ) = @_;
-  assert ( @_ >= 1 );
+  assert ( @_ >= 2 );
   assert ( blessed $self );
+  assert ( scalar @list );
   $self->$append_to_egress( join( '', @list ) );
   return $self->flush();    # Force flush right now
 }
 
 sub say {    # $success (@list)
   my ( $self, @list ) = @_;
-  assert ( @_ >= 1 );
+  assert ( @_ >= 2 );
   assert ( blessed $self );
+  assert ( scalar @list );
   $self->$append_to_egress( join( '', @list ) . "\n" );
   $self->flush() if $self->{autoflush};
   return 1;

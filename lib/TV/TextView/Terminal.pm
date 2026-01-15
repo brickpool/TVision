@@ -18,7 +18,7 @@ require bytes;
 use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
-use List::Util qw( min );
+use List::Util qw( min max );
 use Params::Check qw(
   check
   last_error
@@ -31,7 +31,9 @@ use Scalar::Util qw(
 use TV::Views::Const qw(
   gfGrowHiX
   gfGrowHiY
+  maxViewWidth
 );
+use TV::Views::DrawBuffer;
 use TV::TextView::TextDevice;
 use TV::toolkit;
 
@@ -175,6 +177,103 @@ sub canInsert {    # $bool ($amount)
   return $self->{queBack} > $T;
 }
 
+sub calcWidth {    # $width ()
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+  ...
+}
+
+# The following subroutine was taken from the framework
+# "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
+#
+# Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
+#
+# I<textview.cpp>
+sub draw {    # void ()
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+
+  my $b = TDrawBuffer->new();
+  my $s;
+  my $sLen;
+  my ( $x, $y );
+  my ( $begLine, $endLine, $linePos );
+  my $bottomLine;
+  my $color = $self->mapColor( 1 );
+
+  $self->setCursor( -1, -1 );
+
+  $bottomLine = $self->{size}{y} + $self->{delta}{y};
+  if ( $self->{limit}{y} > $bottomLine ) {
+    $endLine =
+      $self->prevLines( $self->{queFront}, $self->{limit}{y} - $bottomLine );
+    $self->bufDec( $endLine );
+  }
+  else {
+    $endLine = $self->{queFront};
+  }
+
+  if ( $self->{limit}{y} > $self->{size}{y} ) {
+    $y = $self->{size}{y} - 1;
+  }
+  else {
+    for ( $y = $self->{limit}{y} ; $y < $self->{size}{y} ; $y++ ) {
+		  $self->writeChar( 0, $y, ' ', 1, $self->{size}{x} );
+    }
+    $y = $self->{limit}{y} - 1;
+  }
+
+  for ( ; $y >= 0 ; $y-- ) {
+    $x       = 0;
+    $begLine = $self->prevLines( $endLine, 1 );
+    $linePos = $begLine;
+
+    while ( $linePos != $endLine ) {
+      # Processing lines of any length by copying only the characters to be 
+      # displayed in $s, assuming that these are < maxViewWidth.
+      if ( $endLine >= $linePos ) {
+        my $cpyLen = min( $endLine - $linePos, maxViewWidth );
+        $s    = substr( $self->{buffer}, $linePos, $cpyLen );
+        $sLen = $cpyLen;
+      }
+      else {
+        my $fstCpyLen = min( $self->{bufSize} - $linePos, maxViewWidth );
+        my $sndCpyLen = min( $endLine, maxViewWidth - $fstCpyLen );
+        $s = substr( $self->{buffer}, $linePos, $fstCpyLen )
+           . substr( $self->{buffer}, 0, $sndCpyLen );
+        $sLen = $fstCpyLen + $sndCpyLen;
+      }
+
+      # Report any overlapping characters at the end
+      assert ( $sLen == length $s );
+      if ( $linePos >= $self->{bufSize} - $sLen ) {
+        $linePos = $sLen - ( $self->{bufSize} - $linePos );
+      }
+      else {
+        $linePos += $sLen;
+      }
+
+      $x += do { 
+        $b->moveStr( $x, $s, $color );
+        length $s;
+      };
+    } #/ while ( $linePos != $endLine)
+
+    $b->moveChar( $x, ' ', $color, max( $self->{size}{x} - $x, 0 ) );
+    $self->writeBuf( 0, $y, $self->{size}{x}, 1, $b );
+
+    # Draw the cursor when this is the last line
+    if ( $endLine == $self->{queFront} ) {
+      $self->setCursor( $x, $y );
+    }
+    $endLine = $begLine;
+    $self->bufDec( $endLine );
+  } #/ for ( ; $y >= 0 ; $y-- )
+  return;
+}
+
 sub nextLine {    # $offset ($pos)
   my ( $self, $pos ) = @_;
   assert ( @_ == 2 );
@@ -182,29 +281,38 @@ sub nextLine {    # $offset ($pos)
   assert ( looks_like_number $pos );
 
   if ( $pos != $self->{queFront} ) {
-
-    # Loop until newline or queFront is reached
     while ( substr( $self->{buffer}, $pos, 1 ) ne "\n"
       && $pos != $self->{queFront}
     ) {
-      $self->bufInc( $pos );    # Increment position
+      $self->bufInc( $pos );
     }
-
-    # If not at queFront, move one more position
     if ( $pos != $self->{queFront} ) {
       $self->bufInc( $pos );
     }
-  } #/ if ( $pos != $self->{queFront...})
-
+  }
   return $pos;
 } #/ sub nextLine
 
-# The following subroutine was taken from the framework
+# The following two subroutines was taken from the framework
 # "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
 #
 # Copyright 2019-2021 by magiblot <magiblot@hotmail.com>
 #
 # I<ttprvlns.cpp>
+my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
+	my ( $buffer, undef, $count ) = @_;
+	alias: for my $pos ( $_[1] ) {
+  # Pre: count >= 1.
+  # Post: 'pos' points to the last checked character.
+  ++$pos;
+  do {
+    return !!1 
+      if substr( $buffer, --$pos, 1 ) eq "\n";
+  } while ( --$count > 0 );
+  return !!0;
+	} #/ alias: for my $pos ( $_[1] )
+};
+
 sub prevLines {    # $offset ($pos, $lines)
   my ( $self, $pos, $lines ) = @_;
   assert ( @_ == 3 );
@@ -214,35 +322,25 @@ sub prevLines {    # $offset ($pos, $lines)
 
   if ( $lines > 0 && $pos != $self->{queBack} ) {
     do {
-      # Stop if we reached the back of the queue
-      if ( $pos == $self->{queBack} ) {
-        return $self->{queBack};
-      }
-
-      # Step back one position in the circular buffer
+      return $self->{queBack} 
+          if $pos == $self->{queBack};
       $self->bufDec( $pos );
-
-      # Calculate how many characters we can check backwards
-      my $count = ( $pos >= $self->{queBack} )
-                ? ( $pos - $self->{queBack} + 1 )
-                : ( $pos + 1 );
-
-      # Search backwards for newline within the allowed range
-      while ( $count > 0 ) {
-        if ( substr( $self->{buffer}, $pos, 1 ) eq "\n" ) {
-          $lines--;
-          last;    # Found a newline, stop inner loop
-        }
-        $pos--;
-        $count--;
-      }
+      my $count = ( $pos >= $self->{queBack}
+                  ? $pos - $self->{queBack}
+                  : $pos ) + 1;
+		  --$lines if $findLfBackwards->( $self->{buffer}, $pos, $count );
     } while ( $lines > 0 );
-
-    # Move forward one position after finishing
     $self->bufInc( $pos );
   } #/ if ( $lines > 0 && $pos...)
   return $pos;
 } #/ sub prevLines
+
+sub queEmpty {    # $bool ()
+  my ( $self ) = @_;
+  assert( @_ == 1 );
+  assert( blessed $self );
+  return $self->{queBack} == $self->{queFront};
+}
 
 sub bufDec {    # void ($val)
   my ( $self, undef ) = @_;
@@ -259,13 +357,6 @@ sub bufDec {    # void ($val)
   return;
   } #/ alias
 } #/ sub bufDec
-
-sub queEmpty {    # $bool ()
-  my ( $self ) = @_;
-  assert( @_ == 1 );
-  assert( blessed $self );
-  return $self->{queBack} == $self->{queFront};
-}
 
 1
 

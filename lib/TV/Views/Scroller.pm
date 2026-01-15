@@ -127,6 +127,7 @@ sub getPalette {    # $palette ()
 }
 
 sub handleEvent {    # void ($event)
+  no warnings 'uninitialized';
   my ( $self, $event ) = @_;
   assert( @_ == 2 );
   assert ( blessed $self );
