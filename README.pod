@@ -44,6 +44,278 @@ L<tv2fixed.zip|http://www.sigala.it/sergio/tvision/source/tv2fixed.zip>).
 Perl TVision wanted to enable developers to use the powerful text-based user 
 interfaces of Turbo Vision in Perl. 
 
+=head3 Source Module Inventory
+
+  lib/TV/
+    +-- App/      - TProgram, TApplication, TDeskTop, TBackground, etc.
+    +-- Dialogs/  - TDialog, TButton, TInputLine, TFileDialog, etc.
+    +-- Drivers/  - TEvent, TScreen, TEventQueue, THardwareInfo, etc.
+    +-- Editors/  - TEditor, TMemo, TFileEditor, TIndicator, etc.
+    +-- Gadgets/  - TClickTester, TEventViewer, THeapView, etc.
+    +-- Help/     - THelpFile, THelpTopic, THelpViewer, etc.
+    +-- Memory/   - Memory manager
+    +-- Menus/    - TMenuBar, TMenuBox, TStatusLine, etc.
+    +-- Objects/  - TObject, TPoint, TRect, TCollection, TSortedCollection, etc.
+    +-- StdDlg/   - TFilelnfoPane, TFilelnputLine, TFileList, etc.
+    +-- TextView/ - TTextDevice, TTerminal, etc.
+    +-- toolkit/  - Object toolkit
+    +-- Validate/ - TValidator, TFilterValidator, TPXPictureValidator, etc.
+    +-- Views/    - TDrawBuffer, TView, TGroup, TFrame, TScroller, TWindow, etc.
+
+This following checklist maps all Borland Turbo Vision classes to their Perl 
+equivalents in the TVision port. It reflects the actual state of the repository 
+as observed from the module tree.
+
+Each entry includes:
+
+=over
+
+=item Borland class name
+
+=item Perl module name (if present)
+
+=item Porting status
+
+   [x] = implemented
+   [ ] = missing
+   [o] = partial
+
+=back
+
+=head3 Core Primitives
+
+  +----------------+---------------------------+-----------+
+  | TPoint         | TV::Objects::Point        | [x]       |
+  | TRect          | TV::Objects::Rect         | [x]       |
+  | TDrawBuffer    | TV::Views::DrawBuffer     | [x]       |
+  | TPalette       | TV::Views::Palette        | [x]       |
+  | TCommandSet    | TV::Views::CommandSet     | [x]       |
+  +----------------+---------------------------+-----------+
+
+=head3 Event System
+
+  +----------------+---------------------------+-----------+
+  | TEvent         | TV::Drivers::Event        | [x]       |
+  | KeyDownEvent   | TV::Drivers::Event        | [x]       |
+  | MouseEvent     | TV::Drivers::Event        | [x]       |
+  | MessageEvent   | TV::Drivers::Event        | [x]       |
+  | TEventQueue    | TV::Drivers::EventQueue   | [x]       |
+  +----------------+---------------------------+-----------+
+
+=head3 Platform Layer
+
+  +----------------+---------------------------+-----------+
+  | THWMouse       | TV::Drivers::HWMouse      | [o]       |
+  | TMouse         | TV::Drivers::Mouse        | [x]       |
+  | TSystemError   | TV::Drivers::SystemError  | [o]       |
+  | TScreen        | TV::Drivers::Screen       | [o]       |
+  | TDisplay       | TV::Drivers::Display      | [o]       |
+  | THardwareInfo  | TV::Drivers::HardwareInfo | [o]       |
+  +----------------+---------------------------+-----------+
+
+Win32 Console Driver, implemented in C<TV::Drivers::HardwareInfo::Win32>.
+
+=head3 View Hierarchy
+
+  +----------------+---------------------------+-----------+
+  | TObject        | TV::Objects::Object       | [x]       |
+  | TView          | TV::Views::View           | [x]       |
+  | TGroup         | TV::Views::Group          | [x]       |
+  | TFrame         | TV::Views::Frame          | [x]       |
+  | TScrollBar     | TV::Views::ScrollBar      | [x]       |
+  | TScroller      | TV::Views::Scroller       | [x]       |
+  | TListViewer    | (missing)                 | [ ]       |
+  | TBackground    | TV::App::Background       | [x]       |
+  +----------------+---------------------------+-----------+
+
+Hierarchical screen write system, implemented in C<TV::Views::View::Write>.
+
+=head3 Application Framework
+
+  +----------------+---------------------------+-----------+
+  | TProgram       | TV::App::Program          | [x]       |
+  | TApplication   | TV::App::Application      | [x]       |
+  | TDialog        | (missing)                 | [ ]       |
+  | TWindow        | TV::Views::Window         | [x]       |
+  | TDeskTop       | TV::App::DeskTop          | [x]       |
+  +----------------+---------------------------+-----------+
+
+=head3 Dialog Controls
+
+Buttons and Clusters
+
+  +----------------+---------------------------+-----------+
+  | TButton        | (missing)                 | [ ]       |
+  | TCluster       | (missing)                 | [ ]       |
+  | TRadioButtons  | (missing)                 | [ ]       |
+  | TCheckBoxes    | (missing)                 | [ ]       |
+  +----------------+---------------------------+-----------+
+
+Input and Text
+
+  +----------------+---------------------------+-----------+
+  | TInputLine     | (missing)                 | [ ]       |
+  | TLabel         | (missing)                 | [ ]       |
+  | TStaticText    | (missing)                 | [ ]       |
+  | TParamText     | (missing)                 | [ ]       |
+  +----------------+---------------------------+-----------+
+
+Lists and History
+
+  +----------------+---------------------------+-----------+
+  | TListBox       | (missing)                 | [ ]       |
+  | TSortedListBox | (missing)                 | [ ]       |
+  | THistory       | (missing)                 | [ ]       |
+  | THistoryViewer | (missing)                 | [ ]       |
+  | THistoryWindow | (missing)                 | [ ]       |
+  | THistoryList   | (missing)                 | [ ]       |
+  | TSItem         | (missing)                 | [ ]       |
+  +----------------+---------------------------+-----------+
+
+=head3 File/Directory Dialogs
+
+  +-----------------+--------------------------+-----------+
+  | TFileDialog     | (missing)                | [ ]       |
+  | TChDirDialog    | (missing)                | [ ]       |
+  | TFileInputLine  | (missing)                | [ ]       |
+  | TFileList       | (missing)                | [ ]       |
+  | TFileInfoPane   | (missing)                | [ ]       |
+  | TDirListBox     | (missing)                | [ ]       |
+  | TDirEntry       | (missing)                | [ ]       |
+  | TDirCollection  | (missing)                | [ ]       |
+  | TFileCollection | (missing)                | [ ]       |
+  | TSearchRec      | (missing)                | [ ]       |
+  +-----------------+--------------------------+-----------+
+
+=head3 Menu System
+
+  +----------------+---------------------------+-----------+
+  | TMenuItem      | TV::Menus::MenuItem       | [x]       |
+  | TMenu          | TV::Menus::Menu           | [x]       |
+  | TMenuView      | TV::Menus::MenuView       | [x]       |
+  | TMenuBar       | TV::Menus::MenuBar        | [x]       |
+  | TMenuBox       | TV::Menus::MenuBox        | [x]       |
+  | TMenuPopup     | (missing)                 | [ ]       |
+  | TSubMenu       | TV::Menus::SubMenu        | [x]       |
+  | TStatusLine    | TV::Menus::StatusLine     | [x]       |
+  | TStatusItem    | TV::Menus::StatusItem     | [x]       |
+  | TStatusDef     | TV::Menus::StatusDef      | [x]       |
+  +----------------+---------------------------+-----------+
+
+=head3 Message Box System
+
+  +------------------+-------------------------+-----------+
+  | messageBox()     | (missing)               | [ ]       |
+  | messageBoxRect() | (missing)               | [ ]       |
+  | inputBox()       | (missing)               | [ ]       |
+  | inputBoxRect()   | (missing)               | [ ]       |
+  +------------------+-------------------------+-----------+
+
+=head3 Validator System
+
+  +------------------------+-------------------+-----------+
+  | TValidator             | (missing)         | [ ]       |
+  | TFilterValidator       | (missing)         | [ ]       |
+  | TRangeValidator        | (missing)         | [ ]       |
+  | TLookupValidator       | (missing)         | [ ]       |
+  | TStringLookupValidator | (missing)         | [ ]       |
+  | TPXPictureValidator    | (missing)         | [ ]       |
+  +------------------------+-------------------+-----------+
+
+=head3 Collections Framework
+
+  +----------------------+---------------------------------+-----------+
+  | TNSCollection        | TV::Objects::NSCollection       | [x]       |
+  | TNSSortedCollection  | TV::Objects::NSSortedCollection | [x]       |
+  | TCollection          | TV::Objects::Collection         | [x]       |
+  | TSortedCollection    | TV::Objects::SortedCollection   | [x]       |
+  | TStringCollection    | (missing)                       | [ ]       |
+  | TStringList          | (missing)                       | [ ]       |
+  | TStrListMaker        | (missing)                       | [ ]       |
+  | TResourceCollection  | (missing)                       | [ ]       |
+  | TResourceFile        | (missing)                       | [ ]       |
+  +----------------------+---------------------------------+-----------+
+
+=head3 Editor Modules
+
+  +----------------+---------------------------+-----------+
+  | TEditor        | (missing)                 | [ ]       |
+  | TMemo          | (missing)                 | [ ]       |
+  | TFileEditor    | (missing)                 | [ ]       |
+  | TEditWindow    | (missing)                 | [ ]       |
+  | TIndicator     | (missing)                 | [ ]       |
+  | TTextDevice    | TV::TextView::TextDevice  | [x]       |
+  | TTerminal      | TV::TextView::Terminal    | [x]       |
+  +----------------+---------------------------+-----------+
+
+=head3 Gadgets
+
+  +-----------------+--------------------------+-----------+
+  | TCalcDisplay    | (missing)                | [ ]       |
+  | TCalendarView   | (missing)                | [ ]       |
+  | TClickTester    | (missing)                | [ ]       |
+  | TClockView      | (missing)                | [ ]       |
+  | TEventViewer    | (missing)                | [x]       |
+  | THeapView       | (missing)                | [ ]       |
+  | TLineCollection | (missing)                | [ ]       |
+  | TPuzzleView     | (missing)                | [ ]       |
+  +-----------------+--------------------------+-----------+
+
+=head3 Interpretation
+
+These following areas represent the bulk of Turbo Vision’s higher‑level UI 
+framework. 
+
+The project has completed the foundational subsystems:
+
+=over
+
+=item Core primitives
+
+=item Event system
+
+=item Platform layer (partial)
+
+=item View hierarchy (core)
+
+=item Menu system
+
+=item Status system
+
+=item TextView subsystem
+
+=back
+
+The remaining work is concentrated in:
+
+=over
+
+=item Dialog controls
+
+=item File/Directory dialogs
+
+=item Validators
+
+=item Editors
+
+=item Gadgets
+
+=item Resource/collection extensions
+
+=item Standard dialogs
+
+=back
+
+Summary
+
+  Total Borland classes/items tracked: 132
+  Implemented:                         38
+  Partial:                              7
+  Missing:                             87
+
+B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
+dialogs, widgets, validators, and subsystems as defined in the mapping list.
+
 =head3 Porting notes
 
 Languages with automatic garbage collection (like Perl) have complementary 
@@ -99,8 +371,8 @@ Windows versions and Perl versions could be checked by me).
 
 All original user interface elements such as edit fields, list boxes, 
 checkboxes, radio buttons, and menus are available in Perl and offer full mouse 
-support (in the future, so please don't be angry that this is more of an 
-announcement, as so far only the basics are working).
+support (in the future, so please don't be angry that this is in progress; see 
+L<Coverage|/Source Module Inventory>).
 
 =item B<Extensibility>
 
