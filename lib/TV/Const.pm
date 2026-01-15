@@ -20,6 +20,8 @@ our @EXPORT_OK = qw(
   INT_MAX
   UINT_MAX
 
+  EOS
+
   maxFindStrLen
   maxReplaceStrLen
 );
@@ -27,6 +29,10 @@ our @EXPORT_OK = qw(
 use constant {
   INT_MAX  => ~0 >> 1,
   UINT_MAX => ~0,
+};
+
+use constant {
+  EOS => "\0",
 };
 
 use constant {

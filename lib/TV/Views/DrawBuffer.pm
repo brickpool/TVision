@@ -111,14 +111,18 @@ sub moveChar {    # void ($indent, $c, $attr, $count)
   assert ( looks_like_number $attr );
   assert ( looks_like_number $count );
 
-  if ( $attr ) {
-    for ( my $i = 0 ; $i < $count ; $i++ ) {
-      $setCell->( $self->[ $indent + $i ], ord( $c ), $attr );
+  my $dest = $indent;
+  while ( $count-- ) {
+    if ( $attr ) {
+      if ( $c ) {
+        $setCell->( $self->[ $dest++ ], ord( $c ), $attr );
+      } 
+      else {
+        $setAttr->( $self->[ $dest++ ], $attr );
+      }
     }
-  }
-  else {
-    for ( my $i = 0 ; $i < $count ; $i++ ) {
-      $setChar->( $self->[ $indent + $i ], ord( $c ) );
+    else {
+      $setChar->( $self->[ $dest++ ], ord( $c ) );
     }
   }
   return;
@@ -134,15 +138,14 @@ sub moveCStr {    # void ($indent, $str, $attrs)
   my $toggle  = 1;
   my $curAttr = $attrs & 0xff;
 
-  my $i = 0;
+  my $dest = $indent;
   foreach my $c ( split //, $str ) {
     if ( $c eq '~' ) {
       $curAttr = ( $attrs >> ( 8 * $toggle ) ) & 0xff;
       $toggle  = 1 - $toggle;
     }
     else {
-      $setCell->( $self->[ $indent + $i ], ord( $c ), $curAttr );
-      $i++;
+      $setCell->( $self->[ $dest++ ], ord( $c ), $curAttr );
     }
   } #/ foreach my $c ( split //, $str)
   return;
@@ -156,10 +159,14 @@ sub moveStr {    # void ($indent, $str, $attrs)
   assert ( defined $str and !ref $str );
   assert ( looks_like_number $attr );
 
-  my $i = 0;
+  my $dest = $indent;
   foreach my $c ( split //, $str ) {
-    $setCell->( $self->[ $indent + $i ], ord( $c ), $attr );
-    $i++;
+    if ( $attr ) {
+      $setCell->( $self->[ $dest++ ], ord( $c ), $attr );
+    }
+    else {
+      $setChar->( $self->[ $dest++ ], ord( $c ) );
+    }
   }
 }
 

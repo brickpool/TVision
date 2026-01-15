@@ -1198,8 +1198,9 @@ sub writeChar {    # void ($x, $y, $c, $color, $count)
   assert ( !ref $c and length $c );
   assert ( looks_like_number $color );
   assert ( looks_like_number $count );
+  my $attr = $self->mapColor( $color );
   if ( $count > 0 ) {
-    $setCell->( my $cell, ord( $c ), $color );
+    $setCell->( my $cell, ord( $c ), $attr );
     my $buf = [ ( $cell ) x $count ];
     $self->$writeView( $x, $y, $count, $buf );
   }
