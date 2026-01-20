@@ -34,6 +34,7 @@ our %EXPORT_TAGS = (
     cpCyanDialog
     cpDialog
     cpButton
+    cpStaticText
   )],
   
   dpXXXX => [qw(
@@ -97,6 +98,10 @@ use constant cpDialog => cpGrayDialog;
 # TButton palette layout
 
 use constant cpButton => "\x0A\x0B\x0C\x0D\x0E\x0E\x0E\x0F";
+
+# TStaticText palette layout
+
+use constant cpStaticText => "\x06";
 
 # TDialog palette entries
 

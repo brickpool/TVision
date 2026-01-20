@@ -14,7 +14,6 @@ our @EXPORT = qw(
   new_TDialog
 );
 
-use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(

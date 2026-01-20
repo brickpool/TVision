@@ -172,15 +172,15 @@ sub aboutDlgBox {
   my ( $self ) = @_;
   my $aboutBox = new_TDialog( new_TRect( 0, 0, 39, 13 ), "About" );
 
-  # $aboutBox->insert(
-  #   new_TStaticText(
-  #     new_TRect( 9, 2, 30, 9 ),
-  #       "\003Turbo Vision Demo\n\n" .     # These strings will be
-  #       "\003C++ Version\n\n" .           # concatenated by the compiler.
-  #       "\003Copyright (c) 1994\n\n" .    # The \003 centers the line.
-  #       "\003Borland International"
-  #   )
-  # );
+  $aboutBox->insert(
+    new_TStaticText(
+      new_TRect( 9, 2, 30, 9 ),
+        "\003Turbo Vision Demo\n\n" .        # These strings will be
+        "\003C++ Perl Port Version\n\n" .    # concatenated by the compiler.
+        "\003Copyright (c) 1994\n\n" .       # The \003 centers the line.
+        "\003Borland International"
+    )
+  );
 
   $aboutBox->insert(
     new_TButton( new_TRect( 14, 10, 26, 12 ), " OK", cmOK, bfDefault ) );

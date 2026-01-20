@@ -158,7 +158,7 @@ Input and Text
   +----------------+---------------------------+-----------+
   | TInputLine     | (missing)                 | [ ]       |
   | TLabel         | (missing)                 | [ ]       |
-  | TStaticText    | (missing)                 | [ ]       |
+  | TStaticText    | TV::Dialogs::StaticText   | [x]       |
   | TParamText     | (missing)                 | [ ]       |
   +----------------+---------------------------+-----------+
 
@@ -310,9 +310,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         40
+  Implemented:                         41
   Partial:                              7
-  Missing:                             85
+  Missing:                             84
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
