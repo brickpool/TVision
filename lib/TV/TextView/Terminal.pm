@@ -218,7 +218,7 @@ sub draw {    # void ()
   }
   else {
     for ( $y = $self->{limit}{y} ; $y < $self->{size}{y} ; $y++ ) {
-		  $self->writeChar( 0, $y, ' ', 1, $self->{size}{x} );
+      $self->writeChar( 0, $y, ' ', 1, $self->{size}{x} );
     }
     $y = $self->{limit}{y} - 1;
   }
@@ -298,8 +298,8 @@ sub nextLine {    # $offset ($pos)
 #
 # I<ttprvlns.cpp>
 my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
-	my ( $buffer, undef, $count ) = @_;
-	alias: for my $pos ( $_[1] ) {
+  my ( $buffer, undef, $count ) = @_;
+  alias: for my $pos ( $_[1] ) {
   # Pre: count >= 1.
   # Post: 'pos' points to the last checked character.
   ++$pos;
@@ -308,7 +308,7 @@ my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
       if substr( $buffer, --$pos, 1 ) eq "\n";
   } while ( --$count > 0 );
   return !!0;
-	} #/ alias: for my $pos ( $_[1] )
+  } #/ alias: for my $pos ( $_[1] )
 };
 
 sub prevLines {    # $offset ($pos, $lines)
@@ -326,7 +326,7 @@ sub prevLines {    # $offset ($pos, $lines)
       my $count = ( $pos >= $self->{queBack}
                   ? $pos - $self->{queBack}
                   : $pos ) + 1;
-		  --$lines if $findLfBackwards->( $self->{buffer}, $pos, $count );
+      --$lines if $findLfBackwards->( $self->{buffer}, $pos, $count );
     } while ( $lines > 0 );
     $self->bufInc( $pos );
   } #/ if ( $lines > 0 && $pos...)

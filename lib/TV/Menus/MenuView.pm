@@ -88,7 +88,7 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-	my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = STRICT ? check( {
     # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
     menu       => { allow => sub { !defined $_[0] or blessed $_[0] } },
@@ -99,7 +99,7 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-	assert( @_ == 2 );
+  assert( @_ == 2 );
   assert ( blessed $self );
   $self->{eventMask} |= evBroadcast;
   weaken( $self->{parentMenu} )        if $self->{parentMenu};
@@ -125,7 +125,7 @@ sub from {    # $obj ($bounds, |$aMenu|undef, |$aParent);
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
-	assert( @_ == 2 );
+  assert( @_ == 2 );
   assert ( blessed $self );
   $unlock_value->( $self->{parentMenu} ) if STRICT;
   $unlock_value->( $self->{current} )    if STRICT;
@@ -140,7 +140,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
 # I<tmnuview.cpp>
 sub execute {    # $int ()
   my ( $self ) = @_;
-	assert( @_ == 1 );
+  assert( @_ == 1 );
   assert( blessed $self );
   my $autoSelect     = !!0;
   my $firstEvent     = !!1;
@@ -395,7 +395,7 @@ sub execute {    # $int ()
 
 sub findItem {    # $menuItem|undef ($ch)
   my ( $self, $ch ) = @_;
-	assert( @_ == 2 );
+  assert( @_ == 2 );
   assert ( blessed $self );
   assert ( defined $ch and !ref $ch );
   $ch = uc( $ch );

@@ -79,23 +79,23 @@ subtest 'tied text device' => sub {
   my $device = tied(*TXT);
   isa_ok( $device, TTextDevice );
 
-	lives_ok { print(TXT "print\n")  or die } 'print TXT';
-	lives_ok { printf(TXT 'printf')  or die } 'print TXT';
-	lives_ok { read(TXT, $buf, 1)    // die } 'read TXT, ...';
-	lives_ok { sysread(TXT, $buf, 1) // die } 'sysread TXT, ...';
-	lives_ok { eof TXT               or die } 'eof TXT';
-	lives_ok { my $line = <TXT>      // die } '$_ = <TXT>';
-	lives_ok { my @lines = <TXT>     // die } '@_ = <TXT>';
-	lives_ok { binmode( TXT )        // die } 'binmode TXT';
+  lives_ok { print(TXT "print\n")  or die } 'print TXT';
+  lives_ok { printf(TXT 'printf')  or die } 'print TXT';
+  lives_ok { read(TXT, $buf, 1)    // die } 'read TXT, ...';
+  lives_ok { sysread(TXT, $buf, 1) // die } 'sysread TXT, ...';
+  lives_ok { eof TXT               or die } 'eof TXT';
+  lives_ok { my $line = <TXT>      // die } '$_ = <TXT>';
+  lives_ok { my @lines = <TXT>     // die } '@_ = <TXT>';
+  lives_ok { binmode( TXT )        // die } 'binmode TXT';
 
-	lives_ok { syswrite(TXT, 'CCC')  // die } 'syswrite TXT, ...';
+  lives_ok { syswrite(TXT, 'CCC')  // die } 'syswrite TXT, ...';
   is( $device->data, 'CCC', 'valid data w/o flush' );
-	lives_ok { close TXT             or die } 'close TXT';
+  lives_ok { close TXT             or die } 'close TXT';
   like( $device->data, qr/^CCCprint\n.+/, 'valid data after close w/ flush' );
 
-	dies_ok  { seek(TXT, 0, 0)       or die } 'seek TXT, ...';
-	dies_ok  { getc TXT              or die } 'getc TXT';
-	dies_ok  { tell TXT              or die } 'tell TXT';
+  dies_ok  { seek(TXT, 0, 0)       or die } 'seek TXT, ...';
+  dies_ok  { getc TXT              or die } 'getc TXT';
+  dies_ok  { tell TXT              or die } 'tell TXT';
 };
 
 done_testing();

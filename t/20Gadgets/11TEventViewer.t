@@ -56,7 +56,7 @@ my $bounds = TRect->new();
 
 subtest 'Decode CP437 character to UTF-8 bytes' => sub {
   my $decoded = bytes::substr(
-	  decode( 'cp437', chr $sample_event->{keyDown}{charScan}{charCode} ), 0 );
+    decode( 'cp437', chr $sample_event->{keyDown}{charScan}{charCode} ), 0 );
   is_deeply(
     [ unpack( 'C*', $decoded ) ], 
     [ 0xC3, 0xB1 ], 
@@ -66,7 +66,7 @@ subtest 'Decode CP437 character to UTF-8 bytes' => sub {
 
 subtest 'Print hex representation of UTF-8 bytes' => sub {
   my $decoded = bytes::substr(
-	  decode( 'cp437', chr $sample_event->{keyDown}{charScan}{charCode} ), 0 );
+    decode( 'cp437', chr $sample_event->{keyDown}{charScan}{charCode} ), 0 );
   my @utf8_bytes = unpack( 'C*', $decoded );
   my $hex_string = join ', ', map { sprintf "0x%02X", $_ } @utf8_bytes;
   is( $hex_string, '0xC3, 0xB1', 'Hex string matches expected output' );

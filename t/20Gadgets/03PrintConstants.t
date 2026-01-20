@@ -77,27 +77,27 @@ subtest 'Test printEventCode' => sub {
 };
 
 subtest 'Test printMouseButtonState' => sub {
-	my $output = '';
-	my $os     = IO::Scalar->new( \$output );
-	printMouseButtonState( $os, mbLeftButton() | mbRightButton() );
-	like( $output, qr/mb(Left|Right).*mb(Left|Right)/,
-		'printMouseButtonState prints both buttons' );
+  my $output = '';
+  my $os     = IO::Scalar->new( \$output );
+  printMouseButtonState( $os, mbLeftButton() | mbRightButton() );
+  like( $output, qr/mb(Left|Right).*mb(Left|Right)/,
+    'printMouseButtonState prints both buttons' );
 };
 
 subtest 'Test printMouseWheelState' => sub {
-	my $output = '';
-	my $os     = IO::Scalar->new( \$output );
-	printMouseWheelState( $os, 0 );
-	like( $output, qr/0x/,
-		'printMouseWheelState prints hex if no constants defined' );
+  my $output = '';
+  my $os     = IO::Scalar->new( \$output );
+  printMouseWheelState( $os, 0 );
+  like( $output, qr/0x/,
+    'printMouseWheelState prints hex if no constants defined' );
 };
 
 subtest 'Test printMouseEventFlags' => sub {
-	my $output = '';
-	my $os     = IO::Scalar->new( \$output );
-	printMouseEventFlags( $os, meMouseMoved() | meDoubleClick() );
-	like( $output, qr/me.*me/,
-		'printMouseEventFlags prints both flags' );
+  my $output = '';
+  my $os     = IO::Scalar->new( \$output );
+  printMouseEventFlags( $os, meMouseMoved() | meDoubleClick() );
+  like( $output, qr/me.*me/,
+    'printMouseEventFlags prints both flags' );
 };
 
 done_testing();

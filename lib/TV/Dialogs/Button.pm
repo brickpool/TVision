@@ -45,8 +45,8 @@ use TV::Views::Const qw(
   phPostProcess
   :sfXXXX
 );
-use TV::Views::Palette;
 use TV::Views::DrawBuffer;
+use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Util qw( message );
 use TV::toolkit;
@@ -413,11 +413,11 @@ $drawTitle = sub {    # void ($b, $s, $i, $cButton, $down)
 }; #/ sub drawTitle
 
 $pressButton = sub {    # void ($event)
-	...;
+  ...;
 };
 
 $getActiveRect = sub {    # $rect ()
-	...;
+  ...;
 };
 
 1

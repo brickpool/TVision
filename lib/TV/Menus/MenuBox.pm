@@ -57,7 +57,7 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-	my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = STRICT ? check( {
     # 'required' arguments (note: 'menu' and 'parentMenu' can be undefined)
     menu => {
