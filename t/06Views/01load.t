@@ -20,8 +20,8 @@ BEGIN {
   use_ok 'TV::Views::Frame';
   use_ok 'TV::Views::ScrollBar';
   use_ok 'TV::Views::Scroller';
-  use_ok 'TV::Views::Window';
   use_ok 'TV::Views::WindowInit';
+  use_ok 'TV::Views::Window';
 }
 
 isa_ok( TCommandSet->new(), TCommandSet );
@@ -38,3 +38,7 @@ isa_ok(
   ), TScroller
 );
 isa_ok( TWindowInit->new( cFrame => sub { } ), TWindowInit );
+isa_ok(
+  TWindow->new( bounds => TRect->new(), title => 'title', number => 1 ),
+  TWindow
+);

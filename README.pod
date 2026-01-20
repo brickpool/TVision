@@ -135,7 +135,7 @@ Hierarchical screen write system, implemented in C<TV::Views::View::Write>.
   +----------------+---------------------------+-----------+
   | TProgram       | TV::App::Program          | [x]       |
   | TApplication   | TV::App::Application      | [x]       |
-  | TDialog        | (missing)                 | [ ]       |
+  | TDialog        | TV::Dialogs::Dialog       | [x]       |
   | TWindow        | TV::Views::Window         | [x]       |
   | TDeskTop       | TV::App::DeskTop          | [x]       |
   +----------------+---------------------------+-----------+
