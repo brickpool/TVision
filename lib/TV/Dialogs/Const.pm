@@ -24,6 +24,8 @@ our %EXPORT_TAGS = (
 
   cmXXXX => [qw(
     cmRecordHistory
+    cmGrabDefault
+    cmReleaseDefault
   )],
 
   cpXXXX => [qw(
@@ -31,6 +33,7 @@ our %EXPORT_TAGS = (
     cpBlueDialog
     cpCyanDialog
     cpDialog
+    cpButton
   )],
   
   dpXXXX => [qw(
@@ -54,6 +57,8 @@ our %EXPORT_TAGS = (
       @EXPORT_OK;
 }
 
+# Button flags
+
 use constant {
   bfNormal    => 0x00,
   bfDefault   => 0x01,
@@ -62,11 +67,18 @@ use constant {
   bfGrabFocus => 0x08,
 };
 
+# Command constants
+
 use constant {
+  # History Command constants
   cmRecordHistory => 60,
+
+  # TButton Command constants
+  cmGrabDefault    => 61,
+  cmReleaseDefault => 62,
 };
 
-# TDialog Palette layout
+# TDialog palette layout
 
 use constant cpGrayDialog =>
   "\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2A\x2B\x2C\x2D\x2E\x2F".
@@ -81,6 +93,10 @@ use constant cpCyanDialog =>
   "\x70\x71\x72\x73\x74\x75\x76\x77\x78\x79\x7a\x7b\x7c\x7d\x7e\x7f";
 
 use constant cpDialog => cpGrayDialog;
+
+# TButton palette layout
+
+use constant cpButton => "\x0A\x0B\x0C\x0D\x0E\x0E\x0E\x0F";
 
 # TDialog palette entries
 

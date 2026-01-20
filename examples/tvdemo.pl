@@ -182,8 +182,8 @@ sub aboutDlgBox {
   #   )
   # );
 
-  # $aboutBox->insert(
-  #   new_TButton( new_TRect( 14, 10, 26, 12 ), " OK", cmOK, bfDefault ) );
+  $aboutBox->insert(
+    new_TButton( new_TRect( 14, 10, 26, 12 ), " OK", cmOK, bfDefault ) );
 
   $aboutBox->{options} |= ofCentered;
 

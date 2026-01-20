@@ -1,0 +1,423 @@
+package TV::Dialogs::Button;
+# ABSTRACT: Button dialog base class
+
+use strict;
+use warnings;
+
+our $VERSION = '2.000_001';
+$VERSION =~ tr/_//d;
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
+use Exporter 'import';
+our @EXPORT = qw(
+  TButton
+  new_TButton
+);
+
+use Carp ();
+use Devel::StrictMode;
+use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
+use Scalar::Util qw(
+  blessed
+  looks_like_number
+);
+
+use TV::Drivers::Const qw( :evXXXX );
+use TV::Drivers::Event;
+use TV::Drivers::Util qw(
+  cstrlen
+  getAltCode
+);
+use TV::Dialogs::Const qw(
+  :bfXXXX
+  :cmXXXX
+  cpButton
+);
+use TV::Dialogs::Util qw( hotKey );
+use TV::Views::Const qw(
+  cmDefault
+  cmCommandSetChanged
+  :ofXXXX
+  phPostProcess
+  :sfXXXX
+);
+use TV::Views::Palette;
+use TV::Views::DrawBuffer;
+use TV::Views::View;
+use TV::Views::Util qw( message );
+use TV::toolkit;
+
+sub TButton() { __PACKAGE__ }
+sub name() { 'TButton' }
+sub new_TButton { __PACKAGE__->from(@_) }
+
+extends TView;
+
+# declare global variables
+our $shadows = "\xDC\xDB\xDF";
+our $markers = "[]";
+
+# import global variables
+use vars qw(
+  $showMarkers
+);
+{
+  no strict 'refs';
+  *showMarkers = \${ TView . '::showMarkers' };
+}
+
+# declare attributes
+has title     => ( is => 'rw', default => sub { die 'required' } );
+has command   => ( is => 'rw', default => sub { die 'required' } );
+has flags     => ( is => 'rw', default => sub { die 'required' } );
+has amDefault => ( is => 'rw', default => sub { !!0 } );
+
+# predeclare private methods
+my (
+  $drawTitle,
+  $pressButton,
+  $getActiveRect,
+);
+
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = STRICT ? check( {
+    title   => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
+    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    flags   => { required => 1, defined => 1, allow => qr/^\d+$/ },
+  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  return { %$args1, %$args2 };
+}
+
+sub BUILD {    # void (|\%args)
+  my $self = shift;
+  assert ( blessed $self );
+  $self->{amDefault} = $self->{flags} & bfDefault;
+  $self->{options} |=
+    ofSelectable | ofFirstClick | ofPreProcess | ofPostProcess;
+  $self->{eventMask} |= evBroadcast;
+  $self->{state}     |= sfDisabled
+    unless TView->commandEnabled( $self->{command} );
+  return;
+} #/ sub BUILD
+
+sub from {    # $obj ($bounds, $aTitle, aCommand, aFlags)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  assert ( @_ == 4 );
+  return $class->new( bounds => $_[0], title => $_[1], command => $_[2], 
+    flags => $_[3] );
+}
+
+sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  $self->{title} = undef;
+  return;
+}
+
+sub draw {    # void ()
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+  $self->drawState( !!0 );
+  return;
+}
+
+sub drawState {    # void ($down)
+  my ( $self, $down ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( !defined $down or !ref $down );
+
+  my ( $cButton, $cShadow );
+  my $ch;
+  my $i;
+  my $b = TDrawBuffer->new();
+
+  if ( $self->{state} & sfDisabled ) {
+    $cButton = $self->getColor( 0x0404 );
+  }
+  else {
+    $cButton = $self->getColor( 0x0501 );
+    if ( $self->{state} & sfActive ) {
+      if ( $self->{state} & sfSelected ) {
+        $cButton = $self->getColor( 0x0703 );
+      }
+      elsif ( $self->{amDefault} ) {
+        $cButton = $self->getColor( 0x0602 );
+      }
+    }
+  } #/ else [ if ( $self->{state} ...)]
+
+  $cShadow = $self->getColor( 8 );
+
+  my $s = $self->{size}{x} - 1;
+  my $T = int( $self->{size}{y} / 2 ) - 1;
+
+  for ( my $y = 0 ; $y <= $self->{size}{y} - 2 ; $y++ ) {
+    $b->moveChar( 0, ' ', $cButton, $self->{size}{x} );
+    $b->putAttribute( 0, $cShadow );
+    if ( $down ) {
+      $b->putAttribute( 1, $cShadow );
+      $ch = ' ';
+      $i  = 2;
+    }
+    else {
+      $b->putAttribute( $s, $cShadow );
+      if ( $showMarkers ) {
+        $ch = ' ';
+      }
+      else {
+        if ( $y == 0 ) {
+          $b->putChar( $s, substr( $shadows, 0, 1 ) );
+        }
+        else {
+          $b->putChar( $s, substr( $shadows, 1, 1 ) );
+        }
+        $ch = substr( $shadows, 2, 1 );
+      }
+      $i = 1;
+    } #/ else [ if ( $down ) ]
+
+    if ( $y == $T && $self->{title} ) {
+      $self->$drawTitle( $b, $s, $i, $cButton, $down );
+    }
+
+    if ( $showMarkers && !$down ) {
+      $b->putChar( 1,      substr( $markers, 0, 1 ) );
+      $b->putChar( $s - 1, substr( $markers, 1, 1 ) );
+    }
+
+    $self->writeLine( 0, $y, $self->{size}{x}, 1, $b );
+  } #/ for ( my $y = 0 ; $y <=...)
+
+  $b->moveChar( 0, ' ', $cShadow, 2 );
+  $b->moveChar( 2, $ch, $cShadow, $s - 1 );
+
+  $self->writeLine( 0, $self->{size}{y} - 1, $self->{size}{x}, 1, $b );
+  return;
+} #/ sub drawState
+
+my $palette;
+sub getPalette {    # $palette ()
+  my ( $self ) = @_;
+  assert( @_ == 1 );
+  assert( blessed $self );
+  $palette ||= TPalette->new(
+    data => cpButton, 
+    size => length( cpButton ),
+  );
+  return $palette->clone();
+}
+
+sub handleEvent {    # void ($event)
+  no warnings 'uninitialized';
+  my ( $self, $event ) = @_;
+  assert( @_ == 2 );
+  assert ( blessed $self );
+  assert ( blessed $event );
+
+  my $mouse; 
+  my $clickRect;
+
+  $clickRect = $self->getExtent();
+  $clickRect->{a}{x}++;
+  $clickRect->{b}{x}--;
+  $clickRect->{b}{y}--;
+
+  if ( $event->{what} == evMouseDown ) {
+    $mouse = $self->makeLocal( $event->{mouse}{where} );
+    if ( !$clickRect->contains( $mouse ) ) {
+      $self->clearEvent( $event );
+    }
+  }
+  if ( $self->{flags} & bfGrabFocus ) {
+    $self->SUPER::handleEvent( $event );
+  }
+
+  my $c = hotKey( $self->{title} );
+  SWITCH: for ( $event->{what} ) {
+    evMouseDown == $_ and do {
+     if ( ( $self->{state} & sfDisabled ) == 0 ) {
+        $clickRect->{b}{x}++;
+        my $down = !!0;
+        do {
+          $mouse = $self->makeLocal( $event->{mouse}{where} );
+          if ( !$down != !$clickRect->contains( $mouse ) ) {
+            $down = !$down;
+            $self->drawState( $down );
+          }
+        } while ( $self->mouseEvent( $event, evMouseMove ) );
+        if ( $down ) {
+          $self->press();
+          $self->drawState( !!0 );
+        }
+      } #/ if ( ( $self->{state} ...))
+      $self->clearEvent( $event );
+      last;
+    };
+
+    evKeyDown == $_ and do {
+      if (
+        $event->{keyDown}{keyCode} == getAltCode( $c )
+        || ( $self->{owner}{phase} == phPostProcess
+          && $c
+          && uc( $event->{keyDown}{charScan}{charCode} ) eq $c )
+        || ( ( $self->{state} & sfFocused )
+          && $event->{keyDown}{charScan}{charCode} eq ' ' )
+        )
+      {
+        $self->press();
+        $self->clearEvent( $event );
+      } #/ if ( $event->{keyDown}...)
+      last;
+    };
+
+    evBroadcast == $_ and do {
+      local $_;
+      SWITCH: for ( $event->{message}{command} ) {
+        cmDefault == $_ and do {
+          if ( $self->{amDefault} && !( $self->{state} & sfDisabled ) ) {
+            $self->press();
+            $self->clearEvent( $event );
+          }
+          last;
+        };
+
+        cmGrabDefault == $_ || 
+        cmReleaseDefault == $_ and do {
+          if ( $self->{flags} & bfDefault ) {
+            $self->{amDefault} = $event->{message}{command} == cmReleaseDefault;
+            $self->drawView();
+          }
+          last;
+        };
+
+        cmCommandSetChanged == $_ and do {
+          $self->setState(
+            sfDisabled,
+            !TView->commandEnabled( $self->{command} ) ? !!1 : !!0
+          );
+          $self->drawView();
+          last;
+        };
+      } #/ SWITCH: for ( $event->{message}...)
+      last;
+    };
+
+  } #/ SWITCH: for ( $event->{what} )
+  return;
+} #/ sub handleEvent
+
+sub makeDefault {    # void ($enable)
+  my ( $self, $enable ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( !defined $enable or !ref $enable );
+
+  if ( ( $self->{flags} & bfDefault ) == 0 ) {
+    message(
+      $self->{owner},
+      evBroadcast,
+      $enable ? cmGrabDefault : cmReleaseDefault,
+      $self
+    );
+    $self->{amDefault} = $enable;
+    $self->drawView();
+  } #/ if ( ( $self->{flags} ...))
+  return;
+} #/ sub makeDefault
+
+sub press {    # void ()
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+
+  message( $self->{owner}, evBroadcast, cmRecordHistory, undef );
+
+  if ( $self->{flags} & bfBroadcast ) {
+    message( $self->{owner}, evBroadcast, $self->{command}, $self );
+  }
+  else {
+    my $e = TEvent->new();
+    $e->{what} = evCommand;
+    $e->{message}{command} = $self->{command};
+    $e->{message}{infoPtr} = $self;
+    $self->putEvent( $e );
+  }
+  return;
+} #/ sub press
+
+sub setState { # void ($aState, $enable)
+  my ( $self, $aState, $enable ) = @_;
+  assert ( @_ == 3 );
+  assert ( blessed $self );
+  assert ( looks_like_number $aState );
+  assert ( !defined $enable or !ref $enable );
+
+  $self->SUPER::setState( $aState, $enable );
+  if ( $aState & ( sfSelected | sfActive ) ) {
+    if ( !$enable ) {
+      # BUG FIX - EFW - Thu 10/19/95
+      $self->{state} &= ~sfFocused;
+      $self->makeDefault( !!0 );
+    }
+
+    $self->drawView();
+  } #/ if ( $aState & ( sfSelected...))
+
+  if ( $aState & sfFocused ) {
+    $self->makeDefault( $enable );
+  }
+  return;
+} #/ sub setState
+
+$drawTitle = sub {    # void ($b, $s, $i, $cButton, $down)
+  my ( $self, $b, $s, $i, $cButton, $down ) = @_;
+
+  my ( $l, $scOff );
+  if ( $self->{flags} & bfLeftJust ) {
+    $l = 1;
+  }
+  else {
+    my $len = cstrlen( $self->{title} );
+    $l = int( ( $s - $len - 1 ) / 2 );
+    $l = 1 if $l < 1;
+  }
+
+  $b->moveCStr( $i + $l, $self->{title}, $cButton );
+
+  if ( $showMarkers && !$down ) {
+    if ( $self->{state} & sfSelected ) {
+      $scOff = 0;
+    }
+    elsif ( $self->{amDefault} ) {
+      $scOff = 2;
+    }
+    else {
+      $scOff = 4;
+    }
+    $b->putChar( 0,  $self->{specialChars}->[$scOff] );
+    $b->putChar( $s, $self->{specialChars}->[$scOff + 1] );
+  } #/ if ( $self->{showMarkers...})
+  return;
+}; #/ sub drawTitle
+
+$pressButton = sub {    # void ($event)
+	...;
+};
+
+$getActiveRect = sub {    # $rect ()
+	...;
+};
+
+1

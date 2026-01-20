@@ -40,6 +40,8 @@ details).
 This port is based on the original codebase of Borland C++ 4.02
 (Turbo Vision 2.0 sources including bug fixes by Eric Woodruff: 
 L<tv2fixed.zip|http://www.sigala.it/sergio/tvision/source/tv2fixed.zip>).
+In addition, assembler routines that have been ported to C++ come from 
+I<magiblot>'s implementation I<"A modern port of Turbo Vision 2.0.">.
 
 Perl TVision wanted to enable developers to use the powerful text-based user 
 interfaces of Turbo Vision in Perl. 
@@ -145,7 +147,7 @@ Hierarchical screen write system, implemented in C<TV::Views::View::Write>.
 Buttons and Clusters
 
   +----------------+---------------------------+-----------+
-  | TButton        | (missing)                 | [ ]       |
+  | TButton        | TV::Dialogs::Button       | [x]       |
   | TCluster       | (missing)                 | [ ]       |
   | TRadioButtons  | (missing)                 | [ ]       |
   | TCheckBoxes    | (missing)                 | [ ]       |
@@ -268,50 +270,49 @@ framework.
 
 The project has completed the foundational subsystems:
 
-=over
+=over 4
 
-=item Core primitives
+=item * Core primitives
 
-=item Event system
+=item * Event system
 
-=item Platform layer (partial)
+=item * Platform layer (partial)
 
-=item View hierarchy (core)
+=item * View hierarchy (core)
 
-=item Menu system
+=item * Menu system
 
-=item Status system
+=item * Status system
 
-=item TextView subsystem
-
+=item * TextView subsystem
 =back
 
 The remaining work is concentrated in:
 
-=over
+=over 4
 
-=item Dialog controls
+=item * Dialog controls
 
-=item File/Directory dialogs
+=item * File/Directory dialogs
 
-=item Validators
+=item * Validators
 
-=item Editors
+=item * Editors
 
-=item Gadgets
+=item * Gadgets
 
-=item Resource/collection extensions
+=item * Resource/collection extensions
 
-=item Standard dialogs
+=item * Standard dialogs
 
 =back
 
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         38
+  Implemented:                         40
   Partial:                              7
-  Missing:                             87
+  Missing:                             85
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
@@ -345,17 +346,22 @@ references in various tree structures or collections. To break all these cycles
 and ensure timely disposal of garbage memory, the Perl implementation must have 
 an intelligent scheme.
 
-This is not easy - firstly because you could just as well use a non-GC 
-language, and secondly because it would break important conventions in Perl. 
 Turbo Vision C++ code relies heavily on the convention of resource allocation 
-and ensures reliable and timely destructor calls. In Perl, which works with 
-cycles, this is not possible.
- 
-If you interrupt a garbage cycle, you can't know which destructor to call first 
+and ensures reliable and timely destructor calls. This is not possible in Perl, 
+which works with cycles. This poses some challenges during implementation. If 
+you interrupt a garbage cycle, you can't know which destructor to call first 
 without causing dependency problems - it might even be impossible, since there 
 are more cyclic dependencies than just memory references. All other resources 
 have to be cleaned up manually, like in Pascal or C++, without the advantages 
 of Perl.
+
+When porting C++ code to Perl, one common pitfall is accidentally replacing an 
+object reference instead of copying data into the existing object. In C++, 
+passing by reference ensures that assignments modify the caller’s object, while 
+in Perl the same assignment simply rebinds a local scalar and discards the 
+caller's reference. This difference can silently break control flow, especially 
+in event‑driven systems where modified objects must propagate back to the 
+caller.
 
 =head3 Key Features of the Port
 

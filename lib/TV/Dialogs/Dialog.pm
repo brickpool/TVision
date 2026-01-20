@@ -23,9 +23,7 @@ use Scalar::Util qw(
 );
 
 use TV::Drivers::Const qw(
-  evKeyDown
-  evCommand
-  evBroadcast
+  :evXXXX
   kbEsc
   kbEnter
 );
@@ -34,11 +32,11 @@ use TV::Dialogs::Const qw(
   :dpXXXX
 );
 use TV::Views::Const qw(
-  cmDefault
-  cmOK
   cmCancel
-  cmYes
+  cmDefault
   cmNo
+  cmOK
+  cmYes
   sfModal
   wfMove
   wfClose
