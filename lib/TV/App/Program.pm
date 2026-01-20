@@ -162,10 +162,10 @@ sub canMoveFocus {    # $bool ()
   return $deskTop->valid( cmReleasedFocus );
 }
 
-sub executeDialog {    # $int ($pD, \@data)
+sub executeDialog {    # $int ($pD, |\@data)
   my ( $self, undef, $data ) = @_;
   alias: for my $pD ( $_[1] ) {
-  assert ( @_ == 3 );
+  assert ( @_ >= 2 && @_ <= 3 );
   assert ( blessed $self );
   assert ( blessed $pD );
   my $c = cmCancel;
@@ -189,13 +189,12 @@ my $hasMouse = sub {    # $bool ($p, $s)
 };
 
 sub getEvent {    # void ($event)
-  my ( $self, undef ) = @_;
-  alias: for my $event ( $_[1] ) {
+  my ( $self, $event ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
   if ( $pending->{what} != evNothing ) {
-    $event = $pending->clone();
+    $event->assign( $pending );
     $pending->{what} = evNothing;
   }
   else {
@@ -218,7 +217,6 @@ sub getEvent {    # void ($event)
     }
   } #/ if ( $self->{statusLine...})
   return;
-  } #/ alias: for my $event
 } #/ sub getEvent
 
 my ( $color, $blackwhite, $monochrome, @palettes );

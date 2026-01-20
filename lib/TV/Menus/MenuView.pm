@@ -109,7 +109,7 @@ sub BUILD {    # void (\%args)
   return;
 }
 
-sub from {    # $obj ($bounds, | $aMenu|undef, | $aParent );
+sub from {    # $obj ($bounds, |$aMenu|undef, |$aParent);
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ >= 1 && @_ <= 3 );

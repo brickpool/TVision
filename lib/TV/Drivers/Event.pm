@@ -322,6 +322,9 @@ package MessageEvent {
     if ( blessed $self->{infoPtr} && $self->{infoPtr}->can( 'clone' ) ) {
       $clone->{infoPtr} = $self->{infoPtr}->clone();
     }
+    elsif ( ref $self->{infoPtr} ) {
+      weaken( $clone->{infoPtr} = $self->{infoPtr} );
+    }
     else {
       $clone->{infoPtr} = $self->{infoPtr};
     }
@@ -440,7 +443,27 @@ sub dump {    # $str (|$maxDepth)
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
   local $Data::Dumper::Maxdepth = @_ ? shift : 3;
-  return Data::Dumper::Dumper $self;
+  my $str = Data::Dumper::Dumper $self;
+  $str =~ s/(^|\s)\$VAR\d+\b/$1'$self'/g;
+  return $str;
+}
+
+sub assign {    # $self ($event)
+  my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
+  assert( blessed $self );
+  assert( blessed $event );
+  $self->{what} = $event->{what};
+  if ( $event->{mouse} ) {
+    $self->{mouse} = $event->{mouse}->clone();
+  }
+  elsif ( $event->{keyDown} ) {
+    $self->{keyDown} = $event->{keyDown}->clone();
+  }
+  elsif ( $event->{message} ) {
+    $self->{message} = $event->{message}->clone();
+  }
+  return $self;
 }
 
 sub clone {    # $obj ()

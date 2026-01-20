@@ -28,130 +28,133 @@ our %EXPORT_TAGS = (
   )],
 
   cmXXXX => [qw(
-    cmValid 
-    cmQuit 
-    cmError 
-    cmMenu 
-    cmClose 
-    cmZoom 
-    cmResize 
-    cmNext 
+    cmValid
+    cmQuit
+    cmError
+    cmMenu
+    cmClose
+    cmZoom
+    cmResize
+    cmNext
     cmPrev
-    cmHelp 
-    cmOk 
-    cmCancel 
-    cmYes 
-    cmNo 
-    cmDefault 
-    cmNew 
-    cmOpen 
+    cmHelp
+
+    cmOK
+    cmCancel
+    cmYes
+    cmNo
+    cmDefault
+
+    cmNew
+    cmOpen
     cmSave
-    cmSaveAs 
-    cmSaveAll 
-    cmChDir 
-    cmDosShell 
+    cmSaveAs
+    cmSaveAll
+    cmChDir
+    cmDosShell
     cmCloseAll
     
-    cmCut 
-    cmCopy 
-    cmPaste 
+    cmCut
+    cmCopy
+    cmPaste
     cmUndo
-    cmClear 
-    cmTile 
-    cmCascade 
-    cmReceivedFocus 
+    cmClear
+    cmTile
+    cmCascade
+
+    cmReceivedFocus
     cmReleasedFocus
-    cmCommandSetChanged 
-    cmScrollBarChanged 
+    cmCommandSetChanged
+    cmScrollBarChanged
     cmScrollBarClicked
-    cmSelectWindowNum 
+    cmSelectWindowNum
     cmListItemSelected
   )],
 
   sfXXXX => [qw(
     sfVisible
-    sfCursorVis 
-    sfCursorIns 
-    sfShadow 
-    sfActive 
-    sfSelected 
+    sfCursorVis
+    sfCursorIns
+    sfShadow
+    sfActive
+    sfSelected
     sfFocused
-    sfDragging 
-    sfDisabled 
-    sfModal 
-    sfDefault 
+    sfDragging
+    sfDisabled
+    sfModal
+    sfDefault
     sfExposed
   )],
 
   ofXXXX => [qw(
     ofSelectable
-    ofTopSelect 
-    ofFirstClick 
-    ofFramed 
-    ofPreProcess 
+    ofTopSelect
+    ofFirstClick
+    ofFramed
+    ofPreProcess
     ofPostProcess
-    ofBuffered 
-    ofTileable 
-    ofCenterX 
-    ofCenterY 
-    ofCentered 
+    ofBuffered
+    ofTileable
+    ofCenterX
+    ofCenterY
+    ofCentered
     ofValidate
   )],
 
   gfXXXX => [qw(
-    gfGrowLoX 
-    gfGrowLoY 
-    gfGrowHiX 
-    gfGrowHiY 
-    gfGrowAll 
+    gfGrowLoX
+    gfGrowLoY
+    gfGrowHiX
+    gfGrowHiY
+    gfGrowAll
     gfGrowRel
     gfFixed
   )],
 
   dmXXXX => [qw(
-    dmDragMove 
-    dmDragGrow 
-    dmLimitLoX 
-    dmLimitLoY 
+    dmDragMove
+    dmDragGrow
+    dmLimitLoX
+    dmLimitLoY
     dmLimitHiX
-    dmLimitHiY 
+    dmLimitHiY
     dmLimitAll
   )],
 
   hcXXXX => [qw(
-    hcNoContext 
+    hcNoContext
     hcDragging
   )],
 
   sbXXXX => [qw(
     sbLeftArrow
-    sbRightArrow 
-    sbPageLeft 
-    sbPageRight 
-    sbUpArrow 
+    sbRightArrow
+    sbPageLeft
+    sbPageRight
+    sbUpArrow
     sbDownArrow
-    sbPageUp 
-    sbPageDown 
-    sbIndicator 
-    sbHorizontal 
+    sbPageUp
+    sbPageDown
+    sbIndicator
+    sbHorizontal
     sbVertical
     sbHandleKeyboard
   )],
 
   wfXXXX => [qw(
-    wfMove 
-    wfGrow 
-    wfClose 
-    wfZoom 
+    wfMove
+    wfGrow
+    wfClose
+    wfZoom
   )],
 
   noXXXX => [qw(
-    noMenuBar 
+    noMenuBar
     noDeskTop
-    noStatusLine 
-    noBackground 
-    noFrame 
-    noViewer 
+    noStatusLine
+    noBackground
+    noFrame
+    noViewer
     noHistory
   )],
 
@@ -160,8 +163,8 @@ our %EXPORT_TAGS = (
   )],
 
   wpXXXX => [qw(
-    wpBlueWindow 
-    wpCyanWindow 
+    wpBlueWindow
+    wpCyanWindow
     wpGrayWindow
   )],
 
@@ -221,7 +224,7 @@ use constant {
 
 use constant {
   # TDialog standard commands
-  cmOk            => 10,
+  cmOK            => 10,
   cmCancel        => 11,
   cmYes           => 12,
   cmNo            => 13,

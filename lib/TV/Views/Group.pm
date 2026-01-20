@@ -837,9 +837,14 @@ sub valid {    # $bool ($command)
   assert ( blessed $self );
   assert ( looks_like_number $command );
   if ( $command == cmReleasedFocus ) {
-    return $self->{current}->valid( $command )
-      if $self->{current}
-      && ( $self->{current}{options} & ofValidate );
+    if ( $self->{current}
+      && ( $self->{current}{options} & ofValidate )
+    ) {
+      return $self->{current}->valid( $command );
+    }
+    else {
+      return !!1;
+    }
   }
   return !$self->firstThat( $isInvalid, \$command );
 }
@@ -864,10 +869,6 @@ sub getBuffer {    # void ()
       && !$self->{buffer};
   return;
 } #/ sub getBuffer
-
-$invalid = sub {    # $bool ($p, $command)
-  ...
-};
 
 $focusView = sub {    # void ($p, $enable)
   my ( $self, $p, $enable ) = @_;

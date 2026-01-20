@@ -141,12 +141,12 @@ sub handleEvent {    # void ($event)
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evCommand ) {
     SWITCH: for ( $event->{message}{command} ) {
-      $_ == cmNext and do {
-        $self->selectNext( 0 )
+      cmNext == $_ and do {
+        $self->selectNext( !!0 )
           if $self->valid( cmReleasedFocus );    # <-- Check valid.
         last;
       };
-      $_ == cmPrev and do {
+      cmPrev == $_ and do {
         $self->{current}->putInFrontOf( $self->{background} )
           if $self->valid( cmReleasedFocus );    # <-- Check valid.
         last;

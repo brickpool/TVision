@@ -178,7 +178,7 @@ sub handleEvent {    # void ($event)
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evCommand ) {
     SWITCH: for ( $event->{message}{command} ) {
-      $_ == cmResize and do {
+      cmResize == $_ and do {
         if ( $self->{flags} & ( wfMove | wfGrow ) ) {
           $limits = $self->{owner}->getExtent();
           $self->sizeLimits( $min, $max );
@@ -190,7 +190,7 @@ sub handleEvent {    # void ($event)
         }
         last;
       };
-      $_ == cmClose and do {
+      cmClose == $_ and do {
         no warnings 'uninitialized';
         if ( ( $self->{flags} & wfClose )
           && ( !$event->{message}{infoPtr}
@@ -210,7 +210,7 @@ sub handleEvent {    # void ($event)
         } #/ if ( $self->{flags} & ...)
         last;
       };
-      $_ == cmZoom and do {
+      cmZoom == $_ and do {
         no warnings 'uninitialized';
         if ( ( $self->{flags} & wfZoom )
           && ( !$event->{message}{infoPtr} 
@@ -226,12 +226,12 @@ sub handleEvent {    # void ($event)
   }
   elsif ( $event->{what} == evKeyDown ) {
     SWITCH: for ( $event->{keyDown}{keyCode} ) {
-      $_ == kbTab and do {
+      kbTab == $_ and do {
         $self->focusNext( 0 );
         $self->clearEvent( $event );
         last;
       };
-      $_ == kbShiftTab and do {
+      kbShiftTab == $_ and do {
         $self->focusNext( 1 );
         $self->clearEvent( $event );
         last;
