@@ -155,7 +155,7 @@ sub handleEvent {    # void ($event)
         }
       } while ( $self->mouseEvent( $event, evMouseMove ) );
 
-      if ( $T && $self->commandEnabled( $T->{command} ) ) {
+      if ( $T && TView->commandEnabled( $T->{command} ) ) {
         $event->{what} = evCommand;
         $event->{message}{command} = $T->{command};
         $event->{message}{infoPtr} = undef;
@@ -169,7 +169,7 @@ sub handleEvent {    # void ($event)
       my $T = $self->{items};
       while ( $T ) {
         if ( $event->{keyDown}{keyCode} == $T->{keyCode}
-          && $self->commandEnabled( $T->{command} ) )
+          && TView->commandEnabled( $T->{command} ) )
         {
           $event->{what} = evCommand;
           $event->{message}{command} = $T->{command};
@@ -231,7 +231,7 @@ $drawSelect = sub {    # void ($selected|undef)
       if ( $i + $l < $self->{size}{x} ) {
         no warnings 'uninitialized';
         my $color;
-        if ( $self->commandEnabled( $T->{command} ) ) {
+        if ( TView->commandEnabled( $T->{command} ) ) {
           $color = ( $T == $selected )
                  ? $cSelect 
                  : $cNormal;

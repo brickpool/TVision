@@ -67,18 +67,15 @@ sub BUILDARGS {    # \%args (%args)
   local $Params::Check::PRESERVE_CASE = 1;
 	my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = STRICT ? check( {
-    aHScrollBar => {
+    hScrollBar => {
       required => 1,
       allow    => sub { !defined $_[0] or blessed $_[0] }
     },
-    aVScrollBar => {
+    vScrollBar => {
       required => 1,
       allow    => sub { !defined $_[0] or blessed $_[0] }
     },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
-  # 'init_arg' is not the same as the field name.
-  $args2->{hScrollBar} = delete $args2->{aHScrollBar};
-  $args2->{vScrollBar} = delete $args2->{aVScrollBar};
   return { %$args1, %$args2 };
 }
 
@@ -96,8 +93,8 @@ sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 3 );
-  return $class->new( bounds => $_[0], aHScrollBar => $_[1],
-    aVScrollBar => $_[2] );
+  return $class->new( bounds => $_[0], hScrollBar => $_[1],
+    vScrollBar => $_[2] );
 }
 
 sub changeBounds {    # void ($bounds)

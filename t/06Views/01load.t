@@ -33,8 +33,8 @@ isa_ok( TScrollBar->new( bounds => TRect->new() ), TScrollBar );
 isa_ok(
   TScroller->new(
     bounds      => TRect->new(), 
-    aHScrollBar => TScrollBar->new( bounds => TRect->new() ), 
-    aVScrollBar => TScrollBar->new( bounds => TRect->new() ),
+    hScrollBar => TScrollBar->new( bounds => TRect->new() ), 
+    vScrollBar => TScrollBar->new( bounds => TRect->new() ),
   ), TScroller
 );
 isa_ok( TWindowInit->new( cFrame => sub { } ), TWindowInit );

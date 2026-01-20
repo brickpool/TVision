@@ -13,5 +13,5 @@ BEGIN {
 }
 
 isa_ok(
-  TEventViewer->new( bounds => TRect->new(), aBufSize => 0), TEventViewer()
+  TEventViewer->new( bounds => TRect->new(), bufSize => 0), TEventViewer()
 );

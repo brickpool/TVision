@@ -28,13 +28,7 @@ use Scalar::Util qw(
   weaken
 );
 
-use TV::Drivers::Const qw(
-  evBroadcast
-  evCommand
-  evKeyboard
-  evMouse
-  evNothing
-);
+use TV::Drivers::Const qw( :evXXXX );
 use TV::Gadgets::Const qw( cmFndEventView );
 use TV::Gadgets::PrintConstants qw(
   printKeyCode
@@ -79,7 +73,7 @@ sub BUILDARGS {    # \%args (%args)
   my $args1 = $class->SUPER::BUILDARGS( @_, title => '', number => wnNoNumber );
   my $args2 = STRICT ? check( {
     # 'required' arguments
-    aBufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    bufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
   return { %$args1, %$args2 };
 }
@@ -89,25 +83,25 @@ sub BUILD {    # void (\%args)
   assert ( @_ == 2 );
   assert ( blessed $self );
   $self->{eventMask} |= evBroadcast;
-  $self->init( $args->{aBufSize} );
+  $self->init( $args->{bufSize} );
   return;
 }
 
-sub init {    # void ($aBufSize)
-  my ( $self, $aBufSize ) = @_;
+sub init {    # void ($bufSize)
+  my ( $self, $bufSize ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
   $self->{stopped} = 0;
   $self->{eventCount} = 0;
-  $self->{bufSize} = $aBufSize;
+  $self->{bufSize} = $bufSize;
   $self->{title} = $titles->[ $self->{stopped} ? 1 : 0 ];
   $self->{scrollBar} = $self->standardScrollBar( sbVertical | sbHandleKeyboard );
   my $ostream = Symbol::gensym;
   $self->{interior} = tie *$ostream, TTerminal, (
     bounds      => do { local $_ = $self->getExtent(); $_->grow( -1, -1 ); $_ },
-    aHScrollBar => undef,
-    aVScrollBar => $self->{scrollBar},
-    aBufSize    => $self->{bufSize},
+    hScrollBar => undef,
+    vScrollBar => $self->{scrollBar},
+    bufSize    => $self->{bufSize},
   );
   $self->insert( $self->{interior} );
   $self->{out} = $ostream;
@@ -118,7 +112,7 @@ sub from {    # $evntview ($bounds, aBufSize)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], aBufSize => $_[1] );
+  return $class->new( bounds => $_[0], bufSize => $_[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
@@ -304,7 +298,7 @@ Creates a new C<TEventViewer> instance with the given arguments.
 
 The bounds of the scroller (I<TRect>).
 
-=item aBufSize
+=item bufSize
 
 Defines the buffer size (I<Int>).
 
@@ -312,7 +306,7 @@ Defines the buffer size (I<Int>).
 
 =head2 new_TEventViewer
 
- my $evntview = new_TEventViewer($bounds, $aBufSize);
+ my $evntview = new_TEventViewer($bounds, $bufSize);
 
 Factory constructor for creating a new event viewer object.
 

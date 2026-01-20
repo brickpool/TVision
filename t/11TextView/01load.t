@@ -15,16 +15,16 @@ BEGIN {
 isa_ok(
   TTextDevice->new(
     bounds      => TRect->new(), 
-    aHScrollBar => TScrollBar->new( bounds => TRect->new() ), 
-    aVScrollBar => TScrollBar->new( bounds => TRect->new() ),
+    hScrollBar => TScrollBar->new( bounds => TRect->new() ), 
+    vScrollBar => TScrollBar->new( bounds => TRect->new() ),
   ), TTextDevice()
 );
 
 isa_ok(
   TTerminal->new(
     bounds      => TRect->new(), 
-    aHScrollBar => TScrollBar->new( bounds => TRect->new() ), 
-    aVScrollBar => TScrollBar->new( bounds => TRect->new() ),
-    aBufSize    => 0,
+    hScrollBar => TScrollBar->new( bounds => TRect->new() ), 
+    vScrollBar => TScrollBar->new( bounds => TRect->new() ),
+    bufSize    => 0,
   ), TTerminal()
 );

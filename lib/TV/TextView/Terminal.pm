@@ -56,10 +56,8 @@ sub BUILDARGS {    # \%args (%args)
   my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = STRICT ? check( {
     # 'required' arguments
-    aBufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    bufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
   } => { @_ } ) || Carp::confess( last_error ) : { @_ };
-  # 'init_arg' is not the same as the field name.
-  $args2->{bufSize} = delete $args2->{aBufSize};
   return { %$args1, %$args2 };
 }
 
@@ -80,8 +78,8 @@ sub from {    # $term ($bounds, $aHScrollBar, $aVScrollBar, aBufSize)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 4 );
-  return $class->new( bounds => $_[0], aHScrollBar => $_[1], 
-    aVScrollBar => $_[2], aBufSize => $_[3] );
+  return $class->new( bounds => $_[0], hScrollBar => $_[1], 
+    vScrollBar => $_[2], bufSize => $_[3] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)

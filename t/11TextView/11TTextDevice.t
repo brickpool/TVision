@@ -73,8 +73,8 @@ subtest 'tied text device' => sub {
   my $buf = '';
   tie *TXT, MyTextDevice=>(
     bounds      => new_TRect( 0, 0, 20, 10 ),
-    aVScrollBar => $hBar,
-    aHScrollBar => $vBar,
+    vScrollBar => $hBar,
+    hScrollBar => $vBar,
   );
   my $device = tied(*TXT);
   isa_ok( $device, TTextDevice );

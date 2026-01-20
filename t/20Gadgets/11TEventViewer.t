@@ -81,7 +81,7 @@ subtest 'Text length calculation' => sub {
 subtest 'printEvent output for keyboard event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
-    aBufSize => 10
+    bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
@@ -98,7 +98,7 @@ subtest 'printEvent output for keyboard event' => sub {
 subtest 'printEvent output for mouse event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
-    aBufSize => 10
+    bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
@@ -118,7 +118,7 @@ subtest 'printEvent output for mouse event' => sub {
 subtest 'printEvent output for command event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
-    aBufSize => 10
+    bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
