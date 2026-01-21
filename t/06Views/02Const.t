@@ -28,7 +28,7 @@ is( cmResize,   6,  'cmResize is 6' );
 is( cmNext,     7,  'cmNext is 7' );
 is( cmPrev,     8,  'cmPrev is 8' );
 is( cmHelp,     9,  'cmHelp is 9' );
-is( cmOk,       10, 'cmOk is 10' );
+is( cmOK,       10, 'cmOK is 10' );
 is( cmCancel,   11, 'cmCancel is 11' );
 is( cmYes,      12, 'cmYes is 12' );
 is( cmNo,       13, 'cmNo is 13' );

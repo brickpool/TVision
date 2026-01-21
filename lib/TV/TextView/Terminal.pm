@@ -44,20 +44,24 @@ sub new_TTerminal { __PACKAGE__->from(@_) }
 extends TTextDevice;
 
 # declare attributes
-has bufSize      => ( is => 'ro', default => sub { die 'required' } );
-has buffer       => ( is => 'ro', default => sub { '' } );
-has queFront     => ( is => 'ro', default => sub { 0 } );
-has queBack      => ( is => 'ro', default => sub { 0 } );
+has bufSize      => ( is => 'ro' );
+has buffer       => ( is => 'ro' );
+has queFront     => ( is => 'ro' );
+has queBack      => ( is => 'ro' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
+    # set 'default' values, init_args => undef
+    buffer   => { default => '', no_override => 1 },
+    queFront => { default => 0, no_override => 1 },
+    queBack  => { default => 0, no_override => 1 }, 
     # 'required' arguments
-    bufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+    bufSize  => { required => 1, defined => 1, allow => qr/^\d+$/ },
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

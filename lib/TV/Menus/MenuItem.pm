@@ -35,29 +35,31 @@ sub new_TMenuItem { __PACKAGE__->from(@_) }
 
 # declare attributes
 has next     => ( is => 'rw' );
-has name     => ( is => 'rw', default => sub { die 'required' } );
-has command  => ( is => 'rw', default => sub { 0 } );
-has disabled => ( is => 'rw', default => sub { !!0 } );
-has keyCode  => ( is => 'rw', default => sub { die 'required' } );
-has helpCtx  => ( is => 'rw', default => sub { hcNoContext } );
-has param    => ( is => 'rw', default => sub { '' } );
+has name     => ( is => 'rw' );
+has command  => ( is => 'rw' );
+has disabled => ( is => 'rw' );
+has keyCode  => ( is => 'rw' );
+has helpCtx  => ( is => 'rw' );
+has param    => ( is => 'rw' );
 has subMenu  => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
+  return check( {
+    # set 'default' values, init_args => undef
+    disabled => { default => !!0, no_override => 1 },
     # 'required' arguments
-    name    => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
+    name    => { required => 1, defined => 1, default => '', strict_type => 1 },
     keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
     # check 'isa' (note: args can be undefined)
-    command => { allow => sub { !defined $_[0] or $_[0] =~ /^\d+$/ } },
+    command => { default => 0, allow => sub { $_[0] =~ /^\d+$/ } },
     subMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    helpCtx => { allow => sub { !defined $_[0] or $_[0] =~ /^\d+$/ } },
-    param   => { allow => sub { !defined $_[0] or !ref $_[0] } },
+    helpCtx => { default => hcNoContext, allow => sub { $_[0] =~ /^\d+$/ } },
+    param   => { default => '', strict_type => 1 },
     next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
 }
 
 sub BUILD {    # void (|\%args)

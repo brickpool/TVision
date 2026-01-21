@@ -18,6 +18,10 @@ require bytes;
 use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -33,10 +37,10 @@ sub new_TTextDevice { __PACKAGE__->from(@_) }
 extends TScroller;
 
 # declare attributes
-has egress    => ( is => 'bare', default => sub { '' } );
-has esize     => ( is => 'bare', default => sub { 2048 } );
-has autoflush => ( is => 'bare', default => sub { !!0 } );
-has opened    => ( is => 'ro',   default => sub { !!1 } );
+has egress    => ( is => 'bare' );
+has esize     => ( is => 'bare' );
+has autoflush => ( is => 'bare' );
+has opened    => ( is => 'ro' );
 
 # predeclare private methods
 my (
@@ -44,6 +48,21 @@ my (
 );
 
 # TTextDevice streambuf interface
+
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = check( {
+    # set 'default' values, init_args => undef,
+    egress    => { default => '',   no_override => 1 },
+    esize     => { default => 2048, no_override => 1 },
+    autoflush => { default => !!0,  no_override => 1 },
+    opened    => { default => !!1,  no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
+  return { %$args1, %$args2 };
+}
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;

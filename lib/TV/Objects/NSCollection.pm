@@ -44,11 +44,11 @@ extends TObject;
 our %ITEMS = ();
 
 # declare attributes
-has items        => ( is => 'rw', default => sub { [] }  );
-has count        => ( is => 'rw', default => sub { 0 }   );
-has limit        => ( is => 'rw', default => sub { 0 }   );
-has delta        => ( is => 'rw', default => sub { 0 }   );
-has shouldDelete => ( is => 'rw', default => sub { !!1 } );
+has items        => ( is => 'rw' );
+has count        => ( is => 'rw' );
+has limit        => ( is => 'rw' );
+has delta        => ( is => 'rw' );
+has shouldDelete => ( is => 'rw' );
 
 # predeclare private methods
 my (
@@ -59,10 +59,13 @@ sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
-    limit => { default => 0, defined => 1, allow => qr/^\d+$/ },
-    delta => { default => 0, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  return check( {
+    items        => { default => [],  no_override => 1 },
+    count        => { default => 0,   no_override => 1 },
+    limit        => { default => 0,   defined => 1, allow => qr/^\d+$/ },
+    delta        => { default => 0,   defined => 1, allow => qr/^\d+$/ },
+    shouldDelete => { default => !!1, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
 }
 
 sub BUILD {    # void (|\%args)

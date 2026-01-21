@@ -33,22 +33,22 @@ sub new_TStatusItem { __PACKAGE__->from(@_) }
 
 # declare attributes
 has next    => ( is => 'rw' );
-has text    => ( is => 'rw', default => sub { '' } );
-has keyCode => ( is => 'rw', default => sub { 0 } );
-has command => ( is => 'rw', default => sub { 0 } );
+has text    => ( is => 'rw' );
+has keyCode => ( is => 'rw' );
+has command => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
-    # 'required' arguments
-    text    => { required => 1, defined => 1, allow => sub { !ref shift } },
-    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
+  return check( {
     # check 'isa' (note: 'next' can be undefined)
     next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+    # 'required' arguments
+    text    => { required => 1, defined => 1, default => '', strict_type => 1 },
+    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
+  } => { @_ } ) || Carp::confess( last_error );
 }
 
 sub from {    # $obj ($aText, $key, $cmd, | $aNext)

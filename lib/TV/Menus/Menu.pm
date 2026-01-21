@@ -49,10 +49,10 @@ sub BUILDARGS {    # \%args (|%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args = STRICT ? check( {
+  my $args = check( {
     items   => { allow => sub { !defined $_[0] or blessed $_[0] } },
     default => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
   # 'init_arg' is not the same as the field name.
   $args->{deflt} = delete $args->{default};
   return $args;

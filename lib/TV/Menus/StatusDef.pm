@@ -34,22 +34,22 @@ sub new_TStatusDef { __PACKAGE__->from(@_) }
 
 # declare attributes
 has next  => ( is => 'rw' );
-has min   => ( is => 'rw', default => sub { 0 } );
-has max   => ( is => 'rw', default => sub { 0 } );
+has min   => ( is => 'rw' );
+has max   => ( is => 'rw' );
 has items => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
+  return check( {
     # 'required' arguments
     min => { required => 1, defined => 1, allow => qr/^\d+$/ },
     max => { required => 1, defined => 1, allow => qr/^\d+$/ },
     # check 'isa' (note: 'next' and 'items' can be undefined)
-    items => { allow => sub { !defined $_[0] or blessed $_[0] } },
     next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+    items => { allow => sub { !defined $_[0] or blessed $_[0] } },
+  } => { @_ } ) || Carp::confess( last_error );
 }
 
 sub from {    # $obj ($aMin, $aMax, | $someItems, | $aNext)

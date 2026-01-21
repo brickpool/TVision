@@ -70,25 +70,29 @@ use vars qw(
 }
 
 # declare attributes
-has flags    => (
-  is => 'rw', 
-  default => sub { wfMove | wfGrow | wfClose | wfZoom }
-);
+has flags    => ( is => 'rw' );
 has zoomRect => ( is => 'rw' );
-has number   => ( is => 'rw', default => sub { die 'required' } );
-has palette  => ( is => 'rw', default => sub { wpBlueWindow  } );
+has number   => ( is => 'rw' );
+has palette  => ( is => 'rw' );
 has frame    => ( is => 'rw' );
-has title    => ( is => 'rw', default => sub { die 'required' } );
+has title    => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = TGroup->BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
+    # set 'default' values, init_args => undef
+    flags => { 
+      default     => wfMove | wfGrow | wfClose | wfZoom, 
+      no_override => 1,
+    },
+    palette => { default => wpBlueWindow, no_override => 1 },
+    # 'required' arguments
     number => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    title  => { required => 1, defined => 1, allow => sub { !ref shift } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+    title  => { required => 1, defined => 1, default => '', strict_type => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
   my $args3 = TWindowInit->BUILDARGS( cFrame => $class->can( 'initFrame' ) );
   return { %$args1, %$args2, %$args3 };
 }

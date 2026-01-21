@@ -40,6 +40,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   readonly
@@ -64,7 +68,19 @@ use vars qw(
 }
 
 # declare attributes
-has duplicates => ( is => 'rw', default => sub { !!0 } );
+has duplicates => ( is => 'rw' );
+
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = check( {
+    # set 'default' values, init_args => undef,
+    duplicates => { default => !!0, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
+  return { %$args1, %$args2 };
+}
 
 sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;

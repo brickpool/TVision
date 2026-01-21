@@ -16,6 +16,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -55,11 +59,11 @@ our $ownerGroup;
 # declare attributes
 has last      => ( is => 'ro' );
 has clip      => ( is => 'rw' );
-has phase     => ( is => 'ro', default => sub { phFocused } );
+has phase     => ( is => 'ro' );
 has current   => ( is => 'bare' );
 has buffer    => ( is => 'ro' );
-has lockFlag  => ( is => 'rw', default => sub { 0 } );
-has endState  => ( is => 'rw', default => sub { 0 } );
+has lockFlag  => ( is => 'rw' );
+has endState  => ( is => 'rw' );
 
 # predeclare private methods
 my (
@@ -86,12 +90,31 @@ my $weaken = sub {
   $lock_value->( $_[0] ) if STRICT;
 };
 
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = check( {
+    # init_args => undef,
+    last => { no_override => 1 },
+    clip => { no_override => 1 },
+    current => { no_override => 1 },
+    buffer => { no_override => 1 },
+    # set 'default' values, init_args => undef,
+    phase    => { default => phFocused, no_override => 1 },
+    lockFlag => { default => 0, no_override => 1 },
+    endState => { default => 0, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
+  return { %$args1, %$args2 };
+}
+
 sub BUILD {    # void (|\%args)
   my ( $self, $args ) = @_;
   assert ( blessed $self );
   $self->{eventMask} = 0xffff;
   $self->{options} |= ofSelectable | ofBuffered;
-  $self->{clip} ||= $self->getExtent();
+  $self->{clip} = $self->getExtent();
   weaken( $self->{current} ) if $self->{current};
   $lock_value->( $self->{current} ) if STRICT;
   return;

@@ -16,6 +16,10 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   weaken
@@ -47,7 +51,7 @@ our $defaultBkgrnd = "\xB0";
 
 # declare attributes
 has background        => ( is => 'rw' );
-has tileColumnsFirst  => ( is => 'rw', default => sub { !!0 } );
+has tileColumnsFirst  => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
@@ -56,7 +60,11 @@ sub BUILDARGS {    # \%args (%args)
   my $args2 = TDeskInit->BUILDARGS(
     cBackground => $class->can( 'initBackground' ),
   );
-  return { %$args1, %$args2 };
+  my $args3 = check( {
+    # set 'default' values, init_args => undef
+    tileColumnsFirst => { default => !!0, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
+  return { %$args1, %$args2, %$args3 };
 }
 
 sub BUILD {    # void (|\%args)

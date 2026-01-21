@@ -49,12 +49,12 @@ sub new_TScroller { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-has delta      => ( is => 'rw', default => sub { TPoint->new() } );
-has drawLock   => ( is => 'ro', default => sub { 0 } );
-has drawFlag   => ( is => 'ro', default => sub { !!0 } );
-has hScrollBar => ( is => 'ro', default => sub { die 'required' } );
-has vScrollBar => ( is => 'ro', default => sub { die 'required' } );
-has limit      => ( is => 'ro', default => sub { TPoint->new() } );
+has delta      => ( is => 'rw' );
+has drawLock   => ( is => 'ro' );
+has drawFlag   => ( is => 'ro' );
+has hScrollBar => ( is => 'ro' );
+has vScrollBar => ( is => 'ro' );
+has limit      => ( is => 'ro' );
 
 # predeclare private methods
 my (
@@ -66,7 +66,13 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
+    # set 'default' values, init_args => undef
+    delta    => { default => TPoint->new(), no_override => 1 },
+    drawLock => { default => 0, no_override => 1 },
+    drawFlag => { default => !!0, no_override => 1 },
+    limit    => { default => TPoint->new(), no_override => 1 },
+    # hScrollBar and vScrollBar are 'required' but can be 'undef'
     hScrollBar => {
       required => 1,
       allow    => sub { !defined $_[0] or blessed $_[0] }
@@ -75,7 +81,7 @@ sub BUILDARGS {    # \%args (%args)
       required => 1,
       allow    => sub { !defined $_[0] or blessed $_[0] }
     },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

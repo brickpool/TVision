@@ -1,5 +1,5 @@
 package TV::Views::View;
-# ABSTRACT:  Base class for all visual components in Turbo Vision
+# ABSTRACT: Base class for all visual components in Turbo Vision
 
 use strict;
 use warnings;
@@ -96,18 +96,15 @@ use vars qw(
 # declare attributes
 has owner     => ( is => 'bare' );
 has next      => ( is => 'bare' );
-has options   => ( is => 'rw', default => sub { 0 } );
-has state     => ( is => 'rw', default => sub { sfVisible } );
-has growMode  => ( is => 'rw', default => sub { 0 } );
-has dragMode  => ( is => 'rw', default => sub { dmLimitLoY } );
-has helpCtx   => ( is => 'rw', default => sub { hcNoContext } );
-has eventMask => (
-  is => 'rw',
-  default => sub { evMouseDown | evKeyDown | evCommand },
-);
-has size      => ( is => 'rw', default => sub { TPoint->new() } );
-has origin    => ( is => 'rw', default => sub { TPoint->new() } );
-has cursor    => ( is => 'rw', default => sub { TPoint->new() } );
+has options   => ( is => 'rw' );
+has state     => ( is => 'rw' );
+has growMode  => ( is => 'rw' );
+has dragMode  => ( is => 'rw' );
+has helpCtx   => ( is => 'rw' );
+has eventMask => ( is => 'rw' );
+has size      => ( is => 'rw' );
+has origin    => ( is => 'rw' );
+has cursor    => ( is => 'rw' );
 
 # predeclare private methods
 my (
@@ -130,9 +127,26 @@ sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  return STRICT ? check( {
+  return check( {
+    # init_args => undef
+    owner     => { no_override => 1 },
+    next      => { no_override => 1 },
+    # set 'default' values, init_args => undef
+    options   => { default => 0,           no_override => 1 },
+    state     => { default => sfVisible,   no_override => 1 },
+    growMode  => { default => 0,           no_override => 1 },
+    dragMode  => { default => dmLimitLoY,  no_override => 1 },
+    helpCtx   => { default => hcNoContext, no_override => 1 },
+    eventMask => {
+      default     => evMouseDown | evKeyDown | evCommand, 
+      no_override => 1,
+    },
+    size      => { default => TPoint->new(), no_override => 1 },
+    origin    => { default => TPoint->new(), no_override => 1 },
+    cursor    => { default => TPoint->new(), no_override => 1 },
+    # 'required' arguments
     bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
 }
 
 sub BUILD {    # void (\%args)

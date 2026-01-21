@@ -71,10 +71,10 @@ use vars qw(
 }
 
 # declare attributes
-has title     => ( is => 'rw', default => sub { die 'required' } );
-has command   => ( is => 'rw', default => sub { die 'required' } );
-has flags     => ( is => 'rw', default => sub { die 'required' } );
-has amDefault => ( is => 'rw', default => sub { !!0 } );
+has title     => ( is => 'rw' );
+has command   => ( is => 'rw' );
+has flags     => ( is => 'rw' );
+has amDefault => ( is => 'rw' );
 
 # predeclare private methods
 my (
@@ -88,11 +88,17 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
-    title   => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
-    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    flags   => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  my $args2 = check( {
+    title     => {
+      required    => 1,
+      defined     => 1,
+      default     => '',
+      strict_type => 1,
+    },
+    command   => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    flags     => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    amDefault => { default => !!0, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

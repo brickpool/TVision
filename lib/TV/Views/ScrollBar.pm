@@ -17,6 +17,10 @@ our @EXPORT = qw(
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
+use Params::Check qw(
+  check
+  last_error
+);
 use Scalar::Util qw(
   blessed
   looks_like_number
@@ -53,17 +57,34 @@ our $vChars = "\x1E\x1F\xB1\xFE\xB2";    # cp437: "▲▼░■▒"
 our $hChars = "\x11\x10\xB1\xFE\xB2";    # cp437: "◄►░■▒"
 
 # declare attributes
-has value  => ( is => 'rw', default => sub { 0 } );
-has minVal => ( is => 'rw', default => sub { 0 } );
-has maxVal => ( is => 'rw', default => sub { 0 } );
-has pgStep => ( is => 'rw', default => sub { 1 } );
-has arStep => ( is => 'rw', default => sub { 1 } );
-has chars  => ( is => 'rw', default => sub { "\0" x 5 } );
+has value  => ( is => 'rw' );
+has minVal => ( is => 'rw' );
+has maxVal => ( is => 'rw' );
+has pgStep => ( is => 'rw' );
+has arStep => ( is => 'rw' );
+has chars  => ( is => 'rw' );
 
 # predeclare private methods
 my (
   $getPartCode,
 );
+
+sub BUILDARGS {    # \%args (%args)
+  my $class = shift;
+  assert ( $class and !ref $class );
+  local $Params::Check::PRESERVE_CASE = 1;
+  my $args1 = $class->SUPER::BUILDARGS( @_ );
+  my $args2 = check( {
+    # set 'default' values, init_args => undef,
+    value  => { default => 0,        no_override => 1 },
+    minVal => { default => 0,        no_override => 1 },
+    maxVal => { default => 0,        no_override => 1 },
+    pgStep => { default => 1,        no_override => 1 },
+    arStep => { default => 1,        no_override => 1 },
+    chars  => { default => "\0" x 5, no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
+  return { %$args1, %$args2 };
+}
 
 sub BUILD {    # void (|\%args)
   my $self = shift;

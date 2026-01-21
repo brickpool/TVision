@@ -28,15 +28,20 @@ sub TDeskInit() { __PACKAGE__ }
 sub new_TDeskInit { __PACKAGE__->from(@_) }
 
 # declare attributes
-has createBackground => ( is => 'bare', default => sub { die 'required' } );
+has createBackground => ( is => 'bare' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args = STRICT ? check( {
-    cBackground => { required => 1, default => sub { }, strict_type => 1 },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  my $args = check( {
+    cBackground => {
+      required    => 1, 
+      defined     => 1, 
+      default     => sub { }, 
+      strict_type => 1,
+    },
+  } => { @_ } ) || Carp::confess( last_error );
   # 'init_arg' is not equal to the field name
   $args->{createBackground} = delete $args->{cBackground};
   return $args;

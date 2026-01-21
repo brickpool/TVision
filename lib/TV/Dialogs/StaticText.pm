@@ -41,16 +41,16 @@ sub new_TStaticText { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-has text => ( is => 'rw', default => sub { die 'required' } );
+has text => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
-    text => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  my $args2 = check( {
+    text => { required => 1, defined => 1, default => '', strict_type => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

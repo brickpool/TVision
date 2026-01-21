@@ -28,19 +28,34 @@ sub TProgInit() { __PACKAGE__ }
 sub new_TProgInit { __PACKAGE__->from(@_) }
 
 # declare attributes
-has createStatusLine => ( is => 'bare', default => sub { die 'required' } );
-has createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
-has createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
+has createStatusLine => ( is => 'bare' );
+has createMenuBar    => ( is => 'bare' );
+has createDeskTop    => ( is => 'bare' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
-  my $args = STRICT ? check( {
-    cStatusLine => { required => 1, default => sub { }, strict_type => 1 },
-    cMenuBar    => { required => 1, default => sub { }, strict_type => 1 },
-    cDeskTop    => { required => 1, default => sub { }, strict_type => 1 },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  my $args = check( {
+    cStatusLine => {
+      required    => 1, 
+      defined     => 1, 
+      default     => sub { }, 
+      strict_type => 1,
+    },
+    cMenuBar    => {
+      required    => 1, 
+      defined     => 1, 
+      default     => sub { }, 
+      strict_type => 1,
+    },
+    cDeskTop    => {
+      required    => 1, 
+      defined     => 1, 
+      default     => sub { }, 
+      strict_type => 1,
+    },
+  } => { @_ } ) || Carp::confess( last_error );
   # 'init_arg' is not equal to the field name
   $args->{createStatusLine} = delete $args->{cStatusLine};
   $args->{createMenuBar}    = delete $args->{cMenuBar};

@@ -65,10 +65,12 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
+    # init_args => undef,
+    items => { no_override => 1 },
     # 'required' arguments (note: 'defs' can be undefined)
     defs => { required => 1, allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

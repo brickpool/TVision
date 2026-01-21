@@ -71,10 +71,16 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_, title => '', number => wnNoNumber );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
+    # init_args => undef
+    stopped    => { no_override => 1 },
+    eventCount => { no_override => 1 },
+    interior   => { no_override => 1 },
+    scrollBar  => { no_override => 1 },
+    out        => { no_override => 1 },
     # 'required' arguments
     bufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 

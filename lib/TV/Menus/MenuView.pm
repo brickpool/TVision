@@ -89,11 +89,13 @@ sub BUILDARGS {    # \%args (%args)
   assert ( $class and !ref $class );
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = STRICT ? check( {
+  my $args2 = check( {
     # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
     menu       => { allow => sub { !defined $_[0] or blessed $_[0] } },
     parentMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error ) : { @_ };
+    # init_args => undef
+    current    => { no_override => 1 },
+  } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
 
