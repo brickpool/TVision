@@ -35,6 +35,7 @@ our %EXPORT_TAGS = (
     cpDialog
     cpButton
     cpStaticText
+    cpInputLine
   )],
   
   dpXXXX => [qw(
@@ -102,6 +103,10 @@ use constant cpButton => "\x0A\x0B\x0C\x0D\x0E\x0E\x0E\x0F";
 # TStaticText palette layout
 
 use constant cpStaticText => "\x06";
+
+# TInputLine palette layout
+
+use constant cpInputLine => "\x13\x13\x14\x15";
 
 # TDialog palette entries
 

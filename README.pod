@@ -156,7 +156,7 @@ Buttons and Clusters
 Input and Text
 
   +----------------+---------------------------+-----------+
-  | TInputLine     | (missing)                 | [ ]       |
+  | TInputLine     | TV::Dialogs::InputLine    | [x]       |
   | TLabel         | (missing)                 | [ ]       |
   | TStaticText    | TV::Dialogs::StaticText   | [x]       |
   | TParamText     | (missing)                 | [ ]       |
@@ -310,9 +310,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         41
+  Implemented:                         42
   Partial:                              7
-  Missing:                             84
+  Missing:                             83
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

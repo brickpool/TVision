@@ -662,7 +662,7 @@ sub dataSize {    # $size ()
   return 0;
 }
 
-sub getData {    # void ($rec)
+sub getData {    # void (\@rec)
   my ( $self, $rec ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
@@ -1623,7 +1623,7 @@ Gets the commands of the view.
 
 =head2 getData
 
-  $self->getData($rec);
+  $self->getData(\@rec);
 
 Returns the data of the view.
 
