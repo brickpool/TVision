@@ -147,8 +147,8 @@ sub draw {    # void ()
 my $palette;
 sub getPalette {    # $palette ()
   my ( $self ) = @_;
-  assert( @_ == 1 );
-  assert( blessed $self );
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpStaticText, 
     size => length( cpStaticText ),
@@ -159,9 +159,9 @@ sub getPalette {    # $palette ()
 sub getText {    # void ($s)
   my ( $self, undef ) = @_;
   alias: for my $s ( $_[1] ) {
-  assert( @_ == 2 );
-  assert( blessed $self );
-  assert( !ref $s and !readonly $s );
+  assert ( @_ == 2 );
+  assert ( blessed $self );
+  assert ( !ref $s and !readonly $s );
   if ( !$self->{text} ) {
     $s = '';
   }

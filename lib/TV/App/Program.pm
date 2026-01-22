@@ -96,8 +96,8 @@ use vars qw(
 
 sub BUILDARGS {    # \%args ()
   my $class = shift;
-  assert( $class and !ref $class );
-  assert( @_ == 0 );
+  assert ( $class and !ref $class );
+  assert ( @_ == 0 );
   my $args1 = TGroup->BUILDARGS(
     bounds => TRect->new(
       ax => 0,

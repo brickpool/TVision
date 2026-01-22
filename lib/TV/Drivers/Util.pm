@@ -50,9 +50,9 @@ if ( STRICT && exists &Internals::SvREADONLY ) {
 }
 
 sub ctrlToArrow ($) {    # $keyCode ($keyCode)
-  assert( @_ == 1 );
+  assert ( @_ == 1 );
   my $keyCode = shift;
-  assert( looks_like_number $keyCode );
+  assert ( looks_like_number $keyCode );
 
   for my $i ( 0 .. $#ctrlCodes ) {
     return $arrowCodes[$i]

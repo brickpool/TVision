@@ -339,8 +339,8 @@ sub prevLines {    # $offset ($pos, $lines)
 
 sub queEmpty {    # $bool ()
   my ( $self ) = @_;
-  assert( @_ == 1 );
-  assert( blessed $self );
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   return $self->{queBack} == $self->{queFront};
 }
 

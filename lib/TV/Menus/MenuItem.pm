@@ -64,7 +64,7 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
-  assert( blessed $self );
+  assert ( blessed $self );
   $self->{disabled} = !TView->commandEnabled( $self->{command} );
   return;
 }
@@ -106,7 +106,7 @@ sub append {    # void ($aNext)
 }
 
 sub newLine () {    # $menuItem ()
-  assert( @_ == 0 );
+  assert ( @_ == 0 );
   return TMenuItem->new(
     name    => '',
     command => 0,

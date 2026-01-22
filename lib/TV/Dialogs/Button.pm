@@ -26,18 +26,18 @@ use Scalar::Util qw(
   looks_like_number
 );
 
-use TV::Drivers::Const qw( :evXXXX );
-use TV::Drivers::Event;
-use TV::Drivers::Util qw(
-  cstrlen
-  getAltCode
-);
 use TV::Dialogs::Const qw(
   :bfXXXX
   :cmXXXX
   cpButton
 );
 use TV::Dialogs::Util qw( hotKey );
+use TV::Drivers::Const qw( :evXXXX );
+use TV::Drivers::Event;
+use TV::Drivers::Util qw(
+  cstrlen
+  getAltCode
+);
 use TV::Views::Const qw(
   cmDefault
   cmCommandSetChanged
@@ -216,8 +216,8 @@ sub drawState {    # void ($down)
 my $palette;
 sub getPalette {    # $palette ()
   my ( $self ) = @_;
-  assert( @_ == 1 );
-  assert( blessed $self );
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   $palette ||= TPalette->new(
     data => cpButton, 
     size => length( cpButton ),
@@ -228,7 +228,7 @@ sub getPalette {    # $palette ()
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
   my ( $self, $event ) = @_;
-  assert( @_ == 2 );
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
 

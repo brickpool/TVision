@@ -31,7 +31,7 @@ extends TMenuItem;
 
 sub from {    # $obj ($nm, $key, | $helpCtx)
   my $class = shift;
-  assert( $class and !ref $class );
+  assert ( $class and !ref $class );
   assert ( @_ >= 2 && @_ <= 3 );
   SWITCH: for ( scalar @_ ) {
     $_ == 2 and return $class->new( name => $_[0], keyCode => $_[1], 

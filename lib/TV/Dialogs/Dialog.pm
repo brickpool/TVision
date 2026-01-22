@@ -21,14 +21,14 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+use TV::Dialogs::Const qw(
+  :cpXXXX
+  :dpXXXX
+);
 use TV::Drivers::Const qw(
   :evXXXX
   kbEsc
   kbEnter
-);
-use TV::Dialogs::Const qw(
-  :cpXXXX
-  :dpXXXX
 );
 use TV::Views::Const qw(
   cmCancel
@@ -106,7 +106,7 @@ sub getPalette {    # $palette ()
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
   my ( $self, $event ) = @_;
-  assert( @_ == 2 );
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( blessed $event );
 
@@ -157,7 +157,7 @@ sub handleEvent {    # void ($event)
 
 sub valid {    # $bool ($command)
   my ( $self, $command ) = @_;
-  assert( @_ == 2 );
+  assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $command );
 

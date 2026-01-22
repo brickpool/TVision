@@ -70,14 +70,14 @@ sub new {    # \$obj (%)
   assert ( keys( %args ) % 2 == 0 );
   if ( keys( %args ) == 2 ) {
     my @params = qw( p1 p2 );
-    assert( grep( ref $args{$_} => @params ) == @params );
+    assert ( grep( ref $args{$_} => @params ) == @params );
     $args{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
     $args{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
     delete @args{@params};
   }
   elsif ( keys( %args ) == 4 ) {
     my @params = qw( ax ay bx by );
-    assert( grep( looks_like_number $args{$_} => @params ) == 4 );
+    assert ( grep( looks_like_number $args{$_} => @params ) == 4 );
     $args{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
     $args{b} = TPoint->new( x => $args{bx}, y => $args{by} );
     delete @args{@params};
@@ -101,11 +101,11 @@ sub from {    # $obj ($ax, $ay, $bx, $by)
 sub assign {    # void ($ax, $ay, $bx, $by)
   my ( $self, $ax, $ay, $bx, $by ) = @_;
   assert ( @_ == 5 );
-  assert( blessed $self );
-  assert( looks_like_number $ax );
-  assert( looks_like_number $ay );
-  assert( looks_like_number $bx );
-  assert( looks_like_number $by );
+  assert ( blessed $self );
+  assert ( looks_like_number $ax );
+  assert ( looks_like_number $ay );
+  assert ( looks_like_number $bx );
+  assert ( looks_like_number $by );
   $self->{a}{x} = $ax;
   $self->{a}{y} = $ay;
   $self->{b}{x} = $bx;
@@ -233,9 +233,9 @@ my $mk_accessors = sub {
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
-      assert( blessed $_[0] );
+      assert ( blessed $_[0] );
       if ( @_ > 1 ) {
-        assert( blessed $_[1] );
+        assert ( blessed $_[1] );
         $_[0]->{$field} = $_[1]->clone();
       }
       $_[0]->{$field};

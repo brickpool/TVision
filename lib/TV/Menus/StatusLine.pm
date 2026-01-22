@@ -46,6 +46,9 @@ sub new_TStatusLine { __PACKAGE__->from(@_) }
 
 extends TView;
 
+# declare global variables
+our $hintSeparator = "\xB3 ";
+
 # declare attributes
 has items => ( is => 'ro' );
 has defs  => ( is => 'ro' );
@@ -56,9 +59,6 @@ my (
   $findItems,
   $itemMouseIsIn,
 );
-
-# declare local variables
-my $hintSeparator;
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;

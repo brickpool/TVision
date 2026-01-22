@@ -69,7 +69,7 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (|\%args)
   my ( $self ) = @_;
-  assert( blessed $self );
+  assert ( blessed $self );
   $self->{state} |= sfShadow;
   $self->{options} |= ofPreProcess;
   return;

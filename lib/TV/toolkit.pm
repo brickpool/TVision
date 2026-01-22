@@ -82,8 +82,8 @@ sub extends {
 # If no name is specified, the name of is 'has'.
 sub _install_slots {    # void ($target, | $name)
   my ( $proto, $name ) = @_;
-  assert( $proto );
-  assert( !defined $name or !ref $name );
+  assert ( $proto );
+  assert ( !defined $name or !ref $name );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->have_accessors( $name || 'has' );
   return;
@@ -92,7 +92,7 @@ sub _install_slots {    # void ($target, | $name)
 # Create a constructor for the specified target
 sub _create_constructor {    # void ($target)
   my ( $proto ) = @_;
-  assert( $proto );
+  assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->create_constructor();
   return;
@@ -100,7 +100,7 @@ sub _create_constructor {    # void ($target)
 
 sub _init_class {    # void ($target)
   my ( $proto ) = @_;
-  assert( $proto );
+  assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->warnings_strict();
   return;
@@ -108,7 +108,7 @@ sub _init_class {    # void ($target)
 
 sub _import_extends {    # void ($target)
   my ( $proto ) = @_;
-  assert( $proto );
+  assert ( $proto );
   my $target = ref $proto || $proto;
   my $me = TV::toolkit::LOP->init( __PACKAGE__ );
   $me->import_methods( $target => 'extends' );
@@ -118,9 +118,9 @@ sub _import_extends {    # void ($target)
 # An around method modifier without checking of an existing method
 sub _around_hook {    # void ($class, $name, \&code)
   my ( $class, $name, $code ) = @_;
-  assert( defined $class and !ref $class );
-  assert( defined $name and !ref $name );
-  assert( defined $code and ref $code eq 'CODE' );
+  assert ( defined $class and !ref $class );
+  assert ( defined $name and !ref $name );
+  assert ( defined $code and ref $code eq 'CODE' );
   my $fullpkg = "${class}::${name}";
   my $orig    = \&{$fullpkg};
   if ( defined $orig ) {
@@ -142,7 +142,7 @@ sub _my_moos_has {    # $return (\&orig, $self, @_)
 
 sub _add_dump {    # void ($target)
   my ( $proto ) = @_;
-  assert( $proto );
+  assert ( $proto );
   my $target = ref $proto || $proto;
   _around_hook( $target, 
     dump => sub {
@@ -162,13 +162,13 @@ sub _add_dump {    # void ($target)
 
 sub _add_demolish {    # void ($target)
   my ( $proto ) = @_;
-  assert( $proto );
+  assert ( $proto );
   my $target = ref $proto || $proto;
   _around_hook( $target, 
     DESTROY => sub {
       my $orig = shift;
       my $self = shift;
-      assert( $self );
+      assert ( $self );
       my $class = ref $self || $self;
 
       my $in_global_destruction = defined ${^GLOBAL_PHASE}

@@ -30,7 +30,7 @@ INIT {
 
 sub updateIntlChars {    # void ($class)
   my $class = shift;
-  assert( $class and !ref $class );
+  assert ( $class and !ref $class );
   my $cp = $getCodePage->();
   # Some 8-bit code pages are supported directly.
   return 

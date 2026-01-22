@@ -34,9 +34,9 @@ sub hotKey ($) {    # $hotkey ($s)
 
 sub prevWord ($) {    # $index ($s, $pos)
   my ( $s, $pos ) = @_;
-  assert( @_ == 2 );
-  assert( defined $s and !ref $s );
-  assert( looks_like_number $pos );
+  assert ( @_ == 2 );
+  assert ( defined $s and !ref $s );
+  assert ( looks_like_number $pos );
 
   for ( my $i = $pos - 1 ; $i >= 1 ; --$i ) {
     my $curr = substr( $s, $i,     1 );
@@ -50,9 +50,9 @@ sub prevWord ($) {    # $index ($s, $pos)
 
 sub nextWord ($) {    # $index ($s, $pos)
   my ( $s, $pos ) = @_;
-  assert( @_ == 2 );
-  assert( defined $s and !ref $s );
-  assert( looks_like_number $pos );
+  assert ( @_ == 2 );
+  assert ( defined $s and !ref $s );
+  assert ( looks_like_number $pos );
 
   my $len = length( $s );
   for ( my $i = $pos ; $i < $len - 1 ; ++$i ) {

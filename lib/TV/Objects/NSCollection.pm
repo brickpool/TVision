@@ -70,7 +70,7 @@ sub BUILDARGS {    # \%args (|%args)
 
 sub BUILD {    # void (|\%args)
   my ( $self, $args ) = @_;
-  assert( blessed $self );
+  assert ( blessed $self );
   $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD

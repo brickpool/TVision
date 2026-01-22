@@ -142,9 +142,9 @@ my $mk_accessors = sub {
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
-      assert( blessed $_[0] );
+      assert ( blessed $_[0] );
       if ( @_ > 1 ) {
-        assert( looks_like_number $_[1] );
+        assert ( looks_like_number $_[1] );
         $_[0]->{$field} = $_[1];
       }
       $_[0]->{$field};

@@ -60,7 +60,7 @@ sub BUILDARGS {    # \%args (|%args)
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
-  assert( blessed $self );
+  assert ( blessed $self );
   $self->{items} ||= undef;
   $self->{deflt} ||= $self->{items};
   weaken $self->{deflt} if $self->{deflt};

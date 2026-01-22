@@ -213,7 +213,7 @@ package KeyDownEvent {
   sub clone {    # $obj ()
     my ( $self ) = @_;
     assert ( @_ == 1 );
-    assert( blessed $self );
+    assert ( blessed $self );
     my $class = ref $self || return;
     my $clone = bless {}, $class;
     tie %$clone, $class;
@@ -314,7 +314,7 @@ package MessageEvent {
   sub clone {    # $obj ()
     my ( $self ) = @_;
     assert ( @_ == 1 );
-    assert( blessed $self );
+    assert ( blessed $self );
     my $class = ref $self || return;
     my $clone = bless {}, $class;
     tie %$clone, $class;
@@ -451,8 +451,8 @@ sub dump {    # $str (|$maxDepth)
 sub assign {    # $self ($event)
   my ( $self, $event ) = @_;
   assert ( @_ == 2 );
-  assert( blessed $self );
-  assert( blessed $event );
+  assert ( blessed $self );
+  assert ( blessed $event );
   $self->{what} = $event->{what};
   if ( $event->{mouse} ) {
     $self->{mouse} = $event->{mouse}->clone();
@@ -469,7 +469,7 @@ sub assign {    # $self ($event)
 sub clone {    # $obj ()
   my ( $self ) = @_;
   assert ( @_ == 1 );
-  assert( blessed $self );
+  assert ( blessed $self );
   my $class = ref $self || return;
   my $clone = bless {}, $class;
   tie %$clone, $class;
