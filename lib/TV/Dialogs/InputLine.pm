@@ -66,11 +66,11 @@ our $leftArrow  = "\x11";
 
 # declare attributes
 has data        => ( is => 'rw' );
-has maxLen      => ( is => 'rw' );
+has maxLen      => ( is => 'ro' );
 has curPos      => ( is => 'rw' );
 has firstPos    => ( is => 'rw' );
-has selStart    => ( is => 'rw' );
-has selEnd      => ( is => 'rw' );
+has selStart    => ( is => 'ro' );
+has selEnd      => ( is => 'ro' );
 
 has validator   => ( is => 'ro' );
 has anchor      => ( is => 'ro' );
@@ -101,12 +101,10 @@ sub BUILDARGS {    # \%args (%args)
     anchor      => { default => -1, no_override => 1 },
     oldAnchor   => { default => -1, no_override => 1 },
     oldData     => { default => '', no_override => 1 },
-    # 'required' attributes (note: 'validator' can be undef)
+    # note: 'validator' can be undef
+    validator => { allow => sub { !defined $_[0] or blessed $_[0] } },
+    # 'required' attributes
     maxLen => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    validator => {
-      required => 1, 
-      allow    => sub { !defined $_[0] or blessed $_[0] },
-    },
   } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
@@ -119,10 +117,10 @@ sub BUILD {    # void (|\%args)
   return;
 }
 
-sub from {    # $obj ($bounds, $aMaxLen, $aValid)
+sub from {    # $obj ($bounds, $aMaxLen, |$aValid)
   my $class = shift;
   assert ( $class and !ref $class );
-  assert ( @_ == 3 );
+  assert ( @_ >= 2 && @_ <= 3 );
   return $class->new( bounds => $_[0], maxLen => $_[1], validator => $_[2] );
 }
 
@@ -132,7 +130,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
   assert ( blessed $self );
   $self->{data} = undef;
   $self->{oldData} = undef;
-  $self->destroy($self->{validator});
+  $self->destroy( $self->{validator} );
   return;
 }
 
@@ -269,7 +267,6 @@ sub handleEvent {    # void ($event)
       else {
         $self->{anchor} = -1;
       }
-      local $_;
       SWITCH: for ( $event->{keyDown}{keyCode} ) {
         kbLeft == $_ and do {
           if ( $self->{curPos} > 0 ) {
@@ -395,6 +392,7 @@ sub setData {    # void (\@rec)
     || !$self->{validator}->transfer( $self->{data}, $rec, vtSetData ) )
   {
     assert ( $self->dataSize() );
+    assert ( defined $rec->[0] and !ref $rec->[0] );
     $self->{data} = substr( $rec->[0], 0, $self->{maxLen} );
   } #/ if ( !$self->{validator...})
   $self->selectAll( !!1 );

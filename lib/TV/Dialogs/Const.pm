@@ -36,6 +36,7 @@ our %EXPORT_TAGS = (
     cpButton
     cpStaticText
     cpInputLine
+    cpLabel
   )],
   
   dpXXXX => [qw(
@@ -107,6 +108,10 @@ use constant cpStaticText => "\x06";
 # TInputLine palette layout
 
 use constant cpInputLine => "\x13\x13\x14\x15";
+
+# TLabel palette layout
+
+use constant cpLabel => "\x07\x08\x09\x09";
 
 # TDialog palette entries
 

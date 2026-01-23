@@ -64,17 +64,19 @@ our $markers = "[]";
 # import global variables
 use vars qw(
   $showMarkers
+  $specialChars
 );
 {
   no strict 'refs';
-  *showMarkers = \${ TView . '::showMarkers' };
+  *showMarkers  = \${ TView . '::showMarkers' };
+  *specialChars = \${ TView . '::specialChars' };
 }
 
 # declare attributes
-has title     => ( is => 'rw' );
-has command   => ( is => 'rw' );
+has title     => ( is => 'ro' );
+has command   => ( is => 'ro' );
 has flags     => ( is => 'rw' );
-has amDefault => ( is => 'rw' );
+has amDefault => ( is => 'ro' );
 
 # predeclare private methods
 my (
@@ -114,7 +116,7 @@ sub BUILD {    # void (|\%args)
   return;
 } #/ sub BUILD
 
-sub from {    # $obj ($bounds, $aTitle, aCommand, aFlags)
+sub from {    # $obj ($bounds, $aTitle, $aCommand, $aFlags)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 4 );
@@ -412,8 +414,8 @@ $drawTitle = sub {    # void ($b, $s, $i, $cButton, $down)
     else {
       $scOff = 4;
     }
-    $b->putChar( 0,  $self->{specialChars}->[$scOff] );
-    $b->putChar( $s, $self->{specialChars}->[$scOff + 1] );
+    $b->putChar( 0,  $specialChars->[$scOff] );
+    $b->putChar( $s, $specialChars->[$scOff + 1] );
   } #/ if ( $self->{showMarkers...})
   return;
 }; #/ sub drawTitle

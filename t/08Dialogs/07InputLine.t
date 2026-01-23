@@ -71,13 +71,8 @@ my (
 subtest 'Object creation' => sub {
   $bounds = TRect->new( ax => 0, ay => 0, bx => 10, by => 1 );
 
-  lives_ok {
-    $input = MyInputLine->new(
-      bounds   => $bounds,
-      maxLen   => 10,
-      validator => undef,
-    );
-  } 'Constructor lives';
+  lives_ok { $input = MyInputLine->new( bounds => $bounds, maxLen => 10 ) }
+    'Constructor lives';
   isa_ok( $input, TInputLine, 'Created object have the correct base class' );
 
   ok( exists $input->{maxLen}, 'maxLen initialized' );

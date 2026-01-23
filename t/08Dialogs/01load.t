@@ -12,6 +12,7 @@ BEGIN {
   use_ok 'TV::Dialogs::Dialog';
   use_ok 'TV::Dialogs::Button';
   use_ok 'TV::Dialogs::StaticText';
+  use_ok 'TV::Dialogs::Label';
   use_ok 'TV::Dialogs::InputLine';
   use_ok 'TV::Dialogs::History::HistList';
 }
@@ -21,5 +22,7 @@ isa_ok( TButton->new( bounds => TRect->new(), title => 'title', command => 0,
   flags => bfDefault ), TButton );
 isa_ok( TStaticText->new( bounds => TRect->new(), text => 'text' ),
   TStaticText );
+isa_ok( TLabel->new( bounds => TRect->new(), text => 'text', link => undef ),
+  TLabel );
 isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10, 
   validator => undef ), TInputLine );

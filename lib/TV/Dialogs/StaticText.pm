@@ -23,7 +23,6 @@ use Params::Check qw(
 );
 use Scalar::Util qw(
   blessed
-  looks_like_number
   readonly
 );
 
@@ -41,7 +40,7 @@ sub new_TStaticText { __PACKAGE__->from(@_) }
 extends TView;
 
 # declare attributes
-has text => ( is => 'rw' );
+has text => ( is => 'ro' );
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;

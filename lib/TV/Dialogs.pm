@@ -13,6 +13,7 @@ use TV::Dialogs::Const;
 use TV::Dialogs::Button;
 use TV::Dialogs::Dialog;
 use TV::Dialogs::InputLine;
+use TV::Dialogs::Label;
 use TV::Dialogs::StaticText;
 use TV::Dialogs::Util;
 
@@ -22,6 +23,7 @@ sub import {
   TV::Dialogs::Button->import::into( $target );
   TV::Dialogs::Dialog->import::into( $target );
   TV::Dialogs::InputLine->import::into( $target );
+  TV::Dialogs::Label->import::into( $target );
   TV::Dialogs::StaticText->import::into( $target );
   TV::Dialogs::Util->import::into( $target, qw( /\S+/) );
 }
@@ -32,6 +34,7 @@ sub unimport {
   TV::Dialogs::Button->unimport::out_of( $caller );
   TV::Dialogs::Dialog->unimport::out_of( $caller );
   TV::Dialogs::InputLine->unimport::out_of( $caller );
+  TV::Dialogs::Label->unimport::out_of( $caller );
   TV::Dialogs::StaticText->unimport::out_of( $caller );
   TV::Dialogs::Util->unimport::out_of( $caller );
 }
