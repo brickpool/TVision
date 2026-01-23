@@ -3,6 +3,7 @@
 =head1 NAME
 
 Add several menu items. 
+For the sake of clarity, this is also split up here.
 
 =head1 SEE ALSO
 
@@ -13,7 +14,7 @@ L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-T
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 use Test::Exception;
 
 use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
@@ -63,7 +64,7 @@ BEGIN {
     return 
       new_TStatusLine( $r,
         new_TStatusDef( 0, 0xFFFF ) +
-          new_TStatusItem( '~Alt+X~ Exit program', kbAltX, cmQuit ) +
+          new_TStatusItem( '~Alt+X~ Exit', kbAltX, cmQuit ) +
           new_TStatusItem( '~F10~ Menu', kbF10, cmMenu ) +
           new_TStatusItem( '~F1~ Help',  kbF1,  cmHelp )
       );

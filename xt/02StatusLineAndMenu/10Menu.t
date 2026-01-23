@@ -13,14 +13,13 @@ L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-T
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 use Test::Exception;
 
 use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
                                 && !$ENV{AUTOMATED_TESTING}
                                 && !$ENV{NONINTERACTIVE_TESTING};
 
-# The same modules are used for the menu as for the status line.
 BEGIN {
   use_ok 'TV::App';
   use_ok 'TV::Views';
@@ -33,6 +32,7 @@ BEGIN {
 BEGIN {
   package TMyApp;
 
+  # The same modules are used for the menu as for the status line.
   use TV::App;      # TApplication
   use TV::Views;    # Event (cmQuit)
   use TV::Drivers;  # Hotkey

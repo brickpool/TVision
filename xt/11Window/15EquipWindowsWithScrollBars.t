@@ -19,13 +19,12 @@ L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-T
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More;
 use Test::Exception;
 
-use constant ManualTestsEnabled =>
-  exists($ENV{MANUAL_TESTS})
-  && !$ENV{AUTOMATED_TESTING}
-  && !$ENV{NONINTERACTIVE_TESTING};
+use constant ManualTestsEnabled => exists($ENV{MANUAL_TESTS})
+                                && !$ENV{AUTOMATED_TESTING}
+                                && !$ENV{NONINTERACTIVE_TESTING};
 
 BEGIN {
   use_ok 'TV::App';

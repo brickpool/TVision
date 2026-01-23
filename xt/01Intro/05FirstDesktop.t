@@ -13,7 +13,7 @@ L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-T
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
