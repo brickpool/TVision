@@ -97,10 +97,10 @@ sub BUILDARGS {    # \%args (%args)
   my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = check( {
     # init_args => undef,
-    last => { no_override => 1 },
-    clip => { no_override => 1 },
+    last    => { no_override => 1 },
+    clip    => { no_override => 1 },
     current => { no_override => 1 },
-    buffer => { no_override => 1 },
+    buffer  => { no_override => 1 },
     # set 'default' values, init_args => undef,
     phase    => { default => phFocused, no_override => 1 },
     lockFlag => { default => 0, no_override => 1 },

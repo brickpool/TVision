@@ -72,11 +72,11 @@ Each entry includes:
 
 =over
 
-=item Borland class name
+=item * Borland class name
 
-=item Perl module name (if present)
+=item * Perl module name (if present)
 
-=item Porting status
+=item * Porting status
 
    [x] = implemented
    [ ] = missing
@@ -157,9 +157,9 @@ Input and Text
 
   +----------------+---------------------------+-----------+
   | TInputLine     | TV::Dialogs::InputLine    | [x]       |
-  | TLabel         | (missing)                 | [ ]       |
   | TStaticText    | TV::Dialogs::StaticText   | [x]       |
   | TParamText     | (missing)                 | [ ]       |
+  | TLabel         | TV::Dialogs::Label        | [x]       |
   +----------------+---------------------------+-----------+
 
 Lists and History
@@ -207,10 +207,10 @@ Lists and History
 =head3 Message Box System
 
   +------------------+-------------------------+-----------+
-  | messageBox()     | (missing)               | [ ]       |
-  | messageBoxRect() | (missing)               | [ ]       |
-  | inputBox()       | (missing)               | [ ]       |
-  | inputBoxRect()   | (missing)               | [ ]       |
+  | messageBox()     | TV::MsgBox::MsgBoxText  | [x]       |
+  | messageBoxRect() | TV::MsgBox::MsgBoxText  | [x]       |
+  | inputBox()       | TV::MsgBox::MsgBoxText  | [x]       |
+  | inputBoxRect()   | TV::MsgBox::MsgBoxText  | [x]       |
   +------------------+-------------------------+-----------+
 
 =head3 Validator System
@@ -265,7 +265,7 @@ Lists and History
 
 =head3 Interpretation
 
-These following areas represent the bulk of Turbo Vision’s higher‑level UI 
+These following areas represent the bulk of Turbo Vision's higher‑level UI 
 framework. 
 
 The project has completed the foundational subsystems:
@@ -285,6 +285,7 @@ The project has completed the foundational subsystems:
 =item * Status system
 
 =item * TextView subsystem
+
 =back
 
 The remaining work is concentrated in:
@@ -310,9 +311,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         42
+  Implemented:                         47
   Partial:                              7
-  Missing:                             83
+  Missing:                             78
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

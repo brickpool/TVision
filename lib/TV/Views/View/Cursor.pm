@@ -35,8 +35,8 @@ use vars qw(
 sub resetCursor {    # void ($p)
   my ( $p ) = @_;
   $self = $p;
-  $x    = $self->{cursor}->{x};
-  $y    = $self->{cursor}->{y};
+  $x    = $self->{cursor}{x};
+  $y    = $self->{cursor}{y};
   my $caretSize = computeCaretSize();
   if ( $caretSize ) {
     THardwareInfo->setCaretPosition( $x, $y );
@@ -48,11 +48,11 @@ sub resetCursor {    # void ($p)
 sub computeCaretSize {    # $int ()
   if ( !( ~$self->{state} & ( sfVisible | sfCursorVis | sfFocused ) ) ) {
     my $v = $self;
-    while ( $y >= 0 && $y < $v->{size}->{y} 
-         && $x >= 0 && $x < $v->{size}->{x} 
+    while ( $y >= 0 && $y < $v->{size}{y} 
+         && $x >= 0 && $x < $v->{size}{x} 
     ) {
-      $y += $v->{origin}->{y};
-      $x += $v->{origin}->{x};
+      $y += $v->{origin}{y};
+      $x += $v->{origin}{x};
       if ( $v->owner() ) {
         if ( $v->owner()->{state} & sfVisible ) {
           if ( caretCovered( $v ) ) {
@@ -77,8 +77,8 @@ sub caretCovered {    # $bool ($v)
   my $u = $v->owner()->last()->next();
   for ( ; $u != $v ; $u = $u->next() ) {
     if ( ( $u->{state} & sfVisible )
-      && ( $u->{origin}->{y} <= $y && $y < $u->{origin}->{y} + $u->{size}->{y} )
-      && ( $u->{origin}->{x} <= $x && $x < $u->{origin}->{x} + $u->{size}->{x} ) 
+      && ( $u->{origin}{y} <= $y && $y < $u->{origin}{y} + $u->{size}{y} )
+      && ( $u->{origin}{x} <= $x && $x < $u->{origin}{x} + $u->{size}{x} ) 
     ) {
       return !!1;
     }
