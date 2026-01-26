@@ -200,7 +200,7 @@ sub create_constructor {    # $self ()
 
     CREATE: {
       # bless $self, if not already done.
-      REPL: {
+      REPR: {
         $self = fields::new( $class ) unless ref $self;
       }
 

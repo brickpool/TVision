@@ -81,8 +81,8 @@ So with L</new> you can create a class and a method I<on-the-fly>. For example:
 
   TV::toolkit::LOP->new( 'MyNewClass' )
     ->create_method( 'foo', sub { print "foo!\n" } );
-  my $class = MyNewClass->new();
-  $class->foo();    # prints "foo!"
+  my $obj = MyNewClass->new();
+  $obj->foo();    # prints "foo!"
 
 =head2 class_exists
 
@@ -262,10 +262,10 @@ class. It allows you to reuse methods across different classes. For example:
 
 This constructor initializes a class. However, it does not create a new class, 
 but sets the current class to the specified one, if it exists. You can then 
-attach other methods to this method or save it in a variable in order to use it 
-repeatedly. For example:
+attach other methods to this constructor or save it in a variable in order to 
+use it repeatedly. For example:
 
-  TV::toolkit::LOP->init( 'SomeClass' );
+  my $class = TV::toolkit::LOP->init( 'SomeClass' );
 
 =head2 list_methods
 

@@ -14,7 +14,7 @@ use Moose::Util qw( find_meta );
 
 with 'Moose::Class::LOP::Role';
 
-has _name       => ( is => 'ro', required => 1 );
+has _name       => ( is => 'bare', required => 1 );
 has classes     => ( is => 'bare', default => sub { [] } );
 has _attributes => ( is => 'bare', default => sub { {} } );
 

@@ -6,10 +6,10 @@ use Test::Exception;
 
 BEGIN {
   unless ( $] >= 5.015004 ) {
-    plan skip_all => 'Test only for for Perl >= 5.15.4';
+    plan skip_all => 'Test only for Perl >= 5.15.4';
   }
   else {
-    plan tests => 15;
+    plan tests => 20;
   }
 }
 
@@ -37,6 +37,11 @@ BEGIN {
     return;
   }
 
+  sub method_with_implicit_self :instance(shift) {
+    ::is ref $self, __PACKAGE__, '$self exists';
+    return;
+  }
+
   $INC{'Local/Class.pm'} = 1;
 }
 
@@ -56,5 +61,21 @@ throws_ok { $obj->class_method() } qr/invoked as an instance/;
 lives_ok { $obj->instance_method() } ':instance works';
 throws_ok { Local::Class::instance_method() } qr/invoked as a function/;
 throws_ok { Local::Class->instance_method() } qr/not invoked as an instance/;
+
+lives_ok { $obj->method_with_implicit_self() } ':instance(shift) works';
+throws_ok {
+  eval qq{
+    package Local::Other;
+    use TV::toolkit::decorators;
+    sub invalid_argument :instance(other) { ... }
+  } or die $@;
+} qr/Invalid argument 'other'/i;
+
+SKIP: {
+  eval { require Package::Stash };
+  skip 'Package::Stash not installed', 2 if $@;
+  my $stash = new_ok( 'Package::Stash' => ['Local::Class'] );
+  ok( !$stash->has_symbol( '$self' ), '$self does not exist' );
+};
 
 done_testing;

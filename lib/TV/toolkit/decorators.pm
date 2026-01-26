@@ -14,8 +14,11 @@ use Carp                  ();
 use Exporter              ();
 use Scalar::Util          ();
 use Sub::Util             ();
+use vars qw( @CARP_NOT );
 
-our $VERSION   = '0.03';
+BEGIN { sub XS () { eval q[ use Package::Stash ]; !$@ } }
+
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 our @EXPORT = qw(
@@ -43,14 +46,36 @@ sub import {
   # Attribute names in lowercase are reserved
   warnings->unimport('reserved') if warnings::enabled('reserved');
 
+  if ( XS ) {
+    my $stash = Package::Stash->new($caller);
+    $stash->add_symbol('$self') unless $stash->has_symbol('$self');
+  }
+  else {
+    # The probability that a package containing this module would deliberately 
+    # define a global $self in the same package is very low - and if it did, it 
+    # would be a design conflict anyway.
+    no strict 'refs';
+    *{"${caller}::self"} = \undef;
+  }
+
   # Cleanup at the end of a scope
   $^H{ __PACKAGE__ . "/$caller" } = autodie::Scope::Guard->new(
     sub {
-      no strict 'refs';
-      undef( *{"${caller}::MODIFY_CODE_ATTRIBUTES"} )
-          if *{"${caller}::MODIFY_CODE_ATTRIBUTES"}{CODE};
-      undef( *{"${caller}::FETCH_CODE_ATTRIBUTES"} )
-          if *{"${caller}::FETCH_CODE_ATTRIBUTES"}{CODE};
+      if ( XS ) {
+        my $stash = Package::Stash->new($caller);
+        map { $stash->remove_symbol($_) } 
+          grep { $stash->has_symbol($_) } 
+            qw( &MODIFY_CODE_ATTRIBUTES &FETCH_CODE_ATTRIBUTES $self );
+      } 
+      else {
+        no strict 'refs';
+        undef( *{"${caller}::MODIFY_CODE_ATTRIBUTES"} )
+            if *{"${caller}::MODIFY_CODE_ATTRIBUTES"}{CODE};
+        undef( *{"${caller}::FETCH_CODE_ATTRIBUTES"} )
+            if *{"${caller}::FETCH_CODE_ATTRIBUTES"}{CODE};
+        undef( *{"${caller}::self"} )
+            if *{"${caller}::self"}{SCALAR};
+      }
     }
   );
 
@@ -64,6 +89,30 @@ sub unimport {
 
   $^H{ __PACKAGE__ . "/$caller" } = 0;
 }
+
+# NOTE: These parses arguments badly, but they are just the defaults. it makes 
+# no attempt to enforce anything, just splits on the comma, both skinny and 
+# fat, then strips away any quotes and treats everything as a simple string.
+my $arg_splitter  = sub {
+  # split on "," or "=>", trim whitespace around
+  return split /\s*(?:\,|\=\>)\s*/ => $_[0]
+};
+
+# NOTE: None of the args are eval-ed and they are basically just a list of 
+# strings, with the one exception of the string "undef", which will be turned 
+# into undef
+my $arg_processor = sub {
+  my $arg = $_[0];
+
+  # strip trailing whitespace
+  $arg =~ s/\s*$//;
+  # strip surrounding single/double quotes
+  $arg =~ s/^['"]//;
+  $arg =~ s/['"]$//;
+
+  # special-case "undef"
+  return $arg eq 'undef' ? undef : $arg;
+};
 
 sub FETCH_CODE_ATTRIBUTES {    # @attrs ($class, $coderef)
   my ( $class, $coderef ) = @_;
@@ -79,7 +128,10 @@ sub MODIFY_CODE_ATTRIBUTES {    # @disallowed|undef ($package, $coderef, @attrib
       /^(?:
         import | unimport | FETCH_CODE_ATTRIBUTES | MODIFY_CODE_ATTRIBUTES
       )$/x
-      or not __PACKAGE__->can( $_ ) 
+      or do{
+        my ( $name ) = /^([^(]+)/;
+        not __PACKAGE__->can( $name );
+      }
     } @attributes;
 
   # return the bad decorators as strings, as expected by attributes ...
@@ -87,8 +139,16 @@ sub MODIFY_CODE_ATTRIBUTES {    # @disallowed|undef ($package, $coderef, @attrib
 
   # process the attributes ...
   foreach my $attribute ( @attributes ) {
-    my $d = __PACKAGE__->can( $attribute ) or die;
-    $d->( $package, Sub::Util::subname( $coderef ), $coderef );
+    my ( $name, $raw_args ) = $attribute =~
+      /\A
+        ([A-Za-z_][A-Za-z0-9_]*)   # attribute name, at least 1 char
+        (?:\(\s*(.*?)\s*\))?       # optional "( ... )"
+      \z/x;
+    my $args = $raw_args
+             ? [ map { $arg_processor->( $_ ) } $arg_splitter->( $raw_args ) ]
+             : [];
+    my $d = __PACKAGE__->can( $name ) or die;
+    $d->( $package, Sub::Util::subname( $coderef ), $coderef, @$args );
   }
 
   $ATTRS{ "$coderef" } = \@attributes;
@@ -113,10 +173,16 @@ sub static {    # ($package, $symbol, $referent)
   };
 } #/ sub _class_method
 
-sub instance {    # ($package, $symbol, $referent)
-  my ( $package, $symbol, $referent ) = @_;
+sub instance {    # ($package, $symbol, $referent, @args)
+  my ( $package, $symbol, $referent, @args ) = @_;
   no strict 'refs';
   no warnings 'redefine';
+  my $param = shift @args;
+  if ( $param ) {
+    local @CARP_NOT = qw( attributes );
+    Carp::croak("Invalid argument '$param' within :instance")
+      if $param ne 'shift';
+  }
   *{$symbol} = sub {
     # The following tests are taken from L<Method::Assert>.
     Carp::confess( "Method invoked as a function" )
@@ -126,6 +192,11 @@ sub instance {    # ($package, $symbol, $referent)
     Carp::confess("Invocant of class '" . ref( $_[0] ) . 
       "' is not a subclass of '$package'" )
         unless $_[0]->isa( $package );
+    if ( $param ) {
+      # TODO: Support parameters other than 'shift' to generate a static $self
+      local *{"${package}::self"} = \shift;
+      return $referent->( @_ );
+    }
     goto &$referent;
   };
 } #/ sub _instance_method
@@ -171,7 +242,7 @@ L<Sub::Util>
 
 =head2 instance
 
-  instance($package, $symbol, $referent);
+  instance($package, $symbol, $referent, @args);
 
 =head2 static
 
