@@ -231,12 +231,12 @@ sub handleEvent {    # void ($event)
   elsif ( $event->{what} == evKeyDown ) {
     SWITCH: for ( $event->{keyDown}{keyCode} ) {
       kbTab == $_ and do {
-        $self->focusNext( 0 );
+        $self->focusNext( !!0 );
         $self->clearEvent( $event );
         last;
       };
       kbShiftTab == $_ and do {
-        $self->focusNext( 1 );
+        $self->focusNext( !!1 );
         $self->clearEvent( $event );
         last;
       };

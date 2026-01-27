@@ -216,11 +216,11 @@ sub handleEvent {    # void ($event)
         $self->dragWindow( $event, dmDragMove );
       }
     } #/ if ( $mouse->{y} == 0 )
-    elsif ( ( $self->{state} & sfActive )
-      && $mouse->{y} >= $self->{size}{y} - 1
-      && ( $self->{owner}{flags} & wfGrow )
+    elsif ( ( $mouse->{x} >= $self->{size}{x} - 2 &&
+              $mouse->{y} >= $self->{size}{y} - 1 )
+         && ( $self->{state} & sfActive )
     ) {
-      if ( $mouse->{x} >= $self->{size}{x} - 2 ) {
+      if ( $self->{owner}{flags} & wfGrow ) {
         $self->dragWindow( $event, dmDragGrow );
       }
     }
@@ -235,7 +235,7 @@ sub setState {    # void ($aState, $enable)
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
   $self->SUPER::setState( $aState, $enable );
-  if ( ( $aState & ( sfActive | sfDragging ) ) != 0 ) {
+  if ( $aState & ( sfActive | sfDragging ) ) {
     $self->drawView();
   }
   return;

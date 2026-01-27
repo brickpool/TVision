@@ -379,9 +379,8 @@ sub setState { # void ($aState, $enable)
       $self->{state} &= ~sfFocused;
       $self->makeDefault( !!0 );
     }
-
     $self->drawView();
-  } #/ if ( $aState & ( sfSelected...))
+  }
 
   if ( $aState & sfFocused ) {
     $self->makeDefault( $enable );

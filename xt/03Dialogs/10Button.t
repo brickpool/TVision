@@ -6,7 +6,7 @@ Processing events, the status bar, and the menu.
 
 =head1 SEE ALSO
 
-L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-Tutorial/tree/master/03_-_Dialoge/05_-_Erster_Dialog>
+L<Lazarus-FreeVision-Tutorial|https://github.com/sechshelme/Lazarus-FreeVision-Tutorial/tree/master/03_-_Dialoge/10_-_Button>
 
 =cut
 
@@ -140,7 +140,6 @@ BEGIN {
     my $r    = new_TRect( 0, 0, 35, 15 );        # Size of the dialog.
     $r->move( 23, 3 );                           # Position of the dialog.
     my $dlg = new_TDialog( $r, 'Parameter' );    # Create dialog.
-    $deskTop->insert( $dlg );                    # Assign dialog to app.
     WITH: for ( $dlg ) {
       # Ok-Button
       $r->assign( 7, 12, 17, 14 );
@@ -150,7 +149,8 @@ BEGIN {
       $r->move( 12, 0 );
       $_->insert( new_TButton( $r, '~C~ancel', cmCancel, bfNormal ) );
     }
-    my $dummy = $self->executeDialog( $dlg );    # Open dialog modal.
+    my $dummy = $deskTop->execView( $dlg );      # Open dialog modal
+    # Dialog and memory are automatically released.
     return;
   }
 

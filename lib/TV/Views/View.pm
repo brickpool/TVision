@@ -583,10 +583,10 @@ sub focus {    # $bool ()
     if ( $self->{owner} ) {
       $result = $self->{owner}->focus();
       if ( $result ) {
-        if ( !$self->{owner}{current}
-          || !( $self->{owner}{current}{options} & ofValidate )
-          || $self->{owner}{current}->valid( cmReleasedFocus ) )
-        {
+        if ( !$self->{owner}{current} ||
+            ( !( $self->{owner}{current}{options} & ofValidate ) || 
+              $self->{owner}{current}->valid( cmReleasedFocus ) )
+        ) {
           $self->select();
         }
         else {
@@ -985,7 +985,7 @@ sub setState {    # void ($aState, $enable)
     unless $self->{owner};
 
   SWITCH: for ( $aState ) {
-    $_ == sfVisible and do {
+    sfVisible == $_ and do {
       if ( $self->{owner}{state} & sfExposed ) {
         $self->setState( sfExposed, $enable );
       }
@@ -1000,15 +1000,16 @@ sub setState {    # void ($aState, $enable)
       }
       last;
     };
-    $_ == sfCursorVis || $_ == sfCursorIns and do {
+    sfCursorVis == $_ || 
+    sfCursorIns == $_ and do {
       $self->drawCursor();
       last;
     };
-    $_ == sfShadow and do {
+    sfShadow == $_ and do {
       $self->drawUnderView( !!1, undef );
       last;
     };
-    $_ == sfFocused and do {
+    sfFocused == $_ and do {
       $self->resetCursor();
       message(
         $self->{owner},
