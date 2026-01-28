@@ -17,6 +17,7 @@ use TV::Objects::NSCollection;
 use TV::Objects::NSSortedCollection;
 use TV::Objects::Collection;
 use TV::Objects::SortedCollection;
+use TV::Objects::StringCollection;
 
 sub import {
   my $target = caller;
@@ -28,6 +29,7 @@ sub import {
   TV::Objects::NSSortedCollection->import::into( $target );
   TV::Objects::Collection->import::into( $target );
   TV::Objects::SortedCollection->import::into( $target );
+  TV::Objects::StringCollection->import::into( $target );
 }
 
 sub unimport {
@@ -40,6 +42,7 @@ sub unimport {
   TV::Objects::NSSortedCollection->unimport::out_of( $caller );
   TV::Objects::Collection->unimport::out_of( $caller );
   TV::Objects::SortedCollection->unimport::out_of( $caller );
+  TV::Objects::StringCollection->unimport::out_of( $caller );
 }
 
 1

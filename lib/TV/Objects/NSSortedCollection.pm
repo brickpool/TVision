@@ -1,29 +1,6 @@
 
-=pod
-
-=head1 NAME
-
-TV::Objects::NSSortedCollection - defines the class TNSSortedCollection
-
-=head1 DESCRIPTION
-
-In this Perl module, the class I<TNSSortedCollection> is created, which inherits
-from I<TNSCollection>. 
-
-The NS variants of collections are Not Storable.  These are needed for 
-internal use in the stream manager.  There are storable variants of each of 
-these classes for use by the rest of the library.
-
-=head2 Methods
-
-The methods I<new>, I<search>, I<indexOf>, I<insert>, I<keyOf> and I<compare> 
-are implemented to provide the same behavior as in the Borland C++ code. The 
-I<compare> method is defined as a abstract method that must be implemented in a 
-subclass.
-
-=cut
-
 package TV::Objects::NSSortedCollection;
+# ABSTRACT: Defines the class TNSSortedCollection
 
 use strict;
 use warnings;
@@ -38,6 +15,7 @@ our @EXPORT = qw(
   new_TNSSortedCollection
 );
 
+use Carp ();
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Params::Check qw(
@@ -84,8 +62,8 @@ sub BUILDARGS {    # \%args (%args)
 
 sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 3 );
+  assert ( blessed $self );
   assert ( ref $index_ref and !readonly $$index_ref );
   my $l   = 0;
   my $h   = $self->{count} - 1;
@@ -111,8 +89,8 @@ sub search {    # $bool ($key|undef, \$index)
 
 sub indexOf {    # $index ($item|undef)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) ) {
     return ccNotFound;
@@ -129,8 +107,8 @@ sub indexOf {    # $index ($item|undef)
 
 sub insert {    # $index ($item|undef)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) || $self->{duplicates} ) {
     $self->atInsert( $i, $item );
@@ -140,15 +118,60 @@ sub insert {    # $index ($item|undef)
 
 sub keyOf {    # $key ($item|undef)
   my ( $self, $item ) = @_;
-  assert ( blessed $self );
   assert ( @_ == 2 );
+  assert ( blessed $self );
   return $item;
 }
 
-sub compare {    # $cmd ($key1, $key2)
-  assert ( blessed shift );
+sub compare {    # $cmp ($key1, $key2)
   assert ( @_ == 3 );
+  assert ( blessed shift );
   return 0;
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TNSSortedCollection - defines the NS class for TSortedCollection
+
+=head1 DESCRIPTION
+
+In this Perl module, the class I<TNSSortedCollection> is created, which inherits
+from I<TNSCollection>. 
+
+The NS variants of collections are Not Storable.  These are needed for 
+internal use in the stream manager.  There are storable variants of each of 
+these classes for use by the rest of the library.
+
+=head2 Methods
+
+The methods I<new>, I<search>, I<indexOf>, I<insert>, I<keyOf> and I<compare> 
+are implemented to provide the same behavior as in the Borland C++ code. The 
+I<compare> method is defined as a abstract method that must be implemented in a 
+subclass.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2024-2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is
+part of the distribution).
+
+=cut

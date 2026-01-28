@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 BEGIN {
   use_ok 'TV::Objects';
@@ -17,5 +17,6 @@ isa_ok( TNSCollection->new(), TNSCollection );
 isa_ok( TNSSortedCollection->new(), TNSSortedCollection );
 isa_ok( TCollection->new(), TCollection );
 isa_ok( TSortedCollection->new(), TSortedCollection );
+isa_ok( TStringCollection->new(), TStringCollection );
 
 done_testing;

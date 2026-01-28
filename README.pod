@@ -231,7 +231,7 @@ Lists and History
   | TNSSortedCollection  | TV::Objects::NSSortedCollection | [x]       |
   | TCollection          | TV::Objects::Collection         | [x]       |
   | TSortedCollection    | TV::Objects::SortedCollection   | [x]       |
-  | TStringCollection    | (missing)                       | [ ]       |
+  | TStringCollection    | TV::Objects::StringCollection   | [x]       |
   | TStringList          | (missing)                       | [ ]       |
   | TStrListMaker        | (missing)                       | [ ]       |
   | TResourceCollection  | (missing)                       | [ ]       |
@@ -311,9 +311,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         49
+  Implemented:                         50
   Partial:                              7
-  Missing:                             76
+  Missing:                             75
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
