@@ -1,5 +1,5 @@
 package TV::Dialogs::InputLine;
-# ABSTRACT: Input line dialog control for Turbo Vision
+# ABSTRACT: Editable single-line text input control for Turbo Vision dialogs.
 
 use strict;
 use warnings;
@@ -80,6 +80,18 @@ has oldCurPos   => ( is => 'ro' );
 has oldFirstPos => ( is => 'ro' );
 has oldSelStart => ( is => 'ro' );
 has oldSelEnd   => ( is => 'ro' );
+
+# predeclare private methods
+my (
+  $canScroll,
+  $mouseDelta,
+  $mousePos,
+  $deleteSelect,
+  $adjustSelectBlock,
+  $saveState,
+  $restoreState,
+  $checkValid,
+);
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
@@ -164,11 +176,11 @@ sub draw {    # void ()
   my $buf = substr( $self->{data}, $self->{firstPos}, $self->{size}{x} - 2 );
   $b->moveStr( 1, $buf, $color );
 
-  if ( $self->canScroll( 1 ) ) {
+  if ( $self->$canScroll( 1 ) ) {
     $b->moveChar( $self->{size}{x} - 1, $rightArrow, $self->getColor( 4 ), 1 );
   }
   if ( $self->{state} & sfSelected ) {
-    if ( $self->canScroll( -1 ) ) {
+    if ( $self->$canScroll( -1 ) ) {
       $b->moveChar( 0, $leftArrow, $self->getColor( 4 ), 1 );
     }
     $l = $self->{selStart} - $self->{firstPos};
@@ -222,37 +234,37 @@ sub handleEvent {    # void ($event)
   return unless ( $self->{state} & sfSelected );
   SWITCH: for ( $event->{what} ) {
     evMouseDown == $_ and do {
-      if ( $self->canScroll( $delta = $self->mouseDelta( $event ) ) ) {
+      if ( $self->$canScroll( $delta = $self->$mouseDelta( $event ) ) ) {
         do {
-          if ( $self->canScroll( $delta ) ) {
+          if ( $self->$canScroll( $delta ) ) {
             $self->{firstPos} += $delta;
             $self->drawView();
           }
         } while mouseEvent( $event, evMouseAuto );
-      } #/ if ( $self->canScroll(...))
+      } #/ if ( $self->$canScroll(...))
       elsif ( $event->{mouse}{eventFlags} & meDoubleClick ) {
         $self->selectAll( 1 );
       }
       else {
-        $self->{anchor} = $self->mousePos( $event );
+        $self->{anchor} = $self->$mousePos( $event );
         do {
           if ( $event->{what} == evMouseAuto ) {
-            $delta = $self->mouseDelta( $event );
-            if ( $self->canScroll( $delta ) ) {
+            $delta = $self->$mouseDelta( $event );
+            if ( $self->$canScroll( $delta ) ) {
               $self->{firstPos} += $delta;
             }
           }
-          $self->{curPos} = $self->mousePos( $event );
-          $self->adjustSelectBlock();
+          $self->{curPos} = $self->$mousePos( $event );
+          $self->$adjustSelectBlock();
           $self->drawView();
         } while mouseEvent( $event, evMouseMove | evMouseAuto );
-      } #/ else [ if ( $self->canScroll(...))]
+      } #/ else [ if ( $self->$canScroll(...))]
       clearEvent( $event );
       last;
     };
 
     evKeyDown == $_ and do {
-      $self->saveState();
+      $self->$saveState();
       $event->{keyDown}{keyCode} =
         ctrlToArrow( $event->{keyDown}{keyCode} );
       my $scanCode  = $event->{keyDown}{charScan}{scanCode};
@@ -295,7 +307,7 @@ sub handleEvent {    # void ($event)
             if ( $self->{firstPos} > 0 ) {
               $self->{firstPos}--;
             }
-            $self->checkValid( !!1 );
+            $self->$checkValid( !!1 );
           } #/ if ( $self->{curPos} >...)
           last;
         };
@@ -306,8 +318,8 @@ sub handleEvent {    # void ($event)
               $self->{selEnd}   = $self->{curPos} + 1;
             }
           }
-          $self->deleteSelect();
-          $self->checkValid( !!1 );
+          $self->$deleteSelect();
+          $self->$checkValid( !!1 );
           last;
         };
         kbIns == $_ and do {
@@ -317,14 +329,14 @@ sub handleEvent {    # void ($event)
         DEFAULT: {
           my $ch = $event->{keyDown}{charScan}{charCode};
           if ( defined $ch && $ch >= ord( ' ' ) ) {
-            $self->deleteSelect();
+            $self->$deleteSelect();
             if ( $self->{state} & sfCursorIns ) {
               # The following must be a signed comparison!
               if ( $self->{curPos} < length( $self->{data} ) ) {
                 substr( $self->{data}, $self->{curPos}, 1, '' );
               }
             }
-            if ( $self->checkValid( !!1 ) ) {
+            if ( $self->$checkValid( !!1 ) ) {
               if ( length( $self->{data} ) < $self->{maxLen} ) {
                 if ( $self->{firstPos} > $self->{curPos} ) {
                   $self->{firstPos} = $self->{curPos};
@@ -334,8 +346,8 @@ sub handleEvent {    # void ($event)
                 substr( $self->{data}, $self->{curPos}, 1 ) = chr( $ch );
                 $self->{curPos}++;
               }
-              $self->checkValid( !!0 );
-            } #/ if ( $self->checkValid...)
+              $self->$checkValid( !!0 );
+            } #/ if ( $self->$checkValid...)
           } #/ if ( defined $ch && $ch...)
           elsif ( defined $ch && $ch == CONTROL_Y ) {
             $self->{data}   = '';
@@ -348,7 +360,7 @@ sub handleEvent {    # void ($event)
         };
       } #/: for ( $event->{keyDown}...)
 
-      $self->adjustSelectBlock();
+      $self->$adjustSelectBlock();
       if ( $self->{firstPos} > $self->{curPos} ) {
         $self->{firstPos} = $self->{curPos};
       }
@@ -426,11 +438,8 @@ sub setValidator {    # void ($aValid|undef)
   return;
 } #/ sub setValidator
 
-sub canScroll {    # bool ($delta)
+$canScroll = sub {    # bool ($delta)
   my ( $self, $delta ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $delta );
   if ( $delta < 0 ) {
     return $self->{firstPos} > 0;
   }
@@ -440,13 +449,10 @@ sub canScroll {    # bool ($delta)
   else {
     return !!0;
   }
-} #/ sub canScroll
+};
 
-sub mouseDelta {    # void ($event)
+$mouseDelta = sub {    # void ($event)
   my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
   my $mouse = $self->makeLocal( $event->{mouse}{where} );
 
   if ( $mouse->{x} <= 0 ) {
@@ -455,37 +461,30 @@ sub mouseDelta {    # void ($event)
   else {
     $mouse->{x} >= $self->{size}{x} - 1 ? 1 : 0;
   }
-} #/ sub mouseDelta
+};
 
-sub mousePos {    # void ($event)
+$mousePos = sub {    # void ($event)
   my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
   my $mouse = $self->makeLocal( $event->{mouse}{where} );
   $mouse->{x} = max( $mouse->{x}, 1 );
   my $pos = $mouse->{x} + $self->{firstPos} - 1;
   $pos = max( $pos, 0 );
   $pos = min( $pos, length( $self->{data} ) );
   return $pos;
-} #/ sub mousePos
+};
 
-sub deleteSelect {    # void ()
+$deleteSelect = sub {    # void ()
   my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
   if ( $self->{selStart} < $self->{selEnd} ) {
     substr( $self->{data}, $self->{selStart} ) =
       substr( $self->{data}, $self->{selEnd} );
     $self->{curPos} = $self->{selStart};
   } #/ if ( $self->{selStart}...)
   return;
-} #/ sub deleteSelect
+};
 
-sub adjustSelectBlock {    # void ()
+$adjustSelectBlock = sub {    # void ()
   my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
   if ( $self->{anchor} < 0 ) {
     $self->{selStart} = 0;
     $self->{selEnd}   = 0;
@@ -499,12 +498,10 @@ sub adjustSelectBlock {    # void ()
     $self->{selEnd}   = $self->{curPos};
   }
   return;
-} #/ sub adjustSelectBlock
+};
 
-sub saveState {   # void ()
+$saveState = sub {   # void ()
   my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
   if ( $self->{validator} ) {
     $self->{oldData}     = $self->{data};
     $self->{oldCurPos}   = $self->{curPos};
@@ -514,12 +511,10 @@ sub saveState {   # void ()
     $self->{oldAnchor}   = $self->{anchor};
   } #/ if ( $self->{validator...})
   return;
-} #/ sub saveState
+};
 
-sub restoreState {   # void ()
+$restoreState = sub {   # void ()
   my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
   if ( $self->{validator} ) {
     $self->{data}     = $self->{oldData};
     $self->{curPos}   = $self->{oldCurPos};
@@ -529,9 +524,9 @@ sub restoreState {   # void ()
     $self->{anchor}   = $self->{oldAnchor};
   } #/ if ( $self->{validator...})
   return;
-} #/ sub restoreState
+};
 
-sub checkValid {   # $bool ($noAutoFill)
+$checkValid = sub {   # $bool ($noAutoFill)
   my ( $self, $noAutoFill ) = @_;
   assert ( blessed $self );
   assert ( !defined $noAutoFill or !ref $noAutoFill );
@@ -539,7 +534,7 @@ sub checkValid {   # $bool ($noAutoFill)
   my $oldLen = length( $self->{data} );
   my $newData = $self->{data};
   if ( !$self->{validator}->isValidInput( $newData, $noAutoFill ) ) {
-    $self->restoreState();
+    $self->$restoreState();
     return !!0;
   }
   else {
@@ -552,6 +547,199 @@ sub checkValid {   # $bool ($noAutoFill)
     }
     return !!1;
   } #/ else [ if ( !$self->{validator...})]
-} #/ sub checkValid
+};
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TInputLine - editable single-line text input control for Turbo Vision dialogs
+
+=head1 SYNOPSIS
+
+  use TV::Dialogs::InputLine;
+
+  my $input = new_TInputLine($bounds, 64);
+  $input->setData(["Hello"]);
+
+=head1 DESCRIPTION
+
+C<TInputLine> provides an editable text field with cursor control, selection, 
+and validation support. It handles keyboard input, mouse selection, scrolling, 
+and optional validators. It is intended for use wherever a single editable text 
+field is required.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item data
+
+The current input string stored inside the control (I<Str>).
+
+=item maxLen
+
+Maximum allowed length of the input text (I<Int>).
+
+=item curPos
+
+The current cursor position within the input string (I<Int>).
+
+=item firstPos
+
+The index of the first visible character, used for horizontal scrolling 
+(I<Int>).
+
+=item selStart
+
+The start index of the current selection block (I<Int>).
+
+=item selEnd
+
+The end index of the current selection block (I<Int>).
+
+=item validator
+
+Optional validator object used for input checking and data transfer 
+(I<TValidator> or undef).
+
+=item anchor
+
+Selection anchor used during mouse or shift‑key selection (I<Int>).
+
+=item oldAnchor
+
+Stored anchor position for validation rollback (I<Int>).
+
+=item oldData
+
+Cached input data used to restore previous state after failed validation 
+(I<Str>).
+
+=item oldCurPos
+
+Previous cursor position saved before validation attempts (I<Int>).
+
+=item oldFirstPos
+
+Previous visible offset saved before validation attempts (I<Int>).
+
+=item oldSelStart
+
+Previous selection start stored for validation rollback (I<Int>).
+
+=item oldSelEnd
+
+Previous selection end stored for validation rollback (I<Int>).
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $input = TInputLine->new(%args);
+
+Creates a new input line with the given bounds and maximum allowed text length.
+
+=over
+
+=item bounds
+
+The rectangular position and size of the input line (I<TRect>).
+
+=item maxLen
+
+The maximum number of characters the input field can hold (integer).
+
+=item validator
+
+An optional validator object used for input checking (I<TValidator> or undef).
+
+=back
+
+=head2 new_TInputLine
+
+  my $input = new_TInputLine($bounds, $aMaxLen, | $aValid);
+
+Factory constructor that builds an input line control from C<$bounds>, length 
+and optional validator.
+
+=head2 dataSize
+
+ my $dSize = $self->dataSize();
+
+Returns the size required to store the control's data based on its validator.
+
+=head2 draw
+
+ $self->draw();
+
+Displays the current text, cursor position and selection region.
+
+=head2 getData
+
+ $self->getData(\@rec);
+
+Transfers the control's text content into the provided record structure.
+
+=head2 getPalette
+
+ my $palette = $self->getPalette();
+
+Returns the palette used for drawing the input line.
+
+=head2 handleEvent
+
+ $self->handleEvent($event);
+
+Processes keyboard navigation, editing commands, scrolling and mouse input.
+
+=head2 selectAll
+
+ $self->selectAll($enable);
+
+Selects or clears all text based on the given argument.
+
+=head2 setData
+
+ $self->setData(\@rec);
+
+Replaces the control's text content using a record structure.
+
+=head2 setState
+
+ $self->setState($aState, $enable);
+
+Updates internal state flags and adjusts selection and cursor behavior.
+
+=head2 setValidator
+
+ $self->setValidator($aValid | undef);
+
+Installs or replaces the validator object for input checking.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). 
+
+=cut

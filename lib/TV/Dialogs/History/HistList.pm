@@ -1,22 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Dialogs::History::HistList - implements the behavior of the HistRec list
-
-=head1 DESCRIPTION
-
-History buffer structure:
-
-  $historyBlock = [
-    { id => Int, str => Str },
-    { id => Int, str => Str },
-    ...
-  ];
-
-=cut
-
 package TV::Dialogs::History::HistList;
+# ABSTARCT: Implements the behavior of the HistRec list
 
 use strict;
 use warnings;
@@ -167,3 +150,82 @@ sub doneHistory {   # void ()
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Dialogs::History::HistList - manages Turbo Vision-style input history lists
+
+=head1 SYNOPSIS
+
+  use TV::Dialogs::History::HistList qw(historyAdd historyStr historyCount);
+
+  historyAdd(1, "hello");
+  my $count = historyCount(1);
+  my $entry = historyStr(1, 0);
+
+=head1 DESCRIPTION
+
+C<HistList> provides a simple history buffer used by Turbo Vision input controls.  
+Entries are grouped by numeric IDs and stored in an internal list structure.  
+The implementation mimics the behavior of the original Turbo Vision history 
+code.  
+
+It supports adding entries, retrieving them, counting them, and clearing the 
+buffer. The structure of the history buffer is as follows:
+
+  $historyBlock = [
+    { id => Int, str => Str },
+    { id => Int, str => Str },
+    ...
+  ];
+
+=head1 FUNCTIONS
+
+=head2 historyAdd
+
+Adds a string to the history group identified by the given ID.
+
+=head2 historyCount
+
+Returns the number of entries associated with the given history ID.
+
+=head2 historyStr
+
+Returns the Nth history string for the specified ID.
+
+=head2 clearHistory
+
+Clears all history entries.
+
+=head2 initHistory
+
+Initializes the history structure and clears all entries.
+
+=head2 doneHistory
+
+Destroys all history data and resets the module state.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2025-2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution).
+
+=cut

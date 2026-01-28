@@ -313,12 +313,12 @@ Represents the difference between the current and previous scroll positions.
 
 =item drawLock
 
-Internal counter for nested draw operations. (Int)  
+Internal counter for nested draw operations (I<Int>).
 Prevents redraw during batch updates.
 
 =item drawFlag
 
-Boolean flag indicating whether a redraw is pending. (Bool)
+Boolean flag indicating whether a redraw is pending (I<Bool>).
 
 =item aHScrollBar
 
@@ -394,12 +394,6 @@ Returns a clone of the scroller's color palette.
 
 Processes broadcast events, such as scroll bar changes, and triggers redraw.
 
-=head2 name
-
-  $self->name();
-
-Returns the name of the class (C<"TScroller">).
-
 =head2 scrollDraw
 
   $self->scrollDraw();
@@ -444,10 +438,9 @@ Cleans up resources and clears references to scroll bars.
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+Copyright (c) 2025-2026 the L</AUTHORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
-part of the distribution). This documentation is provided under the same terms 
-as the Turbo Vision library itself.
+part of the distribution). 
 
 =cut

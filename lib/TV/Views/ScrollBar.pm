@@ -465,23 +465,23 @@ appearance and behavior.
 
 =item value
 
-The current value of the scroll bar. (Int)
+The current value of the scroll bar (I<Int>).
 
 =item minVal
 
-The minimum value of the scroll bar. (Int)
+The minimum value of the scroll bar (I<Int>).
 
 =item maxVal
 
-The maximum value of the scroll bar. (Int)
+The maximum value of the scroll bar (I<Int>).
 
 =item pgStep
 
-The page step value of the scroll bar. (Int)
+The page step value of the scroll bar (I<Int>).
 
 =item arStep
 
-The arrow step value of the scroll bar. (Int)
+The arrow step value of the scroll bar (I<Int>).
 
 =back
 
@@ -494,6 +494,12 @@ The arrow step value of the scroll bar. (Int)
 Initializes an instance of C<TScrollBar> with the specified bounds.
 
 =over
+
+=head2 new_TStaticText
+
+ my $scrollBar = new_TStaticText($bounds);
+
+Convenience constructor that instantiates a scroll bar from bounds.
 
 =item bounds
 
@@ -581,10 +587,9 @@ Returns the current value of the scroll bar.
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+Copyright (c) 2025-2026 the L</AUTHORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
-part of the distribution). This documentation is provided under the same terms 
-as the Turbo Vision library itself.
+part of the distribution).
 
 =cut

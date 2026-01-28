@@ -1,5 +1,5 @@
 package TV::Dialogs::Button;
-# ABSTRACT: Button dialog base class
+# ABSTRACT: Pushbutton control for Turbo Vision dialogs
 
 use strict;
 use warnings;
@@ -428,3 +428,151 @@ $getActiveRect = sub {    # $rect ()
 };
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Dialogs::Button - pushbutton control for Turbo Vision dialogs
+
+=head1 SYNOPSIS
+
+  use TV::Dialogs;
+
+  my $btn = TButton->new(bounds => $bounds, title => "~O~K", command => cmOK, 
+    flags => bfNormal);
+
+=head1 DESCRIPTION
+
+C<TButton> implements an interactive pushbutton control with full Turbo Vision 
+semantics. It supports highlighting, shadow rendering, pressing behavior, 
+default-button logic, and command dispatch.  
+
+Mouse and keyboard events are handled according to Turbo Vision's original 
+model. 
+
+=head1 ATTRIBUTES
+
+=over
+
+=item title
+
+The caption displayed on the button, usually containing a hotkey marker 
+(I<Str>).
+
+=item command
+
+The command identifier triggered when the button is pressed (I<Int>).
+
+=item flags
+
+Bit‑mask of behavioral settings such as default, broadcast or selectable 
+(I<Int>).
+
+=item amDefault
+
+Boolean flag indicating whether the button is currently treated as the dialog's 
+default button (I<Bool>).
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $btn = TButton->new(%args);
+
+Creates a new button with bounds, a title string, a command identifier and 
+behavioral flags.
+
+=over
+
+=item bounds
+
+The rectangular region that defines the button's position (I<TRect>).
+
+=item title
+
+The caption displayed on the button, usually with a hotkey marker (I<Str>).
+
+=item command
+
+The command ID broadcast when the button is pressed (I<Int>).
+
+=item flags
+
+Behavioral flags controlling default state, focus handling and selection 
+(I<bfXXXX>).
+
+=back
+
+=head2 new_TButton
+
+ my $obj = new_TButton($bounds, $aTitle, $aCommand, $aFlags);
+
+Factory constructor for building a Turbo‑Vision‑style button control.
+
+=head2 draw
+
+ $self->draw();
+
+Renders the button according to its current state.
+
+=head2 drawState
+
+ $self->drawState($down);
+
+Draws the button in pressed or unpressed visual form.
+
+=head2 getPalette
+
+ my $palette = $self->getPalette();
+
+Returns the drawing palette for a button control.
+
+=head2 handleEvent
+
+ $self->handleEvent($event);
+
+Processes mouse clicks, key presses and broadcast events for the button.
+
+=head2 makeDefault
+
+ $self->makeDefault($enable);
+
+Marks or unmarks the button as the dialog's default action button.
+
+=head2 press
+
+ $self->press();
+
+Sends the button's command to the dialog owner.
+
+=head2 setState
+
+ $self->setState($aState, $enable);
+
+Updates the control's internal state and refreshes its appearance.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). 
+
+=cut

@@ -1,5 +1,5 @@
 package TV::Dialogs::Dialog;
-# ABSTRACT: 
+# ABSTRACT: Base dialog window class for Turbo Vision dialog boxes
 
 use strict;
 use warnings;
@@ -54,14 +54,12 @@ extends TWindow;
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
   assert ( $class and !ref $class );
-
   return $class->SUPER::BUILDARGS( @_, number => wnNoNumber );
 }
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
-
   $self->{growMode} = 0;
   $self->{flags} = wfMove | wfClose;
   $self->{palette} = dpGrayDialog;
@@ -72,7 +70,6 @@ sub from {    # $obj ($bounds, $aTitle)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 2 );
-
   return $class->new( bounds => $_[0], title => $_[1] );
 }
 
@@ -160,10 +157,122 @@ sub valid {    # $bool ($command)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( looks_like_number $command );
-
   return $command == cmCancel
     ? !!1
     : $self->SUPER::valid( $command );
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TDialog - base dialog window class for Turbo Vision dialog boxes
+
+=head1 SYNOPSIS
+
+  use TV::Dialogs;
+  use TV::Objects;
+
+  my $bounds = TRect->new(ax => 5, ay => 3, bx => 40, by => 15);
+  my $dlg = TDialog->new(bounds => $bounds, title => "Example");
+
+  $dlg->handleEvent($event);
+
+=head1 DESCRIPTION
+
+C<TDialog> implements the fundamental dialog window class used throughout Turbo 
+Vision. It handles palette selection, keyboard shortcuts for dialog acceptance 
+or cancellation, and manages focus and modal dialog termination.  
+
+The class forms the basis for all higher‑level dialogs and provides common 
+event‑handling logic.  
+
+=head1 ATTRIBUTES
+
+=over
+
+=item growMode
+
+Internal window growth behavior flag inherited from C<TWindow> (I<Int>).
+
+=item flags
+
+Internal flag mask enabling movement and closing operations (I<Int>).
+
+=item palette
+
+The currently active dialog palette selection (I<Int> palette constant).
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+  my $dlg = TDialog->new(%args);
+
+Creates a new C<TDialog> object and initializes its dialog‑specific flags and 
+palette.
+
+=over
+
+=item bounds
+
+The bounding rectangle that defines the dialog window position (I<TRect>).
+
+=item title
+
+The dialog window title displayed in the frame (I<Str>).
+
+=back
+
+=head2 new_TDialog
+
+  my $dlg = new_TDialog($bounds, $aTitle);
+
+Factory constructor that creates a C<TDialog> from C<$bounds> and a title.
+
+=head2 getPalette
+
+  my $palette = $self->getPalette();
+
+Returns a clone of the palette object associated with the dialog's color scheme.
+
+=head2 handleEvent
+
+  $self->handleEvent($event);
+
+Processes keyboard and command events, handling ESC, ENTER, and broadcasted 
+dialog commands.
+
+=head2 valid
+
+  my $bool = $self->valid($command);
+
+Checks whether the dialog should accept the provided command (C<cmCancel> is 
+always valid).
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). 
+
+=cut

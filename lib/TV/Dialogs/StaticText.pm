@@ -1,5 +1,5 @@
 package TV::Dialogs::StaticText;
-# ABSTRACT: 
+# ABSTRACT: Displays fixed text inside a Turbo Vision dialog
 
 use strict;
 use warnings;
@@ -172,3 +172,99 @@ sub getText {    # void ($s)
 } #/ sub getText
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TStaticText - displays fixed text inside a Turbo Vision dialog
+
+=head1 SYNOPSIS
+
+  use TV::Dialogs;
+
+  my $staticText = TStaticText->new(bounds => $bounds, text => "Hello World");
+  $staticText->draw();
+
+=head1 DESCRIPTION
+
+C<TStaticText> implements a simple non-editable text display control.  
+It stores a text string and renders it inside the given rectangular bounds.  
+
+The control supports multiline behavior and basic centering markers. 
+
+=head1 ATTRIBUTES
+
+=over
+
+=item text
+
+The current text of the static text (I<Str>).
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+Creates a new C<TStaticText> object with the given bounds and text.
+
+=over
+
+=item bounds
+
+The bounds of the static text (I<TRect>).
+
+=item text
+
+The text for the static text (I<Str>).
+
+=back
+
+=head2 new_TStaticText
+
+ my $obj = new_TStaticText($bounds, $aText);
+
+Convenience constructor that instantiates a static text control from C<$bounds> 
+and C<$aText>.
+
+=head2 getText
+
+ $self->getText($s);
+
+Retrieves the internal text and writes it into the supplied scalar.
+
+=head2 draw
+
+ $self->draw();
+
+Renders the control contents into the view's drawing buffer.
+
+=head2 getPalette
+
+ my $palette = $self->getPalette();
+
+Returns the palette used for drawing a static text control.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution).
+
+=cut

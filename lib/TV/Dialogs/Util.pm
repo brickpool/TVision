@@ -1,5 +1,5 @@
 package TV::Dialogs::Util;
-# ABSTRACT: various utility functions for Turbo Vision dialogs
+# ABSTRACT: Various utility functions for Turbo Vision dialogs
 
 use strict;
 use warnings;
@@ -73,6 +73,14 @@ __END__
 
 TV::Dialogs::Util - Utility functions for Turbo Vision dialogs
 
+=head1 SYNOPSIS
+
+  use TV::Dialogs::Util qw(hotKey prevWord nextWord);
+
+  my $hk = hotKey("~Save");
+  my $prev = prevWord("Hello world", 6);
+  my $next = nextWord("Hello world", 0);
+
 =head1 DESCRIPTION
 
 This module provides helper functions commonly used in text-based user 
@@ -135,10 +143,9 @@ previous word exists, the function returns C<0>.
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+Copyright (c) 2026 the L</AUTHORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
-part of the distribution). This documentation is provided under the same terms 
-as the Turbo Vision library itself.
+part of the distribution).
 
 =cut
