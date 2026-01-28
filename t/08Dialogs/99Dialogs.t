@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -14,6 +14,7 @@ is( hotKey('~K~ey'), 'K', 'Util successfully imported' );
 isa_ok( new_TDialog( TRect->new(), '' ), TDialog );
 isa_ok( new_TButton( TRect->new(), 'Title', 0, 0 ), TButton );
 isa_ok( new_TStaticText( TRect->new(), 'Text' ), TStaticText );
+isa_ok( new_TParamText( TRect->new() ), TParamText );
 isa_ok( new_TLabel( TRect->new(), 'text', undef ), TLabel );
 isa_ok( new_TInputLine( TRect->new(), 10 ), TInputLine );
 
