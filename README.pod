@@ -171,7 +171,7 @@ Lists and History
   | THistoryViewer | (missing)                 | [ ]       |
   | THistoryWindow | (missing)                 | [ ]       |
   | THistoryList   | (missing)                 | [ ]       |
-  | TSItem         | (missing)                 | [ ]       |
+  | TSItem         | TV::Dialogs::StrItem      | [x]       |
   +----------------+---------------------------+-----------+
 
 =head3 File/Directory Dialogs
@@ -311,9 +311,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 132
-  Implemented:                         48
+  Implemented:                         49
   Partial:                              7
-  Missing:                             77
+  Missing:                             76
 
 B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

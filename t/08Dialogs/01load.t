@@ -15,6 +15,7 @@ BEGIN {
   use_ok 'TV::Dialogs::ParamText';
   use_ok 'TV::Dialogs::Label';
   use_ok 'TV::Dialogs::InputLine';
+  use_ok 'TV::Dialogs::StrItem';
   use_ok 'TV::Dialogs::History::HistList';
 }
 
@@ -28,3 +29,4 @@ isa_ok( TLabel->new( bounds => TRect->new(), text => 'text', link => undef ),
   TLabel );
 isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10, 
   validator => undef ), TInputLine );
+isa_ok( TSItem->new( value => 'value',  next => undef ), TSItem );

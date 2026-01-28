@@ -16,6 +16,7 @@ use TV::Dialogs::InputLine;
 use TV::Dialogs::Label;
 use TV::Dialogs::ParamText;
 use TV::Dialogs::StaticText;
+use TV::Dialogs::StrItem;
 use TV::Dialogs::Util;
 
 sub import {
@@ -27,6 +28,7 @@ sub import {
   TV::Dialogs::Label->import::into( $target );
   TV::Dialogs::ParamText->import::into( $target );
   TV::Dialogs::StaticText->import::into( $target );
+  TV::Dialogs::StrItem->import::into( $target );
   TV::Dialogs::Util->import::into( $target, qw( /\S+/) );
 }
 
@@ -39,6 +41,7 @@ sub unimport {
   TV::Dialogs::Label->unimport::out_of( $caller );
   TV::Dialogs::ParamText->unimport::out_of( $caller );
   TV::Dialogs::StaticText->unimport::out_of( $caller );
+  TV::Dialogs::StrItem->unimport::out_of( $caller );
   TV::Dialogs::Util->unimport::out_of( $caller );
 }
 

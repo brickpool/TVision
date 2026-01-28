@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -17,5 +17,6 @@ isa_ok( new_TStaticText( TRect->new(), 'Text' ), TStaticText );
 isa_ok( new_TParamText( TRect->new() ), TParamText );
 isa_ok( new_TLabel( TRect->new(), 'text', undef ), TLabel );
 isa_ok( new_TInputLine( TRect->new(), 10 ), TInputLine );
+isa_ok( new_TSItem( 'text', undef ), TSItem );
 
 done_testing;
