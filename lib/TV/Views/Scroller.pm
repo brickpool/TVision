@@ -95,7 +95,7 @@ sub BUILD {    # void (|\%args)
   return;
 }
 
-sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar)
+sub from {    # $obj ($bounds, $aHScrollBar|undef, $aVScrollBar|undef)
   my $class = shift;
   assert ( $class and !ref $class );
   assert ( @_ == 3 );
@@ -231,9 +231,8 @@ sub setState {    # void ($aState, $enable)
   assert ( looks_like_number $aState );
   assert ( !defined $enable or !ref $enable );
   $self->SUPER::setState( $aState, $enable );
-  if ( ( $aState & ( sfActive | sfDragging ) ) != 0 ) {
-    $self->drawView();
-  }
+  $self->drawView()
+    if $aState & ( sfActive | sfDragging );
   return;
 } #/ sub setState
 
@@ -302,7 +301,43 @@ TV::Views::Scroller - Base class TScroller for scrolling text windows.
 Provides functionality for managing scroll bars, handling events, and updating 
 the view when scrolling occurs.
 
+=head1 CONSTRUCTOR
+
+=head2 new
+
+  my $scroller = TScroller->new(%args);
+
+Initializes internal attributes after object construction.  
+Sets default values for the fields L</delta>, L</limit>, I<options>, and 
+I<eventMask>.
+
+=over
+
+=item bounds
+
+The bounds of the scroller (I<TRect>).
+
+=item aHScrollBar
+
+Optional horizontal scroll bar of the scroller (I<TScrollBar> or undef).
+
+=item aVScrollBar
+
+Optional vertical scroll bar of the scroller (I<TScrollBar> or undef).
+
+=back
+
+=head2 new_TScroller
+
+  my $scroller = new_TScroller($bounds, $aHScrollBar | undef, 
+    $aVScrollBar | undef);
+
+Factory constructor for creating a new scroller object.
+
 =head1 ATTRIBUTES
+
+Most of the following attributes are implemented as read-only accessors and
+are also used internally by the class:
 
 =over
 
@@ -339,36 +374,6 @@ Defines the horizontal and vertical limits for scrolling.
 =back
 
 =head1 METHODS
-
-=head2 new
-
-  my $scroller = TScroller->new(%args);
-
-Initializes internal attributes after object construction.  
-Sets default values for the fields L</delta>, L</limit>, I<options>, and 
-I<eventMask>.
-
-=over
-
-=item bounds
-
-The bounds of the scroller (I<TRect>).
-
-=item aHScrollBar
-
-The horizontal scroll bar of the scroller (I<TScrollBar>).
-
-=item aVScrollBar
-
-The vertical scroll bar of the scroller (I<TScrollBar>).
-
-=back
-
-=head2 new_TScroller
-
-  my $scroller = new_TScroller($bounds, $aHScrollBar, $aVScrollBar);
-
-Factory constructor for creating a new scroller object.
 
 =head2 changeBounds
 

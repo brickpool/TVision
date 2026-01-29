@@ -126,7 +126,7 @@ Win32 Console Driver, implemented in C<TV::Drivers::HardwareInfo::Win32>.
   | TFrame         | TV::Views::Frame          | [x]       |
   | TScrollBar     | TV::Views::ScrollBar      | [x]       |
   | TScroller      | TV::Views::Scroller       | [x]       |
-  | TListViewer    | (missing)                 | [ ]       |
+  | TListViewer    | TV::Views::ListViewer     | [x]       |
   | TBackground    | TV::App::Background       | [x]       |
   +----------------+---------------------------+-----------+
 
@@ -312,9 +312,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 133
-  Implemented:                         54
+  Implemented:                         55
   Partial:                              7
-  Missing:                             72
+  Missing:                             71
 
 B<Notes>: Calculated from the full inventory of 133 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

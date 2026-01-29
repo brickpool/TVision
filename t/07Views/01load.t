@@ -22,6 +22,7 @@ BEGIN {
   use_ok 'TV::Views::Scroller';
   use_ok 'TV::Views::WindowInit';
   use_ok 'TV::Views::Window';
+  use_ok 'TV::Views::ListViewer';
 }
 
 isa_ok( TCommandSet->new(), TCommandSet );
@@ -32,7 +33,7 @@ isa_ok( TFrame->new( bounds => TRect->new() ), TFrame );
 isa_ok( TScrollBar->new( bounds => TRect->new() ), TScrollBar );
 isa_ok(
   TScroller->new(
-    bounds      => TRect->new(), 
+    bounds     => TRect->new(), 
     hScrollBar => TScrollBar->new( bounds => TRect->new() ), 
     vScrollBar => TScrollBar->new( bounds => TRect->new() ),
   ), TScroller
@@ -42,3 +43,5 @@ isa_ok(
   TWindow->new( bounds => TRect->new(), title => 'title', number => 1 ),
   TWindow
 );
+isa_ok( TListViewer->new( bounds => TRect->new(), numCols => 0, 
+  hScrollBar => undef, vScrollBar => undef ), TListViewer );

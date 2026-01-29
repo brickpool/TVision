@@ -16,6 +16,7 @@ use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Group;
 use TV::Views::Frame;
+use TV::Views::ListViewer;
 use TV::Views::ScrollBar;
 use TV::Views::WindowInit;
 use TV::Views::Window;
@@ -30,6 +31,7 @@ sub import {
   TV::Views::View->import::into( $target );
   TV::Views::Group->import::into( $target );
   TV::Views::Frame->import::into( $target );
+  TV::Views::ListViewer->import::into( $target );
   TV::Views::ScrollBar->import::into( $target );
   TV::Views::WindowInit->import::into( $target );
   TV::Views::Window->import::into( $target );
@@ -45,6 +47,7 @@ sub unimport {
   TV::Views::View->unimport::out_of( $caller );
   TV::Views::Group->unimport::out_of( $caller );
   TV::Views::Frame->unimport::out_of( $caller );
+  TV::Views::ListViewer->unimport::out_of( $caller );
   TV::Views::ScrollBar->unimport::out_of( $caller );
   TV::Views::WindowInit->unimport::out_of( $caller );
   TV::Views::Window->unimport::out_of( $caller );
