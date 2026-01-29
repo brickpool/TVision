@@ -20,6 +20,7 @@ BEGIN {
   use_ok 'TV::Dialogs::Cluster';
   use_ok 'TV::Dialogs::RadioButtons';
   use_ok 'TV::Dialogs::CheckBoxes';
+  use_ok 'TV::Dialogs::MultiCheckBoxes';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -38,3 +39,5 @@ isa_ok( TRadioButtons->new( bounds => TRect->new(), strings => undef ),
   TRadioButtons );
 isa_ok( TCheckBoxes->new( bounds => TRect->new(), strings => undef ), 
   TCheckBoxes );
+isa_ok( TMultiCheckBoxes->new( bounds => TRect->new(), strings => undef, 
+  selRange => 3, flags => 0x0203, states => '-+*' ), TMultiCheckBoxes );

@@ -25,6 +25,7 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
+  reftype
 );
 
 use TV::Dialogs::Const qw( cpCluster );
@@ -95,7 +96,7 @@ sub BUILDARGS {    # \%args (%args)
     sel        => { default => 0,           no_override => 1 },
     strings    => { 
       required => 1, 
-      allow => sub { !defined $_[0] or blessed $_[0] }
+      allow => sub { !defined $_[0] or reftype $_[0] eq 'HASH' }
     },
   } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
@@ -738,4 +739,3 @@ This software is licensed under the MIT license (see the LICENSE file, which is
 part of the distribution). 
 
 =cut
-

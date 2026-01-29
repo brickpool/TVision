@@ -16,6 +16,7 @@ use TV::Dialogs::Cluster;
 use TV::Dialogs::Dialog;
 use TV::Dialogs::InputLine;
 use TV::Dialogs::Label;
+use TV::Dialogs::MultiCheckBoxes;
 use TV::Dialogs::ParamText;
 use TV::Dialogs::StaticText;
 use TV::Dialogs::StrItem;
@@ -33,6 +34,7 @@ sub import {
   TV::Dialogs::Dialog->import::into( $target );
   TV::Dialogs::InputLine->import::into( $target );
   TV::Dialogs::Label->import::into( $target );
+  TV::Dialogs::MultiCheckBoxes->import::into( $target );
   TV::Dialogs::ParamText->import::into( $target );
   TV::Dialogs::RadioButtons->import::into( $target );
   TV::Dialogs::StaticText->import::into( $target );
@@ -50,6 +52,7 @@ sub unimport {
   TV::Dialogs::Dialog->unimport::out_of( $caller );
   TV::Dialogs::InputLine->unimport::out_of( $caller );
   TV::Dialogs::Label->unimport::out_of( $caller );
+  TV::Dialogs::MultiCheckBoxes->unimport::out_of( $caller );
   TV::Dialogs::ParamText->unimport::out_of( $caller );
   TV::Dialogs::RadioButtons->unimport::out_of( $caller );
   TV::Dialogs::StaticText->unimport::out_of( $caller );

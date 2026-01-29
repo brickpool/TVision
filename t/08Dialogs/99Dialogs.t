@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -22,5 +22,7 @@ isa_ok( new_TSItem( 'text', undef ), TSItem );
 isa_ok( new_TCluster( TRect->new(), undef ), TCluster );
 isa_ok( new_TRadioButtons( TRect->new(), undef ), TRadioButtons );
 isa_ok( new_TCheckBoxes( TRect->new(), undef ), TCheckBoxes );
+isa_ok( new_TMultiCheckBoxes( TRect->new(), undef, 3, 0x0203, '-+*' ), 
+  TMultiCheckBoxes );
 
 done_testing;
