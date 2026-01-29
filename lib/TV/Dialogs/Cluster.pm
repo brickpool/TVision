@@ -608,6 +608,20 @@ Collection containing the text labels of all cluster items (I<TSItem>).
 
 Creates a new cluster with given bounds and item list.
 
+=over
+
+=item bounds
+
+Defines the screen rectangle (I<TRect>) specifying the position and size of the 
+cluster control.
+
+=item strings
+
+Provides the linked list of item descriptors (I<TSItem>) that are consumed and 
+converted into an internal string collection.
+
+=back
+
 =head2 new_TCluster
 
  my $cluster = new_TCluster($bounds, $aStrings | undef);
