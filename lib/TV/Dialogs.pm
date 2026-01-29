@@ -18,6 +18,7 @@ use TV::Dialogs::Label;
 use TV::Dialogs::ParamText;
 use TV::Dialogs::StaticText;
 use TV::Dialogs::StrItem;
+use TV::Dialogs::RadioButtons;
 use TV::Dialogs::Util;
 use TV::Dialogs::History::HistList;
 
@@ -31,6 +32,7 @@ sub import {
   TV::Dialogs::InputLine->import::into( $target );
   TV::Dialogs::Label->import::into( $target );
   TV::Dialogs::ParamText->import::into( $target );
+  TV::Dialogs::RadioButtons->import::into( $target );
   TV::Dialogs::StaticText->import::into( $target );
   TV::Dialogs::StrItem->import::into( $target );
   TV::Dialogs::Util->import::into( $target, qw( /\S+/) );
@@ -46,6 +48,7 @@ sub unimport {
   TV::Dialogs::InputLine->unimport::out_of( $caller );
   TV::Dialogs::Label->unimport::out_of( $caller );
   TV::Dialogs::ParamText->unimport::out_of( $caller );
+  TV::Dialogs::RadioButtons->unimport::out_of( $caller );
   TV::Dialogs::StaticText->unimport::out_of( $caller );
   TV::Dialogs::StrItem->unimport::out_of( $caller );
   TV::Dialogs::Util->unimport::out_of( $caller );

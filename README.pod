@@ -146,12 +146,13 @@ Hierarchical screen write system, implemented in C<TV::Views::View::Write>.
 
 Buttons and Clusters
 
-  +----------------+---------------------------+-----------+
-  | TButton        | TV::Dialogs::Button       | [x]       |
-  | TCluster       | TV::Dialogs::Cluster      | [x]       |
-  | TRadioButtons  | (missing)                 | [ ]       |
-  | TCheckBoxes    | (missing)                 | [ ]       |
-  +----------------+---------------------------+-----------+
+  +------------------+------------------------------+-----------+
+  | TButton          | TV::Dialogs::Button          | [x]       |
+  | TCluster         | TV::Dialogs::Cluster         | [x]       |
+  | TRadioButtons    | TV::Dialogs::RadioButtons    | [x]       |
+  | TCheckBoxes      | (missing)                    | [ ]       |
+  | TMultiCheckBoxes | (missing)                    | [ ]       |
+  +------------------+------------------------------+-----------+
 
 Input and Text
 
@@ -310,12 +311,12 @@ The remaining work is concentrated in:
 
 Summary
 
-  Total Borland classes/items tracked: 132
-  Implemented:                         51
+  Total Borland classes/items tracked: 133
+  Implemented:                         52
   Partial:                              7
   Missing:                             74
 
-B<Notes>: Calculated from the full inventory of 132 Turbo Vision classes, 
+B<Notes>: Calculated from the full inventory of 133 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
 
 =head3 Porting notes

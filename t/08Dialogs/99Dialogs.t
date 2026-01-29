@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -20,5 +20,6 @@ isa_ok( new_TLabel( TRect->new(), 'text', undef ), TLabel );
 isa_ok( new_TInputLine( TRect->new(), 10 ), TInputLine );
 isa_ok( new_TSItem( 'text', undef ), TSItem );
 isa_ok( new_TCluster( TRect->new(), undef ), TCluster );
+isa_ok( new_TRadioButtons( TRect->new(), undef ), TRadioButtons );
 
 done_testing;

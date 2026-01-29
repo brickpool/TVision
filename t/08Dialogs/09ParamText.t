@@ -44,12 +44,12 @@ subtest 'setText with simple string' => sub {
 
 # Test case for setText with format string
 subtest 'setText with format string' => sub {
-  lives_ok { $param_text->setText( 'Value=%d, Name=%s', 42, 'Jan' ) } 
+  lives_ok { $param_text->setText( 'Value=%d, Name=%s', 42, 'John' ) } 
     'setText with format string executed without error';
 
   my $text = '';
   $param_text->getText( $text );
-  my $expected = 'Value=42, Name=Jan';
+  my $expected = 'Value=42, Name=John';
   is( $text, $expected, 'Formatted text stored correctly' );
   my $len = $param_text->getTextLen();
   is( $len, length( $expected ), 'Length of formatted text is correct' );

@@ -18,6 +18,7 @@ BEGIN {
   use_ok 'TV::Dialogs::InputLine';
   use_ok 'TV::Dialogs::StrItem';
   use_ok 'TV::Dialogs::Cluster';
+  use_ok 'TV::Dialogs::RadioButtons';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -32,3 +33,5 @@ isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10,
   validator => undef ), TInputLine );
 isa_ok( TSItem->new( value => 'value',  next => undef ), TSItem );
 isa_ok( TCluster->new( bounds => TRect->new(), strings => undef ), TCluster );
+isa_ok( TRadioButtons->new( bounds => TRect->new(), strings => undef ), 
+  TRadioButtons );
