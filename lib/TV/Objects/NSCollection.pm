@@ -315,6 +315,13 @@ sub setLimit {    # void ($aLimit)
   return;
 } #/ sub setLimit
 
+sub getCount {    # $count ()
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( blessed $self );
+  return $self->{count};
+};
+
 $freeItem = sub {
   my ( $self, $item ) = @_;
   my $id = id($item) || 0;
