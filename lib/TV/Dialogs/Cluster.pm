@@ -307,7 +307,7 @@ sub handleEvent {    # void ($event)
         if ( $self->{state} & sfFocused ) {
           my $i = 0;
           do {
-            $i++; $s--;
+            $i++; $s++;
             $s = 0 if $s >= $self->{strings}->getCount();
           } while ( !$self->buttonState( $s ) 
                   || $i > $self->{strings}->getCount() );
@@ -363,7 +363,7 @@ sub handleEvent {    # void ($event)
 
       DEFAULT: {
         for ( my $i = 0 ; $i < $self->{strings}->getCount() ; $i++ ) {
-          my $c = hotKey( $self->{strings}[$i] );
+          my $c = hotKey( $self->{strings}->at($i) );
           if (
             getAltCode( $c ) == $event->{keyDown}{keyCode} ||
             ( ( $self->{owner}{phase} == phPostProcess || 
