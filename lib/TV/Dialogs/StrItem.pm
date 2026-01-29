@@ -28,8 +28,8 @@ sub new_TSItem { __PACKAGE__->from(@_) }
 # declare attributes
 our %HAS; BEGIN {
   %HAS = (
-    value => sub { die 'required' },
-    next  => sub { die 'required' },
+    value => sub { '' },
+    next  => sub { undef },
   );
 }
 
@@ -38,8 +38,8 @@ sub new {    # \$item (%args)
   assert ( $class and !ref $class );
   assert ( keys( %args ) % 2 == 0 );
   my $self = {
-    value => '' . $args{value} || $HAS{value}->(),
-    next  => exists( $args{next} ) ? $args{next} : $HAS{next}->(),
+    value => $args{value} || $HAS{value}->(),
+    next  => $args{next}  || $HAS{next}->(),
   };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
@@ -53,21 +53,21 @@ sub from {    # $item ($aValue, $aNext|undef)
   return $class->new( value => $_[0], next => $_[1] );
 }
 
-my $mk_accessors = sub {
+my $mk_ro_accessors = sub {
   my $pkg = shift;
   no strict 'refs';
   my %HAS = %{"${pkg}::HAS"};
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
+      assert ( @_ == 1 );
       assert ( blessed $_[0] );
-      $_[0]->{$field} = $_[1] if @_ > 1;
       $_[0]->{$field};
     };
   } #/ for my $field ( keys %HAS)
-}; #/ $mk_accessors = sub
+}; #/ $mk_ro_accessors = sub
 
-__PACKAGE__->$mk_accessors();
+__PACKAGE__->$mk_ro_accessors();
 
 1;
 

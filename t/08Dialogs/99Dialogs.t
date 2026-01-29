@@ -3,13 +3,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 12;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Dialogs';
 }
 
+ok( eval { clearHistory(); !$@ }, 'HisList successfully imported' );
 is( hotKey('~K~ey'), 'K', 'Util successfully imported' );
 isa_ok( new_TDialog( TRect->new(), '' ), TDialog );
 isa_ok( new_TButton( TRect->new(), 'Title', 0, 0 ), TButton );
@@ -18,5 +19,6 @@ isa_ok( new_TParamText( TRect->new() ), TParamText );
 isa_ok( new_TLabel( TRect->new(), 'text', undef ), TLabel );
 isa_ok( new_TInputLine( TRect->new(), 10 ), TInputLine );
 isa_ok( new_TSItem( 'text', undef ), TSItem );
+isa_ok( new_TCluster( TRect->new(), undef ), TCluster );
 
 done_testing;

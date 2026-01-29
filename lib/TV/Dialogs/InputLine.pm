@@ -240,7 +240,7 @@ sub handleEvent {    # void ($event)
             $self->{firstPos} += $delta;
             $self->drawView();
           }
-        } while mouseEvent( $event, evMouseAuto );
+        } while $self->mouseEvent( $event, evMouseAuto );
       } #/ if ( $self->$canScroll(...))
       elsif ( $event->{mouse}{eventFlags} & meDoubleClick ) {
         $self->selectAll( 1 );
@@ -257,7 +257,7 @@ sub handleEvent {    # void ($event)
           $self->{curPos} = $self->$mousePos( $event );
           $self->$adjustSelectBlock();
           $self->drawView();
-        } while mouseEvent( $event, evMouseMove | evMouseAuto );
+        } while $self->mouseEvent( $event, evMouseMove | evMouseAuto );
       } #/ else [ if ( $self->$canScroll(...))]
       clearEvent( $event );
       last;

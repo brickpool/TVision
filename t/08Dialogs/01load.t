@@ -9,6 +9,7 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Dialogs::Const', qw( bfDefault ); 
   use_ok 'TV::Dialogs::Util', qw( hotKey );
+  use_ok 'TV::Dialogs::History::HistList';
   use_ok 'TV::Dialogs::Dialog';
   use_ok 'TV::Dialogs::Button';
   use_ok 'TV::Dialogs::StaticText';
@@ -16,7 +17,7 @@ BEGIN {
   use_ok 'TV::Dialogs::Label';
   use_ok 'TV::Dialogs::InputLine';
   use_ok 'TV::Dialogs::StrItem';
-  use_ok 'TV::Dialogs::History::HistList';
+  use_ok 'TV::Dialogs::Cluster';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -30,3 +31,4 @@ isa_ok( TLabel->new( bounds => TRect->new(), text => 'text', link => undef ),
 isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10, 
   validator => undef ), TInputLine );
 isa_ok( TSItem->new( value => 'value',  next => undef ), TSItem );
+isa_ok( TCluster->new( bounds => TRect->new(), strings => undef ), TCluster );
