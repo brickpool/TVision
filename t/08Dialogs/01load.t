@@ -19,6 +19,7 @@ BEGIN {
   use_ok 'TV::Dialogs::StrItem';
   use_ok 'TV::Dialogs::Cluster';
   use_ok 'TV::Dialogs::RadioButtons';
+  use_ok 'TV::Dialogs::CheckBoxes';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -35,3 +36,5 @@ isa_ok( TSItem->new( value => 'value',  next => undef ), TSItem );
 isa_ok( TCluster->new( bounds => TRect->new(), strings => undef ), TCluster );
 isa_ok( TRadioButtons->new( bounds => TRect->new(), strings => undef ), 
   TRadioButtons );
+isa_ok( TCheckBoxes->new( bounds => TRect->new(), strings => undef ), 
+  TCheckBoxes );

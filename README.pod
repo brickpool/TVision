@@ -150,7 +150,7 @@ Buttons and Clusters
   | TButton          | TV::Dialogs::Button          | [x]       |
   | TCluster         | TV::Dialogs::Cluster         | [x]       |
   | TRadioButtons    | TV::Dialogs::RadioButtons    | [x]       |
-  | TCheckBoxes      | (missing)                    | [ ]       |
+  | TCheckBoxes      | TV::Dialogs::CheckBoxes      | [x]       |
   | TMultiCheckBoxes | (missing)                    | [ ]       |
   +------------------+------------------------------+-----------+
 
@@ -312,9 +312,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 133
-  Implemented:                         52
+  Implemented:                         53
   Partial:                              7
-  Missing:                             74
+  Missing:                             73
 
 B<Notes>: Calculated from the full inventory of 133 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
