@@ -26,7 +26,6 @@ use Scalar::Util qw(
   blessed 
   weaken
   looks_like_number
-  readonly
 );
 
 use TV::Const qw( INT_MAX );
