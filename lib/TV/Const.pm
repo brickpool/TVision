@@ -32,7 +32,7 @@ use constant {
 };
 
 use constant {
-  EOS => "\0",
+  EOS => q{},
 };
 
 use constant {

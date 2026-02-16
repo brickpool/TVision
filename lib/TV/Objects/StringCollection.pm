@@ -34,7 +34,7 @@ sub compare {    # $cmp ($key1, $key2)
   assert ( blessed $self );
   assert ( defined $key1 and !ref $key1 );
   assert ( defined $key2 and !ref $key2 );
-  return "$key1" <=> "$key2";
+  return "$key1" cmp "$key2";
 }
 
 1

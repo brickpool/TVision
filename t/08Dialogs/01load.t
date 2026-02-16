@@ -21,6 +21,7 @@ BEGIN {
   use_ok 'TV::Dialogs::RadioButtons';
   use_ok 'TV::Dialogs::CheckBoxes';
   use_ok 'TV::Dialogs::MultiCheckBoxes';
+  use_ok 'TV::Dialogs::ListBox';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -41,3 +42,5 @@ isa_ok( TCheckBoxes->new( bounds => TRect->new(), strings => undef ),
   TCheckBoxes );
 isa_ok( TMultiCheckBoxes->new( bounds => TRect->new(), strings => undef, 
   selRange => 3, flags => 0x0203, states => '-+*' ), TMultiCheckBoxes );
+isa_ok( TListBox->new( bounds => TRect->new(), numCols => 0, 
+  vScrollBar => undef ), TListBox );

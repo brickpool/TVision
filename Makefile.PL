@@ -20,6 +20,7 @@ WriteMakefile(
     'base'                  => 0,
     'Carp'                  => 1.01,
     'Class::LOP'            => 0.003,
+    'Class::Struct'         => 0,
     'Devel::Assert'         => 1.06,
     'Devel::StrictMode'     => 0.003,
     'Encode'                => 0,
