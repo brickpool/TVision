@@ -27,6 +27,7 @@ use Scalar::Util qw(
   blessed
   weaken
 );
+use Symbol ();
 
 use TV::Drivers::Const qw( :evXXXX );
 use TV::Gadgets::Const qw( cmFndEventView );
