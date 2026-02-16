@@ -58,6 +58,7 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
+use TV::Views::Util qw( message );
 use TV::toolkit;
 
 sub TListViewer() { __PACKAGE__ }
@@ -302,7 +303,7 @@ sub getText {    # void ($dest, $item, $width)
   assert ( looks_like_number $width );
   $dest = EOS;
   return;
-  }
+  } #/ alias: for my $dest ( $_[1] )
 }
 
 sub isSelected {    # $bool ($item)
@@ -341,7 +342,7 @@ sub handleEvent {    # void ($event)
       $newItem = $oldItem;
     }
     $count = 0;
-    do {
+    DO: { do {
       if ( $newItem != $oldItem ) {
         $self->focusItemNum( $newItem );
         $self->drawView();
@@ -392,10 +393,10 @@ sub handleEvent {    # void ($event)
           } #/ if ( $count == $mouseAutosToSkip)
         } #/ else [ if ( $self->{numCols} ...)]
       } #/ else [ if ( $self->mouseInView...)]
-      last 
+      last DO
         if $event->{mouse}{eventFlags} & meDoubleClick;
 
-    } while $self->mouseEvent( $event, evMouseMove | evMouseAuto );
+    } while ( $self->mouseEvent( $event, evMouseMove | evMouseAuto ) ) }
     $self->focusItemNum( $newItem );
     $self->drawView;
     if ( ( $event->{mouse}{eventFlags} & meDoubleClick )
