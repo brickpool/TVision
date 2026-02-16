@@ -18,7 +18,7 @@ WriteMakefile(
   PREREQ_PM => {
     'autodie::Scope::Guard' => 0,
     'base'                  => 0,
-    'Carp'                  => 0,
+    'Carp'                  => 1.01,
     'Class::LOP'            => 0.003,
     'Devel::Assert'         => 1.06,
     'Devel::StrictMode'     => 0.003,

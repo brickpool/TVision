@@ -19,8 +19,8 @@ BEGIN {
   package Point;
   use parent 'UNIVERSAL::Object';
   use slots::less (
-    x => sub { 0 },
-    y => sub { 0 },
+    x => ( default => sub { 0 } ),
+    y => ( default => sub { 0 } ),
   );
   $INC{"Point.pm"} = 1;
 }
@@ -29,15 +29,15 @@ BEGIN {
   package Point3D;
   use parent 'Point';
   use slots::less (
-    z => sub { 0 },
+    z => ( default => sub { 0 } ),
   );
   $INC{"Point3D.pm"} = 1;
 }
 
 BEGIN {
   package Derived;
-  use parent 'Point';
   use slots::less;
+  use parent 'Point';
   $INC{"Derived.pm"} = 1;
 }
 
