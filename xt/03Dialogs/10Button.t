@@ -159,7 +159,7 @@ BEGIN {
 
 use_ok 'TMyApp';
 SKIP: {
-  skip 'Manual test not enabled', 2 unless ManualTestsEnabled();
+  skip 'Manual test not enabled', 3 unless ManualTestsEnabled();
   my $myApp;
   lives_ok { $myApp = new_ok( 'TMyApp' ) or die } 'init';
   lives_ok { $myApp->run()                      } 'run';

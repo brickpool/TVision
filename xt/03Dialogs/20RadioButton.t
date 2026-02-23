@@ -126,7 +126,7 @@ BEGIN {
     my $dlg = new_TDialog( $r, 'Parameter' );
     WITH: for ( $dlg ) {
       # CheckBoxes
-		  $r->assign( 2, 3, 18, 7 );
+      $r->assign( 2, 3, 18, 7 );
       my $view = new_TCheckBoxes($r,
         new_TSItem('~F~ile',
         new_TSItem('~L~ine',
@@ -137,7 +137,7 @@ BEGIN {
       $_->insert( $view );
 
       # RadioButtons
-		  $r->assign( 21, 3, 33, 6 );
+      $r->assign( 21, 3, 33, 6 );
       $view = new_TRadioButtons($r,
         new_TSItem('~B~ig',
         new_TSItem('~M~ediun',
@@ -164,7 +164,7 @@ BEGIN {
 
 use_ok 'TMyApp';
 SKIP: {
-  skip 'Manual test not enabled', 2 unless ManualTestsEnabled();
+  skip 'Manual test not enabled', 3 unless ManualTestsEnabled();
   my $myApp;
   lives_ok { $myApp = new_ok( 'TMyApp' ) or die } 'init';
   lives_ok { $myApp->run()                      } 'run';

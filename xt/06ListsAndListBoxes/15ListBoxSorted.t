@@ -105,12 +105,6 @@ BEGIN {
   } #/ sub BUILD
 
   my $getFocusedItem = sub {
-    use Class::Struct(
-      TListBoxRec => [
-        items     => '$',
-        selection => '$',
-      ]
-    );
     my $data = TListBoxRec->new();
     shift->getData( $data );
     return $data->items->at( $data->selection );
@@ -128,7 +122,7 @@ BEGIN {
         cmDay == $_ and do {
           # Read entry with focus
           # ... and output
-			    messageBox( mfOKButton, "Day of week: %s chosen", 
+          messageBox( mfOKButton, "Day of week: %s chosen", 
             $self->{listBox}->$getFocusedItem() );
           # End event
           $self->clearEvent( $event );
@@ -239,7 +233,7 @@ BEGIN {
 
 use_ok 'TMyApp';
 SKIP: {
-  skip 'Manual test not enabled', 2 unless ManualTestsEnabled();
+  skip 'Manual test not enabled', 3 unless ManualTestsEnabled();
   my $myApp;
   lives_ok { $myApp = new_ok( 'TMyApp' ) or die } 'init';
   lives_ok { $myApp->run()                      } 'run';

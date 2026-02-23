@@ -101,10 +101,11 @@ subtest 'getData' => sub {
   # focus 2nd item
   $listbox->focusItem( 1 );
 
-  my @rec;
-  lives_ok { $listbox->getData( \@rec ) } 'getData executed';
-  my ( $items, $selection ) = @rec;
+  my $data = TListBoxRec->new();
+  lives_ok { $listbox->getData( $data ) } 'getData executed';
+  isa_ok( $data, 'TListBoxRec' );
 
+  my ( $items, $selection ) = @$data;
   isa_ok( $items, TCollection, 'record[0] is a TCollection' );
   ok( defined $selection, 'record[1] selection index is defined' );
   is( $selection, 1, 'selection index matches focused item' );

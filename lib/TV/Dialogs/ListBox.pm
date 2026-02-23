@@ -1,5 +1,5 @@
 package TV::Dialogs::ListBox;
-# ABSTRACT: 
+# ABSTRACT: Provides a list box dialog with selection handling
 
 use strict;
 use warnings;
@@ -16,6 +16,7 @@ our @EXPORT = qw(
 );
 
 use Carp ();
+use Class::Struct;
 use Devel::StrictMode;
 use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw(
@@ -25,9 +26,14 @@ use Scalar::Util qw(
 );
 
 use TV::Const qw( EOS );
-use TV::Objects::Collection;
+use TV::Objects::NSCollection;
 use TV::Views::ListViewer;
 use TV::toolkit;
+
+struct TListBoxRec => [
+  items     => TNSCollection,
+  selection => '$',
+];
 
 sub TListBox() { __PACKAGE__ }
 sub name() { 'TListBox' }
@@ -65,11 +71,12 @@ sub list {    # $collection ()
   return $self->{items};
 }
 
+my $size = @{ TListBoxRec->new() };
 sub dataSize {    # $size ()
   my ( $self ) = @_;
   assert ( @_ == 1 );
   assert ( blessed $self );
-  return 2;
+  return $size;
 }
 
 sub getData {    # void (\@rec)
@@ -77,8 +84,11 @@ sub getData {    # void (\@rec)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $rec );
-  $rec->[0] = $self->{items};
-  $rec->[1] = $self->{focused};
+  my $p = TListBoxRec->new(
+    items     => $self->{items},
+    selection => $self->{focused},
+  );
+  @$rec[ 0 .. $#$p ] = @$p;
   return;
 } #/ sub getData
 
@@ -127,8 +137,10 @@ sub setData {    # void (\@rec)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $rec );
-  $self->newList( $rec->[0] );
-  $self->focusItem( $rec->[1] );
+  my $p = TListBoxRec->new();
+  @$p = @$rec[ 0 .. $#$p ];
+  $self->newList( $p->items );
+  $self->focusItem( $p->selection );
   $self->drawView();
   return;
 } #/ sub setData

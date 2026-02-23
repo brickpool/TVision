@@ -167,7 +167,8 @@ Input and Text
 Lists and History
 
   +----------------+---------------------------+-----------+
-  | TListBox       | (missing)                 | [ ]       |
+  | TListBox       | TV::Dialogs::ListBox      | [x]       |
+  | TListBoxRec    | TV::Dialogs::ListBox      | [x]       |
   | TSortedListBox | (missing)                 | [ ]       |
   | THistory       | (missing)                 | [ ]       |
   | THistoryViewer | (missing)                 | [ ]       |
@@ -311,10 +312,10 @@ The remaining work is concentrated in:
 
 Summary
 
-  Total Borland classes/items tracked: 133
-  Implemented:                         55
+  Total Borland classes/items tracked: 134
+  Implemented:                         57
   Partial:                              7
-  Missing:                             71
+  Missing:                             70
 
 B<Notes>: Calculated from the full inventory of 133 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

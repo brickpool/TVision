@@ -104,7 +104,7 @@ sub multiMark {    # $int ($item)
   assert ( looks_like_number $item );
   return ( 
     $self->{value} &
-		( ( $self->{flags} & 0xff ) << ( $item * ( $self->{flags} >> 8 ) ) ) 
+    ( ( $self->{flags} & 0xff ) << ( $item * ( $self->{flags} >> 8 ) ) ) 
   ) >> ( $item * ( $self->{flags} >> 8 ) );
 }
 
