@@ -258,7 +258,7 @@ Lists and History
   | TCalcDisplay    | (missing)                | [ ]       |
   | TCalendarView   | (missing)                | [ ]       |
   | TClickTester    | (missing)                | [ ]       |
-  | TClockView      | (missing)                | [ ]       |
+  | TClockView      | TV::Gadgets::ClockView   | [x]       |
   | TEventViewer    | TV::Gadgets::EventViewer | [x]       |
   | THeapView       | TV::Gadgets::HeapView    | [x]       |
   | TLineCollection | (missing)                | [ ]       |
@@ -316,9 +316,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 134
-  Implemented:                         59
+  Implemented:                         60
   Partial:                              7
-  Missing:                             68
+  Missing:                             67
 
 B<Notes>: Calculated from the full inventory of ~130 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

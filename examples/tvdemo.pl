@@ -44,8 +44,8 @@ sub BUILD {
   my $r = $self->getExtent();    # Create the clock view.
   $r->{a}{x}    = $r->{b}{x} - 9;
   $r->{b}{y}    = $r->{a}{y} + 1;
-  # $self->{clock} = new_TClockView( $r );
-  # $self->insert( $self->{clock} );
+  $self->{clock} = new_TClockView( $r );
+  $self->insert( $self->{clock} );
 
   $r = $self->getExtent();    # Create the heap view.
   $r->{a}{x}    = $r->{b}{x} - 13;
@@ -143,6 +143,7 @@ sub initStatusLine {
 sub idle {
   my $self = shift;
   $self->SUPER::idle();
+  $self->{clock}->update();
   $self->{heap}->update();
   return;
 }
