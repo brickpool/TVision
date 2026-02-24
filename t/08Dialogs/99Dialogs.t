@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -25,5 +25,6 @@ isa_ok( new_TCheckBoxes( TRect->new(), undef ), TCheckBoxes );
 isa_ok( new_TMultiCheckBoxes( TRect->new(), undef, 3, 0x0203, '-+*' ), 
   TMultiCheckBoxes );
 isa_ok( new_TListBox( TRect->new(), 0, undef ), TListBox );
+isa_ok( new_THistInit( sub { } ), THistInit() );
 
 done_testing;

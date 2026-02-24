@@ -170,10 +170,11 @@ Lists and History
   | TListBox       | TV::Dialogs::ListBox           | [x]       |
   | TListBoxRec    | TV::Dialogs::ListBox           | [x]       |
   | TSortedListBox | (missing)                      | [ ]       |
-  | THistory       | (missing)                      | [ ]       |
   | HistRec        | TV::Dialogs::History::HistList | [x]       |
+  | THistInit      | TV::Dialogs::HistInit          | [x]       |
   | THistoryViewer | (missing)                      | [ ]       |
   | THistoryWindow | (missing)                      | [ ]       |
+  | THistory       | (missing)                      | [ ]       |
   +----------------+--------------------------------+-----------+
 
 =head3 File/Directory Dialogs
@@ -315,8 +316,8 @@ The remaining work is concentrated in:
 
 Summary
 
-  Total Borland classes/items tracked: 134
-  Implemented:                         60
+  Total Borland classes/items tracked: 135
+  Implemented:                         61
   Partial:                              7
   Missing:                             67
 
