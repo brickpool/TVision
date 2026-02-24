@@ -166,15 +166,15 @@ Input and Text
 
 Lists and History
 
-  +----------------+---------------------------+-----------+
-  | TListBox       | TV::Dialogs::ListBox      | [x]       |
-  | TListBoxRec    | TV::Dialogs::ListBox      | [x]       |
-  | TSortedListBox | (missing)                 | [ ]       |
-  | THistory       | (missing)                 | [ ]       |
-  | THistoryViewer | (missing)                 | [ ]       |
-  | THistoryWindow | (missing)                 | [ ]       |
-  | THistoryList   | (missing)                 | [ ]       |
-  +----------------+---------------------------+-----------+
+  +----------------+--------------------------------+-----------+
+  | TListBox       | TV::Dialogs::ListBox           | [x]       |
+  | TListBoxRec    | TV::Dialogs::ListBox           | [x]       |
+  | TSortedListBox | (missing)                      | [ ]       |
+  | THistory       | (missing)                      | [ ]       |
+  | HistRec        | TV::Dialogs::History::HistList | [x]       |
+  | THistoryViewer | (missing)                      | [ ]       |
+  | THistoryWindow | (missing)                      | [ ]       |
+  +----------------+--------------------------------+-----------+
 
 =head3 File/Directory Dialogs
 
@@ -259,15 +259,18 @@ Lists and History
   | TCalendarView   | (missing)                | [ ]       |
   | TClickTester    | (missing)                | [ ]       |
   | TClockView      | (missing)                | [ ]       |
-  | TEventViewer    | (missing)                | [x]       |
-  | THeapView       | (missing)                | [ ]       |
+  | TEventViewer    | TV::Gadgets::EventViewer | [x]       |
+  | THeapView       | TV::Gadgets::HeapView    | [x]       |
   | TLineCollection | (missing)                | [ ]       |
   | TPuzzleView     | (missing)                | [ ]       |
   +-----------------+--------------------------+-----------+
 
+C<THeapView::heapSize()> for Win32 is implemented in 
+C<TV::Gadgets::HeapView::Win32>.
+
 =head3 Interpretation
 
-These following areas represent the bulk of Turbo Vision's higher‑level UI 
+These following areas represent the bulk of Turbo Vision's higher-level UI 
 framework. 
 
 The project has completed the foundational subsystems:
@@ -313,11 +316,11 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 134
-  Implemented:                         57
+  Implemented:                         59
   Partial:                              7
-  Missing:                             70
+  Missing:                             68
 
-B<Notes>: Calculated from the full inventory of 133 Turbo Vision classes, 
+B<Notes>: Calculated from the full inventory of ~130 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
 
 =head3 Porting notes

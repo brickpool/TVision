@@ -26,6 +26,9 @@ use constant {
   hcSAbout => 8,
 };
 
+has heap  => ( is => 'bare' );    # Heap view
+has clock => ( is => 'bare' );    # Clock view
+
 sub BUILDARGS {
   return {
     %{ shift->SUPER::BUILDARGS() },
@@ -33,6 +36,24 @@ sub BUILDARGS {
     argv   => $_{argv} || [],
     bounds => new_TRect( 0, 0, 80, 25 ),
   };
+}
+
+sub BUILD {
+  my $self = shift;
+
+  my $r = $self->getExtent();    # Create the clock view.
+  $r->{a}{x}    = $r->{b}{x} - 9;
+  $r->{b}{y}    = $r->{a}{y} + 1;
+  # $self->{clock} = new_TClockView( $r );
+  # $self->insert( $self->{clock} );
+
+  $r = $self->getExtent();    # Create the heap view.
+  $r->{a}{x}    = $r->{b}{x} - 13;
+  $r->{a}{y}    = $r->{b}{y} - 1;
+  $self->{heap} = new_THeapView( $r );
+  $self->insert( $self->{heap} );
+
+  return;
 }
 
 #
@@ -113,6 +134,17 @@ sub initStatusLine {
     new_TStatusDef( 0, 50 ) +
       new_TStatusItem( "Howdy", kbF1,  cmHelp )
   );
+}
+
+#
+# idle() function ( updates heap and clock views for this program. )
+#
+
+sub idle {
+  my $self = shift;
+  $self->SUPER::idle();
+  $self->{heap}->update();
+  return;
 }
 
 #

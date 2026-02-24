@@ -4,7 +4,7 @@ package PerlX::Assert::PP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use B;
@@ -27,7 +27,7 @@ use constant STRICT => !!grep { exists $ENV{$_} && $ENV{$_} } qw(
 
 use constant DEBUG => do {
   no warnings 'uninitialized';
-  0+ exists $ENV{PERLX_ASSERT_PP_DEBUG} ? $ENV{PERLX_ASSERT_PP_DEBUG} : 0;
+  0+( exists $ENV{PERLX_ASSERT_PP_DEBUG} ? $ENV{PERLX_ASSERT_PP_DEBUG} : 0 );
 };
 
 use constant {
@@ -51,7 +51,7 @@ sub import {
 
   # export our functions
   no strict 'refs';
-  for ( @EXPORT ) {
+  foreach ( @EXPORT ) {
     *{"${caller}::$_"} = \&$_
       unless *{"${caller}::$_"}{CODE};
   }
@@ -62,8 +62,10 @@ sub unimport {
   my $caller = caller();
 
   no strict 'refs';
-  undef( *{"${caller}::assert"} )
-    if *{"${caller}::assert"}{CODE};
+  foreach ( @EXPORT ) {
+    undef( *{"${caller}::$_"} )
+      if *{"${caller}::$_"}{CODE};
+  }
 }
 
 # -------------------------------------------------------------------------
@@ -202,8 +204,8 @@ sub mask_strings_and_comments {
 # contains a modified source code where strings and comments have been 
 # masked to prevent their content from being parsed.
 #
-# Returns a list of HASH_REF's:
-#   { start => INT, length => INT, name => STR|undef, block => STR }
+# Returns a list of HashRef's:
+#   { start => Int, length => Int, name => Str|undef, block => Str }
 # -------------------------------------------------------------------------
 
 sub parse_asserts {
@@ -405,7 +407,7 @@ rewrites:
 
   assert "name" { BLOCK };
 
-into the form required by the C<(&;$)> prototype:
+into the form required by the C<($;$)> prototype:
 
   assert "name", do { BLOCK };
 
