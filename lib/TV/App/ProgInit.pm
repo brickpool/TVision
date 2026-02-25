@@ -79,7 +79,8 @@ sub createStatusLine {    # $statusLine ($r)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
-  return $self->{createStatusLine}->( bounds => $r );
+  my ( $class, $code ) = ( ref $self, $self->{createStatusLine} );
+  return $class->$code( $r );
 }
 
 sub createMenuBar {    # $menuBar ($r)
@@ -87,7 +88,8 @@ sub createMenuBar {    # $menuBar ($r)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
-  return $self->{createMenuBar}->( bounds => $r );
+  my ( $class, $code ) = ( ref $self, $self->{createMenuBar} );
+  return $class->$code( $r );
 }
 
 sub createDeskTop {    # $deskTop ($r)
@@ -95,7 +97,8 @@ sub createDeskTop {    # $deskTop ($r)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
-  return $self->{createDeskTop}->( bounds => $r );
+  my ( $class, $code ) = ( ref $self, $self->{createDeskTop} );
+  return $class->$code( $r );
 }
 
 1

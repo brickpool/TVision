@@ -59,7 +59,8 @@ sub createBackground {    # $background ($r)
   assert ( @_ == 2 );
   assert ( blessed $self );
   assert ( ref $r );
-  return $self->{createBackground}->( bounds => $r );
+  my ( $class, $code ) = ( ref $self, $self->{createBackground} );
+  return $class->$code( $r );
 }
 
 1

@@ -68,12 +68,8 @@ sub createListViewer {    # $listViewer ($r, $win, $historyId)
   assert { ref $r };
   assert { blessed $win };
   assert { looks_like_number $historyId };
-  return $self->{createListViewer}->(
-    bounds      => $r,
-    aHScrollBar => $win->standardScrollBar( sbHorizontal | sbHandleKeyboard ),
-    aVScrollBar => $win->standardScrollBar( sbVertical | sbHandleKeyboard ),
-    aHistoryId  => $historyId,
-  );
+  my ( $class, $code ) = ( ref $self, $self->{createListViewer} );
+  return $class->$code( $r, $win, $historyId );
 }
 
 1
