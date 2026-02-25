@@ -10,7 +10,7 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 use Import::Into;
 
 use TV::Dialogs::Const;
-use TV::Dialogs::History::HistList;
+use TV::Dialogs::HistoryViewer::HistList;
 use TV::Dialogs::Util;
 use TV::Dialogs::Button;
 use TV::Dialogs::CheckBoxes;
@@ -29,7 +29,7 @@ use TV::Dialogs::StrItem;
 sub import {
   my $target = caller;
   TV::Dialogs::Const->import::into( $target, qw( :all ) );
-  TV::Dialogs::History::HistList->import::into( $target, qw( /\S+/) );
+  TV::Dialogs::HistoryViewer::HistList->import::into( $target, qw( /\S+/) );
   TV::Dialogs::Util->import::into( $target, qw( /\S+/) );
   TV::Dialogs::Button->import::into( $target );
   TV::Dialogs::CheckBoxes->import::into( $target );
@@ -49,7 +49,7 @@ sub import {
 sub unimport {
   my $caller = caller;
   TV::Dialogs::Const->unimport::out_of( $caller );
-  TV::Dialogs::History::HistList::out_of( $caller );
+  TV::Dialogs::HistoryViewer::HistList::out_of( $caller );
   TV::Dialogs::Util->unimport::out_of( $caller );
   TV::Dialogs::Button->unimport::out_of( $caller );
   TV::Dialogs::CheckBoxes->unimport::out_of( $caller );

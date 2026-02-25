@@ -33,7 +33,7 @@ subtest 'Object creation' => sub {
     $list = new_TListViewer( $bounds, 1, $hBar, $vBar );
   } 'TListViewer object created';
 
-  isa_ok( $list, 'TV::Views::ListViewer' );
+  isa_ok( $list, TListViewer );
 }; #/ 'Object creation' => sub
 
 # Test getPalette
@@ -103,8 +103,7 @@ subtest 'setState' => sub {
   can_ok( $list, 'setState' );
   lives_ok {
     $list->setState( sfActive | sfVisible | sfSelected, 1 );
-  }
-  'setState executed';
+  } 'setState executed';
 };
 
 # Test shutDown

@@ -19,7 +19,7 @@ use Devel::Assert STRICT ? 'on' : 'off';
 use Scalar::Util qw( blessed );
 
 use TV::App::Program;
-use TV::Dialogs::History::HistList qw(
+use TV::Dialogs::HistoryViewer::HistList qw(
   initHistory
   doneHistory
 );

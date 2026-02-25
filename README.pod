@@ -166,16 +166,16 @@ Input and Text
 
 Lists and History
 
-  +----------------+--------------------------------+-----------+
-  | TListBox       | TV::Dialogs::ListBox           | [x]       |
-  | TListBoxRec    | TV::Dialogs::ListBox           | [x]       |
-  | TSortedListBox | (missing)                      | [ ]       |
-  | HistRec        | TV::Dialogs::History::HistList | [x]       |
-  | THistInit      | TV::Dialogs::HistInit          | [x]       |
-  | THistoryViewer | (missing)                      | [ ]       |
-  | THistoryWindow | (missing)                      | [ ]       |
-  | THistory       | (missing)                      | [ ]       |
-  +----------------+--------------------------------+-----------+
+  +----------------+--------------------------------------+-----------+
+  | TListBox       | TV::Dialogs::ListBox                 | [x]       |
+  | TListBoxRec    | TV::Dialogs::ListBox                 | [x]       |
+  | TSortedListBox | (missing)                            | [ ]       |
+  | HistRec        | TV::Dialogs::HistoryViewer::HistList | [x]       |
+  | THistoryViewer | TV::Dialogs::HistoryViewer           | [x]       |
+  | THistInit      | TV::Dialogs::HistInit                | [x]       |
+  | THistoryWindow | (missing)                            | [ ]       |
+  | THistory       | (missing)                            | [ ]       |
+  +----------------+--------------------------------------+-----------+
 
 =head3 File/Directory Dialogs
 
@@ -317,9 +317,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 135
-  Implemented:                         61
+  Implemented:                         62
   Partial:                              7
-  Missing:                             67
+  Missing:                             66
 
 B<Notes>: Calculated from the full inventory of ~130 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

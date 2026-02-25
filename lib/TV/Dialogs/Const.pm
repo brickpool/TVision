@@ -38,6 +38,7 @@ our %EXPORT_TAGS = (
     cpInputLine
     cpLabel
     cpStaticText
+    cpHistoryViewer
   )],
   
   dpXXXX => [qw(
@@ -117,6 +118,10 @@ use constant cpLabel => "\x07\x08\x09\x09";
 # TCluster palette layout
 
 use constant cpCluster => "\x10\x11\x12\x12\x1f";
+
+# THistoryViewer palette layout
+
+use constant cpHistoryViewer => "\x06\x06\x07\x06\x06";
 
 # TDialog palette entries
 

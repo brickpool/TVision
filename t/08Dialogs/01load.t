@@ -9,7 +9,7 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::Dialogs::Const', qw( bfDefault ); 
   use_ok 'TV::Dialogs::Util', qw( hotKey );
-  use_ok 'TV::Dialogs::History::HistList';
+  use_ok 'TV::Dialogs::HistoryViewer::HistList';
   use_ok 'TV::Dialogs::Dialog';
   use_ok 'TV::Dialogs::Button';
   use_ok 'TV::Dialogs::StaticText';

@@ -1,4 +1,4 @@
-package TV::Dialogs::History::HistList;
+package TV::Dialogs::HistoryViewer::HistList;
 # ABSTARCT: Implements the behavior of the HistRec list
 
 use strict;
@@ -8,8 +8,7 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
 
 use Exporter 'import';
@@ -27,7 +26,7 @@ our $historyBlock = undef;   # array reference, not a packed string
 our $historySize  = 1024;    # initial size of history block
 our $historyUsed  = 0;       # taken from the Turbo Pascal implementation
 
-# predeclare private class subs
+# predeclare private subs
 my (
   $advanceStringPointer,
   $deleteString,
@@ -82,9 +81,9 @@ $startId = sub {    # void ($id)
 
 sub historyAdd {    # void ($id, $str|undef)
   my ( $id, $str ) = @_;
-  assert ( @_ == 2 );
-  assert ( looks_like_number $id );
-  assert ( !defined $str or !ref $str );
+  assert { @_ == 2 };
+  assert { looks_like_number $id };
+  assert { !defined $str or !ref $str };
 
   return unless defined $str;
   $startId->( $id );
@@ -103,8 +102,8 @@ sub historyAdd {    # void ($id, $str|undef)
 
 sub historyCount {    # $count ($id)
   my ( $id ) = @_;
-  assert ( @_ == 1 );
-  assert ( looks_like_number $id );
+  assert { @_ == 1 };
+  assert { looks_like_number $id };
 
   $startId->( $id );
   my $count = 0;
@@ -118,9 +117,9 @@ sub historyCount {    # $count ($id)
 
 sub historyStr {    # $str ($id, $index)
   my ( $id, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( looks_like_number $id );
-  assert ( looks_like_number $index );
+  assert { @_ == 2 };
+  assert { looks_like_number $id };
+  assert { looks_like_number $index };
 
   $startId->( $id );
   $advanceStringPointer->() for ( 0..$index );
@@ -130,20 +129,20 @@ sub historyStr {    # $str ($id, $index)
 }
 
 sub clearHistory {    # void ()
-  assert ( @_ == 0 );
+  assert { @_ == 0 };
   $historyBlock = [];
   $historyUsed = @$historyBlock;
   return
 }
 
 sub initHistory {   # void ()
-  assert ( @_ == 0 );
+  assert { @_ == 0 };
   clearHistory();
   return
 }
 
 sub doneHistory {   # void ()
-  assert ( @_ == 0 );
+  assert { @_ == 0 };
   $historyBlock = undef;
   $historyUsed = 0;
   return
@@ -157,11 +156,11 @@ __END__
 
 =head1 NAME
 
-TV::Dialogs::History::HistList - manages Turbo Vision-style input history lists
+TV::Dialogs::HistoryViewer::HistList - manages Turbo Vision-style input history lists
 
 =head1 SYNOPSIS
 
-  use TV::Dialogs::History::HistList qw(historyAdd historyStr historyCount);
+  use TV::Dialogs::HistoryViewer::HistList qw(historyAdd historyStr historyCount);
 
   historyAdd(1, "hello");
   my $count = historyCount(1);

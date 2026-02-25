@@ -2,7 +2,7 @@
 
 =head1 DESCRIPTION
 
-These test cases cover various aspects of the I<TV::Dialogs::History::HistList> 
+These test cases cover various aspects of the I<TV::Dialogs::HistoryViewer::HistList> 
 module, including adding history items, counting history items, retrieving 
 history strings, clearing history, and finalizing history. 
 
@@ -14,7 +14,7 @@ use warnings;
 use Test::More tests => 16;
 
 BEGIN {
-  use_ok 'TV::Dialogs::History::HistList', qw(
+  use_ok 'TV::Dialogs::HistoryViewer::HistList', qw(
     historyCount
     historyAdd
     historyStr
@@ -31,9 +31,9 @@ use vars qw(
   $historyUsed
 );
 {
-  *historyBlock = \$TV::Dialogs::History::HistList::historyBlock;
-  *historySize  = \$TV::Dialogs::History::HistList::historySize;
-  *historyUsed  = \$TV::Dialogs::History::HistList::historyUsed;
+  *historyBlock = \$TV::Dialogs::HistoryViewer::HistList::historyBlock;
+  *historySize  = \$TV::Dialogs::HistoryViewer::HistList::historySize;
+  *historyUsed  = \$TV::Dialogs::HistoryViewer::HistList::historyUsed;
 }
 
 # Initialize history
