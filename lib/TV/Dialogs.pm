@@ -17,6 +17,8 @@ use TV::Dialogs::CheckBoxes;
 use TV::Dialogs::Cluster;
 use TV::Dialogs::Dialog;
 use TV::Dialogs::HistInit;
+use TV::Dialogs::HistoryViewer;
+use TV::Dialogs::HistoryWindow;
 use TV::Dialogs::InputLine;
 use TV::Dialogs::Label;
 use TV::Dialogs::ListBox;
@@ -36,6 +38,8 @@ sub import {
   TV::Dialogs::Cluster->import::into( $target );
   TV::Dialogs::Dialog->import::into( $target );
   TV::Dialogs::HistInit->import::into( $target );
+  TV::Dialogs::HistoryViewer->import::into( $target );
+  TV::Dialogs::HistoryWindow->import::into( $target );
   TV::Dialogs::InputLine->import::into( $target );
   TV::Dialogs::Label->import::into( $target );
   TV::Dialogs::ListBox->import::into( $target );
@@ -56,6 +60,8 @@ sub unimport {
   TV::Dialogs::Cluster->unimport::out_of( $caller );
   TV::Dialogs::Dialog->unimport::out_of( $caller );
   TV::Dialogs::HistInit::out_of( $caller );
+  TV::Dialogs::HistoryViewer::out_of( $caller );
+  TV::Dialogs::HistoryWindow::out_of( $caller );
   TV::Dialogs::InputLine->unimport::out_of( $caller );
   TV::Dialogs::Label->unimport::out_of( $caller );
   TV::Dialogs::ListBox->unimport::out_of( $caller );

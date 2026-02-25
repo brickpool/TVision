@@ -39,6 +39,7 @@ our %EXPORT_TAGS = (
     cpLabel
     cpStaticText
     cpHistoryViewer
+    cpHistoryWindow
   )],
   
   dpXXXX => [qw(
@@ -122,6 +123,10 @@ use constant cpCluster => "\x10\x11\x12\x12\x1f";
 # THistoryViewer palette layout
 
 use constant cpHistoryViewer => "\x06\x06\x07\x06\x06";
+
+# THistoryWindow palette layout
+
+use constant cpHistoryWindow => "\x13\x13\x15\x18\x17\x13\x14";
 
 # TDialog palette entries
 

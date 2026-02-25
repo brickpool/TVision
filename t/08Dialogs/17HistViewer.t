@@ -21,18 +21,18 @@ BEGIN {
     cmCancel
   );
   use_ok 'TV::Dialogs::HistoryViewer';
-  use_ok 'TV::Dialogs::HistoryViewer::HistList';
+  use_ok 'TV::Dialogs::HistoryViewer::HistList', qw( /\S+/ );
 }
 
 # Initialize the history list for deterministic tests
 INIT {
-  TV::Dialogs::HistoryViewer::HistList::initHistory();
-  TV::Dialogs::HistoryViewer::HistList::historyAdd( 10, 'first entry' );
-  TV::Dialogs::HistoryViewer::HistList::historyAdd( 10, 'second entry' );
-  TV::Dialogs::HistoryViewer::HistList::historyAdd( 20, 'third' );
+  initHistory();
+  historyAdd( 10, 'first entry' );
+  historyAdd( 10, 'second entry' );
+  historyAdd( 20, 'third' );
 } 
 END {
-  TV::Dialogs::HistoryViewer::HistList::doneHistory();
+  doneHistory();
 }
 
 # ScrollBars for the THistoryViewer test

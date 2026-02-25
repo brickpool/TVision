@@ -48,7 +48,6 @@ use TV::Views::Palette;
 use TV::toolkit;
 
 sub THistoryViewer() { __PACKAGE__ }
-sub name() { 'THistoryViewer' }
 sub new_THistoryViewer { __PACKAGE__->from(@_) }
 
 extends TListViewer;

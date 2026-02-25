@@ -173,7 +173,7 @@ Lists and History
   | HistRec        | TV::Dialogs::HistoryViewer::HistList | [x]       |
   | THistoryViewer | TV::Dialogs::HistoryViewer           | [x]       |
   | THistInit      | TV::Dialogs::HistInit                | [x]       |
-  | THistoryWindow | (missing)                            | [ ]       |
+  | THistoryWindow | TV::Dialogs::HistoryWindow           | [x]       |
   | THistory       | (missing)                            | [ ]       |
   +----------------+--------------------------------------+-----------+
 
@@ -261,7 +261,7 @@ Lists and History
   | TClickTester    | (missing)                | [ ]       |
   | TClockView      | TV::Gadgets::ClockView   | [x]       |
   | TEventViewer    | TV::Gadgets::EventViewer | [x]       |
-  | THeapView       | TV::Gadgets::HeapView    | [x]       |
+  | THeapView       | TV::Gadgets::HeapView    | [o]       |
   | TLineCollection | (missing)                | [ ]       |
   | TPuzzleView     | (missing)                | [ ]       |
   +-----------------+--------------------------+-----------+
@@ -317,9 +317,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 135
-  Implemented:                         62
+  Implemented:                         63
   Partial:                              7
-  Missing:                             66
+  Missing:                             65
 
 B<Notes>: Calculated from the full inventory of ~130 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

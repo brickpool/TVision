@@ -23,6 +23,8 @@ BEGIN {
   use_ok 'TV::Dialogs::MultiCheckBoxes';
   use_ok 'TV::Dialogs::ListBox';
   use_ok 'TV::Dialogs::HistInit';
+  use_ok 'TV::Dialogs::HistoryViewer';
+  use_ok 'TV::Dialogs::HistoryWindow';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -46,3 +48,5 @@ isa_ok( TMultiCheckBoxes->new( bounds => TRect->new(), strings => undef,
 isa_ok( TListBox->new( bounds => TRect->new(), numCols => 0, 
   vScrollBar => undef ), TListBox );
 isa_ok( THistInit->new( cListViewer => sub { } ), THistInit() );
+isa_ok( THistoryWindow->new( bounds => TRect->new(), historyId => 0 
+  ), THistoryWindow() );
