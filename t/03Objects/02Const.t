@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Const', qw(

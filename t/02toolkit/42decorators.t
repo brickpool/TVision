@@ -78,4 +78,4 @@ SKIP: {
   ok( !$stash->has_symbol( '$self' ), '$self does not exist' );
 };
 
-done_testing;
+done_testing();

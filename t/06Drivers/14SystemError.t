@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -29,4 +29,4 @@ ok(
 lives_ok { $error->resume() } 'resume() does not die';
 lives_ok { $error->suspend() } 'suspend() does not die';
 
-done_testing;
+done_testing();

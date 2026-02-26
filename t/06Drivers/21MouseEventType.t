@@ -1,20 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-In these test cases, the I<MouseEventType> structure is tested in various ways:
-
-  1. Initialization of a 'MouseEventType' object (incl. 'TPoint').
-  2. Setting and retrieving the 'x' and 'y' coordinates of the 'where' field.
-  3. Setting and retrieving the 'eventFlags' field.
-  4. Setting and retrieving the 'controlKeyState' and 'buttons' fields.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Point';
@@ -109,4 +96,4 @@ $event->{buttons} = 3;
 is( $event->{controlKeyState}, 2, 'controlKeyState set correctly' );
 is( $event->{buttons},         3, 'buttons set correctly' );
 
-done_testing;
+done_testing();

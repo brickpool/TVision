@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Drivers::Const', qw( eventQSize );
@@ -42,3 +40,4 @@ SKIP: {
   ok( TMouse->present(),   'TMouse is present' );
 }
 
+done_testing();

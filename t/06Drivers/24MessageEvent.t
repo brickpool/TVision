@@ -1,18 +1,7 @@
- 
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the creation of the 'MessageEvent' object, the setting 
-and retrieving of the fields as well as the exception handling for the methods 
-'DELETE' and 'CLEAR'.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More;
 use Test::Exception;
 use Scalar::Util qw( refaddr );
 
@@ -81,4 +70,4 @@ throws_ok { delete $event->{command} } qr/restricted/,
 throws_ok { %$event = () } qr/restricted/,
   'CLEAR method throws exception';
 
-done_testing;
+done_testing();

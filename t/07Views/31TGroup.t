@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TGroup> cover the methods I<new>, 
-I<DEMOLISH>, I<shutDown>, I<execView>, I<execute> and I<awaken>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -64,4 +55,4 @@ can_ok( $group, 'awaken' );
 lives_ok { $group->awaken() }
   'awaken method works correctly';
 
-done_testing;
+done_testing();

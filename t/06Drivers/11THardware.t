@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the creation of the 'THardware' module, the setting and 
-retrieval of the fields and the behavior of the subroutines. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 28;
+use Test::More;
 use Test::Exception;
 
 # Mocking 'Win32*' modules for testing purposes
@@ -146,4 +137,4 @@ is( ref( $buffer ), 'ARRAY',
 THardwareInfo->freeScreenBuffer( $buffer );
 is_deeply( $buffer, [], 'freeScreenBuffer works correctly' );
 
-done_testing;
+done_testing();

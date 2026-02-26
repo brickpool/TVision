@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -18,4 +16,4 @@ isa_ok( new_TProgInit( ( sub { } ) x 3 ),     TProgInit );
 ok( TProgram->can( 'new_TProgram' ),         'new_TProgram() exists' );
 ok( TApplication->can( 'new_TApplication' ), 'new_TApplication() exists' );
 
-done_testing;
+done_testing();

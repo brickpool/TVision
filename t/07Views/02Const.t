@@ -1,18 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-In this test plan, we use L<Test::More> to check the values of the selected 
-constants. The tests ensure that the constants have the expected values. The 
-results of the tests are compared with the expected values and the tests issue 
-corresponding messages.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 24;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Views::Const', qw( :cmXXXX );
@@ -42,4 +31,4 @@ is( cmChDir,    35, 'cmChDir is 35' );
 is( cmDosShell, 36, 'cmDosShell is 36' );
 is( cmCloseAll, 37, 'cmCloseAll is 37' );
 
-done_testing;
+done_testing();

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -10,18 +10,18 @@ BEGIN {
 }
 
 {
-  package MockClockView;
+  package MyClockView;
   use TV::toolkit;
   extends 'TV::Gadgets::ClockView';
   sub writeLine { ::pass 'writeLine()'  }
   sub drawView  { ::pass 'drawView()' }
-  $INC{"MockClockView.pm"} = 1;
+  $INC{"MyClockView.pm"} = 1;
 }
 
 my $view;
 subtest 'TClockView->new()' => sub {
-  require_ok( 'MockClockView' );
-  $view = MockClockView->new( bounds => TRect->new() );
+  require_ok( 'MyClockView' );
+  $view = MyClockView->new( bounds => TRect->new() );
   isa_ok( $view, TClockView );
 };
 

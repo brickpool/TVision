@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<clearEvent>, 
-I<eventAvail>, I<getEvent>, I<handleEvent> and I<putEvent>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -68,4 +59,4 @@ subtest 'putEvent method' => sub {
     'putEvent method executed without errors';
 };
 
-done_testing;
+done_testing();

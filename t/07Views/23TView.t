@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<dataSize>, 
-I<getData>, I<setData>, I<awaken>, I<blockCursor>, I<normalCursor>, 
-I<resetCursor>, I<setCursor>, I<showCursor>, I<drawCursor>
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -102,4 +92,4 @@ subtest 'drawCursor method' => sub {
     'drawCursor method executed without errors';
 };
 
-done_testing;
+done_testing();

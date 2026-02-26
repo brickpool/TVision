@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the functions C<ctrlToArrow>, C<getAltCode>, 
-C<getCtrlChar> and C<getCtrlCode>. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Drivers::Const', qw(
@@ -64,4 +55,4 @@ subtest 'getCtrlCode' => sub {
   is( getCtrlCode( 'a' ), 0x1e01, 'getCtrlCode returns correct value for a' );
 };
 
-done_testing;
+done_testing();

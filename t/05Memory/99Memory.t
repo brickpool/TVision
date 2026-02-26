@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Memory';
@@ -11,4 +9,4 @@ BEGIN {
 
 is( lowMemory(), !!0, 'lowMemory returns correct value' );
 
-done_testing;
+done_testing();

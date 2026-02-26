@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Const';
@@ -25,3 +23,5 @@ isa_ok( TNSSortedCollection->new(), TNSSortedCollection );
 isa_ok( TCollection->new(), TCollection );
 isa_ok( TSortedCollection->new(), TSortedCollection );
 isa_ok( TStringCollection->new(), TStringCollection );
+
+done_testing();

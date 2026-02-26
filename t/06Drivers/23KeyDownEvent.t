@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -46,4 +46,4 @@ subtest 'exception handling' => sub {
   ok( $keyDownEvent->{keyCode}, "KeyDownEvent is not cleared" );
 };
 
-done_testing;
+done_testing();

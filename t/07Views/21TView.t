@@ -1,18 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<sizeLimits>, 
-I<getBounds>, I<getExtent>, I<getClipRect>, I<mouseInView>, I<containsMouse>, 
-I<locate>, I<calcBounds>, I<changeBounds>, I<growTo>, I<moveTo>, I<setBounds>, 
-I<getHelpCtx> and I<valid>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Const', qw( INT_MAX );
@@ -201,4 +190,4 @@ subtest 'valid method' => sub {
   ok( $view->valid( 0 ), 'valid method returns true' );
 };
 
-done_testing;
+done_testing();

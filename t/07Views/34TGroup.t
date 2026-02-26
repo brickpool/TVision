@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TGroup> cover the methods I<draw>, 
-I<redraw>, I<lock>, I<unlock>, I<resetCursor>, I<endModal>, I<eventError>, 
-I<getHelpCtx>, I<valid>, I<freeBuffer> and I<getBuffer>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -83,4 +73,4 @@ is( $group->getHelpCtx(), hcNoContext, 'getHelpCtx returns correct value' );
 can_ok( $group, 'valid' );
 is( $group->valid( cmReleasedFocus ), 1, 'valid returns correct value' );
 
-done_testing;
+done_testing();

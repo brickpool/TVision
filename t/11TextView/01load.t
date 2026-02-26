@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -28,3 +26,5 @@ isa_ok(
     bufSize    => 0,
   ), TTerminal()
 );
+
+done_testing();

@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 
 BEGIN {
@@ -25,3 +23,5 @@ BEGIN {
   use_ok 'TV::toolkit::decorators';
   use_ok 'TV::toolkit';
 }
+
+done_testing();

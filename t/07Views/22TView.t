@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<hide>, I<show>, 
-I<draw>, I<drawView>, I<exposed>, I<focus>, I<hideCursor>, I<drawHide>, 
-I<drawShow>, I<drawUnderRect> and I<drawUnderView>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -126,4 +116,4 @@ subtest 'drawShow method' => sub {
     'drawShow method executed without errors';
 };
 
-done_testing;
+done_testing();

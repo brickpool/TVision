@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More;
 use Test::Exception;
 use Data::Dumper;
 

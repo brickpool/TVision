@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -13,4 +11,4 @@ BEGIN {
 isa_ok( new_TTextDevice( TRect->new(), undef, undef ),  TTextDevice );
 isa_ok( new_TTerminal( TRect->new(), undef, undef, 0 ), TTerminal );
 
-done_testing;
+done_testing();

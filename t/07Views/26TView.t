@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<getColor>, 
-I<getPalette>, I<mapColor>, I<getState>, I<select>, I<setState>, I<keyEvent>, 
-I<mouseEvent>, I<makeGlobal> and I<makeLocal>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 20;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -125,4 +115,4 @@ subtest 'makeLocal method' => sub {
   is( $local->{y}, 10, 'local.y is set correctly' );
 };
 
-done_testing;
+done_testing();

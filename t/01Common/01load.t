@@ -1,10 +1,10 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Const';
 }
+
+done_testing();

@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -54,4 +52,4 @@ isa_ok( $status_def, TStatusDef, 'Object is of class TStatusDef' );
 isa_ok( $status_def->{next}, TStatusDef, 'TStatusDef correctly added' );
 isa_ok( $status_def->{items}, TStatusItem, 'TStatusItem correctly added' );
 
-done_testing;
+done_testing();

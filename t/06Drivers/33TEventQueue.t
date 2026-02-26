@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the methods I<setRange>, I<getEvent>, I<present>, 
-I<inhibit>, I<resume>, I<suspend>, I<show>, and I<hide> of the I<THWMouse> 
-class. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More;
 use Test::Exception;
 
 # Mocking 'THardwareInfo', 'TMouse', and 'TScreen' for testing purposes
@@ -134,4 +124,4 @@ is(
 );
 isa_ok( $TV::Drivers::EventQueue::lastMouse, 'MouseEventType' );
 
-done_testing;
+done_testing();

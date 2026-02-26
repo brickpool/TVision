@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -19,3 +17,5 @@ isa_ok(
 );
 isa_ok( THeapView->new( bounds => TRect->new() ), THeapView() );
 isa_ok( TClockView->new( bounds => TRect->new() ), TClockView() );
+
+done_testing();

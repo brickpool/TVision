@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -42,4 +40,4 @@ can_ok( $menu_with_items, 'DEMOLISH' );
 lives_ok { $menu_with_items->DEMOLISH(0) }
   'DEMOLISH works correctly';
 
-done_testing;
+done_testing();

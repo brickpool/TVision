@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -22,4 +20,4 @@ isa_ok( new_TWindow( TRect->new(), '', 0 ), TWindow );
 isa_ok( new_TListViewer( TRect->new(), 0, undef, undef ), TListViewer );
 ok( exists &message, 'message() exists' );
 
-done_testing;
+done_testing();

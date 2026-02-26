@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the creation of the 'TDisplay' module, the setting and 
-retrieval of the fields and the behavior of the subroutines. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More;
 use Test::Exception;
 
 # Mocking 'THardwareInfo' for testing purposes
@@ -68,4 +59,4 @@ is( $display->getCrtMode(), 1, 'getCrtMode returns correct value' );
 can_ok( $display, 'setCrtMode' );
 lives_ok { $display->setCrtMode( 1 ) } 'setCrtMode works correctly';
 
-done_testing;
+done_testing();

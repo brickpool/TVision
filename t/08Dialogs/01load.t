@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -50,3 +48,5 @@ isa_ok( TListBox->new( bounds => TRect->new(), numCols => 0,
 isa_ok( THistInit->new( cListViewer => sub { } ), THistInit() );
 isa_ok( THistoryWindow->new( bounds => TRect->new(), historyId => 0 
   ), THistoryWindow() );
+
+done_testing();

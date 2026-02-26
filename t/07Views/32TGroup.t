@@ -1,18 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TGroup> cover the methods I<insertView>, 
-I<remove>, I<removeView>, I<resetCurrent>, I<setCurrent>, I<selectNext>, 
-I<firstThat>, I<focusNext>, I<forEach>, I<insert>, I<insertBefore>, I<current>, 
-I<at>, I<firstMatch>, I<indexOf> and I<first>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 40;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -129,4 +118,4 @@ can_ok( $group, 'indexOf', 'first' );
 is( $group->indexOf( $group->first() ), 1,
   'indexOf returns the correct index' );
 
-done_testing;
+done_testing();

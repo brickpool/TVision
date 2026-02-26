@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -21,4 +19,4 @@ isa_ok( new_TStatusItem( 'One', 0x1234, 1 ), TStatusItem );
 isa_ok( new_TStatusDef( 1, 2 ), TStatusDef );
 isa_ok( new_TStatusLine( TRect->new(), undef ), TStatusLine );
 
-done_testing;
+done_testing();

@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the methods I<getEvent>, I<present>, I<inhibit>, 
-I<resume>, I<suspend>, I<show>, and I<hide> of the I<THWMouse> class. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 20;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -46,4 +37,4 @@ can_ok( $mouse, 'inhibit' );
 # Test inhibit method
 lives_ok { $mouse->inhibit() } 'inhibit() does not die';
 
-done_testing;
+done_testing();

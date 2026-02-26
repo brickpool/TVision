@@ -1,17 +1,7 @@
- 
-=pod
-
-=head1 DESCRIPTION
-
-These test cases cover the creation of the TEvent object, the setting and 
-retrieval of the fields and the behavior of the getKeyEvent method.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More;
 
 # Mocking 'TV::Drivers::HardwareInfo' for testing purposes
 BEGIN {
@@ -166,4 +156,4 @@ subtest 'getKeyEvent method' => sub {
     'getKeyEvent handles no event correctly' );
 };
 
-done_testing;
+done_testing();

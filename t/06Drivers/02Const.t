@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 17;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Drivers::Const', qw(
@@ -32,4 +32,4 @@ is( mbRightButton, 0x02,   'mbRightButton is 0x02' );
 is( meMouseMoved,  0x01,   'meMouseMoved is 0x01' );
 is( meDoubleClick, 0x02,   'meDoubleClick is 0x02' );
 
-done_testing;
+done_testing();

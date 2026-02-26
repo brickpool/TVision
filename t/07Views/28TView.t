@@ -1,16 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<writeBuf>, 
-I<writeChar>, I<writeLine> and I<writeStr>. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -64,4 +55,4 @@ subtest 'shutDown method' => sub {
     'shutDown method executed without errors';
 };
 
-done_testing;
+done_testing();

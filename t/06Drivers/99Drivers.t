@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Drivers';
@@ -33,3 +31,5 @@ SKIP: {
   ok( THWMouse->present(), 'THWMouse is present' );
   ok( TMouse->present(),   'TMouse is present' );
 }
+
+done_testing();

@@ -1,18 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
- 
-These test cases cover the creation of the object I<TGroup>, the setting and 
-retrieval of some fields as well as the behavior of the methods I<setState>, 
-I<handleEvent>, I<drawSubViews>, I<changeBounds>, I<dataSize>, I<getData> 
-and I<setData>. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -83,4 +72,4 @@ is( $group->dataSize(), 1, 'dataSize returns correct value' );
 can_ok( $group, 'getData' );
 lives_ok { $group->getData( \@rec ) } 'getData works correctly';
 
-done_testing;
+done_testing();

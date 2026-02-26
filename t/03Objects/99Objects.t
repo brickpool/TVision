@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects';
@@ -19,4 +17,4 @@ isa_ok( TCollection->new(), TCollection );
 isa_ok( TSortedCollection->new(), TSortedCollection );
 isa_ok( TStringCollection->new(), TStringCollection );
 
-done_testing;
+done_testing();

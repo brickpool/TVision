@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::App::Const';
@@ -29,3 +27,5 @@ isa_ok( TProgInit->new(
 ), TProgInit );
 ok( TProgram->can( 'new' ), 'TProgram->new() exists' );
 ok( TApplication->can( 'new' ), 'TApplication->new_() exists' );
+
+done_testing();

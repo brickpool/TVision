@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::MsgBox::Const', qw( :mfXXXX );

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -107,4 +107,4 @@ subtest 'Test cases override_method' => sub {
   is( $obj->foo(), 'baz', 'Overridden method foo returns bar' );
 };
 
-done_testing;
+done_testing();

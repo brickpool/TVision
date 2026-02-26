@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -58,4 +58,4 @@ subtest 'exception handling' => sub {
     'Exception thrown for invalid field';
 };
 
-done_testing;
+done_testing();

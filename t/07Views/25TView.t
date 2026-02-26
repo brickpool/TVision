@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<commandEnabled>, 
-I<disableCommands>, I<enableCommands>, I<disableCommand>, I<enableCommand>, 
-I<getCommands>, I<setCommands>, I<setCmdState>, I<endModal> and I<execute>.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -112,4 +102,4 @@ subtest 'execute method' => sub {
   is( $view->execute(), cmCancel, 'execute method returns cmCancel' );
 };
 
-done_testing;
+done_testing();

@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -25,4 +23,4 @@ can_ok( $status_item1, 'DEMOLISH' );
 lives_ok { $status_item1->DEMOLISH(0) }
   'DEMOLISH works correctly';
 
-done_testing;
+done_testing();

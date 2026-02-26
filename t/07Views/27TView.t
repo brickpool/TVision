@@ -1,17 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-The following test cases of class I<TView> cover the methods I<nextView>, 
-I<prevView>, I<prev>, I<next>, I<makeFirst>, I<putInFrontOf>, I<TopView>, 
-I<owner> and I<shutDown>. 
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -67,4 +57,4 @@ subtest 'TopView method' => sub {
   ok( !$view->TopView(), 'TopView method returns undef' );
 };
 
-done_testing;
+done_testing();

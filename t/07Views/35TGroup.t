@@ -1,15 +1,7 @@
-=pod
-
-=head1 DESCRIPTION
-
-Special tests to check the successful processing of weak with cyclic references.
-
-=cut
-
 use strict;
 use warnings;
 
-use Test::More tests => 12;
+use Test::More;
 use Test::Exception;
 
 use Devel::Refcount qw( refcount );
@@ -132,4 +124,4 @@ subtest 'Test cleanup' => sub {
   is( refcount( $view[2] ), 1, sprintf 'Object %x refcount is 1', $view[2] );
 };
 
-done_testing;
+done_testing();

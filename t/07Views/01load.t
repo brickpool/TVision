@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More qw( no_plan );
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -45,3 +43,5 @@ isa_ok(
 );
 isa_ok( TListViewer->new( bounds => TRect->new(), numCols => 0, 
   hScrollBar => undef, vScrollBar => undef ), TListViewer );
+
+done_testing();

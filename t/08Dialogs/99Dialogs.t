@@ -1,9 +1,7 @@
-#!perl
-
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More;
 
 BEGIN {
   use_ok 'TV::Objects::Rect';
@@ -28,4 +26,4 @@ isa_ok( new_TListBox( TRect->new(), 0, undef ), TListBox );
 isa_ok( new_THistInit( sub { } ), THistInit() );
 isa_ok( new_THistoryWindow( TRect->new(), 0 ), THistoryWindow() );
 
-done_testing;
+done_testing();

@@ -50,7 +50,7 @@ interfaces of Turbo Vision in Perl.
 
   lib/TV/
     +-- App/      - TProgram, TApplication, TDeskTop, TBackground, etc.
-    +-- Dialogs/  - TDialog, TButton, TInputLine, TFileDialog, etc.
+    +-- Dialogs/  - TDialog, TButton, TInputLine, TLabel, etc.
     +-- Drivers/  - TEvent, TScreen, TEventQueue, THardwareInfo, etc.
     +-- Editors/  - TEditor, TMemo, TFileEditor, TIndicator, etc.
     +-- Gadgets/  - TClickTester, TEventViewer, THeapView, etc.
@@ -58,7 +58,7 @@ interfaces of Turbo Vision in Perl.
     +-- Memory/   - Memory manager
     +-- Menus/    - TMenuBar, TMenuBox, TStatusLine, etc.
     +-- Objects/  - TObject, TPoint, TRect, TCollection, TSortedCollection, etc.
-    +-- StdDlg/   - TFilelnfoPane, TFilelnputLine, TFileList, etc.
+    +-- StdDlg/   - TFileDialog, TChDirDialog, TDirListBox, etc.
     +-- TextView/ - TTextDevice, TTerminal, etc.
     +-- toolkit/  - Object toolkit
     +-- Validate/ - TValidator, TFilterValidator, TPXPictureValidator, etc.
@@ -135,11 +135,14 @@ Hierarchical screen write system, implemented in C<TV::Views::View::Write>.
 =head3 Application Framework
 
   +----------------+---------------------------+-----------+
+  | TDeskInit      | TV::App::DeskInit         | [x]       |
+  | TDeskTop       | TV::App::DeskTop          | [x]       |
+  | TProgInit      | TV::App::ProgInit         | [x]       |
   | TProgram       | TV::App::Program          | [x]       |
   | TApplication   | TV::App::Application      | [x]       |
-  | TDialog        | TV::Dialogs::Dialog       | [x]       |
+  | TWindowInit    | TV::Views::WindowInit     | [x]       |
   | TWindow        | TV::Views::Window         | [x]       |
-  | TDeskTop       | TV::App::DeskTop          | [x]       |
+  | TDialog        | TV::Dialogs::Dialog       | [x]       |
   +----------------+---------------------------+-----------+
 
 =head3 Dialog Controls
@@ -316,12 +319,12 @@ The remaining work is concentrated in:
 
 Summary
 
-  Total Borland classes/items tracked: 135
-  Implemented:                         63
+  Total Borland classes/items tracked: 138
+  Implemented:                         66
   Partial:                              7
   Missing:                             65
 
-B<Notes>: Calculated from the full inventory of ~130 Turbo Vision classes, 
+B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
 
 =head3 Porting notes
@@ -364,7 +367,7 @@ of Perl.
 
 When porting C++ code to Perl, one common pitfall is accidentally replacing an 
 object reference instead of copying data into the existing object. In C++, 
-passing by reference ensures that assignments modify the caller’s object, while 
+passing by reference ensures that assignments modify the caller's object, while 
 in Perl the same assignment simply rebinds a local scalar and discards the 
 caller's reference. This difference can silently break control flow, especially 
 in event‑driven systems where modified objects must propagate back to the 

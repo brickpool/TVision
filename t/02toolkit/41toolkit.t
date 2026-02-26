@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More;
 use Test::Exception;
 
 BEGIN {
@@ -54,4 +54,4 @@ subtest 'install has' => sub {
   can_ok( $point, qw( x y z ) );
 };
 
-done_testing;
+done_testing();
