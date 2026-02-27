@@ -27,6 +27,7 @@ BEGIN {
   use_ok 'TV::Views';
   use_ok 'TV::Menus';
   use_ok 'TV::Dialogs';
+  use_ok 'TV::StdDlg';
   use_ok 'TV::MsgBox';
   use_ok 'TV::toolkit';
 }
@@ -37,6 +38,7 @@ BEGIN {
   use TV::Objects;
   use TV::Drivers;
   use TV::Dialogs;
+  use TV::StdDlg;
   use TV::Views;
   use TV::MsgBox;
   use TV::toolkit;
@@ -82,7 +84,7 @@ BEGIN {
     # ListBox
     $r->{a}{x} = 5;
     $r->{b}{x}--;
-    $self->{listBox} = new_TListBox( $r, 1, $scrollbar );
+    $self->{listBox} = new_TSortedListBox( $r, 1, $scrollbar );
     $self->{listBox}->newList( $self->{stringCollection} );
     $self->insert( $self->{listBox} );
 

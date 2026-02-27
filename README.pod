@@ -172,7 +172,7 @@ Lists and History
   +----------------+--------------------------------------+-----------+
   | TListBox       | TV::Dialogs::ListBox                 | [x]       |
   | TListBoxRec    | TV::Dialogs::ListBox                 | [x]       |
-  | TSortedListBox | (missing)                            | [ ]       |
+  | TSortedListBox | TV::StdDlg::SortedListBox            | [x]       |
   | HistRec        | TV::Dialogs::HistoryViewer::HistList | [x]       |
   | THistoryViewer | TV::Dialogs::HistoryViewer           | [x]       |
   | THistInit      | TV::Dialogs::HistInit                | [x]       |
@@ -295,13 +295,13 @@ The project has completed the foundational subsystems:
 
 =item * TextView subsystem
 
+=item * Dialog controls
+
 =back
 
 The remaining work is concentrated in:
 
 =over 4
-
-=item * Dialog controls
 
 =item * File/Directory dialogs
 
@@ -320,9 +320,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 138
-  Implemented:                         67
+  Implemented:                         68
   Partial:                              7
-  Missing:                             64
+  Missing:                             63
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
