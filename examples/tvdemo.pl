@@ -1,3 +1,15 @@
+#---------------------------------------------------------#
+#                                                         #
+#   Turbo Vision TVDEMO source file                       #
+#                                                         #
+#---------------------------------------------------------#
+#
+#      Turbo Vision - Version 2.0 (Perl Edition)
+#
+#      Copyright (c) 1994 by Borland International
+#      All Rights Reserved.
+#
+#
 package TVDemo;
 
 use TV::Objects;
@@ -28,6 +40,12 @@ use constant {
 
 has heap  => ( is => 'bare' );    # Heap view
 has clock => ( is => 'bare' );    # Clock view
+
+#
+# Constructor for the application.  Command line parameters are interpreted
+#   as file names and opened.  Wildcards are accepted and put up a dialog
+#   box with the appropriate search path.
+#
 
 sub BUILDARGS {
   return {
@@ -266,7 +284,7 @@ sub main {
   my $demoProgram = new_TVDemo( $argc, $argv );
 
   $demoProgram->run();
-
+  
   $demoProgram = undef;
   return 0;
 }

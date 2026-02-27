@@ -25,5 +25,6 @@ isa_ok( new_TMultiCheckBoxes( TRect->new(), undef, 3, 0x0203, '-+*' ),
 isa_ok( new_TListBox( TRect->new(), 0, undef ), TListBox );
 isa_ok( new_THistInit( sub { } ), THistInit() );
 isa_ok( new_THistoryWindow( TRect->new(), 0 ), THistoryWindow() );
+isa_ok( new_THistory( TRect->new(), bless( {} ), 0 ), THistory() );
 
 done_testing();

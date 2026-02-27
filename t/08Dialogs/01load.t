@@ -23,6 +23,7 @@ BEGIN {
   use_ok 'TV::Dialogs::HistInit';
   use_ok 'TV::Dialogs::HistoryViewer';
   use_ok 'TV::Dialogs::HistoryWindow';
+  use_ok 'TV::Dialogs::History';
 }
 
 isa_ok( TDialog->new( bounds => TRect->new(), title => 'title' ), TDialog );
@@ -48,5 +49,7 @@ isa_ok( TListBox->new( bounds => TRect->new(), numCols => 0,
 isa_ok( THistInit->new( cListViewer => sub { } ), THistInit() );
 isa_ok( THistoryWindow->new( bounds => TRect->new(), historyId => 0 
   ), THistoryWindow() );
+isa_ok( THistory->new( bounds => TRect->new(), link => bless( {} ), 
+  historyId => 0 ), THistory() );
 
 done_testing();

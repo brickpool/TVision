@@ -8,7 +8,7 @@
 #
 #      Demonstrates the TMultiCheckBoxes control.
 #
-
+#
 package TMCBDemo;
 
 use strict;
@@ -39,9 +39,9 @@ sub BUILDARGS {
   };
 }
 
-#---------------------------------------------------------
-#  Demo dialog showing the TMultiCheckBoxes control       
-#---------------------------------------------------------
+#
+# Demo dialog showing the TMultiCheckBoxes control       
+#
 sub showMultiCheckBoxDemo {
   my ( $self ) = @_;
 
@@ -89,9 +89,9 @@ sub showMultiCheckBoxDemo {
   return;
 } #/ sub showMultiCheckBoxDemo
 
-#---------------------------------------------------------
-#  Event handler                                          
-#---------------------------------------------------------
+#
+# Event handler                                          
+#
 sub handleEvent {
   my ( $self, $event ) = @_;
   $self->SUPER::handleEvent( $event );
@@ -111,9 +111,9 @@ sub handleEvent {
   return;
 } #/ sub handleEvent
 
-#---------------------------------------------------------
-#  Menu bar                                               
-#---------------------------------------------------------
+#
+# Menu bar                                               
+#
 sub initMenuBar {
   my ( $class, $r ) = @_;
   $r->{b}{y} = $r->{a}{y} + 1;
@@ -127,9 +127,9 @@ sub initMenuBar {
   );
 } #/ sub initMenuBar
 
-#---------------------------------------------------------
-#  Status line                                            
-#---------------------------------------------------------
+#
+# Status line                                            
+#
 sub initStatusLine {
   my ( $class, $r ) = @_;
   $r->{a}{y} = $r->{b}{y} - 1;
@@ -142,9 +142,9 @@ sub initStatusLine {
   );
 } #/ sub initStatusLine
 
-#---------------------------------------------------------
-#  Main entry point                                       
-#---------------------------------------------------------
+#
+# Main entry point                                       
+#
 package main;
 
 sub main {

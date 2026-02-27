@@ -177,7 +177,7 @@ Lists and History
   | THistoryViewer | TV::Dialogs::HistoryViewer           | [x]       |
   | THistInit      | TV::Dialogs::HistInit                | [x]       |
   | THistoryWindow | TV::Dialogs::HistoryWindow           | [x]       |
-  | THistory       | (missing)                            | [ ]       |
+  | THistory       | TV::Dialogs::History                 | [x]       |
   +----------------+--------------------------------------+-----------+
 
 =head3 File/Directory Dialogs
@@ -320,9 +320,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 138
-  Implemented:                         66
+  Implemented:                         67
   Partial:                              7
-  Missing:                             65
+  Missing:                             64
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
@@ -370,7 +370,7 @@ object reference instead of copying data into the existing object. In C++,
 passing by reference ensures that assignments modify the caller's object, while 
 in Perl the same assignment simply rebinds a local scalar and discards the 
 caller's reference. This difference can silently break control flow, especially 
-in event‑driven systems where modified objects must propagate back to the 
+in event-driven systems where modified objects must propagate back to the 
 caller.
 
 =head3 Key Features of the Port
@@ -413,14 +413,14 @@ use L<Moo> in its entirety (the same applies to L<Moose>, of course).
 The port can be installed via CPAN (Comprehensive Perl Archive Network). Simply
 run the following command:
 
-   cpan install TurboVision
+  cpan install TurboVision
 
 A simple example to create an application with Turbo Vision in Perl:
 
-   use TV::App;
+  use TV::App;
 
-   my $app = TApplication->new();
-   $app->run();
+  my $app = TApplication->new();
+  $app->run();
 
 =head3 Documentation and Support
 

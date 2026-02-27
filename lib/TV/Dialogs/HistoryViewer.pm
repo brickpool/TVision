@@ -62,7 +62,9 @@ sub BUILDARGS {    # \%args (%args)
   my $args1 = $class->SUPER::BUILDARGS( @_, numCols => 1 );
   my $args2 = check( {
     # 'required' arguments
-    historyId => { required => 1, defined => 1, allow => qr/^\d+$/ },
+    hScrollBar => { required => 1, allow => sub { blessed $_[0] } },
+    vScrollBar => { required => 1, allow => sub { blessed $_[0] } },
+    historyId  => { required => 1, defined => 1, allow => qr/^\d+$/ },
   } => { @_ } ) || Carp::confess( last_error );
   return { %$args1, %$args2 };
 }
@@ -80,7 +82,7 @@ sub BUILD {    # void (|\%args)
   return;
 }
 
-sub from {    # $obj ($bounds, $aHScrollBar|undef, $aVScrollBar|undef, $aHistoryId)
+sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar, $aHistoryId)
   my $class = shift;
   assert { $class and !ref $class };
   assert { @_ == 4 };
