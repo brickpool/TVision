@@ -154,12 +154,12 @@ sub do_sputn {    # $num ($s, $count)
   return $count;
 }
 
-sub bufInc {    # void ($val)
-  my ( $self, undef ) = @_;
-  alias: for my $val ( $_[1] ) {
+sub bufInc {    # void (\$val)
+  my ( $self, $val_ref ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
-  assert ( looks_like_number $val );
+  assert ( ref $val_ref and looks_like_number $$val_ref );
+  alias: for my $val ( $$val_ref ) {
   if ( ++$val >= $self->{bufSize} ) {
     $val = 0;
   }
@@ -211,7 +211,7 @@ sub draw {    # void ()
   if ( $self->{limit}{y} > $bottomLine ) {
     $endLine =
       $self->prevLines( $self->{queFront}, $self->{limit}{y} - $bottomLine );
-    $self->bufDec( $endLine );
+    $self->bufDec( \$endLine );
   }
   else {
     $endLine = $self->{queFront};
@@ -271,7 +271,7 @@ sub draw {    # void ()
       $self->setCursor( $x, $y );
     }
     $endLine = $begLine;
-    $self->bufDec( $endLine );
+    $self->bufDec( \$endLine );
   } #/ for ( ; $y >= 0 ; $y-- )
   return;
 }
@@ -286,10 +286,10 @@ sub nextLine {    # $offset ($pos)
     while ( substr( $self->{buffer}, $pos, 1 ) ne "\n"
       && $pos != $self->{queFront}
     ) {
-      $self->bufInc( $pos );
+      $self->bufInc( \$pos );
     }
     if ( $pos != $self->{queFront} ) {
-      $self->bufInc( $pos );
+      $self->bufInc( \$pos );
     }
   }
   return $pos;
@@ -326,13 +326,13 @@ sub prevLines {    # $offset ($pos, $lines)
     do {
       return $self->{queBack} 
           if $pos == $self->{queBack};
-      $self->bufDec( $pos );
+      $self->bufDec( \$pos );
       my $count = ( $pos >= $self->{queBack}
                   ? $pos - $self->{queBack}
                   : $pos ) + 1;
       --$lines if $findLfBackwards->( $self->{buffer}, $pos, $count );
     } while ( $lines > 0 );
-    $self->bufInc( $pos );
+    $self->bufInc( \$pos );
   } #/ if ( $lines > 0 && $pos...)
   return $pos;
 } #/ sub prevLines
@@ -345,11 +345,11 @@ sub queEmpty {    # $bool ()
 }
 
 sub bufDec {    # void ($val)
-  my ( $self, undef ) = @_;
-  alias: for my $val ( $_[1] ) {
+  my ( $self, $val_ref ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
-  assert ( looks_like_number $val );
+  assert ( ref $val_ref and looks_like_number $$val_ref );
+  alias: for my $val ( $$val_ref ) {
   if ( $val == 0 ) {
     $val = $self->{bufSize} - 1;
   }
@@ -421,13 +421,13 @@ Factory constructor for creating a new terminal object.
 
 =head2 bufDec
 
- $self->bufDec($val);
+ $self->bufDec(\$val);
 
 Decrements a buffer position in the circular buffer.
 
 =head2 bufInc
 
- $self->bufInc($val);
+ $self->bufInc(\$val);
 
 Increments a buffer position in the circular buffer.
 

@@ -165,7 +165,7 @@ sub execute {    # $int ()
         if ( $self->mouseInView( $e->{mouse}{where} ) 
           || $self->$mouseInOwner( $e ) 
         ) {
-          $self->$trackMouse( $e, $mouseActive );
+          $self->$trackMouse( $e, \$mouseActive );
           # autoSelect makes it possible to open the selected submenu directly
           # on a MouseDown event. This should be avoided, however, when said
           # submenu was just closed by clicking on its name, or when this is
@@ -187,7 +187,7 @@ sub execute {    # $int ()
         last;
       };
       $_ == evMouseUp and do {
-        $self->$trackMouse( $e, $mouseActive );
+        $self->$trackMouse( $e, \$mouseActive );
         if ( $self->$mouseInOwner( $e ) ) {
           $self->current( $self->{menu}{deflt} );
         }
@@ -231,7 +231,7 @@ sub execute {    # $int ()
       };
       $_ == evMouseMove and do {
         if ( $e->{mouse}{buttons} ) {
-          $self->$trackMouse( $e, $mouseActive );
+          $self->$trackMouse( $e, \$mouseActive );
           if ( !( $self->mouseInView( $e->{mouse}{where} ) 
               || $self->$mouseInOwner( $e ) 
             )
@@ -611,9 +611,9 @@ $mouseInMenus = sub {    # $bool ($e)
   return defined $p;
 };
 
-$trackMouse = sub {    # void ($e, $mouseActive)
-  my ( $self, $e, undef ) = @_;
-  alias: for my $mouseActive ( $_[2] ) {
+$trackMouse = sub {    # void ($e, \$mouseActive)
+  my ( $self, $e, $mouseActive_ref ) = @_;
+  alias: for my $mouseActive ( $$mouseActive_ref ) {
   my $mouse = $self->makeLocal( $e->{mouse}{where} );
   for (
     $self->current( $self->{menu}{items} );

@@ -28,10 +28,10 @@ subtest 'Object creation' => sub {
 # Test bufInc and bufDec
 subtest 'bufInc and bufDec' => sub {
   my $pos = 0;
-  $term->bufInc( $pos );
+  $term->bufInc( \$pos );
   is( $pos, 1, 'bufInc increments position' );
   $pos = 0;
-  $term->bufDec( $pos );
+  $term->bufDec( \$pos );
   is( $pos, 11, 'bufDec wraps around correctly' );
 };
 
