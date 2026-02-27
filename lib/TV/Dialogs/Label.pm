@@ -24,7 +24,6 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
-  weaken
 );
 
 use TV::Dialogs::Const qw( cpLabel );
@@ -90,7 +89,6 @@ sub BUILDARGS {    # \%args (%args)
 sub BUILD {    # void (|\%args)
   my $self = shift;
   assert ( blessed $self );
-  weaken( $self->{link} ) if $self->{link};
   $self->{options} |= ofPreProcess | ofPostProcess;
   $self->{eventMask} |= evBroadcast;
   return;
@@ -108,6 +106,7 @@ sub shutDown {    # void ()
   assert ( @_ == 1 );
   assert ( blessed $self );
   $self->{link} = undef;
+  $self->SUPER::shutDown();
   return;
 }
 
@@ -144,10 +143,7 @@ sub getPalette {    # $palette ()
   my ( $self ) = @_;
   assert ( @_ == 1 );
   assert ( blessed $self );
-  $palette ||= TPalette->new(
-    data => cpLabel, 
-    size => length( cpLabel ),
-  );
+  $palette ||= TPalette->new( data => cpLabel, size => length( cpLabel ) );
   return $palette->clone();
 }
 
@@ -169,8 +165,7 @@ sub handleEvent {    # void ($event)
       || ( $c
         && $self->{owner}{phase} == phPostProcess
         && uc( $event->{keyDown}{charScan}{charCode} ) eq $c )
-      )
-    {
+    ) {
       $self->$focusLink( $event );
     }
   } #/ elsif ( $event->{what} ==...)
@@ -178,8 +173,7 @@ sub handleEvent {    # void ($event)
     $event->{what} == evBroadcast && $self->{link}
     && ( $event->{message}{command} == cmReceivedFocus
       || $event->{message}{command} == cmReleasedFocus )
-    )
-  {
+  ) {
     $self->{light} = ( $self->{link}{state} & sfFocused ) != 0;
     $self->drawView();
   } #/ elsif ( $event->{what} ==...)
@@ -192,6 +186,7 @@ $focusLink = sub {    # void ($event)
     $self->{link}->focus();
   }
   $self->clearEvent( $event );
+  return;
 };
 
 1
