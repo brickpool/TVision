@@ -22,7 +22,7 @@ subtest 'Object creation' => sub {
 # Test case for initial state
 subtest 'Initial state' => sub {
   my $text = 'UNINITIALIZED';
-  $param_text->getText( $text );
+  $param_text->getText( \$text );
   is( $text, '', 'Initial text should be empty string' );
 
   my $len = $param_text->getTextLen();
@@ -35,7 +35,7 @@ subtest 'setText with simple string' => sub {
     'setText executed without error';
 
   my $text = '';
-  $param_text->getText( $text );
+  $param_text->getText( \$text );
   is( $text, 'Hello world', 'getText returns the string set by setText' );
 
   my $len = $param_text->getTextLen();
@@ -48,7 +48,7 @@ subtest 'setText with format string' => sub {
     'setText with format string executed without error';
 
   my $text = '';
-  $param_text->getText( $text );
+  $param_text->getText( \$text );
   my $expected = 'Value=42, Name=John';
   is( $text, $expected, 'Formatted text stored correctly' );
   my $len = $param_text->getTextLen();

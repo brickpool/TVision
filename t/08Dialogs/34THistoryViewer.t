@@ -81,7 +81,7 @@ subtest 'getText' => sub {
 
   # Case 1: full string fits
   my $dest1 = '';
-  lives_ok { $viewer->getText( $dest1, 0, 20 ) } 'getText(0,20) executed';
+  lives_ok { $viewer->getText( \$dest1, 0, 20 ) } 'getText(0,20) executed';
   is(
     $dest1, 
     'first entry', 
@@ -90,13 +90,13 @@ subtest 'getText' => sub {
 
   # Case 2: truncated string
   my $dest2 = '';
-  lives_ok { $viewer->getText( $dest2, 1, 6 ) } 'getText(1,6) executed';
+  lives_ok { $viewer->getText( \$dest2, 1, 6 ) } 'getText(1,6) executed';
   is( $dest2, 'second', 'getText truncates string correctly' );
 
   # Case 3: empty string via unknown historyId -> EOS
   my $dest3 = 'will be overwritten';
   $viewer->{historyId} = 999;    # no entries in our override
-  lives_ok { $viewer->getText( $dest3, 0, 10 ) }
+  lives_ok { $viewer->getText( \$dest3, 0, 10 ) }
     'getText with empty history executed';
   is( $dest3, EOS, 'getText uses EOS when historyStr is empty' );
 }; #/ 'getText' => sub

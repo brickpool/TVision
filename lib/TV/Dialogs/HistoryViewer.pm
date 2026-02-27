@@ -102,18 +102,18 @@ sub getPalette {    # $palette ()
   return $palette->clone();
 }
 
-sub getText {    # void ($dest, $item, $maxChars)
-  my ( $self, undef, $item, $maxChars ) = @_;
-  alias: for my $dest ( $_[1] ) {
+sub getText {    # void (\$dest, $item, $maxChars)
+  my ( $self, $dest_ref, $item, $maxChars ) = @_;
   assert { @_ == 4 };
   assert { blessed $self };
-  assert { !ref $dest and !readonly $dest };
+  assert { ref $dest_ref and !readonly $$dest_ref };
   assert { looks_like_number $item };
   assert { looks_like_number $maxChars };
+  alias: for my $dest ( $$dest_ref ) {
   my $str = historyStr( $self->{historyId}, $item );
   $dest = $str ? substr( $str, 0, $maxChars ) : EOS;
   return;
-  } #/ alias: for my $dest ( $_[1] )
+  } #/ alias: for my $dest ( $$dest_ref )
 }
 
 sub handleEvent {    # void ($event)

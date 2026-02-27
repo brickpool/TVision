@@ -88,20 +88,20 @@ subtest 'getText' => sub {
   my $obj = MyStaticText->from( $bounds, 'Short text' );
 
   my $s;
-  lives_ok { $obj->getText( $s ) } 'getText lives for normal text';
+  lives_ok { $obj->getText( \$s ) } 'getText lives for normal text';
   is( $s, 'Short text', 'getText returns stored text' );
 
   # When internal text is undef, getText should return empty string
   $obj->{text} = undef;
   $s = 'preset';
-  lives_ok { $obj->getText( $s ) } 'getText lives when internal text is undef';
+  lives_ok { $obj->getText( \$s ) } 'getText lives when internal text is undef';
   is( $s, '', 'getText returns empty string for undef internal text' );
 
   # Long text should be truncated to 255 chars
   my $long = 'x' x 300;
   $obj->{text} = $long;
   $s = '';
-  lives_ok { $obj->getText( $s ) } 'getText lives for long text';
+  lives_ok { $obj->getText( \$s ) } 'getText lives for long text';
   is( length( $s ), 255, 'getText truncates text to 255 characters' );
 }; #/ 'getText' => sub
 

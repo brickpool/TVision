@@ -226,7 +226,7 @@ sub draw {    # void ()
       $b->moveChar( $curCol, ' ', $color, $colWidth );
       if ( $item < $self->{range} ) {
         my $text;
-        $self->getText( $text, $item, $colWidth + $indent );
+        $self->getText( \$text, $item, $colWidth + $indent );
         my $buf = substr( $text, $indent, $colWidth );
         $b->moveStr( $curCol + 1, $buf, $color );
         if ( $showMarkers ) {
@@ -293,17 +293,17 @@ sub getPalette {    # $palette ()
   return $palette->clone();
 }
 
-sub getText {    # void ($dest, $item, $width)
-  my ( $self, undef, $item, $width ) = @_;
-  alias: for my $dest ( $_[1] ) {
+sub getText {    # void (\$dest, $item, $width)
+  my ( $self, $dest_ref, $item, $width ) = @_;
   assert ( @_ == 4 );
   assert ( blessed $self );
-  assert ( !ref $dest and !readonly $dest );
+  assert ( ref $dest_ref and !readonly $$dest_ref );
   assert ( looks_like_number $item );
   assert ( looks_like_number $width );
+  alias: for my $dest ( $$dest_ref ) {
   $dest = EOS;
   return;
-  } #/ alias: for my $dest ( $_[1] )
+  } #/ alias: for my $dest ( $$dest_ref )
 }
 
 sub isSelected {    # $bool ($item)
@@ -618,9 +618,9 @@ TListViewer - Base class for list viewers in Turbo Vision
 
   sub getText {
     my ( $self, $dest, $item, $width ) = @_;
-    # fill $dest with the text for the given item (like a C char*)
-    $dest = sprintf "Item %d", $item;
-    $_[1] = substr( $dest, 0, $width );
+    # fill $dest with the text for the given item
+    $str = sprintf("Item %d", $item);
+    $$dest = substr( $str, 0, $width );
     return;
   }
 
@@ -849,7 +849,7 @@ Subclasses are expected to override the following methods:
 
 =head2 getText
 
-  $lv->getText( $dest, $item, $width );
+  $lv->getText( \$dest, $item, $width );
 
 Fills C<$dest> with the text for the given item index. The text may be longer 
 than C<$width>; the drawing code will only use the first C<$width> characters 

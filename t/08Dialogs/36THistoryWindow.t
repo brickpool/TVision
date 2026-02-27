@@ -60,7 +60,7 @@ subtest 'getSelection' => sub {
   $win->{viewer}{focused} = 1;
 
   my $selection = '';
-  lives_ok { $win->getSelection( $selection ) } 'getSelection executed';
+  lives_ok { $win->getSelection( \$selection ) } 'getSelection executed';
   is( $selection, 'second entry', 'getSelection returns focused history entry' );
 };
 

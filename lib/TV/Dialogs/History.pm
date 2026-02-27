@@ -145,7 +145,7 @@ sub handleEvent {    # void ($event)
       $c = $self->{owner}->execView( $historyWindow );
       if ( $c == cmOK ) {
         my $rslt;
-        $historyWindow->getSelection( $rslt );
+        $historyWindow->getSelection( \$rslt );
         $self->{link}{data} = substr( $rslt, 0, $self->{link}{maxLen} );
         $self->{link}->selectAll( !!1 );
         $self->{link}->drawView();

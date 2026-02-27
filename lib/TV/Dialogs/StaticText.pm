@@ -87,7 +87,7 @@ sub draw {    # void ()
   my $s;
 
   $color = $self->getColor( 1 );
-  $self->getText( $s );
+  $self->getText( \$s );
   $l      = length( $s );
   $p      = 0;
   $y      = 0;
@@ -155,12 +155,12 @@ sub getPalette {    # $palette ()
   return $palette->clone();
 }
 
-sub getText {    # void ($s)
-  my ( $self, undef ) = @_;
-  alias: for my $s ( $_[1] ) {
+sub getText {    # void (\$s)
+  my ( $self, $s_ref ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
-  assert ( !ref $s and !readonly $s );
+  assert ( ref $s_ref and !readonly $$s_ref );
+  alias: for my $s ( $$s_ref ) {
   if ( !$self->{text} ) {
     $s = '';
   }
@@ -168,7 +168,7 @@ sub getText {    # void ($s)
     $s = substr( $self->{text}, 0, 255 );
   }
   return;
-  } #/ alias: for my $s ( $_[1] )
+  } #/ alias: for my $s ( $$s_ref )
 } #/ sub getText
 
 1
@@ -232,7 +232,7 @@ and C<$aText>.
 
 =head2 getText
 
- $self->getText($s);
+ $self->getText(\$s);
 
 Retrieves the internal text and writes it into the supplied scalar.
 

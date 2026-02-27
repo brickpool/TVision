@@ -57,12 +57,12 @@ sub from {    # $obj ($bounds)
   return $class->new( bounds => $_[0] );
 }
 
-sub getText {    # void ($s)
-  my ( $self, undef ) = @_;
-  alias: for my $s ( $_[1] ) {
+sub getText {    # void (\$s)
+  my ( $self, $s_ref ) = @_;
   assert ( @_ == 2 );
   assert ( blessed $self );
-  assert ( !ref $s and !readonly $s );
+  assert ( ref $s_ref and !readonly $$s_ref );
+  alias: for my $s ( $$s_ref ) {
   $s = defined $self->{str} ? $self->{str} : '';
   return;
   }
@@ -106,7 +106,7 @@ TParamText - displays formatted dynamic text inside a Turbo Vision dialog
   $paramText->setText('Value: %d, Name: %s', 42, 'John');
 
   my $text = '';
-  $paramText->getText($text);
+  $paramText->getText(\$text);
 
   print "Current text: $text\n";
   
@@ -155,7 +155,7 @@ wrapper for simplified creation.
 
 =head2 getText
 
- $self->getText($s);
+ $self->getText(\$s);
 
 Retrieves the current internal text and writes it into the scalar supplied by 
 the caller.

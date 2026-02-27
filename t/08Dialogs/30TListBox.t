@@ -76,7 +76,7 @@ subtest 'getText' => sub {
   my $text;
 
   lives_ok {
-    $listbox->getText( $text, 1, 3 );    # item "second"
+    $listbox->getText( \$text, 1, 3 );    # item "second"
   } 'getText executed';
 
   is( $text, 'sec', 'getText returns truncated item text' );
@@ -89,7 +89,7 @@ subtest 'getText' => sub {
   } 'empty TListBox created';
 
   my $t;
-  lives_ok { $empty_listbox->getText( $t, 0, 5 ) }
+  lives_ok { $empty_listbox->getText( \$t, 0, 5 ) }
     'getText executed on empty listbox';
   is( $t, EOS, 'getText uses EOS when there are no items' );
 }; #/ 'getText' => sub
@@ -130,7 +130,7 @@ subtest 'setData' => sub {
 
   # verify getText now returns the new item
   my $text;
-  $listbox->getText( $text, $after[1], 10 );
+  $listbox->getText( \$text, $after[1], 10 );
   is( $text, 'gamma', 'getText reflects new item list and selection' );
 }; #/ 'setData' => sub
 

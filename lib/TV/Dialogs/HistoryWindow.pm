@@ -22,6 +22,7 @@ use Params::Check qw(
 use Scalar::Util qw(
   blessed
   looks_like_number
+  readonly
 );
 
 use TV::Dialogs::Const qw( cpHistoryWindow );
@@ -90,14 +91,13 @@ sub getPalette {    # $palette ()
   return $palette->clone();
 }
 
-sub getSelection {    # void ($dest)
-  my ( $self, undef ) = @_;
+sub getSelection {    # void (\$dest)
+  my ( $self, $dest_ref ) = @_;
   assert { @_ == 2 };
   assert { blessed $self };
-  alias: for my $dest ( $_[1] ) {
-  $self->{viewer}->getText( $dest, $self->{viewer}{focused}, 255 );
+  assert { ref $dest_ref and !readonly $$dest_ref };
+  $self->{viewer}->getText( $dest_ref, $self->{viewer}{focused}, 255 );
   return;
-  }
 }
 
 sub initViewer {    # $listViewer ($r, $win, $historyId)

@@ -92,14 +92,14 @@ sub getData {    # void (\@rec)
   return;
 } #/ sub getData
 
-sub getText {    # void ($dest, $item, $maxChars)
-  my ( $self, undef, $item, $maxChars ) = @_;
-  alias: for my $dest ( $_[1] ) {
+sub getText {    # void (\$dest, $item, $maxChars)
+  my ( $self, $dest_ref, $item, $maxChars ) = @_;
   assert ( @_ == 4 );
   assert ( blessed $self );
-  assert ( !ref $dest and !readonly $dest );
+  assert ( ref $dest_ref and !readonly $$dest_ref );
   assert ( looks_like_number $item );
   assert ( looks_like_number $maxChars );
+  alias: for my $dest ( $$dest_ref ) {
   if ( $self->{items} ) {
     my $src = $self->{items}->at( $item );
     $src = '' unless defined $src;
@@ -109,7 +109,7 @@ sub getText {    # void ($dest, $item, $maxChars)
     $dest = EOS;
   }
   return;
-  } #/ alias: for my $dest ( $_[1] )
+  } #/ alias: for my $dest ( $$dest_ref )
 } #/ sub getText
 
 sub newList {    # void ($aList)
