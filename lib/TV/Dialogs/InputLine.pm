@@ -27,6 +27,7 @@ use Scalar::Util qw(
   looks_like_number
 );
 
+use TV::Const qw( EOS );
 use TV::Dialogs::Const qw( cpInputLine );
 use TV::Drivers::Const qw(
   :evXXXX
@@ -186,7 +187,7 @@ sub draw {    # void ()
     $l = $self->{selStart} - $self->{firstPos};
     $r = $self->{selEnd} - $self->{firstPos};
     $l = max( 0, $l );
-    $r = min( $self->{size}{x}, 2 );
+    $r = min( $self->{size}{x} - 2, $r );
     if ( $l < $r ) {
       $b->moveChar( $l + 1, 0, $self->getColor( 3 ), $r - $l );
     }
@@ -259,7 +260,7 @@ sub handleEvent {    # void ($event)
           $self->drawView();
         } while $self->mouseEvent( $event, evMouseMove | evMouseAuto );
       } #/ else [ if ( $self->$canScroll(...))]
-      clearEvent( $event );
+      $self->clearEvent( $event );
       last;
     };
 
@@ -331,18 +332,22 @@ sub handleEvent {    # void ($event)
           if ( defined $ch && $ch >= ord( ' ' ) ) {
             $self->$deleteSelect();
             if ( $self->{state} & sfCursorIns ) {
-              # The following must be a signed comparison!
+              # The following is always a signed comparison in Perl!
               if ( $self->{curPos} < length( $self->{data} ) ) {
                 substr( $self->{data}, $self->{curPos}, 1, '' );
               }
             }
             if ( $self->$checkValid( !!1 ) ) {
-              if ( length( $self->{data} ) < $self->{maxLen} ) {
+              my $strlen = length( $self->{data} );
+              if ( $strlen < $self->{maxLen} ) {
                 if ( $self->{firstPos} > $self->{curPos} ) {
                   $self->{firstPos} = $self->{curPos};
                 }
-                substr( $self->{data}, $self->{curPos} + 1 ) =
-                  substr( $self->{data}, $self->{curPos} );
+                # In Perl, only move the data if the insertion is not at end
+                if ( $self->{curPos} < $strlen ) {
+                  substr( $self->{data}, $self->{curPos} + 1 ) =
+                    substr( $self->{data}, $self->{curPos} )
+                }
                 substr( $self->{data}, $self->{curPos}, 1 ) = chr( $ch );
                 $self->{curPos}++;
               }
@@ -350,7 +355,7 @@ sub handleEvent {    # void ($event)
             } #/ if ( $self->$checkValid...)
           } #/ if ( defined $ch && $ch...)
           elsif ( defined $ch && $ch == CONTROL_Y ) {
-            $self->{data}   = '';
+            $self->{data}   = EOS;
             $self->{curPos} = 0;
           }
           else {
@@ -358,7 +363,7 @@ sub handleEvent {    # void ($event)
           }
           last;
         };
-      } #/: for ( $event->{keyDown}...)
+      } #/ SWITCH: for ( $event->{keyDown}...)
 
       $self->$adjustSelectBlock();
       if ( $self->{firstPos} > $self->{curPos} ) {
