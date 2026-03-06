@@ -19,6 +19,8 @@ BEGIN {
   if ( eval { require Moose } ) {
     use_ok 'TV::toolkit::LOP::Moose';
   }
+  use_ok 'TV::toolkit::Types';
+  use_ok 'TV::toolkit::Params';
   use_ok 'TV::toolkit::LOP';
   use_ok 'TV::toolkit::decorators';
   use_ok 'TV::toolkit';
