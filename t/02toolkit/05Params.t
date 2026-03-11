@@ -166,6 +166,20 @@ subtest 'Default-CODE (Lazy)' => sub {
   } 'default coderef ok';
 };
 
+subtest 'Default-String ref' => sub {
+  my $sig = signature(
+    pos => [
+      Num,
+      Str, { default => \"333 * 2" },
+    ],
+  );
+
+  lives_ok {
+    my @out = $sig->( 42 );
+    is_deeply \@out, [ 42, 666 ], "default scalar applied";
+  } 'default scalar ok';
+};
+
 subtest 'Default = undef' => sub {
   my $sig = signature(
     pos => [
@@ -177,6 +191,20 @@ subtest 'Default = undef' => sub {
   throws_ok { $sig->( 7 ) }
     qr/Undef did not pass type constraint "Str"/,
       'default is undef';
+};
+
+subtest 'Default-Array ref' => sub {
+  my $sig = signature(
+    pos => [
+      Num,
+      ArrayRef, { default => [] },
+    ],
+  );
+
+  lives_ok {
+    my @out = $sig->( 42 );
+    is_deeply \@out, [ 42, [] ], "default array ref applied";
+  } 'default array ref ok';
 };
 
 done_testing();
