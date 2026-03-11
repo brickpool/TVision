@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Scalar::Util qw(
@@ -421,7 +421,7 @@ sub GlobRef () {
 sub FileHandle () {
   $TYPES{FileHandle} ||= TV::Type::Object->new(
     name       => 'FileHandle',
-    parent     => Item,
+    parent     => Ref(),
     constraint => \&is_FileHandle,
   );
 }
@@ -431,28 +431,43 @@ sub FileHandle () {
 # ----------------------------------------------------------------------
 
 sub Maybe ($) {
-  return _param_type( 'Maybe', shift, 
-    sub {
+  my ( $param ) = @_;
+  my $type = $TYPES{Maybe} ||= TV::Type::Object->new(
+    name       => 'Maybe',
+    parent     => Item,
+    constraint => \&is_Any,
+  );
+
+  return _param_type(
+    name      => 'Maybe',
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
       my ( $inner ) = @_;
       return sub {
         my ( $value ) = @_;
         return !!1 unless defined $value;
         return $inner->check( $value );
       };
-    }
+    },
   );
 }
 
 sub Ref (;$) {
-  return $TYPES{Ref} ||= TV::Type::Object->new(
+  my ( $param ) = @_;
+  my $type = $TYPES{Ref} ||= TV::Type::Object->new(
     name       => 'Ref',
     parent     => Defined,
     constraint => \&is_Ref,
     inlined    => sub { "!!ref($_[1])" },
-  ) unless defined $_[0];
+  );
 
-  return _param_type( 'Ref', shift, 
-    sub {
+  return $type unless defined $param;
+  return _param_type(
+    name      => 'Ref',
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
       my ( $inner ) = @_;
       return sub {
         my ( $ref ) = @_;
@@ -460,20 +475,25 @@ sub Ref (;$) {
         return !!0 unless $inner->check( $_ );
         return !!1;
       };
-    }
+    },
   );
 }
 
 sub ScalarRef (;$) {
-  return $TYPES{ScalarRef} ||= TV::Type::Object->new(
+  my ( $param ) = @_;
+  my $type = $TYPES{ScalarRef} ||= TV::Type::Object->new(
     name       => 'ScalarRef',
     parent     => Ref,
     constraint => \&is_ScalarRef,
     inlined    => sub { "ref($_[1]) eq 'SCALAR' || ref($_[1]) eq 'REF'" },
-  ) unless defined $_[0];
+  );
 
-  return _param_type( 'ScalarRef', shift, 
-    sub {
+  return $type unless defined $param;
+  return _param_type(
+    name       => 'ScalarRef',
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
       my ( $inner ) = @_;
       return sub {
         my ( $ref ) = @_;
@@ -481,20 +501,25 @@ sub ScalarRef (;$) {
         return !!0 unless $inner->check( $_ );
         return !!1;
       };
-    }
+    },
   );
 }
 
 sub ArrayRef (;$) {
-  return $TYPES{ArrayRef} ||= TV::Type::Object->new( 
+  my ( $param ) = @_;
+  my $type = $TYPES{ArrayRef} ||= TV::Type::Object->new( 
     name       => 'ArrayRef', 
     parent     => Ref,
     constraint => \&is_ArrayRef,
     inlined    => sub { "ref($_[1]) eq 'ARRAY'" },
-  ) unless defined $_[0];
+  );
 
-  return _param_type( 'ArrayRef', shift, 
-    sub {
+  return $type unless defined $param;
+  return _param_type( 
+    name       => 'ArrayRef', 
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
       my ( $inner ) = @_;
       return sub {
         my ( $ref ) = @_;
@@ -504,20 +529,25 @@ sub ArrayRef (;$) {
         }
         return !!1;
       };
-    }
+    },
   );
 }
 
 sub HashRef (;$) {
-  return $TYPES{HashRef} ||= TV::Type::Object->new(
+  my ( $param ) = @_;
+  my $type = $TYPES{HashRef} ||= TV::Type::Object->new(
     name       => 'HashRef',
     parent     => Ref,
     constraint => \&is_HashRef,
     inlined    => sub { "ref($_[1]) eq 'HASH'" },
-  ) unless defined $_[0];
+  );
 
-  return _param_type( 'HashRef', shift, 
-    sub {
+  return $type unless defined $param;
+  return _param_type( 
+    name       => 'HashRef', 
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
       my ( $inner ) = @_;
       return sub {
         my ( $ref ) = @_;
@@ -527,7 +557,7 @@ sub HashRef (;$) {
         }
         return !!1;
       };
-    }
+    },
   );
 }
 
@@ -536,21 +566,39 @@ sub HashRef (;$) {
 # ----------------------------------------------------------------------
 
 sub _param_type {
-  my ( $kind, $ref, $builder ) = @_;
+  my ( %args ) = @_;
+  my $kind    = $args{name};
+  my $ref     = $args{param};
+  my $parent  = $args{parent};
+  my $builder = $args{constraint_generator};
 
-  die "Expects array reference"  unless is_ArrayRef( $ref );
-  die "Expects exactly one type" unless @$ref == 1;
+  # Basic checks
+  Carp::croak "Missing required argument 'name'"
+    unless defined $kind;
+  Carp::croak "Missing required argument 'param'"
+    unless defined $ref;
+  Carp::croak "Missing required argument 'constraint_generator'"
+    unless defined $builder;
 
-  my $inner = shift @$ref;
+  # Check argument types
+  Carp::croak "Expects name to be a string"
+    unless is_Str( $kind );
+  Carp::croak "Expects constraint_generator to be a code ref" 
+    unless is_CodeRef( $builder );
+  Carp::croak "Expects param to be an array reference"
+    unless is_ArrayRef( $ref );
+  Carp::croak "Expects param array ref to hold exactly one type"
+    unless @$ref == 1;
 
-  die "Expects a type constraint object"      unless blessed( $inner );
-  die "Expects a Type::API compatible object" unless $inner->can( 'check' );
+  # Check if inner is a Type-API style object
+  my ( $inner ) = @$ref;
+  Carp::croak "Expects a type constraint object as inner type"
+    unless blessed( $inner ) && $inner->can( 'check' );
 
-  my $a = $inner->{name} || '__ANON__';
-  my $name = "$kind\[$a\]";
-
-  return $TYPES{$kind}{$a} ||= TV::Type::Object->new(
-    name       => $name,
+  # Generate the type object
+  return TV::Type::Object->new(
+    name       => '__ANON__',
+    parent     => $parent,
     constraint => $builder->( $inner ),
   );
 }
@@ -763,7 +811,7 @@ Checks the referent.
 
 =head1 TYPE RELATIONSHIPS
 
-A simplified, core-compatible parent–child hierarchy is used:
+A simplified, L<Types::Tiny>-compatible parent–child hierarchy is used:
 
   Any
    +-- Item
@@ -784,10 +832,11 @@ A simplified, core-compatible parent–child hierarchy is used:
         |         +-- CodeRef
         |         +-- GlobRef
         |         +-- Object
-        +-- FileHandle
+        |         +-- FileHandle
+        +-- Maybe
 
-B<Note>: Although conceptually similar, C<Item> and C<Any> are implemented as
-separate top-level types without a parent-child relationship.
+B<Note>: Although conceptually similar, C<Item> and C<Any> are implemented in
+a parent-child relationship.
 
 =head1 PREDICATE FUNCTIONS
 
@@ -967,8 +1016,6 @@ Only core modules are used:
 =over 4
 
 =item * L<Type::API>
-
-=item * L<Type::Tiny>
 
 =item * L<Types::Standard>
 

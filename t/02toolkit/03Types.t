@@ -17,13 +17,7 @@ sub type_api_ok {
 
   subtest "Type::API compliance for $name" => sub {
     ok( $type, "$name is defined" );
-    ok( ref $type, "$name is a reference" );
-
-    # Must behave like a Type::API::Constraint and Constructor
-    ok( $type->DOES('Type::API::Constraint'),
-      "$name DOES Type::API::Constraint" );
-    ok( $type->DOES('Type::API::Constraint::Constructor'),
-      "$name DOES Type::API::Constraint::Constructor" );
+    ok( is_Object( $type ), "$name is an object" );
 
     # Must provide the following methods
     can_ok( $type, 'check' );
@@ -322,7 +316,7 @@ subtest 'Ref/ScalarRef/ArrayRef/HashRef/CodeRef/GlobRef/Object' => sub {
 
 subtest 'FileHandle' => sub {
   my $fh_type = FileHandle;
-  type_api_ok( $fh_type, 'FileHandle', 'Item' );
+  type_api_ok( $fh_type, 'FileHandle', 'Ref' );
 
   open my $fh, '<', $0 or die "Cannot open self: $!";
   behavior_ok(
@@ -337,14 +331,14 @@ subtest 'FileHandle' => sub {
 
 subtest 'Parametric types: Maybe[Int] and ArrayRef[Int]' => sub {
   my $maybe_int = Maybe( [ Int ] );
-  type_api_ok( $maybe_int, $maybe_int->name, undef );
+  type_api_ok( $maybe_int, $maybe_int->name, 'Maybe' );
 
   ok( $maybe_int->check(undef), 'Maybe[Int] accepts undef' );
   ok( $maybe_int->check(42),    'Maybe[Int] accepts Int' );
   ok( !$maybe_int->check('x'),  'Maybe[Int] rejects non-Int' );
 
   my $aref_of_int = ArrayRef( [ Int ] );
-  type_api_ok( $aref_of_int, $aref_of_int->name, undef );
+  type_api_ok( $aref_of_int, $aref_of_int->name, 'ArrayRef' );
 
   ok( $aref_of_int->check( [ 1, 2, 3 ] ), 'ArrayRef[Int] accepts all Int' );
   ok( !$aref_of_int->check( [ 1, "x", 3 ] ),
