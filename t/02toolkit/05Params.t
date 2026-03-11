@@ -5,10 +5,17 @@ use Test::More;
 use Test::Exception;
 
 BEGIN {
-  unless ( eval { require Types::Standard } ) {
+  if ( eval { require TV::toolkit::Types } ) {
+    note 'use TV::toolkit::Types';
+    use_ok 'TV::toolkit::Types', qw( Num Str Int ArrayRef );
+  }
+  elsif ( eval { require Types::Standard } ) {
+    note 'use Types::Standard';
+    use_ok 'Types::Standard', qw( Num Str Int ArrayRef );
+  } 
+  else {
     plan skip_all => 'Test irrelevant without Types::Standard';
   }
-  use_ok 'Types::Standard', qw( Num Str Int ArrayRef );
   # use_ok 'Type::Params', qw( signature );
   use_ok 'TV::toolkit::Params', qw( signature );
 }
@@ -114,8 +121,8 @@ subtest 'Optional + Slurpy combined' => sub {
   my $sig = signature(
     pos => [
       Num,    # mandatory
-      Str,            { optional => 1 },
-      ArrayRef [Num], { slurpy   => 1 },
+      Str,           { optional => 1 },
+      ArrayRef[Num], { slurpy   => 1 },
     ],
   );
 
@@ -129,6 +136,47 @@ subtest 'Optional + Slurpy combined' => sub {
   throws_ok { $sig->() }
     qr/Wrong number of parameters; got 0; expected at least 1/,
       'optional+slurpy: too few args';
+};
+
+subtest 'Default-scalar' => sub {
+  my $sig = signature(
+    pos => [
+      Num,
+      Str, { default => "X" },
+    ],
+  );
+
+  lives_ok {
+    my @out = $sig->( 42 );
+    is_deeply \@out, [ 42, "X" ], "default scalar applied";
+  } 'default scalar ok';
+};
+
+subtest 'Default-CODE (Lazy)' => sub {
+  my $sig = signature(
+    pos => [
+      Num,
+      Str, { default => sub { "GEN" } },
+    ],
+  );
+
+  lives_ok {
+    my @out = $sig->( 10 );
+    is_deeply \@out, [ 10, "GEN" ], "default CODE applied";
+  } 'default coderef ok';
+};
+
+subtest 'Default = undef' => sub {
+  my $sig = signature(
+    pos => [
+      Num,
+      Str, { default => undef },
+    ],
+  );
+
+  throws_ok { $sig->( 7 ) }
+    qr/Undef did not pass type constraint "Str"/,
+      'default is undef';
 };
 
 done_testing();

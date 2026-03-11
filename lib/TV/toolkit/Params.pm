@@ -5,85 +5,29 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
-
-use Exporter 'import';
-our @EXPORT_OK = qw(
-  signature
-);
 
 use B::Deparse   ();
 use Carp         ();
 use Scalar::Util ();
 use Sub::Util    ();
 
-our @CARP_NOT;
+# ----------------------------------------------------------------------
+# Exports
+# ----------------------------------------------------------------------
 
-my $DEPARSE = B::Deparse->new( "-P", "-sC" );
+use Exporter 'import';
 
-sub coderef2text {
-  my ( $code ) = @_;
-  my $body = $DEPARSE->coderef2text( $code );
-  for ( $body ) {
-    s/^\h+(?:use|no) (?:strict|warnings|feature|integer|utf8|bytes|re)\b[^\n]*\n//gm;
-    s/^\h+package [^\n]*;\n//gm;
-    s/\A\{\n\h+([^\n;]*);\n\}\z/{ $1 }/;
-  }
-  return $body;
-}
+our @EXPORT_OK = qw(
+  signature
+);
 
-# Internal helper: compile a generic checker for a type
-# The returned checker has the signature: ($value, $label) -> $value or croak
-# $label is a string used in error messages (e.g. '$_[0]' or '$SLURPY').
-sub compile_type_checker {
-  my ( $type ) = @_;
 
-  # Type::API-style object
-  if ( Scalar::Util::blessed( $type ) && $type->can( 'check' ) ) {
 
-    return sub {
-      my ( $val, $label ) = @_;
-      local $_ = $val;
-
-      return $val if $type->check( $val );
-
-      my $msg = $type->can( 'get_message' )
-              ? $type->get_message( $val )
-              : "Argument did not pass type constraint";
-
-      Carp::croak( "$msg (in $label)" );
-    };
-  }
-
-  # Plain CODE ref
-  elsif ( ref $type && Scalar::Util::reftype( $type ) eq 'CODE' ) {
-    my $name = Sub::Util::subname( $type );
-    $name = coderef2text( $type )
-      if $name && $name =~ /::__ANON__$/;
-
-    return sub {
-      my ( $val, $label ) = @_;
-      local $_ = $val;
-
-      return $val if $type->( $val );
-
-      my $desc = !defined( $val ) ? "Undef"
-               : ref( $val )      ? "Reference $val"
-               :                    "Value \"$val\"";
-
-      Carp::croak( "$desc did not pass type constraint $name (in $label)" );
-    };
-  }
-
-  # Unsupported type specification
-  else {
-    return sub {
-      my ( undef, $label ) = @_;
-      Carp::croak( "Unsupported type definition for argument $label" );
-    };
-  }
-}
+# ----------------------------------------------------------------------
+# Public Subroutines
+# ----------------------------------------------------------------------
 
 sub signature {
   no warnings;    ## no critic (ProhibitNoWarnings)
@@ -97,18 +41,38 @@ sub signature {
   };
 
   # Parse positional spec into internal parameter list:
-  #   [ isa, { optional => 1, slurpy => 1 }, isa, ... ]
+  #   [ isa, { optional => 1, slurpy => 1, default => ... }, isa, ... ]
   my @params;
   while ( @spec ) {
     my $isa = shift @spec;
     my $opts = ( @spec && ref $spec[0] eq 'HASH' )
              ? shift @spec
              : {};
-    push @params, {
+
+    my %param = (
       isa      => $isa,
       optional => $opts->{optional} ? 1 : 0,
       slurpy   => $opts->{slurpy}   ? 1 : 0,
-    };
+    );
+
+    # validate default
+    if ( exists $opts->{default} ) {
+      for ( $opts->{default} ) {
+        last unless defined;      # undef is allowed
+        last if ref eq 'CODE';    # CODE ref is allowed
+        unless ( ref ) {          # non-ref must be pure PV
+          my $obj = B::svref_2object( \$_ );
+          last
+            if ( $obj->FLAGS & B::SVf_POK )
+            && !( $obj->FLAGS & ( B::SVf_IOK | B::SVf_NOK ) );
+        }
+        Carp::croak( "Unsupported default value" );
+      }
+      $param{optional} = 1;                 # any default implies optional
+      $param{default} = $opts->{default}    # store default key
+    }
+
+    push @params, \%param;
   }
 
   # There must be at least one parameter
@@ -119,18 +83,18 @@ sub signature {
   my $has_slurpy    = 0;
   my $slurpy_index  = -1;
 
-  for my $idx ( 0 .. $#params ) {
-    my $p = $params[$idx];
+  for my $i ( 0 .. $#params ) {
+    my $p = $params[$i];
     if ( $p->{slurpy} ) {
       # Slurpy must be last and must be unique
       Carp::croak "Parameter following slurpy parameter"
-        if $has_slurpy || $idx != $#params;
+        if $has_slurpy || $i != $#params;
 
       Carp::croak "Slurpy parameter cannot be optional"
         if $p->{optional};
 
       $has_slurpy   = 1;
-      $slurpy_index = $idx;
+      $slurpy_index = $i;
     }
     else {
       if ( $p->{optional} ) {
@@ -157,13 +121,13 @@ sub signature {
 
   # Compile checkers for fixed parameters
   my @checks;
-  for my $idx ( 0 .. $#fixed_params ) {
-    my $type  = $fixed_params[$idx]{isa};
-    my $check = compile_type_checker( $type );
+  for my $i ( 0 .. $#fixed_params ) {
+    my $type  = $fixed_params[$i]{isa};
+    my $check = _generate_type_checker( $type );
 
     push @checks, sub {
       my ( $val ) = @_;
-      return $check->( $val, "\$_[$idx]" );
+      return $check->( $val, "\$_[$i]" );
     };
   }
 
@@ -171,7 +135,7 @@ sub signature {
   my $slurpy_check;
   if ( $has_slurpy ) {
     my $type    = $params[$slurpy_index]{isa};
-    my $generic = compile_type_checker( $type );
+    my $generic = _generate_type_checker( $type );
 
     $slurpy_check = sub {
       my ( $aref ) = @_;
@@ -200,25 +164,174 @@ sub signature {
     # Increase level for checks so error locations look natural
     $Carp::CarpLevel += 2;
 
+    my @out;
+ 
     # Validate fixed (non-slurpy) positional arguments
-    my $fixed_to_check = $argc < @checks ? $argc : @checks;
-    $checks[$_]->( $_[$_] ) for 0 .. $fixed_to_check - 1;
+    for my $i ( 0 .. $#fixed_params ) {
+      my $p = $fixed_params[$i];
+      my $val;
 
-    # If there is no slurpy parameter, just return original arguments.
-    # Missing optional parameters will simply become undef.
-    return @_ unless $has_slurpy;
+      # argument provided?
+      if ( $i < $argc ) {
+        $val = $_[$i];
+      }
+
+      # default provided?
+      elsif ( exists $p->{default} ) {
+        my $default = $p->{default};
+        $val = ref( $default ) eq 'CODE' ? $default->() : $default;
+      }
+      
+      # optional without default -> undef, no check
+      elsif ( $p->{optional} ) {
+        push @out, undef; 
+        next;
+      }
+              
+      $checks[$i]->( $val );
+      push @out, $val;
+    } #/ for my $i ( 0 .. $#fixed_params)
+
+    # If there is no slurpy parameter, just return
+    return @out unless $has_slurpy;
 
     # Slurpy: arrayref of remaining args (empty is allowed)
     my $rest = [];
     if ( $argc > @checks ) {
-      $rest = sub { \@_ }->( @_[ @checks .. $argc - 1 ] );
+      $rest = [ @_[ @checks .. $argc - 1 ] ];
       $slurpy_check->( $rest );
     }
 
     # Return fixed values plus array ref for slurpy
-    return ( @_[ 0 .. $#checks ], $rest );
+    return ( @out, $rest );
   };
 
+}
+
+# ----------------------------------------------------------------------
+# Internal helpers
+# ----------------------------------------------------------------------
+# signature(...)
+#  1. _parse_signature_spec
+#  2. _generate_type_checker  (per type)
+#  3. _execute_signature      (per call)
+#  4. _check_value            (generated subs)
+
+#
+# This subroutine generate a checker subroutine for a single type. 
+# This function decides whether to use L<Type::API::Constraint::Inlined> 
+# inline checking, L<Type::API::Constraint> checking, fallback L<Type::API> 
+# style checking, or CODE-ref checking. 
+#
+#  - C<$type>: a type object or CODE reference
+#
+# It returns a sub that validates exactly one C<$value>, where C<$label> is a 
+# string used in error messages (e.g. C<'$_[0]' or C<'$SLURPY'>).
+#
+#  Returns: a subroutine reference with signature ..
+#           sub ($value, $label) -> $value or croak
+#
+sub _generate_type_checker {    # \&check ($type)
+  my ( $type ) = @_;
+
+  # Type::API::Constraint::Inlinable
+  if ( Scalar::Util::blessed( $type )
+    && $type->DOES( "Type::API::Constraint::Inlinable" )
+    && $type->can_be_inlined
+  ) {
+    # Ask the type for inline code; it may use $val, $_[1], or local $_
+    my $inline = $type->inline_check( '$val' );
+
+    # Build the low-level predicate: ($type, $value) -> bool
+    my $check  = eval "sub { my (\$type, \$val) = \@_; $inline; }"
+      or die "Error compiling inline predicate: $@";
+
+    # High-level checker: ($value, $label) -> $value or croak
+    return sub {
+      my ( $val, $label ) = @_;
+      local $_ = $val;
+
+      return $val if $type->$check( $val );
+      Carp::croak( $type->get_message( $val ) . " (in $label)" );
+    };
+  }
+
+  # Type::API::Constraint
+  if ( Scalar::Util::blessed( $type )
+    && $type->DOES( "Type::API::Constraint" )
+  ) {
+    return sub {
+      my ( $val, $label ) = @_;
+      local $_ = $val;
+
+      return $val if $type->check( $val );
+      Carp::croak( $type->get_message( $val ) . " (in $label)" );
+    };
+  } #/ if ( Scalar::Util::blessed...)
+
+  # Type::API-style object
+  if ( Scalar::Util::blessed( $type ) && $type->can( 'check' ) ) {
+
+    return sub {
+      my ( $val, $label ) = @_;
+      local $_ = $val;
+
+      return $val if $type->check( $val );
+
+      my $msg = $type->can( 'get_message' )
+              ? $type->get_message( $val )
+              : "Argument did not pass type constraint";
+
+      Carp::croak( "$msg (in $label)" );
+    };
+  }
+
+  # Plain CODE ref
+  elsif ( ref $type && Scalar::Util::reftype( $type ) eq 'CODE' ) {
+    my $name = Sub::Util::subname( $type );
+    $name = _coderef2text( $type )
+      if $name && $name =~ /::__ANON__$/;
+
+    return sub {
+      my ( $val, $label ) = @_;
+      local $_ = $val;
+
+      return $val if $type->( $val );
+
+      my $desc = !defined( $val ) ? "Undef"
+               : ref( $val )      ? "Reference $val"
+               :                    "Value \"$val\"";
+
+      Carp::croak( "$desc did not pass type constraint $name (in $label)" );
+    };
+  }
+
+  # Unsupported type specification
+  else {
+    return sub {
+      my ( undef, $label ) = @_;
+      Carp::croak( "Unsupported type definition for argument $label" );
+    };
+  }
+}
+
+#
+# This subroutine reconstructs the code from Perl's internal syntax tree 
+#
+#  - C<$code>: a type constraint CODE reference
+#
+#  Returns: A string that maps the code reference from Perl's Optree.
+#
+sub _coderef2text {
+  my ( $code ) = @_;
+  state $DEPARSE = B::Deparse->new( "-P", "-sC" );
+  my $body = $DEPARSE->coderef2text( $code );
+  for ( $body ) {
+    s/^\h+(?:use|no) (?:strict|warnings|feature|integer|utf8|bytes|re)\b[^\n]*\n//gm;
+    s/^\h+package [^\n]*;\n//gm;
+    s/\A\{\n\h+([^\n;]*);\n\}\z/{ $1 }/;
+  }
+  return $body;
 }
 
 1
