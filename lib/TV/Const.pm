@@ -1,12 +1,5 @@
-=pod
-
-=head1 DESCRIPTION
-
-Miscellaneous system-wide configuration parameters.
-
-=cut
-
 package TV::Const;
+# ABSTRACT: Miscellaneous system-wide configuration parameters.
 
 use strict;
 use warnings;

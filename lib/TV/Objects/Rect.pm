@@ -1,23 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Objects::Rect - defines the class TRect
-
-=head1 DESCRIPTION
-
-In this Perl module, the I<TRect> class is created, which contains the same 
-methods as the Borland C++ class. 
-
-=head2 Methods
-
-The methods I<move>, I<grow>, I<intersect>, I<union>, I<contains>, I<equal>, 
-I<not_equal> and I<isEmpty> are implemented to provide the same behavior as in 
-the original code.
-
-=cut
-
 package TV::Objects::Rect;
+# ABSTRACT: defines the class TRect
 
 use strict;
 use warnings;
@@ -246,3 +228,44 @@ my $mk_accessors = sub {
 __PACKAGE__->$mk_accessors();
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Objects::Rect - defines the class TRect
+
+=head1 DESCRIPTION
+
+In this Perl module, the I<TRect> class is created, which contains the same 
+methods as the Borland C++ class. 
+
+=head2 Methods
+
+The methods I<move>, I<grow>, I<intersect>, I<union>, I<contains>, I<equal>, 
+I<not_equal> and I<isEmpty> are implemented to provide the same behavior as in 
+the original code.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

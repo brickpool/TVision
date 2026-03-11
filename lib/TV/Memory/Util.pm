@@ -1,12 +1,5 @@
-=pod
-
-=head1 DESCRIPTION
-
-defines various utility functions used throughout Turbo Vision
-
-=cut
-
 package TV::Memory::Util;
+# ABSTRACT: defines various utility functions used throughout Turbo Vision
 
 use strict;
 use warnings;

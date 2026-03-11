@@ -1,12 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Objects::Object - defines the class TObject
-
-=cut
-
 package TV::Objects::Object;
+# ABSTRACT: defines the class TObject
 
 use strict;
 use warnings;
@@ -79,3 +72,29 @@ sub shutDown {    # void ($self)
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut
