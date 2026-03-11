@@ -4,7 +4,6 @@ use warnings;
 use Test::More;
 use Test::Exception;
 
-
 use TV::toolkit::Types qw(
   Any Item Undef Defined Value Bool Str ClassName
   Num Int PositiveInt PositiveOrZeroInt
@@ -26,6 +25,10 @@ sub type_api_ok {
     ok( $type->DOES('Type::API::Constraint::Constructor'),
       "$name DOES Type::API::Constraint::Constructor" );
 
+    # Must provide the following methods
+    can_ok( $type, 'check' );
+    can_ok( $type, 'get_message' );
+
     is( $type->name, $name, "$name->name matches" );
 
     if ( defined $parent_name ) {
@@ -45,6 +48,18 @@ sub type_api_ok {
     my $check = \&{$type};
     ok( ref($check) eq 'CODE', "$name &{} overload returns a coderef" );
   };
+}
+
+sub desc {
+  my ($v) = @_;
+  return 'undef'      unless defined $v;
+  return 'ARRAY-ref'  if ref($v) eq 'ARRAY';
+  return 'HASH-ref'   if ref($v) eq 'HASH';
+  return 'CODE-ref'   if ref($v) eq 'CODE';
+  return 'GLOB-ref'   if ref($v) eq 'GLOB';
+  return 'SCALAR-ref' if ref($v) eq 'SCALAR';
+  return 'object(' . ref($v) . ')' if ref($v);
+  return qq{"$v"};
 }
 
 sub behavior_ok {
@@ -75,18 +90,6 @@ sub behavior_ok {
           "$name coderef call dies for " . desc($v);
     }
   };
-}
-
-sub desc {
-  my ($v) = @_;
-  return 'undef'      unless defined $v;
-  return 'ARRAY-ref'  if ref($v) eq 'ARRAY';
-  return 'HASH-ref'   if ref($v) eq 'HASH';
-  return 'CODE-ref'   if ref($v) eq 'CODE';
-  return 'GLOB-ref'   if ref($v) eq 'GLOB';
-  return 'SCALAR-ref' if ref($v) eq 'SCALAR';
-  return 'object(' . ref($v) . ')' if ref($v);
-  return qq{"$v"};
 }
 
 subtest 'Type::API compliance and behavior: Any' => sub {
@@ -199,7 +202,7 @@ subtest 'ClassName' => sub {
   );
 };
 
-subtest 'Num, Int, PositiveInt, PositiveOrZeroInt' => sub {
+subtest 'Num / Int / PositiveInt / PositiveOrZeroInt' => sub {
   my $num  = Num;
   my $int  = Int;
   my $pint = PositiveInt;
@@ -235,7 +238,7 @@ subtest 'Num, Int, PositiveInt, PositiveOrZeroInt' => sub {
   );
 };
 
-subtest 'Ref, ScalarRef, ArrayRef, HashRef, CodeRef, GlobRef, Object' => sub {
+subtest 'Ref/ScalarRef/ArrayRef/HashRef/CodeRef/GlobRef/Object' => sub {
   my $ref_t   = Ref();
   my $sref_t  = ScalarRef();
   my $aref_t  = ArrayRef();
@@ -258,7 +261,7 @@ subtest 'Ref, ScalarRef, ArrayRef, HashRef, CodeRef, GlobRef, Object' => sub {
   my $href   = { a => 1 };
   my $code   = sub { };
   my $glob   = \*STDOUT;
-  my $obj    = bless {}, 'Local::SomeClass';
+  my $obj    = bless {};
 
   behavior_ok(
     type      => $ref_t,

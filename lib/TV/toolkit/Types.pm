@@ -5,17 +5,20 @@ use 5.010;
 use strict;
 use warnings;
 
+our $VERSION   = '0.03';
+our $AUTHORITY = 'cpan:BRICKPOOL';
+
 use Scalar::Util qw(
   blessed
   openhandle
   looks_like_number
 );
 
-use Exporter qw( import );
-
 # ----------------------------------------------------------------------
 # Export type constraints
 # ----------------------------------------------------------------------
+
+use Exporter 'import';
 
 our @EXPORT_OK = qw(
   Maybe
@@ -138,6 +141,7 @@ our %EXPORT_TAGS = (
   my %roles = (
     'Type::API::Constraint'              => 1,
     'Type::API::Constraint::Constructor' => 1,
+    'Type::API::Constraint::Inlinable'   => 1,
   );
 
   sub DOES {
@@ -167,7 +171,19 @@ our %EXPORT_TAGS = (
     $value = ref( $value )     ? ( "Reference " . $value )
            : defined( $value ) ? ( "Value " . B::perlstring( $value ) )
            :                       "Undef";
-    return $value . " did not pass type constraint " . $param->{name};
+    return $value . ' did not pass type constraint "' . $param->{name} . '"';
+  }
+
+  sub can_be_inlined {
+    my $param = shift;
+    return ref( $param->{inlined} ) eq 'CODE';
+  }
+
+  sub inline_check {
+    my ( $param, $name ) = ( shift, @_ );
+    return unless defined( $name ) && !ref( $name ) && length( $name );
+    return unless ref( $param->{inlined} ) eq 'CODE';
+    return $param->{inlined}->( $param, $name );
   }
 
   sub name       { shift->{name} }
@@ -310,7 +326,7 @@ sub Bool () {
     name       => 'Bool',
     parent     => Item,
     constraint => \&is_Bool,
-    inlined    => sub { "do { local \$_ = $_[1]; defined && /\\A[01]?\\z/ }" },
+    inlined    => sub { "do { local \$_ = $_[1]; !defined || /\\A[01]?\\z/ }" },
   );
 }
 
@@ -432,7 +448,7 @@ sub Ref (;$) {
     name       => 'Ref',
     parent     => Defined,
     constraint => \&is_Ref,
-    inlined    => sub { "ref($_[1])" },
+    inlined    => sub { "!!ref($_[1])" },
   ) unless defined $_[0];
 
   return _param_type( 'Ref', shift, 
@@ -530,9 +546,10 @@ sub _param_type {
   die "Expects a type constraint object"      unless blessed( $inner );
   die "Expects a Type::API compatible object" unless $inner->can( 'check' );
 
-  my $name = "$kind\[" . ( $inner->{name} || '__ANON__' ) . "]";
+  my $a = $inner->{name} || '__ANON__';
+  my $name = "$kind\[$a\]";
 
-  return $TYPES{$name} ||= TV::Type::Object->new(
+  return $TYPES{$kind}{$a} ||= TV::Type::Object->new(
     name       => $name,
     constraint => $builder->( $inner ),
   );
