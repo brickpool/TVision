@@ -14,9 +14,8 @@ BEGIN {
     use_ok 'Types::Standard', qw( Num Str Int ArrayRef );
   } 
   else {
-    plan skip_all => 'Test irrelevant without Types::Standard';
+    plan skip_all => 'Test irrelevant without a Type constraint library';
   }
-  # use_ok 'Type::Params', qw( signature );
   use_ok 'TV::toolkit::Params', qw( signature );
 }
 
@@ -29,6 +28,17 @@ sub slurpy_sig {
     ],
   );
 }
+
+subtest 'Test specification options' => sub {
+  throws_ok { signature( bad => [ foo => Num, bar => Int ] ) }
+    qr/Signature must be positional/,
+      'detect non positional option';
+
+  lives_ok { 
+    my $sig = signature( method => 1, pos => [] );
+    $sig->( 'Any' )
+  } 'method option is supported';
+};
 
 subtest 'Mandatory-only parameters' => sub {
   my $sig = signature(

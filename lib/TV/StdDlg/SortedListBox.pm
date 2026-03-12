@@ -1,6 +1,7 @@
 package TV::StdDlg::SortedListBox;
 # ABSTRACT: TListBox subclass providing automatic item sorting
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -35,6 +36,8 @@ use TV::Drivers::Const qw(
 use TV::Objects::SortedCollection;
 use TV::Views::Const qw( cmReleasedFocus );
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :types :is );
 
 sub TSortedListBox() { __PACKAGE__ }
 sub name() { 'TSortedListBox' }
@@ -48,12 +51,15 @@ has searchPos  => ( is => 'bare' );
 
 my $equal = sub {    # $bool ($s1, $s2, $count)
   my ( $s1, $s2, $count ) = @_;
+  assert { is_Str $s1 };
+  assert { is_Str $s2 };
+  assert { is_PositiveOrZeroInt $count };
   return lc( substr( $s1, 0, $count ) ) eq lc( substr( $s2, 0, $count ) );
 };
 
 sub BUILDARGS {    # \%args (%args)
   my $class = shift;
-  assert { $class and !ref $class };
+  assert { is_Str $class };
   local $Params::Check::PRESERVE_CASE = 1;
   my $args1 = $class->SUPER::BUILDARGS( @_ );
   my $args2 = check( {
@@ -66,17 +72,17 @@ sub BUILDARGS {    # \%args (%args)
 
 sub BUILD {    # void (|\%args)
   my $self = shift;
-  assert { blessed $self };
+  assert { is_Object $self };
   $self->showCursor();
   $self->setCursor( 1, 0 );
   return;
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { blessed $event };
+  state $sig = signature( method => Object, 
+    pos => [ Object ],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   my ( $curString, $newString );
   my $k;
@@ -164,15 +170,18 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub getKey {    # $key ($s)
-  my ( $self, $s ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature( method => Object,
+    pos => [ Item ],
+  );
+  my ( $self, $s ) = $sig->( @_ );
   return $s;
 }
 
 sub newList {    # void ($aList)
-  my ( $self, $aList ) = @_;
-  assert { blessed $self };
+  state $sig = signature( method => Object,
+    pos => [ Object ],
+  );
+  my ( $self, $aList ) = $sig->( @_ );
   $self->SUPER::newList( $aList );
   $self->{searchPos} = -1;
   return;

@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use B::Deparse   ();
@@ -64,43 +64,48 @@ sub signature {
 
   # Extract positional spec (pos or positional)
   my @spec = @{
-    exists $args{pos}          ? $args{pos}
+      exists $args{pos}        ? $args{pos}
     : exists $args{positional} ? $args{positional}
-    :                            []
+    : Carp::croak "Signature must be positional"
   };
+
+  # Handle optional method spec (Bool or Type)
+  if ( exists $args{method} && $args{method} ) {
+    my $method = ref $args{method} ? $args{method} : sub { 1 };
+    unshift @spec, $method;
+  }
 
   # Build Signature object from raw spec
   my $sig = _build_signature_from_spec( @spec );
 
   # Pre-compile type checkers for fixed parameters
-  my @checks;
   my $i = 0;
   foreach my $p ( @{ $sig->parameters } ) {
     my $type  = $p->type;
     my $check = _generate_type_checker( $type );
+    my $idx = $i;
 
-    push @checks, sub {
+    $p->{coderef} = sub {
       my ( $val ) = @_;
-      return $check->( $val, "\$_[$i]" );
+      return $check->( $val, "\$_[$idx]" );
     };
 
     $i++;
   }
 
   # Pre-compile slurpy checker (if present)
-  my $slurpy_check;
   if ( $sig->has_slurpy ) {
     my $type = $sig->slurpy->type;
-    my $generic = _generate_type_checker( $type );
+    my $check = _generate_type_checker( $type );
 
-    $slurpy_check = sub {
-      my ( $aref ) = @_;
-      return $generic->( $aref, '$SLURPY' );
+    $sig->slurpy->{coderef} = sub {
+      my ( $val ) = @_;
+      return $check->( $val, '$SLURPY' );
     };
   }
 
   # Delegate to executor builder
-  return _execute_signature( $sig, \@checks, $slurpy_check );
+  return _execute_signature( $sig );
 }
 
 # ----------------------------------------------------------------------
@@ -125,7 +130,7 @@ sub _build_signature_from_spec {    # \&signature_from_spec (@spec)
   my ( @spec ) = @_;
 
   my @params;
-  my $slurpy_index = -1;
+  my $slurpy_index;
 
   #
   # 1. Parse the raw spec into Parameter objects
@@ -157,12 +162,16 @@ sub _build_signature_from_spec {    # \&signature_from_spec (@spec)
       elsif ( ref $default eq 'SCALAR' && !ref $$default ) {
         # compile scalar-ref code
         my $src  = $$default;
-        my $code = eval "sub { $src }"
-          or Carp::croak "Invalid default expression '$src': $@";
+        my $code = do {
+          local $@;
+          eval "sub { $src }"
+            or Carp::croak "Invalid default expression '$src': $@";
+        };
         $opts->{default} = $code;
       }
       else {
-        Carp::croak "Unsupported default value";
+        Carp::croak "Default expected to be undef, string, coderef, or empty " .
+          "arrayref/hashref";
       }
     }
 
@@ -174,15 +183,10 @@ sub _build_signature_from_spec {    # \&signature_from_spec (@spec)
     );
 
     # Detect slurpy parameter
-    if ( $opts->{slurpy} ) {
-      $slurpy_index = $i;
-    }
+    $slurpy_index //= $i if $opts->{slurpy};
 
     $i++;
   } #/ while ( @spec )
-
-  # There must be at least one parameter
-  Carp::croak "Signature must be positional" unless @params;
 
   #
   # 2. Validate optional-block rules and slurpy rules
@@ -195,13 +199,13 @@ sub _build_signature_from_spec {    # \&signature_from_spec (@spec)
     my $p = $params[$i];
 
     # Handle slurpy parameter
-    if ( $i == $slurpy_index ) {
+    if ( defined $slurpy_index && $i == $slurpy_index ) {
 
       Carp::croak "Slurpy parameter cannot be optional"
         if $p->optional;
 
       Carp::croak "Parameter following slurpy parameter"
-        if $i != $#params;
+        if $i < $#params;
 
       $slurpy_param = $p;
       last;
@@ -257,8 +261,11 @@ sub _generate_type_checker {    # \&check ($type)
     my $inline = $type->inline_check( '$val' );
 
     # Build the low-level predicate: ($type, $value) -> bool
-    my $check  = eval "sub { my (\$type, \$val) = \@_; $inline; }"
-      or Carp::croak "Error compiling inline predicate: $@";
+    my $check = do {
+      local $@;
+      eval "sub { my (\$type, \$val) = \@_; $inline; }"
+        or Carp::croak "Error compiling inline predicate: $@";
+    };
 
     # High-level checker: ($value, $label) -> $value or croak
     return sub {
@@ -341,9 +348,7 @@ sub _generate_type_checker {    # \&check ($type)
 # checkers for fixed parameters and (optionally) the slurpy checker. It 
 # receives:
 #
-#   - C<$signature>     : a Signature-object
-#   - C<\@checks>       : precompiled type-check subs for fixed parameters
-#   - C<\&slurpy_check> : optional checker for the slurpy arrayref
+#   - C<$signature> : a Signature-object with precompiled checker
 #
 # The returned closure performs:
 #   - arity validation
@@ -353,8 +358,8 @@ sub _generate_type_checker {    # \&check ($type)
 #
 #  Returns: a code reference to validate the argument list -> sub (@args)
 #
-sub _execute_signature {    # \&executor ($signature, \@checks, \&slurpy_check)
-  my ( $sig, $checks, $slurpy_check ) = @_;
+sub _execute_signature {    # \&executor ($signature)
+  my ( $sig ) = @_;
 
   # Extract parameters from signature
   my @params = @{ $sig->parameters };
@@ -363,15 +368,17 @@ sub _execute_signature {    # \&executor ($signature, \@checks, \&slurpy_check)
   my $min_arity = scalar grep { !$_->optional } @params;
   my $max_arity = scalar @params;
 
-  # Flags for defaults / optionals / slurpy
-  my $has_default  = !! grep { $_->has_default } @params;
+  # Flags for optionals / slurpy
   my $has_optional = !! grep { $_->optional } @params;
   my $has_slurpy   = $sig->has_slurpy;
 
+  # Get the pre-built checker for each signature entry
+  my @checks = map { $_->coderef } @params;
+  
   #
   # 1. Simple case, so keep it simple
   #
-  if ( !$has_optional && !$has_slurpy && !$has_default ) {
+  if ( !$has_optional && !$has_slurpy ) {
     my $arity = $max_arity;
 
     return sub {
@@ -389,13 +396,35 @@ sub _execute_signature {    # \&executor ($signature, \@checks, \&slurpy_check)
       $Carp::CarpLevel += 2;
 
       # Validate all arguments in-place
-      for my $i ( 0 .. $#$checks ) {
-        $checks->[$i]->( $_[$i] );
+      for my $i ( 0 .. $#checks ) {
+        $checks[$i]->( $_[$i] );
       }
 
       # Hot path: return @_ unchanged
       return @_;
     };
+  }
+
+  # This block inspects a potential slurpy parameter and determines
+  # whether it behaves like a HashRef by using its name, type and, as a last
+  # resort, its coderef; it also captures the coderef for later use.
+  my ( $slurpy_check, $slurpy_is_hash );
+  if ( $has_slurpy ) {
+    my $param = $sig->slurpy;
+    my $type = $param->type;
+    $slurpy_check = $param->coderef;
+    if ( $param->has_name && $param->name =~ /^HashRef/ ) {
+      $slurpy_is_hash = 1;
+    }
+    elsif ( Scalar::Util::blessed( $type ) && $type->can( 'check' ) ) {
+      $slurpy_is_hash = $type->check( {} ) 
+                    && !$type->check( [] );
+    }
+    else {
+      local $@;
+      $slurpy_is_hash = eval { $slurpy_check->( {} ) } 
+                    && !eval { $slurpy_check->( [] ) };
+    }
   }
 
   #
@@ -438,24 +467,48 @@ sub _execute_signature {    # \&executor ($signature, \@checks, \&slurpy_check)
         $val = ref( $d ) eq 'CODE' ? $d->() : $d;
       }
 
-      # optional without default -> undef, no check
+      # optional without default -> stop, no further checks
       elsif ( $p->optional ) {
-        push @out, undef;
-        next;
+        last;
       }
 
       # Run type check
-      $checks->[$i]->( $val );
+      $checks[$i]->( $val );
       push @out, $val;
     } #/ for my $i ( 0 .. $#fixed_params)
 
     # If there is no slurpy parameter, just return
     return @out unless $has_slurpy;
 
-    # Slurpy: arrayref of remaining args (empty is allowed)
-    my $rest = [];
-    if ( $argc > @$checks ) {
-      $rest = [ @_[ @$checks .. $argc - 1 ] ];
+    # Slurpy: arrayref or hashref of remaining args (empty is allowed)
+    my $rest       = [];
+    my $rest_start = @checks;
+    my $rest_count = $argc - $rest_start;
+
+    if ( $rest_count > 0 ) {
+      if ( $rest_count == 1 ) {
+        my $last = $_[-1];
+        if ( !$slurpy_is_hash ) {
+          $rest = [$last];
+        }
+        elsif ( ref $last ne 'HASH' ) {
+          $rest = {$last};
+        }
+        else {
+          $rest = $last;
+        }
+      }
+      else {
+        my @slice = @_[ $rest_start .. $argc - 1 ];
+        if ( $slurpy_is_hash ) {
+          Carp::croak "Odd number of elements in slurpy hash parameter"
+            if @slice % 2;
+          $rest = {@slice};
+        }
+        else {
+          $rest = \@slice;
+        }
+      }
       $slurpy_check->( $rest );
     }
 
@@ -508,6 +561,16 @@ sub _coderef2text {
       optional => $args{optional} ? 1 : 0,
     }, $class;
 
+    my $name;
+    if ( exists $args{name} ) {
+      $name = $args{name};
+    } 
+    elsif ( Scalar::Util::blessed $args{isa} ) {
+      my $type = $args{isa};
+      $name = $type->name if $type->can( 'name' )
+    } 
+    $self->{name} = $name if defined $name && !ref $name && length $name;
+
     # a parameter with a default is always treated as optional
     if ( exists $args{default} ) {
       $self->{default}  = $args{default};
@@ -518,11 +581,14 @@ sub _coderef2text {
   }
 
   # accessors
+  sub name     { $_[0]{name} } 
   sub type     { $_[0]{isa} }
   sub optional { $_[0]{optional} }
   sub default  { $_[0]{default} }
+  sub coderef  { $_[0]{coderef} }
 
   # predicates
+  sub has_name    { exists $_[0]{name} }
   sub has_default { exists $_[0]{default} }
 }
 
@@ -699,7 +765,7 @@ Helpful error messages including argument index or C<"$SLURPY">.
 All type checking logic is compiled once at signature creation time,
 resulting in faster validation than doing checks inside the subroutine body.
 
-=head1 OPTIONAL PARAMETERS
+=head2 optional parameters
 
 Optional parameters may be declared by attaching a hashref:
 
@@ -730,7 +796,7 @@ Missing optional values are returned as C<undef>.
 
 =back
 
-=head1 DEFAULT VALUES
+=head2 default values
 
 Parameters may define a default value using C<< default => ... >> inside the
 option hashref:
@@ -766,7 +832,7 @@ Unsupported defaults will cause an exception at signature construction time.
 Default values are validated against the parameter type, just like explicit
 arguments.
 
-=head1 SLURPY PARAMETER
+=head2 slurpy parameters
 
 A single slurpy parameter may be declared:
 
@@ -789,22 +855,116 @@ Only one slurpy parameter is allowed.
 
 =item *
 
-All remaining arguments are collected into an arrayref and validated
-as a single value.
+A slurpy parameter must have a type constraint that accepts the value
+produced by slurpy processing. In array-slurpy mode this value is an
+array reference; in hash-slurpy mode it is a hash reference.
 
 =item *
 
-Example return usage:
+Slurpy processing produces either an array reference or a hash reference,
+depending on the slurpy mode. This value is then validated against the
+type constraint of the slurpy parameter.
 
-  my ($first, $rest) = $sig->(@_);
-  my @values = @$rest;
+=item B<Array‑slurpy>
 
-=item *
+Remaining arguments are collected into an array reference:
 
-If the slurpy parameter has a type constraint, it receives the arrayref
-to validate.
+=over 4
+
+=item * Zero remaining arguments: []
+
+=item * One remaining argument: [ $value ]
+
+=item * Multiple remaining arguments: [ @values ]
 
 =back
+
+=item B<Hash‑slurpy>
+
+Remaining arguments are collected into a hash reference:
+
+=over 4
+
+=item * Zero remaining arguments: {}
+
+=item * One remaining argument: ( ref $value eq 'HASH' ) ? $value : { $value }
+
+=item * Multiple remaining arguments: { @values }
+
+=back
+
+=item *
+
+Simple types such as C<Any> or C<Ref> accept these structures and are
+therefore valid slurpy parameter types, resulting in an array reference.
+
+=back
+
+=head2 method signatures
+
+The C<method> option provides syntactic sugar for defining method invocants
+in a positional signature. It prepends an additional, non-optional positional
+parameter to the beginning of the signature.
+
+This parameter is treated exactly like any other entry in C<pos>, and supports
+the same type specifications (Type::Tiny, Type::API, CODE predicates, etc.).
+
+=head3 method => 1
+
+Using C<< method => 1 >> prepends a dummy predicate that always returns true.
+This means:
+
+=over 4
+
+=item *
+
+An invocant is required (arity increases by one).
+
+=item *
+
+The invocant is not type-checked.
+
+=item *
+
+The implementation simply uses a C<sub { 1 }> predicate.
+
+=back
+
+Example:
+
+  signature(
+    method => 1,
+    pos    => [ Int, Str ],
+  );
+
+behaves exactly like:
+
+  signature(
+    pos => [ sub { 1 }, Int, Str ],
+  );
+
+=head3 method => $type
+
+If the argument is a type object or predicate, it is prepended as-is to the
+positional parameter list. This allows expressing object or class method
+signatures declaratively.
+
+Examples:
+
+  signature(
+    method => Object,
+    pos    => [ Int ],
+  );
+
+is equivalent to:
+
+  signature(
+    pos => [ Object, Int ],
+  );
+
+If neither C<pos> nor C<positional> is provided, an empty positional list is
+created automatically, and the method parameter is prepended. This allows
+signatures consisting solely of an invocant.
 
 =head1 LIMITATIONS
 
@@ -834,6 +994,12 @@ fast-path optimization in which the validator can return C<@_> unchanged.
 =item * No global caching.
 
 Each subroutine must store its own C<state> variable.
+
+=item * Only basic support for method specification
+
+C<method> is purely syntactic sugar. It simply prepends an additional 
+positional parameter to the beginning of the signature. It introduces no
+special method semantics.
 
 =back
 

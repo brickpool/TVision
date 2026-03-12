@@ -219,7 +219,7 @@ sub is_Bool              ($) { !defined($_[0]) || $_[0] =~ /\A[01]?\z/ }
 sub is_Num               ($) { looks_like_number($_[0]) }
 sub is_Int               ($) { defined($_[0]) && $_[0] =~ /\A-?\d+\z/ }
 sub is_PositiveInt       ($) { defined($_[0]) && $_[0] =~ /\A[1-9]\d*\z/ }
-sub is_PositiveOrZeroInt ($) { defined($_[0]) && $_[0] =~ /\A(?:0|[1-9]\d*)\z/ }
+sub is_PositiveOrZeroInt ($) { defined($_[0]) && $_[0] =~ /\A\d+\z/ }
 sub is_Object            ($) { blessed($_[0]) }
 
 # ----------------------------------------------------------------------
@@ -595,9 +595,11 @@ sub _param_type {
   Carp::croak "Expects a type constraint object as inner type"
     unless blessed( $inner ) && $inner->can( 'check' );
 
+  my $a = $inner->{name} || '__ANON__';
+
   # Generate the type object
   return TV::Type::Object->new(
-    name       => '__ANON__',
+    name       => "$kind\[$a\]",
     parent     => $parent,
     constraint => $builder->( $inner ),
   );
