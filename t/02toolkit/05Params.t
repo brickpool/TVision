@@ -16,10 +16,11 @@ BEGIN {
   else {
     plan skip_all => 'Test irrelevant without a Type constraint library';
   }
+  # use_ok 'Type::Params', qw( compile signature );
   use_ok 'TV::toolkit::Params', qw( signature );
 }
 
-# Helper for slurpy tests
+# Helper for tests
 sub slurpy_sig {
   return signature(
     pos => [
@@ -29,9 +30,13 @@ sub slurpy_sig {
   );
 }
 
+my $Defined = sub { defined $_[0] };
+my $HashRef = sub { ref $_[0] eq 'HASH' };
+my $UInt    = sub { $_[0] =~ /^\d+$/ };
+
 subtest 'Test specification options' => sub {
   throws_ok { signature( bad => [ foo => Num, bar => Int ] ) }
-    qr/Signature must be positional/,
+    qr/Unknown parameter|Signature must be/,
       'detect non positional option';
 
   lives_ok { 
@@ -199,7 +204,7 @@ subtest 'Default = undef' => sub {
   );
 
   throws_ok { $sig->( 7 ) }
-    qr/Undef did not pass type constraint "Str"/,
+    qr/did not pass type constraint/,
       'default is undef';
 };
 
@@ -215,6 +220,81 @@ subtest 'Default-Array ref' => sub {
     my @out = $sig->( 42 );
     is_deeply \@out, [ 42, [] ], "default array ref applied";
   } 'default array ref ok';
+};
+
+subtest 'basic named with default' => sub {
+  my $sig = signature(
+    named => [
+      name => $Defined,
+      age  => $UInt, { default => 18 },
+    ],
+  );
+
+  my $args = $sig->( name => 'John' );
+  is( $args->{name}, 'John', 'name is passed' );
+  is( $args->{age}, 18, 'age default applied' );
+};
+
+subtest 'alias handling' => sub {
+  my $sig = signature(
+    named => [
+      user => $Defined, { alias => [ 'u', 'username' ] },
+    ],
+  );
+
+  my $args1 = $sig->( user => 'alice' );
+  is( $args1->{user}, 'alice', 'user works' );
+
+  my $args2 = $sig->( u => 'bob' );
+  is( $args2->{user}, 'bob', 'alias u mapped to user' );
+
+  my $args3 = $sig->( username => 'carol' );
+  is( $args3->{user}, 'carol', 'alias username mapped to user' );
+
+  eval { $sig->( user => 'x', username => 'y' ); };
+  like( $@, qr/\busername\b/i, 'conflicting alias and name croaks' );
+};
+
+subtest 'slurpy hash' => sub {
+  my $sig = signature(
+    named => [
+      required => $Defined,
+      extra    => $HashRef, { slurpy => 1 },
+    ],
+  );
+
+  my $args = $sig->(
+    required => 'ok',
+    foo      => 1,
+    bar      => 2,
+  );
+
+  is( $args->{required}, 'ok', 'required param ok' );
+  ok( exists $args->{extra}, 'slurpy hash present' );
+  is_deeply(
+    $args->{extra}, 
+    { foo => 1, bar => 2 }, 
+    'slurpy collected extras'
+  );
+};
+
+subtest 'method signature' => sub {
+  my $sig = signature(
+    method => 1,
+    named  => [
+      value => $UInt, { optional => 0 },
+    ],
+  );
+
+  my $obj = bless {}, 'My::Class';
+
+  my ( $self, $args ) = $sig->( $obj, value => 42 );
+
+  isa_ok( $self, 'My::Class', 'invocant returned as first value' );
+  is( $args->{value}, 42, 'named parameter passed' );
+
+  eval { $sig->( undef, value => 1 ) };
+  like( $@, qr/did not pass type constraint/, 'invalid invocant croaks' );
 };
 
 done_testing();

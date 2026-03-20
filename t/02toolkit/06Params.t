@@ -24,7 +24,7 @@ use Test::More;
 use Test::Exception;
 
 BEGIN {
-  if ( !eval { require TV::toolkit::Types } ) {
+  if ( eval { require TV::toolkit::Types } ) {
     note 'use TV::toolkit::Types';
     use_ok 'TV::toolkit::Types', qw( 
       Any Int ArrayRef HashRef ClassName Str Object Num Ref is_HashRef
@@ -377,30 +377,26 @@ subtest '/t/20-modules/Type-Params/slurpy.t' => sub {
     qr{did not pass type constraint "HashRef\[Int\]" \(in \$SLURPY\)},
       'simple test failing type check';
 
-  {
-    my $check;
-
-    sub xyz2 {
-      $check ||= signature( pos => [ Int, HashRef, { slurpy => 1 } ] );
-      my ( $num, $hr ) = $check->( @_ );
-      return [ $num, $hr ];
-    }
-
-    subtest "HashRef { slurpy => 1 } works" => sub {
-
-      is_deeply(
-        xyz2( 5, foo => 1, bar => 2 ),
-        [ 5, { foo => 1, bar => 2 } ],
-        'simple test',
-      );
-
-      is_deeply(
-        xyz2( 5, { foo => 1, bar => 2 } ), 
-        [ 5, { foo => 1, bar => 2 } ],
-        'simple test with ref',
-      );
-    };
+  sub xyz2 {
+    my $check = signature( pos => [ Int, HashRef, { slurpy => 1 } ] );
+    my ( $num, $hr ) = $check->( @_ );
+    return [ $num, $hr ];
   }
+
+  subtest "HashRef { slurpy => 1 } works" => sub {
+
+    is_deeply(
+      xyz2( 5, foo => 1, bar => 2 ),
+      [ 5, { foo => 1, bar => 2 } ],
+      'simple test',
+    );
+
+    is_deeply(
+      xyz2( 5, { foo => 1, bar => 2 } ), 
+      [ 5, { foo => 1, bar => 2 } ],
+      'simple test with ref',
+    );
+  };
 
   throws_ok {
     signature(
@@ -440,17 +436,11 @@ subtest '/t/20-modules/Type-Params/slurpy.t' => sub {
 	}
 }
 subtest '/t/20-modules/Type-Params/v2-defaults.t' => sub {
+  my $object = bless {}, 'Local::FooBar';
 
-  local $TODO = "a magic feature for the method specification ".
-    "that passes the invocant as the first parameter for the default coderef.";
-  TODO: { lives_ok {
-    my $object = bless {}, 'Local::FooBar';
+  is( $object->bar(), 21 );
 
-    is( $object->bar, 21 );
-
-    is( $object->bar(666), 333 );
-  }}
-
+  is( $object->bar(666), 333 );
 };
 
 #
