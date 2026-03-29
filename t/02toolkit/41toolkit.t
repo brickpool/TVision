@@ -17,15 +17,18 @@ BEGIN {
   sub x {
     $#_ ? $_[0]->{x} = $_[1] : $_[0]->{x}
   }
+  sub DEMOLISH { ::pass __PACKAGE__ . '::DEMOLISH called'  }
   no TV::toolkit;
   $INC{"Point.pm"} = 1;
 }
 
 BEGIN {
   package Point3D;
-  use TV::toolkit;
+  use TV::toolkit;                # should NOT replace our dump
   extends 'Point';
   has z => ( is => 'rw' );
+  sub dump { return "custom" }    # class provides dump
+  sub DEMOLISH { ::pass __PACKAGE__ . '::DEMOLISH called'  }
   no TV::toolkit;
   $INC{"Point3D.pm"} = 1;
 }
@@ -34,24 +37,44 @@ is $TV::toolkit::name, 'Moos', 'Toolkit is Moos';
 ok TV::toolkit::is_Moos(), 'TV::toolkit::is_Moos is set to true';
 
 subtest 'Point' => sub {
+  plan tests => 3 + 1;
   my $point = Point->new( x => 2, y => 3 );
   isa_ok( $point, 'Point', 'Object is of class Point' );
   is_deeply( $point, { x => 2, y => 3 }, 'point is set correctly' );
+  can_ok( $point, 'dump' );
 };
 
 subtest 'Point3D' => sub {
+  plan tests => 4 + 2;
   my $point = Point3D->new( x => 1, y => 2, z => 3 );
   isa_ok( $point, 'Point3D', 'Object is of class Point3D' );
   is_deeply( $point, { x => 1, y => 2, z => 3 }, 'point is set correctly' );
+  can_ok( $point, 'dump' );
+  is( $point->dump(), "custom", 'existing dump method preserved' );
 };
 
-subtest 'install has' => sub {
+subtest 'install and remove keywords' => sub {
   my $point = Point->new( x => 2, y => 3 );
   can_ok( $point, qw( x y ) );
   ok( !Point->can( 'z' ), "!Point->can('z')" );
 
   $point = Point3D->new( x => 1, y => 2, z => 3 );
   can_ok( $point, qw( x y z ) );
+
+  ok( !$point->can( 'has' ), "'has' removed after no TV::toolkit" );
+  ok( !$point->can( 'extends' ), "'extends' removed after no TV::toolkit" );
+};
+
+subtest 'create_method redefine warns' => sub {
+  my $warning;
+  {
+    local $SIG{__WARN__} = sub { $warning = shift };
+    TV::toolkit::_create_method( 'Point3D', 'z', sub { 2 } );
+  }
+  like(
+    $warning, qr/Subroutine Point3D::z redefined/,
+    'Perl redefine warning triggered'
+  );
 };
 
 done_testing();
