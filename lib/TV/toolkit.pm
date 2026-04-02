@@ -180,6 +180,10 @@ sub _my_moos_has {    # $return (\&orig, $self, @_)
     $args{is} = 'rw';
     $args{_skip_setup} = 1;
   }
+  if ( exists $args{default} && !ref $args{default} ) {
+    my $default = $args{default};
+    $args{default} = sub { $default };
+  }
   return $self->$orig( %args );
 } #/ sub _my_moos_has
 
