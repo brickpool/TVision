@@ -5,13 +5,14 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.04';
+our $VERSION   = '0.05';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Scalar::Util qw(
   blessed
   openhandle
   looks_like_number
+  reftype
 );
 
 # ----------------------------------------------------------------------
@@ -26,43 +27,30 @@ our @EXPORT_OK = qw(
 
 our %EXPORT_TAGS = (
   # Standard Types
-  Any         => [qw( Any       is_Any      )],
-  Item        => [qw( Item      is_Item     )],
-  Undef       => [qw( Undef     is_Undef    )],
-  Defined     => [qw( Defined   is_Defined  )],
-  Value       => [qw( Value     is_Value    )],
-  Bool        => [qw( Bool      is_Bool     )],
-  Str         => [qw( Str       is_Str      )],
-  Num         => [qw( Num       is_Num      )],
-  Int         => [qw( Int       is_Int      )],
-  Object      => [qw( Object    is_Object   )],
-  Ref         => [qw( Ref       is_Ref      )],
+  Any         => [qw( Any       is_Any       )],
+  Item        => [qw( Item      is_Item      )],
+  Undef       => [qw( Undef     is_Undef     )],
+  Defined     => [qw( Defined   is_Defined   )],
+  Value       => [qw( Value     is_Value     )],
+  Bool        => [qw( Bool      is_Bool      )],
+  Str         => [qw( Str       is_Str       )],
+  Num         => [qw( Num       is_Num       )],
+  Int         => [qw( Int       is_Int       )],
+  Object      => [qw( Object    is_Object    )],
+  Ref         => [qw( Ref       is_Ref       )],
   ScalarRef   => [qw( ScalarRef is_ScalarRef )],
-  ArrayRef    => [qw( ArrayRef  is_ArrayRef )],
-  HashRef     => [qw( HashRef   is_HashRef  )],
-  CodeRef     => [qw( CodeRef   is_CodeRef  )],
-  GlobRef     => [qw( GlobRef   is_GlobRef  )],
+  ArrayRef    => [qw( ArrayRef  is_ArrayRef  )],
+  HashRef     => [qw( HashRef   is_HashRef   )],
+  CodeRef     => [qw( CodeRef   is_CodeRef   )],
+  GlobRef     => [qw( GlobRef   is_GlobRef   )],
 
   # Special Types
-  ClassName => [qw(
-    ClassName
-    is_ClassName
-  )],
-
-  PositiveInt => [qw(
-    PositiveInt
-    is_PositiveInt
-  )],
-
-  PositiveOrZeroInt => [qw( 
-    PositiveOrZeroInt
-    is_PositiveOrZeroInt 
-  )],
-
-  FileHandle => [qw(
-    FileHandle
-    is_FileHandle
-  )],
+  ClassName         => [qw( ClassName         is_ClassName         )],
+	PositiveInt       => [qw( PositiveInt       is_PositiveInt       )],
+	PositiveOrZeroInt => [qw( PositiveOrZeroInt is_PositiveOrZeroInt )],
+	FileHandle        => [qw( FileHandle        is_FileHandle        )],
+	ArrayLike         => [qw( ArrayLike         is_ArrayLike         )],
+	HashLike          => [qw( HashLike          is_HashLike          )],
 
   # Additional groups
   types => [qw(
@@ -86,6 +74,8 @@ our %EXPORT_TAGS = (
     CodeRef
     GlobRef
     FileHandle
+    ArrayLike
+    HashLike
   )],
 
   is => [qw(
@@ -109,6 +99,8 @@ our %EXPORT_TAGS = (
     is_CodeRef
     is_GlobRef
     is_FileHandle
+    is_ArrayLike
+    is_HashLike
   )],
 );
 
@@ -270,6 +262,9 @@ sub is_FileHandle ($) {
   return !!1 if blessed($_[0]) && $_[0]->isa( "IO::Handle" );
   return !!0;
 }
+
+sub is_ArrayLike ($) { defined($_[0]) && reftype($_[0]) eq 'ARRAY' }
+sub is_HashLike  ($) { defined($_[0]) && reftype($_[0]) eq 'HASH' }
 
 # ----------------------------------------------------------------------
 # Type constructors (non-parametric)
@@ -561,6 +556,66 @@ sub HashRef (;$) {
   );
 }
 
+sub ArrayLike (;$) {
+  my ( $param ) = @_;
+  my $type = $TYPES{ArrayLike} ||= TV::Type::Object->new( 
+    name       => 'ArrayLike', 
+    parent     => Ref,
+    constraint => \&is_ArrayLike,
+    inlined    => sub { 
+      "do { require Scalar::Util; Scalar::Util::reftype($_[1]) eq 'ARRAY' }"
+    },
+  );
+
+  return $type unless defined $param;
+  return _param_type( 
+    name       => 'ArrayLike', 
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
+      my ( $inner ) = @_;
+      return sub {
+        my ( $ref ) = @_;
+        return !!0 unless is_ArrayLike( $ref );
+        foreach ( @$ref ) { 
+          return !!0 unless $inner->check( $_ );
+        }
+        return !!1;
+      };
+    },
+  );
+}
+
+sub HashLike (;$) {
+  my ( $param ) = @_;
+  my $type = $TYPES{HashLike} ||= TV::Type::Object->new(
+    name       => 'HashLike',
+    parent     => Ref,
+    constraint => \&is_HashLike,
+    inlined    => sub { 
+      "do { require Scalar::Util; Scalar::Util::reftype($_[1]) eq 'HASH' }"
+    },
+  );
+
+  return $type unless defined $param;
+  return _param_type( 
+    name       => 'HashLike', 
+    param      => $param, 
+    parent     => $type,
+    constraint_generator => sub {
+      my ( $inner ) = @_;
+      return sub {
+        my ( $ref ) = @_;
+        return !!0 unless is_HashLike( $ref );
+        foreach ( values %$ref ) { 
+          return !!0 unless $inner->check( $_ );
+        }
+        return !!1;
+      };
+    },
+  );
+}
+
 # ----------------------------------------------------------------------
 # Parametric core
 # ----------------------------------------------------------------------
@@ -781,6 +836,14 @@ Matches Perl filehandle-like entities or L<IO::Handle>-based objects.
 
 Any blessed reference.
 
+=item * C<HashLike>
+
+Accepts hash and blessed hash references.
+
+=item * C<ArrayLike>
+
+Accepts array and blessed array references.
+
 =back
 
 =head2 Parameterized Types
@@ -835,6 +898,8 @@ A simplified, L<Types::Tiny>-compatible parent–child hierarchy is used:
         |         +-- GlobRef
         |         +-- Object
         |         +-- FileHandle
+        |         +-- ArrayLike
+        |         +-- HashLike
         +-- Maybe
 
 B<Note>: Although conceptually similar, C<Item> and C<Any> are implemented in
@@ -1020,6 +1085,8 @@ Only core modules are used:
 =item * L<Type::API>
 
 =item * L<Types::Standard>
+
+=item * L<Types::TypeTiny>
 
 =item * L<MooseX::Types::Common::Numeric>
 
