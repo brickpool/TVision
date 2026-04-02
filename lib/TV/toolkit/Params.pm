@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.07';
+our $VERSION   = '0.08';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 # ----------------------------------------------------------------------
@@ -128,6 +128,8 @@ my $tmpl_param = {
   strictness => { no_override => 1, default => 1 },
 };
 
+sub _croak ($);
+
 # ----------------------------------------------------------------------
 # Public API
 # ----------------------------------------------------------------------
@@ -245,17 +247,16 @@ sub _expand_specs {    # \%signature (\%signature)
             : sub { defined $_[0] };
 
     # pre-compile method checker
-    my $label        = '$_[0]';
     my $type_check   = _generate_type_checker( $isa );
     my $method_check = sub {
       my ( $val ) = @_;
-      return $type_check->( $val, $label );
+      return $type_check->( $val, '$_[0]' );
     };
   
     $method = {
       isa      => $isa,
       optional => 0,
-      name     => $label,
+      name     => '$_[0]',
       alias    => [],
       check    => $method_check,
     };
@@ -274,6 +275,7 @@ sub _expand_specs {    # \%signature (\%signature)
     while ( $i < @$named ) {
       my $name = $named->[ $i++ ];
       my $type = $named->[ $i++ ];
+      my $label = sprintf '$_{"%s"}', $name;
 
       my $opts = {};
       if ( $i < @$named && ref $named->[$i] eq 'HASH' ) {
@@ -307,7 +309,7 @@ sub _expand_specs {    # \%signature (\%signature)
         my $type_check   = _generate_type_checker( $type );
         my $slurpy_check = sub {
           my ( $val ) = @_;
-          return $type_check->( $val, $name );
+          return $type_check->( $val, $label );
         };
 
         $slurpy = {
@@ -346,7 +348,7 @@ sub _expand_specs {    # \%signature (\%signature)
       my $type_check = _generate_type_checker( $type );
       my $param_check = sub {
         my ( $val ) = @_;
-        return $type_check->( $val, $name );
+        return $type_check->( $val, $label );
       };
 
       # build param hash
@@ -515,18 +517,21 @@ sub _executor_named_hot {    # \&executor (\%signature)
   my @required     = sort keys %check_for;
 
   return sub {
+    local $Carp::CarpLevel = $Carp::CarpLevel + $sig->{caller_depth} + 1;
+
     my $proto = shift;
     $method_check->( $proto, $method_name );
     
-    Carp::croak "Odd number of named parameters" unless @_ % 2;
+    _croak "Odd number of named parameters" unless @_ % 2;
 
     my %args = @_;
 
     for my $name ( @required ) {
       exists $args{$name}
-        or Carp::croak( "Missing required named parameter '$name'" );
+        or _croak "Missing required named parameter '$name'";
 
-      $check_for{$name}->( $args{$name}, $name );
+      eval { $check_for{$name}->( $args{$name}, $name ); 1 }
+        or _croak( $@ );
     }
 
     return ( $proto, \%args );
@@ -556,18 +561,22 @@ sub _executor_named_cold {    # \&executor (\%signature)
   my $allow_dash = $sig->{allow_dash};
 
   return sub {
+    # Adjust Carp stack level so errors point to the caller of the signature
+    local $Carp::CarpLevel = $Carp::CarpLevel + $sig->{caller_depth} + 1;
+
     my $argc = @_;
 
     # Optional method handling
     my $self;
     if ( $has_method ) {
       $self = shift;
-      $method->{check}->( $self, $method->{name} );
+      eval { $method->{check}->( $self, $method->{name} ); 1 }
+        or _croak( $@ );
       $argc--;
     }
 
     # Quick even-number check
-    Carp::croak("Odd number of named parameters") if @_ % 2;
+    _croak("Odd number of named parameters") if @_ % 2;
 
     # Strip leading dash (optional)
     my %raw;
@@ -590,7 +599,7 @@ sub _executor_named_cold {    # \&executor (\%signature)
       my $main = $alias_of{$alias};
 
       if ( exists $raw{$main} ) {
-        Carp::croak "Superfluous alias \"$alias\" for argument \"$main\"";
+        _croak "Superfluous alias \"$alias\" for argument \"$main\"";
       }
 
       # move alias value to main key
@@ -621,11 +630,12 @@ sub _executor_named_cold {    # \&executor (\%signature)
       }
 
       else {
-        Carp::croak( "Missing required named parameter '$name'" );
+        _croak( "Missing required named parameter '$name'" );
       }
 
       # Run type check
-      $p->{check}->( $val, $name );
+      eval { $p->{check}->( $val, $name ); 1 }
+        or _croak( $@ );
       $out{$name} = $val;
     }
 
@@ -636,9 +646,7 @@ sub _executor_named_cold {    # \&executor (\%signature)
       my $val;
       if ( $slurpy->{is_hash} ) {
         # Hash-style slurpy: pass remaining key/value pairs as hashref
-        my $href = \%rest;
-        $slurpy->{check}->( $href, $slurpy->{name} );
-        $val = $href;
+        $val = \%rest;
       }
       else {
         # Fallback: array-style slurpy for named (rare case)
@@ -646,10 +654,10 @@ sub _executor_named_cold {    # \&executor (\%signature)
         for my $key ( keys %rest ) {
           push @pairs, $key, $rest{$key};
         }
-        my $aref = \@pairs;
-        $slurpy->{check}->( $aref, $slurpy->{name} );
-        $val = $aref;
+        $val = \@pairs;
       }
+      eval { $slurpy->{check}->( $val, $slurpy->{name} ); 1 }
+        or _croak( $@ );
 
       $out{ $slurpy->{name} } = $val;
     }
@@ -657,7 +665,7 @@ sub _executor_named_cold {    # \&executor (\%signature)
       # No slurpy and strictness: detect unknown keys
       if ( $strict && %rest ) {
         my @unknown = sort keys %rest;
-        Carp::croak( "Unknown named parameter(s): " . join( ", ", @unknown ) );
+        _croak( "Unknown named parameter(s): " . join( ", ", @unknown ) );
       }
     }
 
@@ -683,21 +691,18 @@ sub _executor_pos_hot {    # \&executor (\%signature)
   }
 
   return sub {
-    # Adjust Carp stack level so errors point to the caller of the signature
-    local $Carp::CarpLevel = 2;
+    local $Carp::CarpLevel = $Carp::CarpLevel + $sig->{caller_depth} + 1;
 
     # Fixed arity check
     if ( @_ != $arity ) {
       my $argc = @_;
-      Carp::croak "Wrong number of parameters; got $argc; expected $arity";
+      _croak "Wrong number of parameters; got $argc; expected $arity";
     }
-
-    # Increase level for checks so error locations look natural
-    $Carp::CarpLevel += 2;
 
     # Validate all arguments in-place
     for my $i ( 0 .. $#check_for ) {
-      $check_for[$i]->( $_[$i], "\$_[$i]" );
+      eval { $check_for[$i]->( $_[$i], "\$_[$i]" ); 1 }
+        or _croak( $@ );
     }
 
     # Hot path: return @_ unchanged
@@ -726,7 +731,7 @@ sub _executor_pos_cold {    # \&executor (\%signature)
   my $max_arity = $offset + scalar @params;
 
   return sub {
-    local $Carp::CarpLevel = 2;
+    local $Carp::CarpLevel = $Carp::CarpLevel + $sig->{caller_depth} + 1;
 
     my $argc = @_;
 
@@ -739,10 +744,8 @@ sub _executor_pos_cold {    # \&executor (\%signature)
                    : $min_arity == $max_arity ? "$min_arity"
                    :                            "$min_arity to $max_arity";
 
-      Carp::croak "Wrong number of parameters; got $argc; expected $expected";
+      _croak "Wrong number of parameters; got $argc; expected $expected";
     }
-
-    $Carp::CarpLevel += 2;
 
     my @out;
 
@@ -750,7 +753,8 @@ sub _executor_pos_cold {    # \&executor (\%signature)
     my $self;
     if ( $has_method ) {
       $self = shift;
-      $method->{check}->( $self, $method->{name} );
+      eval { $method->{check}->( $self, $method->{name} ); 1 }
+        or _croak( $@ );
       push @out, $self;
     }
 
@@ -776,7 +780,8 @@ sub _executor_pos_cold {    # \&executor (\%signature)
       }
 
       # Run type check
-      $p->{check}->( $val, $name );
+      eval { $p->{check}->( $val, $name ); 1 }
+        or _croak( $@ );
       push @out, $val;
     }
 
@@ -784,13 +789,15 @@ sub _executor_pos_cold {    # \&executor (\%signature)
     return @out unless $has_slurpy;
 
     # Slurpy: arrayref or hashref of remaining args (empty is allowed)
-    my $rest       = [];
-    my $rest_start = @params;
-    my $rest_count = $argc - $rest_start;
+    my $rest = [];
+    my $slurpy_ofs = $max_arity;
+    my $slurpy_len = $argc - $max_arity;
 
-    if ( $rest_count > 0 ) {
+    if ( $slurpy_len > 0 ) {
       my $slurpy_is_hash = $slurpy->{is_hash};
-      if ( $rest_count == 1 ) {
+
+      # Special case: number of remaining parameters is 1
+      if ( $slurpy_len == 1 ) {
         my $last = $_[-1];
         if ( !$slurpy_is_hash ) {
           $rest = [$last];
@@ -802,18 +809,23 @@ sub _executor_pos_cold {    # \&executor (\%signature)
           $rest = $last;
         }
       }
+
+      # Default case: process remaining parameters
       else {
-        my @slice = @_[ $rest_start .. $argc - 1 ];
+        my @slurpy_args = @_[ $slurpy_ofs .. $slurpy_ofs + $slurpy_len - 1 ];
         if ( $slurpy_is_hash ) {
-          Carp::croak "Odd number of elements in slurpy hash parameter"
-            if @slice % 2;
-          $rest = {@slice};
+          _croak "Odd number of elements in slurpy hash parameter"
+            if @slurpy_args % 2;
+          $rest = {@slurpy_args};
         }
         else {
-          $rest = \@slice;
+          $rest = \@slurpy_args;
         }
       }
-      $slurpy->{check}->( $rest, $slurpy->{name} );
+
+      # Check remaining parameters in a single step
+      eval { $slurpy->{check}->( $rest, $slurpy->{name} ); 1 }
+        or _croak( $@ );
     }
 
     # Return fixed values plus array ref for slurpy
@@ -853,7 +865,7 @@ sub _generate_type_checker {    # \&check ($isa)
       local $_ = $val;
 
       return $val if $isa->$check( $val );
-      Carp::croak( $isa->get_message( $val ) . " (in $label)" );
+      die( $isa->get_message( $val ) . " (in $label)\n" );
     };
   }
 
@@ -866,7 +878,7 @@ sub _generate_type_checker {    # \&check ($isa)
       local $_ = $val;
 
       return $val if $isa->check( $val );
-      Carp::croak( $isa->get_message( $val ) . " (in $label)" );
+      die( $isa->get_message( $val ) . " (in $label)\n" );
     };
   }
 
@@ -883,7 +895,7 @@ sub _generate_type_checker {    # \&check ($isa)
               ? $isa->get_message( $val )
               : "Argument did not pass type constraint";
 
-      Carp::croak( "$msg (in $label)" );
+      die( "$msg (in $label)\n" );
     };
   }
 
@@ -905,14 +917,14 @@ sub _generate_type_checker {    # \&check ($isa)
                : ref( $val )      ? "Reference $val"
                :                    "Value \"$val\"";
 
-      Carp::croak( "$desc did not pass type constraint $name (in $label)" );
+      die( "$desc did not pass type constraint $name (in $label)\n" );
     };
   }
 
   # 5. Unsupported type specification
   return sub {
     my ( undef, $label ) = @_;
-    Carp::croak( "Unsupported type definition for argument $label" );
+    die( "Unsupported type definition for argument $label\n" );
   };
 }
 
@@ -988,6 +1000,22 @@ sub _coderef2text {
     s/\A\{\n\h+([^\n;]*);\n\}\z/{ $1 }/;
   }
   return $body;
+}
+
+# Lightweight Carp-style exception using caller and $Carp::CarpLevel
+# - Param: $msg is the error message
+# - Effect: Dies with a message tagged with the adjusted caller location
+sub _croak ($) {
+  my $error = shift || 'Unknown error';
+  $error =~ s/\s+at \S+ line \d+\.?\s*$//;
+  my $msg = Carp::shortmess( $error );
+  unless ( $Carp::Verbose ) {
+    my ( undef, $file, $line ) = caller( $Carp::CarpLevel + 1 );
+    if ( $file ) {
+      $msg =~ s/\s+at \S+ line \d+\.?\s*$/ at $file line $line.\n/s;
+    }
+  }
+  die $msg;
 }
 
 1
