@@ -1,6 +1,7 @@
 package TV::Views::DrawBuffer;
 # ABSTRACT: TDrawBuffer stores a line of text for output in Turbo Vision 2.0.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,12 +15,11 @@ our @EXPORT = qw(
   new_TDrawBuffer
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed 
-  looks_like_number
-  readonly
+use PerlX::Assert::PP;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
 );
 
 sub TDrawBuffer() { __PACKAGE__ }
@@ -28,66 +28,82 @@ sub new_TDrawBuffer { __PACKAGE__->from(@_) }
 use TV::Views::Const qw( maxViewWidth );
 
 my $setAttr = sub {    # void ($cell, $attr)
+  assert ( @_ == 2 );
+  assert ( is_PositiveOrZeroInt $_[0] );
+  assert ( is_PositiveOrZeroInt $_[1] );
   $_[0] = ( ( $_[1] & 0xff ) << 8 ) | $_[0] & 0xff;
   return;
 };
 
 my $getChar = sub {    # $ch ($cell)
+  assert ( @_ == 1 );
+  assert ( is_PositiveOrZeroInt $_[0] );
   $_[0] & 0xff;
 };
 
 my $setChar = sub {    # void ($cell, $ch)
+  assert ( @_ == 2 );
+  assert ( is_PositiveOrZeroInt $_[0] );
+  assert ( is_PositiveOrZeroInt $_[1] );
   $_[0] = $_[0] & 0xff00 | $_[1] & 0xff;
   return;
 };
 
 my $setCell = sub {    # void ($cell, $ch, $attr)
+  assert ( @_ == 3 );
+  assert ( is_PositiveOrZeroInt $_[0] );
+  assert ( is_PositiveOrZeroInt $_[1] );
+  assert ( is_PositiveOrZeroInt $_[2] );
   $_[0] = ( ( $_[2] & 0xff ) << 8 ) | $_[1] & 0xff;
   return;
 };
 
 sub new {    # $obj ()
-  my $class = shift;
-  assert ( $class and !ref $class );
+  state $sig = signature(
+    method => 1,
+    pos    => [],
+  );
+  my ( $class ) = $sig->( @_ );
   my $self  = [ ( 0 ) x maxViewWidth ];
   return bless $self, $class;
 }
 
 sub from {    # $obj ()
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 0 );
-  return $class->new();
+  goto &new;
 }
 
 sub putAttribute {    # void ($indent, $attr)
-  my ( $self, $indent, $attr ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( looks_like_number $attr );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, PositiveOrZeroInt],
+  );
+  my ( $self, $indent, $attr ) = $sig->( @_ );
   $setAttr->( $self->[$indent], $attr );
   return;
 }
 
 sub putChar {    # void ($indent, $c)
-  my ( $self, $indent, $c ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( !ref $c and length $c );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Str],
+  );
+  my ( $self, $indent, $c ) = $sig->( @_ );
+  assert ( length $c );
   $setChar->( $self->[$indent], ord( $c ) );
   return;
 }
 
 sub moveBuf {    # void ($indent, \@source, $attr, $count)
-  my ( $self, $indent, $source, $attr, $count ) = @_;
-  assert ( @_ == 5 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( ref $source );
-  assert ( looks_like_number $attr );
-  assert ( looks_like_number $count );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      PositiveOrZeroInt, 
+      ArrayLike, 
+      PositiveOrZeroInt, 
+      PositiveOrZeroInt,
+    ],
+  );
+  my ( $self, $indent, $source, $attr, $count ) = $sig->( @_ );
 
   if ( $attr ) {
     for ( my $i = 0 ; $i < $count ; $i++ ) {
@@ -103,13 +119,12 @@ sub moveBuf {    # void ($indent, \@source, $attr, $count)
 } #/ sub moveBuf
 
 sub moveChar {    # void ($indent, $c, $attr, $count)
-  my ( $self, $indent, $c, $attr, $count ) = @_;
-  assert ( @_ == 5 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( !ref $c and length $c );
-  assert ( looks_like_number $attr );
-  assert ( looks_like_number $count );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Str, PositiveOrZeroInt, PositiveOrZeroInt],
+  );
+  my ( $self, $indent, $c, $attr, $count ) = $sig->( @_ );
+  assert ( length $c );
 
   my $dest = $indent;
   while ( $count-- ) {
@@ -129,12 +144,11 @@ sub moveChar {    # void ($indent, $c, $attr, $count)
 } #/ sub moveChar
 
 sub moveCStr {    # void ($indent, $str, $attrs)
-  my ( $self, $indent, $str, $attrs ) = @_;
-  assert ( @_ == 4 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( defined $str and !ref $str );
-  assert ( looks_like_number $attrs );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Str, PositiveOrZeroInt],
+  );
+  my ( $self, $indent, $str, $attrs ) = $sig->( @_ );
   my $toggle  = 1;
   my $curAttr = $attrs & 0xff;
 
@@ -152,17 +166,16 @@ sub moveCStr {    # void ($indent, $str, $attrs)
 } #/ sub moveCStr
 
 sub moveStr {    # void ($indent, $str, $attrs)
-  my ( $self, $indent, $str, $attr ) = @_;
-  assert ( @_ == 4 );
-  assert ( blessed $self );
-  assert ( looks_like_number $indent );
-  assert ( defined $str and !ref $str );
-  assert ( looks_like_number $attr );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Str, PositiveOrZeroInt],
+  );
+  my ( $self, $indent, $str, $attrs ) = $sig->( @_ );
 
   my $dest = $indent;
   foreach my $c ( split //, $str ) {
-    if ( $attr ) {
-      $setCell->( $self->[ $dest++ ], ord( $c ), $attr );
+    if ( $attrs ) {
+      $setCell->( $self->[ $dest++ ], ord( $c ), $attrs );
     }
     else {
       $setChar->( $self->[ $dest++ ], ord( $c ) );

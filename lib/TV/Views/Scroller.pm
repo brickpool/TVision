@@ -1,6 +1,7 @@
 package TV::Views::Scroller;
 # ABSTRACT: Base class for scrolling text windows in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,13 @@ our @EXPORT = qw(
   new_TScroller
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Drivers::Const qw( 
@@ -40,7 +38,6 @@ use TV::Views::Const qw(
 );
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TScroller() { __PACKAGE__ }
 sub name() { 'TScroller' }
@@ -48,13 +45,15 @@ sub new_TScroller { __PACKAGE__->from(@_) }
 
 extends TView;
 
-# declare attributes
-has delta      => ( is => 'rw' );
-has drawLock   => ( is => 'ro' );
-has drawFlag   => ( is => 'ro' );
-has hScrollBar => ( is => 'ro' );
-has vScrollBar => ( is => 'ro' );
-has limit      => ( is => 'ro' );
+# public attributes
+has delta      => ( is => 'rw', default => sub { TPoint->new } );
+
+# protected attributes
+has drawLock   => ( is => 'ro', default => 0 );
+has drawFlag   => ( is => 'ro', default => !!0 );
+has hScrollBar => ( is => 'ro', default => sub { die 'required' } );
+has vScrollBar => ( is => 'ro', default => sub { die 'required' } );
+has limit      => ( is => 'ro', default => sub { TPoint->new } );
 
 # predeclare private methods
 my (
@@ -62,32 +61,23 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef
-    delta    => { default => TPoint->new(), no_override => 1 },
-    drawLock => { default => 0, no_override => 1 },
-    drawFlag => { default => !!0, no_override => 1 },
-    limit    => { default => TPoint->new(), no_override => 1 },
-    # hScrollBar and vScrollBar are 'required' but can be 'undef'
-    hScrollBar => {
-      required => 1,
-      allow    => sub { !defined $_[0] or blessed $_[0] }
-    },
-    vScrollBar => {
-      required => 1,
-      allow    => sub { !defined $_[0] or blessed $_[0] }
-    },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds     => Object,
+      hScrollBar => Maybe[Object], { alias => 'aHScrollBar' },
+      vScrollBar => Maybe[Object], { alias => 'aVScrollBar' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{delta}{x} = $self->{delta}{y} = 0;
   $self->{limit}{x} = $self->{limit}{y} = 0;
   $self->{options}   |= ofSelectable;
@@ -96,18 +86,21 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ($bounds, $aHScrollBar|undef, $aVScrollBar|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 3 );
-  return $class->new( bounds => $_[0], hScrollBar => $_[1],
-    vScrollBar => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Maybe[Object], Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], hScrollBar => $args[1],
+    vScrollBar => $args[2] );
 }
 
 sub changeBounds {    # void ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   $self->setBounds( $bounds );
   $self->{drawLock}++;
   $self->setLimit( $self->{limit}{x}, $self->{limit}{y} );
@@ -117,12 +110,13 @@ sub changeBounds {    # void ($bounds)
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpScroller, 
     size => length( cpScroller ),
   );
@@ -131,10 +125,11 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evBroadcast
     && $event->{message}{command} == cmScrollBarChanged
@@ -147,9 +142,11 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub scrollDraw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $d = TPoint->new();
 
   if ( $self->{hScrollBar} ) {
@@ -181,11 +178,11 @@ sub scrollDraw {    # void ()
 }
 
 sub scrollTo {    # void ($x, $y)
-  my ( $self, $x, $y ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $x, $y ) = $sig->( @_ );
   $self->{drawLock}++;
   $self->{hScrollBar}->setValue( $x )
     if $self->{hScrollBar};
@@ -197,11 +194,11 @@ sub scrollTo {    # void ($x, $y)
 }
 
 sub setLimit {    # void ($x, $y)
-  my ( $self, $x, $y ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $x, $y ) = $sig->( @_ );
   $self->{limit}{x} = $x;
   $self->{limit}{y} = $y;
   $self->{drawLock}++;
@@ -225,11 +222,11 @@ sub setLimit {    # void ($x, $y)
 }
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   $self->SUPER::setState( $aState, $enable );
   $self->drawView()
     if $aState & ( sfActive | sfDragging );
@@ -237,9 +234,11 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub checkDraw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->{drawLock} == 0 && $self->{drawFlag} ) {
     $self->{drawFlag} = !!0;
     $self->drawView();
@@ -248,9 +247,11 @@ sub checkDraw {    # void ()
 } #/ sub checkDraw
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{hScrollBar} = undef;
   $self->{vScrollBar} = undef;
   $self->SUPER::shutDown();
@@ -259,6 +260,9 @@ sub shutDown {    # void ()
 
 $showSBar = sub {    # void ($sBar|undef)
   my ( $self, $sBar ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( !defined $sBar or is_Object $sBar );
   if ( $sBar ) {
     ( $self->getState( sfActive | sfSelected ) )
       ? $sBar->show()

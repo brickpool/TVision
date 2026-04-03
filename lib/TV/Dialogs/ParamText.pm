@@ -1,6 +1,7 @@
 package TV::Dialogs::ParamText;
 # ABSTRACT: displays formatted dynamic text inside a Turbo Vision dialog
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -16,16 +17,9 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  readonly
-);
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :types );
 
 use TV::Dialogs::StaticText;
 use TV::toolkit;
@@ -36,54 +30,67 @@ sub new_TParamText { __PACKAGE__->from( @_ ) }
 
 extends TStaticText;
 
-# declare attributes
-has str => ( is => 'ro' );
+# protected attributes
+has str => ( is => 'ro', default => '' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_, text => '' );
-  my $args2 = check( {
-    str => { default => '', no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+  my $args2 = $class->SUPER::BUILDARGS(
+    bounds => $args1->{bounds},
+    text   => '',
+  );
   return { %$args1, %$args2 };
 }
 
 sub from {    # $obj ($bounds)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 1 );
-  return $class->new( bounds => $_[0] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $bounds ) = $sig->( @_ );
+  return $class->new( bounds => $bounds );
 }
 
 sub getText {    # void (\$s)
-  my ( $self, $s_ref ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $s_ref and !readonly $$s_ref );
-  alias: for my $s ( $$s_ref ) {
-  $s = defined $self->{str} ? $self->{str} : '';
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef],
+  );
+  my ( $self, $s ) = $sig->( @_ );
+  $$s = defined $self->{str} ? $self->{str} : '';
   return;
-  }
-} #/ sub getText
+}
 
 sub getTextLen {    # $len ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return defined $self->{str} ? length $self->{str} : 0;
 }
 
 sub setText {    # void ($fmt, @args)
-  my ( $self, $fmt, @args ) = @_;
-  assert ( @_ >= 2 );
-  assert ( blessed $self );
-  assert ( defined $fmt and !ref $fmt );
-  $self->{str} = sprintf( $fmt, @args );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Str,
+      ArrayRef, { slurpy => 1 }
+    ],
+  );
+  my ( $self, $fmt, $args ) = $sig->( @_ );
+  $self->{str} = sprintf( $fmt, @$args );
   $self->drawView();
   return;
-} #/ sub setText
+}
 
 1
 
@@ -107,14 +114,14 @@ TParamText - displays formatted dynamic text inside a Turbo Vision dialog
 
   my $text = '';
   $paramText->getText(\$text);
-
+  
   print "Current text: $text\n";
   
 =head1 DESCRIPTION
 
 C<TParamText> provides a formatted text control for Turbo Vision dialogs.
 It stores a dynamic string buffer and allows updating its content using 
-printf‑style formatting.
+printf-style formatting.
 
 The control integrates with the Turbo Vision drawing system and refreshes itself 
 when the text changes.
@@ -170,7 +177,7 @@ Returns the length of the text currently stored in the internal buffer.
 
  $self->setText($fmt, @args);
 
-Formats and stores text using a printf‑style format string and triggers a 
+Formats and stores text using a printf-style format string and triggers a 
 redraw of the view.
 
 =cut

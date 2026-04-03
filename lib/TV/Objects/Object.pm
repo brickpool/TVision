@@ -1,6 +1,7 @@
 package TV::Objects::Object;
 # ABSTRACT: defines the class TObject
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,15 +16,18 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Scalar::Util qw(
-  blessed
-  reftype
   weaken
   isweak
 );
-
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
+);
 
 sub TObject() { __PACKAGE__ }
 sub new_TObject { __PACKAGE__->from(@_) }
@@ -34,25 +38,34 @@ my $unlock_value = sub {
 };
 
 sub BUILDARGS {    # \%args ()
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 0 );
-  return {};
+  state $sig = signature(
+    method => 1,
+    named  => [],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub from {    # $obj ();
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 0 );
+  state $sig = signature(
+    method => 1,
+    pos => [],
+  );
+  my ( $class ) = $sig->( @_ );
   return $class->new();
 }
 
 sub destroy {    # void ($class|$self, $o|undef)
-  my $class = ref $_[0] || $_[0];
-  alias: for my $o ( $_[1] ) {
-  assert ( $class );
+  state $sig = signature(
+    method => 1,
+    pos => [Maybe[Item]],
+  );
+  my ( $class, $o ) = $sig->( @_ );
+  $class = ref $class || $class;
+  alias: for $o ( $_[1] ) {
   if ( defined $o ) {
-    assert ( blessed $o );
+    assert ( is_Object $o );
     $o->shutDown();
     for ( keys %$o ) {
       if ( ref $o->{$_} && !isweak $o->{$_} ) {
@@ -67,7 +80,11 @@ sub destroy {    # void ($class|$self, $o|undef)
 }
 
 sub shutDown {    # void ($self)
-  assert ( blessed $_[0] );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return;
 }
 

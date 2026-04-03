@@ -1,6 +1,7 @@
 package TV::Dialogs::Button;
 # ABSTRACT: Pushbutton control for Turbo Vision dialogs
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,12 @@ our @EXPORT = qw(
   new_TButton
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
 );
 
 use TV::Dialogs::Const qw(
@@ -49,7 +46,6 @@ use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Util qw( message );
-use TV::toolkit;
 
 sub TButton() { __PACKAGE__ }
 sub name() { 'TButton' }
@@ -72,11 +68,13 @@ use vars qw(
   *specialChars = \${ TView . '::specialChars' };
 }
 
-# declare attributes
-has title     => ( is => 'ro' );
-has command   => ( is => 'ro' );
-has flags     => ( is => 'rw' );
-has amDefault => ( is => 'ro' );
+# public attributes
+has title     => ( is => 'ro', default => sub { die 'required' } );
+
+# protected attributes
+has command   => ( is => 'ro', default => sub { die 'required' } );
+has flags     => ( is => 'ro', default => sub { die 'required' } );
+has amDefault => ( is => 'ro', default => !!0 );
 
 # predeclare private methods
 my (
@@ -86,65 +84,67 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    title     => {
-      required    => 1,
-      defined     => 1,
-      default     => '',
-      strict_type => 1,
-    },
-    command   => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    flags     => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    amDefault => { default => !!0, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds  => Object,
+      title   => Str,               { alias => 'aTitle' },
+      command => PositiveOrZeroInt, { alias => 'aCommand' },
+      flags   => PositiveOrZeroInt, { alias => 'aFlags' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->{amDefault} = $self->{flags} & bfDefault;
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  $self->{amDefault} = ( $self->{flags} & bfDefault ) != 0;
   $self->{options} |=
     ofSelectable | ofFirstClick | ofPreProcess | ofPostProcess;
   $self->{eventMask} |= evBroadcast;
   $self->{state}     |= sfDisabled
     unless TView->commandEnabled( $self->{command} );
   return;
-} #/ sub BUILD
+}
 
 sub from {    # $obj ($bounds, $aTitle, $aCommand, $aFlags)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 4 );
-  return $class->new( bounds => $_[0], title => $_[1], command => $_[2], 
-    flags => $_[3] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str, PositiveOrZeroInt, PositiveOrZeroInt],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], title => $args[1], 
+    command => $args[2], flags => $args[3] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{title} = undef;
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawState( !!0 );
   return;
 }
 
 sub drawState {    # void ($down)
-  my ( $self, $down ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $down or !ref $down );
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool],
+  );
+  my ( $self, $down ) = $sig->( @_ );
 
   my ( $cButton, $cShadow );
   my $ch;
@@ -215,12 +215,13 @@ sub drawState {    # void ($down)
   return;
 } #/ sub drawState
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpButton, 
     size => length( cpButton ),
   );
@@ -229,10 +230,11 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   my $mouse; 
   my $clickRect;
@@ -327,10 +329,11 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub makeDefault {    # void ($enable)
-  my ( $self, $enable ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool],
+  );
+  my ( $self, $enable ) = $sig->( @_ );
 
   if ( ( $self->{flags} & bfDefault ) == 0 ) {
     message(
@@ -346,9 +349,11 @@ sub makeDefault {    # void ($enable)
 } #/ sub makeDefault
 
 sub press {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   message( $self->{owner}, evBroadcast, cmRecordHistory, undef );
 
@@ -366,11 +371,11 @@ sub press {    # void ()
 } #/ sub press
 
 sub setState { # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
 
   $self->SUPER::setState( $aState, $enable );
   if ( $aState & ( sfSelected | sfActive ) ) {
@@ -390,6 +395,13 @@ sub setState { # void ($aState, $enable)
 
 $drawTitle = sub {    # void ($b, $s, $i, $cButton, $down)
   my ( $self, $b, $s, $i, $cButton, $down ) = @_;
+  assert ( @_ == 6 );
+  assert ( is_Object $self );
+  assert ( is_ArrayLike $b );
+  assert ( is_Int $s );
+  assert ( is_Int $i );
+  assert ( is_PositiveOrZeroInt $cButton );
+  assert ( is_Bool $down );
 
   my ( $l, $scOff );
   if ( $self->{flags} & bfLeftJust ) {
@@ -420,10 +432,15 @@ $drawTitle = sub {    # void ($b, $s, $i, $cButton, $down)
 }; #/ sub drawTitle
 
 $pressButton = sub {    # void ($event)
+  assert ( @_ == 2 );
+  assert ( is_Object $_[0] );
+  assert ( is_Object $_[1] );
   ...;
 };
 
 $getActiveRect = sub {    # $rect ()
+  assert ( @_ == 1 );
+  assert ( is_Object $_[0] );
   ...;
 };
 
@@ -468,7 +485,7 @@ The command identifier triggered when the button is pressed (I<Int>).
 
 =item flags
 
-Bit‑mask of behavioral settings such as default, broadcast or selectable 
+Bit-mask of behavioral settings such as default, broadcast or selectable 
 (I<Int>).
 
 =item amDefault
@@ -512,7 +529,7 @@ Behavioral flags controlling default state, focus handling and selection
 
  my $obj = new_TButton($bounds, $aTitle, $aCommand, $aFlags);
 
-Factory constructor for building a Turbo‑Vision‑style button control.
+Factory constructor for building a Turbo-Vision-style button control.
 
 =head2 draw
 
@@ -566,11 +583,19 @@ Updates the control's internal state and refreshes its appearance.
 
 =back
 
+=head1 CONTRIBUTORS
+
+=over
+
+=item Eric Woodruff
+
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2026 the L</AUTHORS> as listed above.
+Copyright (c) 1995, 2026 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
 part of the distribution). 

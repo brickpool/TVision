@@ -1,6 +1,7 @@
 package TV::App::Background;
 # ABSTRACT: TBackground forms the background for the Turbo Vision applications.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,14 +15,13 @@ our @EXPORT = qw(
   new_TBackground
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :Object
+  Str
 );
-use Scalar::Util qw( blessed );
 
 use TV::App::Const qw( cpBackground );
 use TV::Views::Const qw( :gfXXXX );
@@ -29,48 +29,50 @@ use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 
-use TV::toolkit;
-
 sub TBackground() { __PACKAGE__ }
 sub new_TBackground { __PACKAGE__->from(@_) }
 
 extends TView;
 
-# declare attributes
-has pattern => ( is => 'rw' );
+# protected attributes
+has pattern => ( is => 'ro', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    pattern => { required => 1, defined => 1, default => '', strict_type => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
-} #/ sub BUILDARGS
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds  => Object,
+      pattern => Str, { alias => 'aPattern' }
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
+}
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
   return;
 }
 
 sub from {    # $obj ($bounds, $aPattern)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new(
-    bounds  => $_[0], 
-    pattern => $_[1],
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str],
   );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], pattern => $args[1] );
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $b = TDrawBuffer->new();
 
   $b->moveChar( 0, $self->{pattern}, $self->getColor(0x01), $self->{size}{x} );
@@ -78,12 +80,13 @@ sub draw {    # void ()
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpBackground, 
     size => length( cpBackground )
   );

@@ -1,6 +1,7 @@
 package TV::Dialogs::Dialog;
 # ABSTRACT: Base dialog window class for Turbo Vision dialog boxes
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,11 +15,12 @@ our @EXPORT = qw(
   new_TDialog
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::Dialogs::Const qw(
@@ -43,7 +45,6 @@ use TV::Views::Const qw(
 );
 use TV::Views::Palette;
 use TV::Views::Window;
-use TV::toolkit;
 
 sub TDialog() { __PACKAGE__ }
 sub name() { 'TDialog' }
@@ -52,14 +53,26 @@ sub new_TDialog { __PACKAGE__->from(@_) }
 extends TWindow;
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  return $class->SUPER::BUILDARGS( @_, number => wnNoNumber );
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+      title  => Str, { alias => 'aTitle' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $class->SUPER::BUILDARGS(
+    bounds => $args->{bounds}, 
+    title  => $args->{title}, 
+    number => wnNoNumber,
+  );
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{growMode} = 0;
   $self->{flags} = wfMove | wfClose;
   $self->{palette} = dpGrayDialog;
@@ -67,27 +80,30 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ($bounds, $aTitle)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], title => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], title => $args[1] );
 }
 
-my ( $paletteGray, $paletteBlue, $paletteCyan );
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
-  $paletteGray ||= TPalette->new(
+  state $paletteGray = TPalette->new(
     data => cpGrayDialog,
     size => length( cpGrayDialog ) 
   );
-  $paletteBlue ||= TPalette->new( 
+  state $paletteBlue = TPalette->new( 
     data => cpBlueDialog,
     size => length( cpBlueDialog ) 
   );
-  $paletteCyan ||= TPalette->new( 
+  state $paletteCyan = TPalette->new( 
     data => cpCyanDialog,
     size => length( cpCyanDialog ) 
   );
@@ -102,10 +118,11 @@ sub getPalette {    # $palette ()
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   $self->SUPER::handleEvent( $event );
   SWITCH: for ( $event->{what} ) {
@@ -153,10 +170,11 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub valid {    # $bool ($command)
-  my ( $self, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $command ) = $sig->( @_ );
   return $command == cmCancel
     ? !!1
     : $self->SUPER::valid( $command );
@@ -188,8 +206,8 @@ C<TDialog> implements the fundamental dialog window class used throughout Turbo
 Vision. It handles palette selection, keyboard shortcuts for dialog acceptance 
 or cancellation, and manages focus and modal dialog termination.  
 
-The class forms the basis for all higher‑level dialogs and provides common 
-event‑handling logic.  
+The class forms the basis for all higher-level dialogs and provides common 
+event-handling logic.  
 
 =head1 ATTRIBUTES
 
@@ -215,7 +233,7 @@ The currently active dialog palette selection (I<Int> palette constant).
 
   my $dlg = TDialog->new(%args);
 
-Creates a new C<TDialog> object and initializes its dialog‑specific flags and 
+Creates a new C<TDialog> object and initializes its dialog-specific flags and 
 palette.
 
 =over

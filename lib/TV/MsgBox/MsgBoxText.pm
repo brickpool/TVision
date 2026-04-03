@@ -1,6 +1,7 @@
 package TV::MsgBox::MsgBoxText;
 # ABSTRACT: Message Box and Input Box functions for TVision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -13,12 +14,11 @@ our @EXPORT_OK = qw(
   inputBoxRect
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
+use Carp ();
+use PerlX::Assert::PP;
+use Scalar::Util qw( looks_like_number );
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :types );
 
 use TV::App::Program qw(
   $application
@@ -79,7 +79,7 @@ my @Titles = (
   $confirmText,
 );
 
-sub messageBox {    # $command ($msg|$aOptions, $aOptions|$fmt, |@list)
+sub messageBox {    # $command ($msg|$aOptions, $aOptions|$fmt, @list)
   assert ( @_ >= 2 );
   my $r = TRect->new( ax => 0, ay => 0, bx => 40, by => 9 );
   $r->move(
@@ -89,21 +89,23 @@ sub messageBox {    # $command ($msg|$aOptions, $aOptions|$fmt, |@list)
   return messageBoxRect( $r, @_ );
 }
 
-sub messageBoxRect {    # $command ($r, $msg|$aOptions, $aOptions|$fmt, |@list)
+sub messageBoxRect {    # $command ($r, $msg|$aOptions, $aOptions|$fmt, @list)
   my ( $r, $msg, $aOptions );
-  assert ( @_ >= 3 );
-  if ( @_ > 3 || looks_like_number $_[1] || !looks_like_number $_[2] ) {
-    my ( $fmt, @list );
-    ( $r, $aOptions, $fmt, @list ) = @_;
-    assert ( defined $fmt and !ref $fmt );
-    $msg = sprintf( $fmt, @list );
-  } 
-  else {
-    ( $r, $msg, $aOptions ) = @_;
+  if ( looks_like_number $_[2] ) {
+    state $sig = signature(
+      pos => [Object, Str, PositiveOrZeroInt],
+    );
+    ( $r, $msg, $aOptions ) = $sig->( @_ );
   }
-  assert ( ref $r );
-  assert ( defined $msg and !ref $msg );
-  assert ( looks_like_number $aOptions );
+  else {
+    state $sig = signature(
+      pos => [Object, PositiveOrZeroInt, Str, ArrayRef, { slurpy => 1 }],
+    );
+    my ( $fmt, $list );
+    ( $r, $aOptions, $fmt, $list ) = $sig->( @_ );
+    assert ( defined $fmt and !ref $fmt );
+    $msg = sprintf( $fmt, @$list );
+  }
 
   my $dialog;
   my ( $i, $x, $buttonCount );
@@ -162,14 +164,11 @@ sub inputBox {    # $command ($Title, $aLabel, $s, $limit)
   return inputBoxRect( $r, @_ );
 }
 
-sub inputBoxRect {    # $command ($bounds, $Title, $aLabel, $s, $limit)
-  my ( $bounds, $Title, $aLabel, $s, $limit ) = @_;
-  assert ( @_ == 5 );
-  assert ( blessed $bounds );
-  assert ( defined $Title and !ref $Title );
-  assert ( defined $aLabel and !ref $aLabel );
-  assert ( ref $s );
-  assert ( looks_like_number $limit );
+sub inputBoxRect {    # $command ($bounds, $Title, $aLabel, \@s, $limit)
+  state $sig = signature(
+    pos => [Object, Str, Str, ArrayLike, PositiveOrZeroInt],
+  );
+  my ( $bounds, $Title, $aLabel, $s, $limit ) = $sig->( @_ );
 
   my $dialog;
   my $control;

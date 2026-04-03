@@ -1,6 +1,7 @@
 package TV::Dialogs::StrItem;
 # ABSTRACT: Simple singly linked list node for Turbo Vision dialog data
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,19 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 sub TSItem() { __PACKAGE__ }
 sub new_TSItem { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 our %HAS; BEGIN {
   %HAS = (
     value => sub { '' },
@@ -34,38 +37,43 @@ our %HAS; BEGIN {
 }
 
 sub new {    # \$item (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  assert ( keys( %args ) % 2 == 0 );
-  my $self = {
-    value => $args{value} || $HAS{value}->(),
-    next  => $args{next}  || $HAS{next}->(),
-  };
+  state $sig = signature(
+    method => 1,
+    named  => [
+      value => Str,
+      next  => Maybe[Object],
+    ],
+  );
+  my ( $class, $self ) = $sig->( @_ );
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
   return $self;
 }
 
 sub from {    # $item ($aValue, $aNext|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( value => $_[0], next => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Str, Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( value => $args[0], next => $args[1] );
 }
 
 my $mk_ro_accessors = sub {
-  my $pkg = shift;
+  my ( $pkg ) = @_;
+  assert ( @_ == 1 );
+  assert ( defined $pkg );
   no strict 'refs';
   my %HAS = %{"${pkg}::HAS"};
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
       assert ( @_ == 1 );
-      assert ( blessed $_[0] );
+      assert ( is_Object $_[0] );
       $_[0]->{$field};
     };
-  } #/ for my $field ( keys %HAS)
-}; #/ $mk_ro_accessors = sub
+  }
+};
 
 __PACKAGE__->$mk_ro_accessors();
 

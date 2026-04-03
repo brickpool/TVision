@@ -1,6 +1,7 @@
 package TV::Dialogs::HistoryWindow;
 # ABSTRACT: Window component showing and managing history list items
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,15 +15,13 @@ our @EXPORT = qw(
   new_THistoryWindow
 );
 
+use Carp ();
 use PerlX::Assert::PP;
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  readonly
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types  qw(
+  :is
+  :types
 );
 
 use TV::Dialogs::Const qw( cpHistoryWindow );
@@ -37,32 +36,42 @@ use TV::Views::Const qw(
 );
 use TV::Views::Palette;
 use TV::Views::Window;
-use TV::toolkit;
 
 sub THistoryWindow() { __PACKAGE__ }
 sub new_THistoryWindow { __PACKAGE__->from(@_) }
 
 extends ( TWindow, THistInit );
 
-# declare attributes
+# protected attributes
 has viewer => ( is => 'ro' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = TWindow->BUILDARGS( @_, title => '', number => wnNoNumber );
-  my $args2 = THistInit->BUILDARGS( cListViewer => $class->can('initViewer') );
-  my $args3 = check( {
-    # additional 'required' arguments
-    historyId => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds    => Object,
+      historyId => PositiveOrZeroInt,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+  my $args2 = TWindow->BUILDARGS(
+    bounds => $args1->{bounds},
+    title  => '',
+    number => wnNoNumber,
+  );
+  my $args3 = THistInit->BUILDARGS(
+    cListViewer => $class->can( 'initViewer' )
+  );
   return { %$args1, %$args2, %$args3 };
 }
 
-sub BUILD {    # void (|\%args)
+sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-  assert ( blessed $self );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_HashRef $args );
   $self->{flags} = wfClose;
   if ( $self->{createListViewer} ) {
     $self->{viewer} = $self->createListViewer( $self->getExtent(), $self, 
@@ -73,18 +82,21 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ($bounds, $historyId)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], historyId => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, PositiveOrZeroInt],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], historyId => $args[1] );
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpHistoryWindow, 
     size => length( cpHistoryWindow ),
   );
@@ -92,21 +104,21 @@ sub getPalette {    # $palette ()
 }
 
 sub getSelection {    # void (\$dest)
-  my ( $self, $dest_ref ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { ref $dest_ref and !readonly $$dest_ref };
-  $self->{viewer}->getText( $dest_ref, $self->{viewer}{focused}, 255 );
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef],
+  );
+  my ( $self, $dest ) = @_;
+  $self->{viewer}->getText( $dest, $self->{viewer}{focused}, 255 );
   return;
 }
 
 sub initViewer {    # $listViewer ($r, $win, $historyId)
-  my ( $class, $r, $win, $historyId ) = @_;
-  assert { @_ == 4 };
-  assert { $class and !ref $class };
-  assert { ref $r };
-  assert { blessed $win };
-  assert { looks_like_number $historyId };
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Object, PositiveOrZeroInt],
+  );
+  my ( $class, $r, $win, $historyId ) = $sig->( @_ );
   $r->grow( -1, -1 );
   return THistoryViewer->new(
     bounds     => $r,

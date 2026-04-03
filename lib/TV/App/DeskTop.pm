@@ -1,6 +1,7 @@
 package TV::App::DeskTop;
 # ABSTRACT: TDeskTop manages the screen area, owning different views.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,15 +15,14 @@ our @EXPORT = qw(
   new_TDeskTop
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  weaken
+use Carp ();
+use PerlX::Assert::PP;
+use Scalar::Util qw( weaken );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  Object
 );
 
 use TV::App::Background;
@@ -38,7 +38,6 @@ use TV::Views::Const qw(
   sfVisible
 );
 use TV::Views::Group;
-use TV::toolkit;
 
 sub TDeskTop() { __PACKAGE__ }
 sub name() { 'TDeskTop' }
@@ -49,27 +48,30 @@ extends ( TGroup, TDeskInit );
 # declare global variables
 our $defaultBkgrnd = "\xB0";
 
-# declare attributes
-has background        => ( is => 'rw' );
-has tileColumnsFirst  => ( is => 'rw' );
+# protected attributes
+has background        => ( is => 'ro' );
+has tileColumnsFirst  => ( is => 'ro' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  my $args1 = TGroup->BUILDARGS( @_ );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds => Object,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
   my $args2 = TDeskInit->BUILDARGS(
     cBackground => $class->can( 'initBackground' ),
   );
-  my $args3 = check( {
-    # set 'default' values, init_args => undef
-    tileColumnsFirst => { default => !!0, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2, %$args3 };
+  return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
 
   if ( $self->{createBackground}
@@ -81,14 +83,18 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ($bounds)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 1 );
-  return $class->new( bounds => $_[0] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $bounds ) = $sig->( @_ );
+  return $class->new( bounds => $bounds );
 }
 
 my $Tileable = sub {    # void ($p)
-  my $p = shift;
+  my ( $p ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $p );
   return ( $p->{options} & ofTileable ) && ( $p->{state} & sfVisible );
 };
 
@@ -96,7 +102,9 @@ my $cascadeNum;
 my $lastView;
 
 my $doCount = sub {    # void ($p, @)
-  my $p = shift;
+  my ( $p ) = @_;
+  assert ( @_ >= 1 );
+  assert ( is_Object $p );
   if ( $p->$Tileable() ) {
     $cascadeNum++;
     weaken( $lastView = $p );
@@ -106,6 +114,9 @@ my $doCount = sub {    # void ($p, @)
 
 my $doCascade = sub {    # void ($p, $r)
   my ( $p, $r ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_Object $r );
   if ( $p->$Tileable() && $cascadeNum >= 0 ) {
     my $NR = $r;
     $NR->{a}{x} += $cascadeNum;
@@ -114,13 +125,14 @@ my $doCascade = sub {    # void ($p, $r)
     $cascadeNum--;
   }
   return;
-}; #/ $doCascade = sub
+};
 
 sub cascade {    # void ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   my $min = TPoint->new();
   my $max = TPoint->new();
   $cascadeNum = 0;
@@ -138,14 +150,15 @@ sub cascade {    # void ($r)
       $self->forEach( $doCascade, $r );
       $self->unlock();
     }
-  } #/ if ( $cascadeNum > 0 )
-} #/ sub cascade
+  }
+}
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evCommand ) {
     SWITCH: for ( $event->{message}{command} ) {
@@ -163,22 +176,25 @@ sub handleEvent {    # void ($event)
         return;
       }
       $self->clearEvent( $event );
-    } #/ SWITCH: for ( $event->{message}...)
-  } #/ if ( $event->{what} ==...)
-} #/ sub handleEvent
+    }
+  }
+}
 
 sub initBackground {    # $background ($r)
-  my ( $class, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( ref $r );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $r ) = $sig->( @_ );
   return TBackground->new( bounds => $r, pattern => $defaultBkgrnd );
 }
 
 my ( $numCols, $numRows, $numTileable, $leftOver, $tileNum );
 
 my $iSqr = sub {    # void ($i)
-  my $i = shift;
+  my ( $i ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Int $i );
   my ( $res1, $res2 ) = ( 2, int( $i / 2 ) );
   while ( abs( $res1 - $res2 ) > 1 ) {
     $res1 = int( ( $res1 + $res2 ) / 2 );
@@ -188,9 +204,14 @@ my $iSqr = sub {    # void ($i)
 };
 
 my $mostEqualDivisors = sub {    # void ($n, $x, $y, $favorY)
-  my ( $n, undef, undef, $favorY ) = @_;
-  alias: for my $x ( $_[1] ) {
-  alias: for my $y ( $_[2] ) {
+  my ( $n, $x, $y, $favorY ) = @_;
+  assert ( @_ == 4 );
+  assert ( is_Int $n );
+  assert ( is_Int $x );
+  assert ( is_Int $y );
+  assert ( is_Bool $favorY );
+  alias: for $x ( $_[1] ) {
+  alias: for $y ( $_[2] ) {
   my $i = $iSqr->( $n );
   $i++
     if $n % $i != 0 && $n % ( $i + 1 ) == 0;
@@ -210,7 +231,9 @@ my $mostEqualDivisors = sub {    # void ($n, $x, $y, $favorY)
 }; #/ $mostEqualDivisors = sub
 
 my $doCountTileable = sub {    # void ($p, @)
-  my $p = shift;
+  my ( $p ) = @_;
+  assert ( @_ >= 1 );
+  assert ( is_Object $p );
   $numTileable++
     if $p->$Tileable();
   return;
@@ -218,11 +241,19 @@ my $doCountTileable = sub {    # void ($p, @)
 
 my $dividerLoc = sub {    # $int ($lo, $hi, $num, $pos)
   my ( $lo, $hi, $num, $pos ) = @_;
+  assert ( @_ == 4 );
+  assert ( is_Int $lo );
+  assert ( is_Int $hi );
+  assert ( is_Int $num );
+  assert ( is_Int $pos );
   return int( ( $hi - $lo ) * $pos / $num + $lo );
 };
 
 my $calcTileRect = sub {    # $rect ($pos, $r)
   my ( $pos, $r ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Int $pos );
+  assert ( is_Object $r );
   my ( $x, $y );
   my $nRect = TRect->new();
 
@@ -250,6 +281,9 @@ my $calcTileRect = sub {    # $rect ($pos, $r)
 
 my $doTile = sub {    # void ($p, $r)
   my ( $p, $r ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_Object $r );
   if ( $p->$Tileable() ) {
     my $rect = $calcTileRect->( $tileNum, $r );
     $p->locate( $rect );
@@ -259,10 +293,11 @@ my $doTile = sub {    # void ($p, $r)
 };
 
 sub tile {    # void ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   $numTileable = 0;
   $self->forEach( $doCountTileable, undef );
   if ( $numTileable > 0 ) {
@@ -285,17 +320,21 @@ sub tile {    # void ($r)
 } #/ sub tile
 
 sub tileError {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   # Handle tile error
   return;
 }
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{background} = undef;
   $self->SUPER::shutDown();
   return;

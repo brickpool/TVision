@@ -1,6 +1,7 @@
 package TV::Views::ListViewer;
 # ABSTRACT: Base class for list viewers in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,17 +15,13 @@ our @EXPORT = qw(
   new_TListViewer
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  readonly
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Const qw( EOS );
@@ -59,7 +56,6 @@ use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Util qw( message );
-use TV::toolkit;
 
 sub TListViewer() { __PACKAGE__ }
 sub name() { 'TListViewer' }
@@ -86,38 +82,29 @@ our $emptyText = "<empty>";
 has hScrollBar => ( is => 'rw' );
 has vScrollBar => ( is => 'rw' );
 has numCols    => ( is => 'rw' );
-has topItem    => ( is => 'rw' );
-has focused    => ( is => 'rw' );
-has range      => ( is => 'rw' );
+has topItem    => ( is => 'rw', default => 0 );
+has focused    => ( is => 'rw', default => 0 );
+has range      => ( is => 'rw', default => 0 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef
-    topItem => { default => 0, no_override => 1 },
-    focused => { default => 0, no_override => 1 },
-    range   => { default => 0, no_override => 1 },
-    # 'required' arguments
-    numCols => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    # hScrollBar and vScrollBar are 'required' but can be 'undef'
-    hScrollBar => {
-      required => 1,
-      allow    => sub { !defined $_[0] or blessed $_[0] }
-    },
-    vScrollBar => {
-      required => 1,
-      allow    => sub { !defined $_[0] or blessed $_[0] }
-    },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds     => Object,
+      numCols    => PositiveOrZeroInt, { alias => 'aNumCols' },
+      hScrollBar => Maybe[Object],     { alias => 'aHScrollBar' },
+      vScrollBar => Maybe[Object],     { alias => 'aVScrollBar' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   my ( $arStep, $pgStep );
   $self->{options}   |= ofFirstClick | ofSelectable;
   $self->{eventMask} |= evBroadcast;
@@ -143,18 +130,21 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ($bounds, $aNumCols, $aHScrollBar|undef, $aVScrollBar|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 4 );
-  return $class->new( bounds => $_[0], numCols => $_[1], hScrollBar => $_[2],
-    vScrollBar => $_[3] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, PositiveOrZeroInt, Maybe[Object], Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], numCols => $args[1], 
+    hScrollBar => $args[2], vScrollBar => $args[3] );
 }
 
 sub changeBounds {    # void ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   $self->SUPER::changeBounds( $bounds );
   if ( $self->{hScrollBar} ) {
     $self->{hScrollBar}->setStep(
@@ -172,9 +162,11 @@ sub changeBounds {    # void ($bounds)
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   my ( $i, $j, $item );
   my ( $normalColor, $selectedColor, $focusedColor, $color );
@@ -248,10 +240,11 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub focusItem {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->{focused} = $item;
   if ( $self->{vScrollBar} ) {
     $self->{vScrollBar}->setValue( $item );
@@ -281,12 +274,13 @@ sub focusItem {    # void ($item)
   return;
 } #/ sub focusItem
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpListViewer, 
     size => length( cpListViewer ),
   );
@@ -294,32 +288,31 @@ sub getPalette {    # $palette ()
 }
 
 sub getText {    # void (\$dest, $item, $width)
-  my ( $self, $dest_ref, $item, $width ) = @_;
-  assert ( @_ == 4 );
-  assert ( blessed $self );
-  assert ( ref $dest_ref and !readonly $$dest_ref );
-  assert ( looks_like_number $item );
-  assert ( looks_like_number $width );
-  alias: for my $dest ( $$dest_ref ) {
-  $dest = EOS;
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef, Int, Int],
+  );
+  my ( $self, $dest, $item, $width ) = $sig->( @_ );
+  $$dest = EOS;
   return;
-  } #/ alias: for my $dest ( $$dest_ref )
 }
 
 sub isSelected {    # $bool ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return $item == $self->{focused};
 }
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   my $mouse;
   my $colWidth;
@@ -500,19 +493,21 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub selectItem {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   message( $self->{owner}, evBroadcast, cmListItemSelected, $self );
   return;
 }
 
 sub setRange {    # void ($aRange)
-  my ( $self, $aRange ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aRange );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $aRange ) = $sig->( @_ );
   $self->{range} = $aRange;
 
   # BUG FIX - EFW - Tue 06/26/95
@@ -531,11 +526,11 @@ sub setRange {    # void ($aRange)
 } #/ sub setRange
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   $self->SUPER::setState( $aState, $enable );
   if ( $aState & (sfSelected | sfActive | sfVisible) ) {
     if ( $self->{hScrollBar} ) {
@@ -560,10 +555,11 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub focusItemNum {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   if ( $item < 0 ) {
     $item = 0;
   }
@@ -576,9 +572,11 @@ sub focusItemNum {    # void ($item)
 } #/ sub focusItemNum
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{hScrollBar} = undef;
   $self->{vScrollBar} = undef;
   $self->SUPER::shutDown();
@@ -880,11 +878,19 @@ in an application-specific way.
 
 =back
 
+=head1 CONTRIBUTORS
+
+=over
+
+=item Eric Woodruff
+
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2026 the L</AUTHORS> as listed above.
+Copyright (c) 1995, 2026 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
 part of the distribution). 

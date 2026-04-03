@@ -14,7 +14,7 @@ our @EXPORT_OK = qw(
   lowMemory
 );
 
-sub lowMemory() {    # $bool ()
+sub lowMemory () {    # $bool ()
   !!0;
 }
 

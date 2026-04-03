@@ -1,12 +1,5 @@
-=pod
-
-=head1 DESCRIPTION
-
-defines various utility functions used throughout Turbo Vision
-
-=cut
-
 package TV::Drivers::Util;
+# ABSTRACT: defines various utility functions used throughout Turbo Vision
 
 use strict;
 use warnings;
@@ -23,7 +16,7 @@ our @EXPORT_OK = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Scalar::Util qw(
   looks_like_number
 );

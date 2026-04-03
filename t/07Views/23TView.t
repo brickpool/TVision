@@ -22,14 +22,14 @@ subtest 'dataSize method' => sub {
 # Test the getData method
 subtest 'getData method' => sub {
   my $view = TView->new( bounds => $bounds );
-  my $rec;
+  my $rec = [];
   lives_ok { $view->getData( $rec ) } 'getData method executed without errors';
 };
 
 # Test the setData method
 subtest 'setData method' => sub {
   my $view = TView->new( bounds => $bounds );
-  my $rec;
+  my $rec = [];
   lives_ok { $view->setData( $rec ) } 'setData method executed without errors';
 };
 

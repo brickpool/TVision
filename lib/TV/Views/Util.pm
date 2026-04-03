@@ -1,6 +1,7 @@
 package TV::Views::Util;
 # ABSTRACT: defines various utility functions used throughout Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -13,22 +14,25 @@ our @EXPORT_OK = qw(
   message
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :types
 );
 
 use TV::Drivers::Const qw( evNothing );
 use TV::Drivers::Event;
 
 sub message {    # $view|undef ($receiver|undef, $what, $command, $infoPtr)
-  my ( $receiver, $what, $command, $infoPtr ) = @_;
-  assert ( @_ == 4 );
-  assert ( !defined $receiver or blessed $receiver );
-  assert ( looks_like_number $what );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    pos => [
+      Maybe[Object],
+      PositiveOrZeroInt, 
+      PositiveOrZeroInt,
+      Any,
+    ],
+  );
+  my ( $receiver, $what, $command, $infoPtr ) = $sig->( @_ );
 
   return undef
     unless $receiver;

@@ -1,6 +1,7 @@
 package TV::Views::Palette;
 # ABSTRACT: A class for managing color palettes in Turbo Vision 2.0.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,65 +16,83 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 sub TPalette() { __PACKAGE__ }
 sub new_TPalette { __PACKAGE__->from(@_) }
 
 sub new {    # $obj (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
+  state $sig = signature(
+    method => 1,
+    named => [
+      data      => Str,               { optional => 1 },
+      size      => PositiveOrZeroInt, { optional => 1 },
+      copy_from => Object,            { optional => 1 },
+    ],
+  );
+  my ( $class, $args ) = $sig->( @_ );
   my $data = "\0";
-  if ( $args{data} && $args{size} ) {
-    my $d   = $args{data} . '';
-    my $len = $args{size} || 0;
+  if ( defined $args->{data} && defined $args->{size} ) {
+    my $d   = $args->{data};
+    my $len = $args->{size};
     $data = pack( 'C'.'a' x $len, $len, unpack( '(a)*', $d ) );
   }
-  elsif ( $args{copy_from} ) {
-    my $tp = $args{copy_from};
+  elsif ( defined $args->{copy_from} ) {
+    my $tp = $args->{copy_from};
     $data = $$tp;
   }
   return bless \$data, $class;
-} #/ sub new
+}
 
 sub from {    # $obj ($tp|$d, $len)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 1 && @_ <= 2 );
-  SWITCH: for ( scalar @_ ) {
-    $_ == 1 and return $class->new( copy_from => $_[0] );
-    $_ == 2 and return $class->new( data => $_[0], size => $_[1] );
+  if ( @_ > 2 ) {
+    state $sig = signature(
+      method => 1,
+      pos    => [Str, PositiveOrZeroInt],
+    );
+    my ( $class, $d, $len ) = $sig->( @_ );
+    return $class->new( data => $d, size => $len );
+  } 
+  else {
+    state $sig = signature(
+      method => 1,
+      pos    => [Object],
+    );
+    my ( $class, $tp ) = $sig->( @_ );
+    return $class->new( copy_from => $tp );
   }
-  return;
 }
 
 sub clone {    # $clone ($self)
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => 1,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $data = $$self;
   return bless \$data, ref $self;
 }
 
 sub assign {    # $self ($tp)
-  my ( $self, $tp ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $tp );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $self, $tp ) = $sig->( @_ );
   $$self = $$tp;
   return $self;
 }
 
 sub at {    # $byte ($index)
-  my ( $self, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => 1,
+    pos    => [Int],
+  );
+  my ( $self, $index ) = $sig->( @_ );
   return ord bytes::substr( $$self, $index, 1 );
 }
 

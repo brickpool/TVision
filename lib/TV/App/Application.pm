@@ -1,6 +1,7 @@
 package TV::App::Application;
 # ABSTRACT: TApplication is a generic application as a basis for your own apps.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,9 +15,10 @@ our @EXPORT = qw(
   new_TApplication
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw( blessed );
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :Object );
 
 use TV::App::Program;
 use TV::Dialogs::HistoryViewer::HistList qw(
@@ -26,27 +28,34 @@ use TV::Dialogs::HistoryViewer::HistList qw(
 use TV::Drivers::EventQueue;
 use TV::Drivers::Screen;
 use TV::Drivers::SystemError;
-use TV::toolkit;
 
 sub TApplication() { __PACKAGE__ }
 sub new_TApplication { __PACKAGE__->from(@_) }
 
 extends TProgram;
 
-sub BUILD {    # void (|\%args)
-  assert ( blessed $_[0] );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   initHistory();
   return;
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
+  my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $_[0] );
+  assert ( is_Object $self );
   doneHistory();
   return;
 }
 
 sub suspend {
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   TSystemError->suspend();
   TEventQueue->suspend();
   TScreen->suspend();
@@ -55,6 +64,11 @@ sub suspend {
 }
 
 sub resume {
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   TScreen->resume();
   TEventQueue->resume();
   TSystemError->resume();

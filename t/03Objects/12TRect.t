@@ -14,7 +14,7 @@ isa_ok( $p1, TPoint );
 isa_ok( $p2, TPoint );
 
 my $rect1 = TRect->new( ax => 0, ay => 0, bx => 10, by => 10 );
-my $rect2 = TRect->new( p1 => $p1, p2 => $p2 );
+my $rect2 = TRect->new( a => $p1, b => $p2 );
 isa_ok( $rect1, TRect );
 isa_ok( $rect2, TRect );
 

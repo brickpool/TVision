@@ -1,6 +1,7 @@
 package TV::Menus::StatusLine;
 # ABSTRACT: Message line for the bottom of the application screen
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,13 @@ our @EXPORT = qw(
   new_TStatusLine
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Menus::Const qw( cpStatusLine );
@@ -38,7 +36,6 @@ use TV::Views::Const qw(
 );
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TStatusLine() { __PACKAGE__ }
 sub name() { 'TStatusLine' }
@@ -49,9 +46,9 @@ extends TView;
 # declare global variables
 our $hintSeparator = "\xB3 ";
 
-# declare attributes
+# protected attributes
 has items => ( is => 'ro' );
-has defs  => ( is => 'ro' );
+has defs  => ( is => 'ro', default => sub { die 'required' } );
 
 # predeclare private methods
 my (
@@ -61,23 +58,22 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # init_args => undef,
-    items => { no_override => 1 },
-    # 'required' arguments (note: 'defs' can be undefined)
-    defs => { required => 1, allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+      defs   => Maybe[Object], { alias => 'aDefs' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{options}   |= ofPreProcess;
   $self->{eventMask} |= evBroadcast;
   $self->{growMode}   = gfGrowLoY | gfGrowHiX | gfGrowHiY;
@@ -86,16 +82,18 @@ sub BUILD {    # void (\%args)
 } #/ sub new
 
 sub from {    # $obj ($bounds, $aDefs|undef);
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], defs => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [ Object, Maybe[Object] ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], defs => $args[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   while ( $self->{defs} ) {
     my $T = $self->{defs};
     $self->{defs} = $self->{defs}{next};
@@ -106,10 +104,11 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub disposeItems {    # void ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $item or blessed $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   while ( $item ) {
     alias: for my $T ( $item ) {
     $item = $item->next;
@@ -120,19 +119,22 @@ sub disposeItems {    # void ($item|undef)
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->$drawSelect( undef );
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpStatusLine, 
     size => length( cpStatusLine ),
   );
@@ -140,11 +142,12 @@ sub getPalette {    # $palette ()
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
   no warnings 'uninitialized';
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->SUPER::handleEvent( $event );
 
   SWITCH: for ( $event->{what} ) {
@@ -194,17 +197,20 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub hint {    # $str ($aHelpCtx)
-  my ( $self, $aHelpCtx ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aHelpCtx );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $aHelpCtx ) = $sig->( @_ );
   return '';
 }
 
-sub update {    # void
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+sub update {    # void ()
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $p = $self->TopView();
   my $h = $p ? $p->getHelpCtx() : hcNoContext;
   if ( $self->{helpCtx} != $h ) {
@@ -217,6 +223,9 @@ sub update {    # void
 
 $drawSelect = sub {    # void ($selected|undef)
   my ( $self, $selected ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( !defined $selected or is_Object $selected );
   my $b = TDrawBuffer->new();
 
   my $cNormal       = $self->getColor( 0x0301 );
@@ -268,7 +277,9 @@ $drawSelect = sub {    # void ($selected|undef)
 }; #/ sub drawSelect
 
 $findItems = sub {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   my $p = $self->{defs};
   while ( $p 
     && ( $self->{helpCtx} < $p->{min} || $self->{helpCtx} > $p->{max} ) 
@@ -281,6 +292,9 @@ $findItems = sub {    # void ()
 
 $itemMouseIsIn = sub {    # $statusItem|undef ($mouse)
   my ( $self, $mouse ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_HashLike $mouse );
   return undef
     if $mouse->{y} != 0;
 

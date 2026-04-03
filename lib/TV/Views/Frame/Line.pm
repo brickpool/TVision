@@ -8,13 +8,9 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use List::Util qw( min max );
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
+use TV::toolkit::Types qw( :is );
 
 use TV::Views::Const qw(
   cpFrame
@@ -34,11 +30,12 @@ use vars qw(
 
 sub TV::Views::Frame::frameLine {
   my ( $self, $frameBuf, $y, $n, $color ) = @_;
-  assert ( blessed $self );
-  assert ( blessed $frameBuf );
-  assert ( looks_like_number $y );
-  assert ( looks_like_number $n );
-  assert ( looks_like_number $color );
+  assert ( @_ == 5 );
+  assert ( is_Object $self );
+  assert ( is_ArrayLike $frameBuf );
+  assert ( is_Int $y );
+  assert ( is_Int $n );
+  assert ( is_PositiveOrZeroInt $color );
 
   my @FrameMask = ( ord substr( $initFrame, $n + 1, 1 ) ) x $self->{size}{x};
   $FrameMask[0] = ord substr( $initFrame, $n, 1 );

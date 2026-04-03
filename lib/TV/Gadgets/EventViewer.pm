@@ -1,6 +1,7 @@
 package TV::Gadgets::EventViewer;
 # ABSTRACT: TEventViewer is a Terminal window for showing received TEvents.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,19 +16,15 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use Encode qw( decode );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  weaken
-);
+use PerlX::Assert::PP;
 use Symbol ();
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
+);
 
 use TV::Drivers::Const qw( :evXXXX );
 use TV::Gadgets::Const qw( cmFndEventView );
@@ -46,7 +43,6 @@ use TV::Views::Const qw(
   wnNoNumber
 );
 use TV::Views::Window;
-use TV::toolkit;
 
 sub TEventViewer() { __PACKAGE__ }
 sub name() { 'TEventViewer' }
@@ -54,50 +50,59 @@ sub new_TEventViewer { __PACKAGE__->from(@_) }
 
 extends TWindow;
 
-# declare attributes
-has stopped    => ( is => 'rw' );
-has eventCount => ( is => 'rw' );
-has bufSize    => ( is => 'rw' );
-has interior   => ( is => 'rw' );
-has scrollBar  => ( is => 'rw' );
-has out        => ( is => 'rw' );
+# private attributes
+has stopped    => ( is => 'bare' );
+has eventCount => ( is => 'bare' );
+has bufSize    => ( is => 'bare' );
+has interior   => ( is => 'bare' );
+has scrollBar  => ( is => 'bare' );
+has out        => ( is => 'bare' );
 
 my $titles = [
   "Event Viewer", 
   "Event Viewer (Stopped)"
 ];
 
+# predeclare private methods
+my (
+  $init,
+  $printEvent,
+);
+
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_, title => '', number => wnNoNumber );
-  my $args2 = check( {
-    # init_args => undef
-    stopped    => { no_override => 1 },
-    eventCount => { no_override => 1 },
-    interior   => { no_override => 1 },
-    scrollBar  => { no_override => 1 },
-    out        => { no_override => 1 },
-    # 'required' arguments
-    bufSize => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds  => Object,
+      bufSize => PositiveOrZeroInt,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+  my $args2 = $class->SUPER::BUILDARGS(
+    bounds => $args1->{bounds},
+    title  => '',
+    number => wnNoNumber,
+  );
   return { %$args1, %$args2 };
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
+  assert ( is_HashRef $args );
   $self->{eventMask} |= evBroadcast;
-  $self->init( $args->{bufSize} );
+  $self->$init( $args->{bufSize} );
   return;
 }
 
-sub init {    # void ($bufSize)
+$init = sub {    # void ($bufSize)
   my ( $self, $bufSize ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
+  assert ( is_PositiveOrZeroInt $bufSize );
   $self->{stopped} = 0;
   $self->{eventCount} = 0;
   $self->{bufSize} = $bufSize;
@@ -113,27 +118,31 @@ sub init {    # void ($bufSize)
   $self->insert( $self->{interior} );
   $self->{out} = $ostream;
   return;
-} #/ sub init
+}; #/ sub $init
 
 sub from {    # $evntview ($bounds, aBufSize)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], bufSize => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, PositiveOrZeroInt],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], bufSize => $args[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{title} = undef;    # So that TWindow doesn't delete it.
   return;
 }
 
 sub toggle {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{stopped} = !$self->{stopped};
   $self->{title}   = $titles->[ $self->{stopped} ? 1 : 0 ];
   $self->{frame}->drawView() if $self->{frame};
@@ -141,15 +150,16 @@ sub toggle {    # void ()
 }
 
 sub print {    # void ($event)
-  my ( $self, $ev ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $ev );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $ev ) = $sig->( @_ );
   if ( $ev->{what} != evNothing && !$self->{stopped} && $self->{out} ) {
     local *OUT = $self->{out};
     $self->lock();
     print OUT "Received event #", ++$self->{eventCount}, "\n";
-    $self->printEvent( \*OUT, $ev );
+    $self->$printEvent( \*OUT, $ev );
     tied(*OUT)->flush();
     $self->unlock();
   }
@@ -157,9 +167,11 @@ sub print {    # void ($event)
 } #/ sub print
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{out}       = undef;
   $self->{interior}  = undef;
   $self->{scrollBar} = undef;
@@ -168,10 +180,11 @@ sub shutDown {    # void ()
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $ev ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $ev );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $ev ) = $sig->( @_ );
   $self->SUPER::handleEvent( $ev );
   if ( $ev->{what} == evBroadcast 
     && $ev->{message}{command} == cmFndEventView
@@ -183,6 +196,9 @@ sub handleEvent {    # void ($event)
 
 my $printConstants = sub {    # void ($value, $doPrint)
   my ( $value, $doPrint ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_PositiveOrZeroInt $value );
+  assert ( is_CodeRef $doPrint );
   printf "0x%04X", $value;
   my $buf = '';
   eval {
@@ -196,12 +212,13 @@ my $printConstants = sub {    # void ($value, $doPrint)
   return;
 };
 
-sub printEvent {    # void ($out, $ev)
+sub _printEvent { goto &$printEvent }
+$printEvent = sub {    # void ($out, $ev)
   my ( $self, $out, $ev ) = @_;
   assert ( @_ == 3 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   assert ( ref $out );
-  assert ( blessed $ev );
+  assert ( is_Object $ev );
 
   my $current = select $out;
   print "TEvent {\n", 
@@ -272,7 +289,7 @@ sub printEvent {    # void ($out, $ev)
   print( "}\n" );
   select $current;
   return;
-} #/ sub printEvent
+}; #/ sub $printEvent
 
 1
 

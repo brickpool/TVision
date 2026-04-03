@@ -1,6 +1,7 @@
 package TV::Menus::StatusItem;
 # ABSTRACT: Class linking text, hot key, and command for use on a status line 
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,56 +15,58 @@ our @EXPORT = qw(
   new_TStatusItem
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
-
+use PerlX::Assert::PP;
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
+);
 
 sub TStatusItem() { __PACKAGE__ }
 sub new_TStatusItem { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 has next    => ( is => 'rw' );
-has text    => ( is => 'rw' );
-has keyCode => ( is => 'rw' );
-has command => ( is => 'rw' );
+has text    => ( is => 'rw', default => sub { die 'required' } );
+has keyCode => ( is => 'rw', default => sub { die 'required' } );
+has command => ( is => 'rw', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return check( {
-    # check 'isa' (note: 'next' can be undefined)
-    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    # 'required' arguments
-    text    => { required => 1, defined => 1, default => '', strict_type => 1 },
-    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    command => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named => [
+      text    => Str,               { alias    => 'aText' },
+      keyCode => PositiveOrZeroInt, { alias    => 'key' },
+      command => PositiveOrZeroInt, { alias    => 'cmd' },
+      next    => Maybe[Object],     { default => undef },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub from {    # $obj ($aText, $key, $cmd, | $aNext)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 3 && @_ <= 4 );
-  return $class->new(
-    text => $_[0], keyCode => $_[1], command => $_[2], next => $_[3]
+sub from {    # $obj ($aText, $key, $cmd, |$aNext)
+  state $sig = signature(
+    method => 1,
+    pos => [
+      Str,
+      PositiveOrZeroInt,
+      PositiveOrZeroInt,
+      Maybe[Object], { default => undef },
+    ],
   );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( text => $args[0], keyCode => $args[1], 
+    command => $args[2], next => $args[3] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   undef $self->{text};
   return;
 }

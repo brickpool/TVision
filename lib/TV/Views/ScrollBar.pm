@@ -1,8 +1,10 @@
 package TV::Views::ScrollBar;
 # ABSTRACT: Class defining a scroll bar in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
+use utf8;
 
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -14,16 +16,13 @@ our @EXPORT = qw(
   new_TScrollBar
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::Drivers::Const qw( 
@@ -44,7 +43,6 @@ use TV::Views::Const qw(
 use TV::Views::Palette;
 use TV::Views::View;
 use TV::Views::Util qw( message );
-use TV::toolkit;
 
 sub TScrollBar() { __PACKAGE__ }
 sub name() { 'TScrollBar' }
@@ -56,39 +54,23 @@ extends TView;
 our $vChars = "\x1E\x1F\xB1\xFE\xB2";    # cp437: "▲▼░■▒"
 our $hChars = "\x11\x10\xB1\xFE\xB2";    # cp437: "◄►░■▒"
 
-# declare attributes
-has value  => ( is => 'rw' );
-has minVal => ( is => 'rw' );
-has maxVal => ( is => 'rw' );
-has pgStep => ( is => 'rw' );
-has arStep => ( is => 'rw' );
-has chars  => ( is => 'rw' );
+# public attributes
+has value  => ( is => 'rw', default => 0 );
+has chars  => ( is => 'rw', default => "\0" x 5 );
+has minVal => ( is => 'rw', default => 0 );
+has maxVal => ( is => 'rw', default => 0 );
+has pgStep => ( is => 'rw', default => 1 );
+has arStep => ( is => 'rw', default => 1 );
 
 # predeclare private methods
 my (
   $getPartCode,
 );
 
-sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef,
-    value  => { default => 0,        no_override => 1 },
-    minVal => { default => 0,        no_override => 1 },
-    maxVal => { default => 0,        no_override => 1 },
-    pgStep => { default => 1,        no_override => 1 },
-    arStep => { default => 1,        no_override => 1 },
-    chars  => { default => "\0" x 5, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
-}
-
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   if ( $self->{size}{x} == 1 ) {
     $self->{growMode} = gfGrowLoX | gfGrowHiX | gfGrowHiY;
     $self->{chars}    = $vChars;
@@ -101,19 +83,22 @@ sub BUILD {    # void (|\%args)
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawPos( $self->getPos() );
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpScrollBar, 
     size => length( cpScrollBar ),
   );
@@ -125,10 +110,11 @@ my ( $p, $s );
 my $extent = TRect->new();
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   
   my $Tracking;
   my ( $i, $clickPart );
@@ -266,18 +252,21 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub scrollDraw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   message( $self->owner, evBroadcast, cmScrollBarChanged, $self );
   return;
 }
 
 sub scrollStep {    # $steps ($part)
-  my ( $self, $part ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $part );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $part ) = $sig->( @_ );
   my $step = ( $part & 2 )
            ? $self->{pgStep} 
            : $self->{arStep};
@@ -287,14 +276,11 @@ sub scrollStep {    # $steps ($part)
 }
 
 sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
-  my ( $self, $aValue, $aMin, $aMax, $aPgStep, $aArStep ) = @_;
-  assert ( @_ == 6 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aValue );
-  assert ( looks_like_number $aMin );
-  assert ( looks_like_number $aMax );
-  assert ( looks_like_number $aPgStep );
-  assert ( looks_like_number $aArStep );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Int, Int, Int],
+  );
+  my ( $self, $aValue, $aMin, $aMax, $aPgStep, $aArStep ) = $sig->( @_ );
 
   $aMax   = max( $aMax, $aMin );
   $aValue = max( $aValue, $aMin );
@@ -317,42 +303,44 @@ sub setParams {    # void ($aValue, $aMin, $aMax, $aPgStep, $aArStep)
 } #/ sub setParams
 
 sub setRange {    # void ($aMin, $aMax)
-  my ( $self, $aMin, $aMax ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aMin );
-  assert ( looks_like_number $aMax );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $aMin, $aMax ) = $sig->( @_ );
   $self->setParams( $self->{value}, $aMin, $aMax, $self->{pgStep},
     $self->{arStep} );
   return;
 }
 
 sub setStep {    # void ($aPgStep, $aArStep)
-  my ( $self, $aPgStep, $aArStep ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aPgStep );
-  assert ( looks_like_number $aArStep );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $aPgStep, $aArStep ) = $sig->( @_ );
   $self->setParams( $self->{value}, $self->{minVal}, $self->{maxVal}, $aPgStep,
     $aArStep );
   return;
 }
 
 sub setValue {    # void ($aValue)
-  my ( $self, $aValue ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aValue );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $aValue ) = $sig->( @_ );
   $self->setParams( $aValue, $self->{minVal}, $self->{maxVal}, $self->{pgStep},
     $self->{arStep} );
   return;
 }
 
 sub drawPos {    # void ($pos)
-  my ( $self, $pos ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $pos );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $pos ) = $sig->( @_ );
   my $b = TDrawBuffer->new();
   my $s = $self->getSize() - 1;
   $b->moveChar( 0, substr($self->{chars}, 0, 1), $self->getColor( 2 ), 1 );
@@ -369,9 +357,11 @@ sub drawPos {    # void ($pos)
 } #/ sub drawPos
 
 sub getPos {    # $pos ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $r = $self->{maxVal} - $self->{minVal};
   return 1 
     if $r == 0;
@@ -385,16 +375,20 @@ sub getPos {    # $pos ()
 } #/ sub getPos
 
 sub getSize {   # $size ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{size}{x} == 1 
     ? $self->{size}{y}
     : $self->{size}{x};
 }
 
 $getPartCode = sub {    # $int ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   my $part = -1;
   if ( $extent->contains( $mouse ) ) {
     my $mark = $self->{size}{x} == 1 ? $mouse->{y} : $mouse->{x};
@@ -493,17 +487,17 @@ The arrow step value of the scroll bar (I<Int>).
 
 Initializes an instance of C<TScrollBar> with the specified bounds.
 
-=over
-
 =head2 new_TStaticText
 
  my $scrollBar = new_TStaticText($bounds);
 
 Convenience constructor that instantiates a scroll bar from bounds.
 
-=item bounds
+=over
 
-The bounds of the view (TRect).
+=item $bounds
+
+The bounds of the view (I<TRect>).
 
 =back
 

@@ -9,8 +9,7 @@ our @EXPORT = qw(
   new_TEvent
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Hash::Util qw( lock_hash );
 use Scalar::Util qw(
   blessed
@@ -40,7 +39,7 @@ package MouseEventType {
   use warnings;
 
   use Devel::StrictMode;
-  use Devel::Assert STRICT ? 'on' : 'off';
+  use PerlX::Assert::PP;
   use if STRICT => 'Hash::Util';
   use Scalar::Util qw( blessed );
   use TV::Objects::Point;
@@ -104,8 +103,7 @@ package CharScanType {
   use strict;
   use warnings;
 
-  use Devel::StrictMode;
-  use Devel::Assert STRICT ? 'on' : 'off';
+  use PerlX::Assert::PP;
   use Hash::Util qw( lock_hash );
   use Scalar::Util qw( blessed );
   use Tie::Hash;
@@ -169,8 +167,7 @@ package KeyDownEvent {
   use strict;
   use warnings;
 
-  use Devel::StrictMode;
-  use Devel::Assert STRICT ? 'on' : 'off';
+  use PerlX::Assert::PP;
   use Hash::Util qw( lock_hash );
   use Scalar::Util qw( blessed );
   use Tie::Hash;
@@ -241,8 +238,7 @@ package MessageEvent {
   use strict;
   use warnings;
 
-  use Devel::StrictMode;
-  use Devel::Assert STRICT ? 'on' : 'off';
+  use PerlX::Assert::PP;
   use Hash::Util qw( lock_hash );
   use Scalar::Util qw(
     blessed

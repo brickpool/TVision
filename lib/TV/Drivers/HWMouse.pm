@@ -1,23 +1,5 @@
-=pod
-
-=head1 NAME
-
-TV::Drivers::HWMouse - defines the class THWMouse
-
-=head1 DESCRIPTION
-
-This Perl module contains the I<THWMouse> class. 
-
-=head2 Methods
-
-The methods I<show>, I<hide>, I<setRange>, I<getEvent>, I<present>, 
-I<suspend>, I<resume> and I<inhibit> are hardware-related methods. 
-
-B<Note>: The methods I<show>, I<hide> and I<resume> requires I<THardwareInfo>.
-
-=cut
-
 package TV::Drivers::HWMouse;
+# ABSTRACT: defines the class THWMouse
 
 use strict;
 use warnings;
@@ -28,7 +10,7 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
 
 use TV::Drivers::HardwareInfo;
@@ -108,3 +90,44 @@ sub inhibit {    # void ($class)
 }
 
 1
+
+__END__
+
+=pod
+
+=head1 NAME
+
+TV::Drivers::HWMouse - defines the class THWMouse
+
+=head1 DESCRIPTION
+
+This Perl module contains the I<THWMouse> class. 
+
+=head1 METHODS
+
+The methods I<show>, I<hide>, I<setRange>, I<getEvent>, I<present>, 
+I<suspend>, I<resume> and I<inhibit> are hardware-related methods. 
+
+B<Note>: The methods I<show>, I<hide> and I<resume> requires I<THardwareInfo>.
+
+=head1 AUTHORS
+
+=over
+
+=item Turbo Vision Development Team
+
+=item J. Schneider <brickpool@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 1990-1994, 1997 by Borland International
+
+Copyright (c) 2021-2026 the L</AUTHORS> as listed above.
+
+This software is licensed under the MIT license (see the LICENSE file, which is 
+part of the distribution). This documentation is provided under the same terms 
+as the Turbo Vision library itself.
+
+=cut

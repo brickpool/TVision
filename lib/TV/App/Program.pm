@@ -1,5 +1,7 @@
 package TV::App::Program;
+# ABSTRACT: Central program object handling events, menus and desktop
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -17,12 +19,18 @@ our @EXPORT_OK = qw(
   $deskTop
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use Carp ();
+use PerlX::Assert::PP;
 use Scalar::Util qw(
-  blessed
-  looks_like_number
   weaken
+  isweak
+);
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::App::Const qw( 
@@ -95,9 +103,13 @@ use vars qw(
 }
 
 sub BUILDARGS {    # \%args ()
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 0 );
+  state $sig = signature(
+    method => 1,
+    named  => [],
+    caller_level => +1,
+  );
+  my ( $class ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
   my $args1 = TGroup->BUILDARGS(
     bounds => TRect->new(
       ax => 0,
@@ -114,9 +126,10 @@ sub BUILDARGS {    # \%args ()
   return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $application = $self;
   $self->initScreen();
   $self->{state}   = sfVisible | sfSelected | sfFocused | sfModal | sfExposed;
@@ -142,32 +155,41 @@ sub BUILD {    # void (|\%args)
 }
 
 sub from {    # $obj ()
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 0 );
+  state $sig = signature(
+    method => 1,
+    pos    => [],
+  );
+  my ( $class ) = $sig->( @_ );
   return $class->new();
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
-  assert ( blessed $self );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $application = undef;
   return;
 }
 
 sub canMoveFocus {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $deskTop->valid( cmReleasedFocus );
 }
 
-sub executeDialog {    # $int ($pD, |\@data)
-  my ( $self, undef, $data ) = @_;
-  alias: for my $pD ( $_[1] ) {
-  assert ( @_ >= 2 && @_ <= 3 );
-  assert ( blessed $self );
-  assert ( blessed $pD );
+sub executeDialog {    # $int ($pD, \@data|undef)
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Object,
+      Maybe[ArrayLike], { optional => 1 },
+    ],
+  );
+  my ( $self, $pD, $data ) = $sig->( @_ );
+  alias: for $pD ( $_[1] ) {
   my $c = cmCancel;
 
   if ( $self->validView( $pD ) ) {
@@ -185,14 +207,18 @@ sub executeDialog {    # $int ($pD, |\@data)
 
 my $hasMouse = sub {    # $bool ($p, $s)
   my ( $p, $s ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_Object $s );
   return ( $p->{state} & sfVisible ) && $p->mouseInView( $s->{mouse}{where} );
 };
 
 sub getEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   if ( $pending->{what} != evNothing ) {
     $event->assign( $pending );
     $pending->{what} = evNothing;
@@ -219,32 +245,34 @@ sub getEvent {    # void ($event)
   return;
 } #/ sub getEvent
 
-my ( $color, $blackwhite, $monochrome, @palettes );
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $color ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $color = TPalette->new(
     data => cpAppColor, 
     size => length( cpAppColor ) 
   );
-  $blackwhite ||= TPalette->new( 
+  state $blackwhite = TPalette->new( 
     data => cpAppBlackWhite, 
     size => length( cpAppBlackWhite ) 
   );
-  $monochrome ||= TPalette->new( 
+  state $monochrome = TPalette->new( 
     data => cpAppMonochrome, 
     size => length( cpAppMonochrome ) 
   );
-  @palettes = ( $color, $blackwhite, $monochrome ) unless @palettes;
-  return $palettes[$appPalette]->clone();
+  state $palettes = [ $color, $blackwhite, $monochrome ];
+  return $palettes->[$appPalette]->clone();
 } #/ sub getPalette
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   if ( $event->{what} == evKeyDown ) {
     my $c = getAltChar( $event->{keyDown}{keyCode} );
     if ( $c ge '1' && $c le '9' ) {
@@ -270,9 +298,11 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub idle {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $statusLine->update() 
     if $statusLine;
 
@@ -284,9 +314,11 @@ sub idle {    # void ()
 }
 
 sub initScreen { # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( ( $screenMode & 0x00FF ) != smMono ) {
     if ( $screenMode & smFont8x8 ) {
       $shadowSize->{x} = 1;
@@ -313,36 +345,42 @@ sub initScreen { # void ()
 } #/ sub initScreen
 
 sub outOfMemory {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   # Handle out of memory
   return;
 }
 
 sub putEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $pending = $event->clone();
   return;
 }
 
 sub run {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->execute();
   return;
 }
 
-sub insertWindow {    # $window|undef ($pWin|undef)
-  my ( $self, undef ) = @_;
-  alias: for my $pWin ( $_[1] ) {
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $pWin );
+sub insertWindow {    # $window|undef ($pWin)
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $pWin ) = $sig->( @_ );
+  alias: for $pWin ( $_[1] ) {
   if ( $self->validView( $pWin ) ) {
     if ( $self->canMoveFocus() ) {
       $deskTop->insert( $pWin );
@@ -357,10 +395,11 @@ sub insertWindow {    # $window|undef ($pWin|undef)
 } #/ sub insertWindow
 
 sub setScreenMode { # void ($mode)
-  my ( $self, $mode ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $mode );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $mode ) = $sig->( @_ );
   my $r;
 
   $mouse->hide();
@@ -377,9 +416,11 @@ sub setScreenMode { # void ($mode)
 } #/ sub setScreenMode
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   weaken $application 
     if $application 
     && !isweak $application;
@@ -392,24 +433,29 @@ sub shutDown {    # void ()
 } #/ sub shutDown
 
 sub suspend {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return;
 }
 
 sub resume {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return;
 }
 
 sub initStatusLine {    # $statusLine ($r)
-  my ( $class, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class and !ref $class );
-  assert ( ref $r );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $r ) = $sig->( @_ );
   $r->{a}{y} = $r->{b}{y} - 1;
   return TStatusLine->from( $r,
     TStatusDef->from( 0, 0xFFFF ) +
@@ -422,29 +468,33 @@ sub initStatusLine {    # $statusLine ($r)
 } #/ sub initStatusLine
 
 sub initMenuBar {    # $menuBar ($r)
-  my ( $class, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class and !ref $class );
-  assert ( ref $r );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $r ) = $sig->( @_ );
   $r->{b}{y} = $r->{a}{y} + 1;
   return TMenuBar->new( bounds => $r, menu => undef );
 }
 
 sub initDeskTop {    # $deskTop ($r)
-  my ( $class, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class and !ref $class );
-  assert ( ref $r );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $r ) = $sig->( @_ );
   $r->{a}{y}++;
   $r->{b}{y}--;
   return TDeskTop->new( bounds => $r );
 }
 
-sub validView {    # $view|undef ($view)
-  my ( $self, undef ) = @_;
-  alias: for my $p ( $_[1] ) {
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+sub validView {    # $view|undef ($view|undef)
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $p ) = $sig->( @_ );
+  alias: for $p ( $_[1] ) {
   return undef unless $p;
   if ( lowMemory() ) {
     $self->destroy( $p );

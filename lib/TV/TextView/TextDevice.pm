@@ -1,6 +1,7 @@
 package TV::TextView::TextDevice;
 # ABSTRACT: Abstract text device class
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,20 +16,16 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Views::Scroller;
-use TV::toolkit;
 
 sub TTextDevice() { __PACKAGE__ }
 sub name() { 'TTextDevice' }
@@ -36,11 +33,13 @@ sub new_TTextDevice { __PACKAGE__->from(@_) }
 
 extends TScroller;
 
-# declare attributes
-has egress    => ( is => 'bare' );
-has esize     => ( is => 'bare' );
-has autoflush => ( is => 'bare' );
-has opened    => ( is => 'ro' );
+# protected attributes
+has opened    => ( is => 'ro', default => !!1 );
+
+# private attributes
+has egress    => ( is => 'bare', default => '' );
+has esize     => ( is => 'bare', default => 2048 );
+has autoflush => ( is => 'bare', default => !!0 );
 
 # predeclare private methods
 my (
@@ -49,25 +48,11 @@ my (
 
 # TTextDevice streambuf interface
 
-sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef,
-    egress    => { default => '',   no_override => 1 },
-    esize     => { default => 2048, no_override => 1 },
-    autoflush => { default => !!0,  no_override => 1 },
-    opened    => { default => !!1,  no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
-}
-
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
+  assert ( is_Bool $in_global_destruction );
   unless ( $in_global_destruction ) {
     $self->close()
       if $self->opened();
@@ -76,20 +61,21 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub do_sputn {    # $num ($s, $count)
-  my ( $self, $s, $count ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( defined $s and !ref $s );
-  assert ( looks_like_number $count );
+  state $sig = signature(
+    method => Object,
+    pos    => [Str, Int],
+  );
+  $sig->( @_ );
   ...
 }
 
 # B<Note>: only for compatibility
 sub overflow {    # $int (|$c)
-  my ( $self, $c ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $c or looks_like_number $c );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Int]],
+  );
+  my ( $self, $c ) = $sig->( @_ );
   $c //= -1;
   if ( $c != -1 ) {
     my $b = chr( $c );
@@ -103,19 +89,22 @@ sub overflow {    # $int (|$c)
 # C<autoflush> getter/setter
 # B<Note>: turn on autoflush if no argument is given.
 sub autoflush {    # $ (|$)
-  my ( $self, $value ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $value or !ref $value );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Bool], { optional => 1 }],
+  );
+  my ( $self, $value ) = $sig->( @_ );
   my $r = $self->{autoflush};
   $self->{autoflush} = !!( @_ > 1 ? $value : 1 );
   return $r;
 }
 
 sub close {    # $success ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return unless $self->opened();
   my $r = $self->flush();
   $self->{opened} = !!0;
@@ -125,9 +114,11 @@ sub close {    # $success ()
 # C<flush> method: write buffer and clear it.
 # Returns C<"0 but true"> on success, undef on error.
 sub flush {    # $success ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return 1 unless length $self->{egress};    # Nothing to flush
   my $data = $self->{egress};
   $self->{egress} = '';                      # Clear buffer
@@ -137,6 +128,9 @@ sub flush {    # $success ()
 # Append data to the C<egress> buffer and L</flush> if size exceeds C<esize>
 $append_to_egress = sub {    # void ($data)
   my ( $self, $data ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Str $data );
   $self->{egress} .= $data;
 
   # Auto-flush if buffer exceeds esize
@@ -147,40 +141,53 @@ $append_to_egress = sub {    # void ($data)
 };
 
 sub print {    # $success (@list)
-  my ( $self, @list ) = @_;
-  assert ( @_ >= 2 );
-  assert ( blessed $self );
-  assert ( scalar @list );
-  $self->$append_to_egress( join( '', @list ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      ArrayRef, { slurpy => 1 },
+    ],
+  );
+  my ( $self, $list ) = $sig->( @_ );
+  $self->$append_to_egress( join( '', @$list ) );
   $self->flush() if $self->{autoflush};
   return 1;
 }
 
 sub printf {   # $success ($format, @list)
-  my ( $self, $format, @list ) = @_;
-  assert ( @_ >= 2 );
-  assert ( blessed $self );
-  assert ( defined $format and !ref $format );
-  $self->$append_to_egress( sprintf( $format, @list ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Str, 
+      ArrayRef, { slurpy => 1 },
+    ],
+  );
+  my ( $self, $format, $list ) = $sig->( @_ );
+  $self->$append_to_egress( sprintf( $format, @$list ) );
   $self->flush() if $self->{autoflush};
   return 1;
 }
 
 sub printflush {    # $success (@list)
-  my ( $self, @list ) = @_;
-  assert ( @_ >= 2 );
-  assert ( blessed $self );
-  assert ( scalar @list );
-  $self->$append_to_egress( join( '', @list ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      ArrayRef, { slurpy => 1 },
+    ],
+  );
+  my ( $self, $list ) = $sig->( @_ );
+  $self->$append_to_egress( join( '', @$list ) );
   return $self->flush();    # Force flush right now
 }
 
 sub say {    # $success (@list)
-  my ( $self, @list ) = @_;
-  assert ( @_ >= 2 );
-  assert ( blessed $self );
-  assert ( scalar @list );
-  $self->$append_to_egress( join( '', @list ) . "\n" );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      ArrayRef, { slurpy => 1 },
+    ],
+  );
+  my ( $self, $list ) = $sig->( @_ );
+  $self->$append_to_egress( join( '', @$list ) . "\n" );
   $self->flush() if $self->{autoflush};
   return 1;
 }
@@ -189,12 +196,15 @@ sub say {    # $success (@list)
 # Borland's RTL. We need to call L</do_sputn> here to replicate the original 
 # behavior.
 sub syswrite {    # $num|undef ($, |$length, |$offset)
-  my ( $self, $s, $len, $off ) = @_;
-  assert ( @_ >= 2 &&  @_ <= 4 );
-  assert ( blessed $self );
-  assert ( defined $s and !ref $s );
-  assert ( !defined $len or looks_like_number $len );
-  assert ( !defined $off or looks_like_number $off );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Str,
+      Int, { optional => 1 },
+      Int, { optional => 1 },
+    ],
+  );
+  my ( $self, $s, $len, $off ) = $sig->( @_ );
   $len //= bytes::length( $s );
   return $self->do_sputn(
     (

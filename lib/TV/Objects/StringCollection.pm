@@ -1,6 +1,7 @@
 package TV::Objects::StringCollection;
 # ABSTRACT: Implement a string collection for the Turbo Vision framework.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,13 +15,12 @@ our @EXPORT = qw(
   new_TStringCollection
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw( blessed );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( Object Str );
 
 use TV::Objects::Const qw( ccNotFound );
 use TV::Objects::SortedCollection;
-use TV::toolkit;
 
 sub TStringCollection() { __PACKAGE__ }
 sub name() { 'TStringCollection' };
@@ -29,12 +29,12 @@ sub new_TStringCollection { __PACKAGE__->from(@_) }
 extends TSortedCollection;
 
 sub compare {    # $cmp ($key1, $key2)
-  my ( $self, $key1, $key2 ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( defined $key1 and !ref $key1 );
-  assert ( defined $key2 and !ref $key2 );
-  return "$key1" cmp "$key2";
+  state $sig = signature(
+    method => Object,
+    pos    => [Str, Str],
+  );
+  my ( $self, $key1, $key2 ) = $sig->( @_ );
+  return $key1 cmp $key2;
 }
 
 1

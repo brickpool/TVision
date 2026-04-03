@@ -1,6 +1,7 @@
 package TV::Dialogs::Util;
 # ABSTRACT: Various utility functions for Turbo Vision dialogs
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -12,16 +13,14 @@ our @EXPORT_OK = qw(
   nextWord
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  looks_like_number
-);
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( Str Int );
 
 sub hotKey ($) {    # $hotkey ($s)
-  my ( $s ) = @_;
-  assert ( @_ == 1 );
-  assert ( defined $s and !ref $s );
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $s ) = $sig->( @_ );
 
   my $pos = index( $s, '~' );
   if ( $pos != -1 && $pos + 1 < length( $s ) ) {
@@ -30,13 +29,13 @@ sub hotKey ($) {    # $hotkey ($s)
   else {
     return '';
   }
-} #/ sub hotKey
+}
 
-sub prevWord ($) {    # $index ($s, $pos)
-  my ( $s, $pos ) = @_;
-  assert ( @_ == 2 );
-  assert ( defined $s and !ref $s );
-  assert ( looks_like_number $pos );
+sub prevWord ($$) {    # $index ($s, $pos)
+  state $sig = signature(
+    pos => [Str, Int],
+  );
+  my ( $s, $pos ) = $sig->( @_ );
 
   for ( my $i = $pos - 1 ; $i >= 1 ; --$i ) {
     my $curr = substr( $s, $i,     1 );
@@ -46,13 +45,13 @@ sub prevWord ($) {    # $index ($s, $pos)
     }
   }
   return 0;
-} #/ sub prevWord
+}
 
-sub nextWord ($) {    # $index ($s, $pos)
-  my ( $s, $pos ) = @_;
-  assert ( @_ == 2 );
-  assert ( defined $s and !ref $s );
-  assert ( looks_like_number $pos );
+sub nextWord ($$) {    # $index ($s, $pos)
+  state $sig = signature(
+    pos => [Str, Int],
+  );
+  my ( $s, $pos ) = $sig->( @_ );
 
   my $len = length( $s );
   for ( my $i = $pos ; $i < $len - 1 ; ++$i ) {
@@ -63,7 +62,7 @@ sub nextWord ($) {    # $index ($s, $pos)
     }
   }
   return $len;
-} #/ sub nextWord
+}
 
 1
 
@@ -113,9 +112,9 @@ Example:
 
 Returns the index of the beginning of the next word in the string.
 
-A word is any sequence of non‑space characters. The function searches
+A word is any sequence of non-space characters. The function searches
 forward from C<$pos> and returns the index where a space transitions
-into a non‑space character. If no next word exists, the function returns
+into a non-space character. If no next word exists, the function returns
 C<length($s)>.
 
 =head2 prevWord
@@ -124,9 +123,9 @@ C<length($s)>.
 
 Returns the index of the beginning of the previous word in the string.
 
-A word is considered any sequence of non‑space characters.
+A word is considered any sequence of non-space characters.
 The function searches backwards from C<$pos - 1> and returns the
-index where a space transitions into a non‑space character. If no
+index where a space transitions into a non-space character. If no
 previous word exists, the function returns C<0>.
 
 =head1 AUTHORS

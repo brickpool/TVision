@@ -231,7 +231,7 @@ distribution.
 Similar to the L<fields> pragma, C<slot::less> declares individual fields 
 (stored in a global variable %HAS). L<UNIVERSAL::Object> is used as the base 
 class, and access methods can be created using an 
-L</extended list form|Extended List Form>.
+L<extended list form|/Extended List Form>.
 
 This module also recognizes the superclasses of a class and ensures that their 
 fields are inherited correctly. Inheritance occurs automatically at the end of 
@@ -253,7 +253,7 @@ In this form, the slot does not automatically creates a read/write accessor.
 
 =head2 Extended List Form
 
-An extended, Moose-like list form: C<< name => ( key => value, ... )>>,
+An extended, Moose-like list form: C<< name => ( key => value, ... ) >>,
 allowing additional slot options such as read/write accessors and custom 
 default generators.
 

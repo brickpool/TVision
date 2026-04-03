@@ -1,6 +1,7 @@
 package TV::TextView::Terminal;
 # ABSTRACT: TTerminal is a simple text view class
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,14 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Views::Const qw(
@@ -35,7 +33,6 @@ use TV::Views::Const qw(
 );
 use TV::Views::DrawBuffer;
 use TV::TextView::TextDevice;
-use TV::toolkit;
 
 sub TTerminal() { __PACKAGE__ }
 sub name() { 'TTerminal' }
@@ -43,32 +40,32 @@ sub new_TTerminal { __PACKAGE__->from(@_) }
 
 extends TTextDevice;
 
-# declare attributes
-has bufSize      => ( is => 'ro' );
-has buffer       => ( is => 'ro' );
-has queFront     => ( is => 'ro' );
-has queBack      => ( is => 'ro' );
+# protected attributes
+has bufSize  => ( is => 'ro' );
+has buffer   => ( is => 'ro', default => '' );
+has queFront => ( is => 'ro', default => 0 );
+has queBack  => ( is => 'ro', default => 0 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef
-    buffer   => { default => '', no_override => 1 },
-    queFront => { default => 0, no_override => 1 },
-    queBack  => { default => 0, no_override => 1 }, 
-    # 'required' arguments
-    bufSize  => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds     => Object,
+      hScrollBar => Maybe[Object],     { alias => 'aHScrollBar' },
+      vScrollBar => Maybe[Object],     { alias => 'aVScrollBar' },
+      bufSize    => PositiveOrZeroInt, { alias => 'aBufSize' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
+  assert ( is_HashRef $args );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
   $self->{bufSize}  = min( 32000, $args->{bufSize} );
   $self->{buffer}   = "\0" x $self->{bufSize};
@@ -76,20 +73,22 @@ sub BUILD {    # void (\%args)
   $self->setCursor( 0, 0 );
   $self->showCursor();
   return;
-} #/ sub new
+}
 
-sub from {    # $term ($bounds, $aHScrollBar, $aVScrollBar, aBufSize)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 4 );
-  return $class->new( bounds => $_[0], hScrollBar => $_[1], 
-    vScrollBar => $_[2], bufSize => $_[3] );
+sub from {    # $term ($bounds, $aHScrollBar|undef, $aVScrollBar|undef, aBufSize)
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Maybe[Object], Maybe[Object], PositiveOrZeroInt],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], hScrollBar => $args[1], 
+    vScrollBar => $args[2], bufSize => $args[3] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{buffer} = undef;
   return;
 }
@@ -101,11 +100,11 @@ sub DEMOLISH {    # void ($in_global_destruction)
 #
 # I<textview.cpp>
 sub do_sputn {    # $num ($s, $count)
-  my ( $self, $s, $count ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( defined $s and !ref $s );
-  assert ( looks_like_number $count );
+  state $sig = signature(
+    method => Object,
+    pos    => [Str, Int],
+  );
+  my ( $self, $s, $count ) = $sig->( @_ );
   
   my $screenLines = $self->{limit}{y};
   my $i;
@@ -152,26 +151,26 @@ sub do_sputn {    # $num ($s, $count)
 
   $self->drawView();
   return $count;
-}
+} #/ sub do_sputn
 
 sub bufInc {    # void (\$val)
-  my ( $self, $val_ref ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $val_ref and looks_like_number $$val_ref );
-  alias: for my $val ( $$val_ref ) {
-  if ( ++$val >= $self->{bufSize} ) {
-    $val = 0;
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef[Int]],
+  );
+  my ( $self, $val ) = $sig->( @_ );
+  if ( ++$$val >= $self->{bufSize} ) {
+    $$val = 0;
   }
   return;
-  } #/ alias
-} #/ sub bufInc
+}
 
 sub canInsert {    # $bool ($amount)
-  my ( $self, $amount ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $amount );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $amount ) = $sig->( @_ );
 
   my $T = ( $self->{queFront} < $self->{queBack} )
         ? ( $self->{queFront} + $amount )
@@ -180,9 +179,11 @@ sub canInsert {    # $bool ($amount)
 }
 
 sub calcWidth {    # $width ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   ...
 }
 
@@ -193,9 +194,11 @@ sub calcWidth {    # $width ()
 #
 # I<textview.cpp>
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   my $b = TDrawBuffer->new();
   my $s;
@@ -274,13 +277,14 @@ sub draw {    # void ()
     $self->bufDec( \$endLine );
   } #/ for ( ; $y >= 0 ; $y-- )
   return;
-}
+} #/ sub draw
 
 sub nextLine {    # $offset ($pos)
-  my ( $self, $pos ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $pos );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $pos ) = $sig->( @_ );
 
   if ( $pos != $self->{queFront} ) {
     while ( substr( $self->{buffer}, $pos, 1 ) ne "\n"
@@ -293,7 +297,7 @@ sub nextLine {    # $offset ($pos)
     }
   }
   return $pos;
-} #/ sub nextLine
+}
 
 # The following two subroutines was taken from the framework
 # "A modern port of Turbo Vision 2.0", which is licensed under MIT licence.
@@ -302,8 +306,12 @@ sub nextLine {    # $offset ($pos)
 #
 # I<ttprvlns.cpp>
 my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
-  my ( $buffer, undef, $count ) = @_;
-  alias: for my $pos ( $_[1] ) {
+  my ( $buffer, $pos, $count ) = @_;
+  assert ( @_ == 3 );
+  assert ( is_Str $buffer );
+  assert ( is_PositiveOrZeroInt $pos );
+  assert ( is_Int $count );
+  alias: for $pos ( $_[1] ) {
   # Pre: count >= 1.
   # Post: 'pos' points to the last checked character.
   ++$pos;
@@ -316,11 +324,11 @@ my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
 };
 
 sub prevLines {    # $offset ($pos, $lines)
-  my ( $self, $pos, $lines ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $pos );
-  assert ( looks_like_number $lines );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, PositiveOrZeroInt],
+  );
+  my ( $self, $pos, $lines ) = $sig->( @_ );
 
   if ( $lines > 0 && $pos != $self->{queBack} ) {
     do {
@@ -335,30 +343,31 @@ sub prevLines {    # $offset ($pos, $lines)
     $self->bufInc( \$pos );
   } #/ if ( $lines > 0 && $pos...)
   return $pos;
-} #/ sub prevLines
+}
 
 sub queEmpty {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{queBack} == $self->{queFront};
 }
 
 sub bufDec {    # void ($val)
-  my ( $self, $val_ref ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $val_ref and looks_like_number $$val_ref );
-  alias: for my $val ( $$val_ref ) {
-  if ( $val == 0 ) {
-    $val = $self->{bufSize} - 1;
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef[Int]],
+  );
+  my ( $self, $val ) = $sig->( @_ );
+  if ( $$val == 0 ) {
+    $$val = $self->{bufSize} - 1;
   }
   else {
-    $val--;
+    $$val--;
   }
   return;
-  } #/ alias
-} #/ sub bufDec
+}
 
 1
 

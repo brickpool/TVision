@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.09';
+our $VERSION   = '0.10';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 # ----------------------------------------------------------------------
@@ -325,7 +325,7 @@ sub _expand_specs {    # \%signature (\%signature)
       }
 
       # optionals flag
-      $has_optional = 1 if $opts->{optional};
+      # $has_optional = 1 if $opts->{optional};
 
       # alias handling
       my @aliases = ();
@@ -626,7 +626,7 @@ sub _executor_named_cold {    # \&executor (\%signature)
 
       # optional without default
       elsif ( $p->{optional} ) {
-        $val = undef;
+        next
       }
 
       else {
@@ -1347,37 +1347,35 @@ Slurpy processing produces either an array reference or a hash reference,
 depending on the slurpy mode. This value is then validated against the
 type constraint of the slurpy parameter.
 
-=item B<Array‑slurpy>
+=item * B<Array-slurpy>
 
 Remaining arguments are collected into an array reference:
 
 =over 4
 
-=item * Zero remaining arguments: []
+=item - Zero remaining arguments: []
 
-=item * One remaining argument: [ $value ]
+=item - One remaining argument: [ $value ]
 
-=item * Multiple remaining arguments: [ @values ]
+=item - Multiple remaining arguments: [ @values ]
 
 =back
 
-=item B<Hash‑slurpy>
+=item * B<Hash-slurpy>
 
 Remaining arguments are collected into a hash reference:
 
 =over 4
 
-=item * Zero remaining arguments: {}
+=item - Zero remaining arguments: {}
 
-=item * One remaining argument: ( ref $value eq 'HASH' ) ? $value : { $value }
+=item - One remaining argument: ( ref $value eq 'HASH' ) ? $value : { $value }
 
-=item * Multiple remaining arguments: { @values }
+=item - Multiple remaining arguments: { @values }
 
 =back
 
-=item *
-
-Simple types such as C<Any> or C<Ref> accept these structures and are
+B<Note>: Simple types such as C<Any> or C<Ref> accept these structures and are
 therefore valid slurpy parameter types, resulting in an array reference.
 
 =back

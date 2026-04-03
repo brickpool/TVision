@@ -1,6 +1,7 @@
 package TV::Dialogs::Label;
 # ABSTRACT: Provides a descriptive label linked to another dialog control.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,13 @@ our @EXPORT = qw(
   new_TLabel
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Dialogs::Const qw( cpLabel );
@@ -46,7 +44,6 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TLabel() { __PACKAGE__ }
 sub name() { 'TLabel' }
@@ -65,9 +62,9 @@ use vars qw(
   *specialChars = \${ TView . '::specialChars' };
 }
 
-# declare attributes
-has link  => ( is => 'ro' );
-has light => ( is => 'ro' );
+# protected attributes
+has link  => ( is => 'ro', default => sub { die 'required' } );
+has light => ( is => 'ro', default => !!0 );
 
 # predeclare private methods
 my (
@@ -75,45 +72,54 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    link => { required => 1, allow => sub { !defined $_[0] or blessed $_[0] } },
-    light => { default => !!0, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+      text   => Str,           { alias => 'aText' },
+      link   => Maybe[Object], { alias => 'aLink' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{options} |= ofPreProcess | ofPostProcess;
   $self->{eventMask} |= evBroadcast;
   return;
-} #/ sub BUILD
+}
 
 sub from {    # $obj ($bounds, $aText, $aLink|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 3 );
-  return $class->new( bounds => $_[0], text => $_[1], link => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str, Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], text => $args[1], link => $args[2] );
 }
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{link} = undef;
   $self->SUPER::shutDown();
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $color;
   my $b = TDrawBuffer->new();
   my $scOff;
@@ -138,21 +144,23 @@ sub draw {    # void ()
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new( data => cpLabel, size => length( cpLabel ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new( data => cpLabel, size => length( cpLabel ) );
   return $palette->clone();
 }
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evMouseDown ) {
@@ -182,6 +190,9 @@ sub handleEvent {    # void ($event)
 
 $focusLink = sub {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $event );
   if ( $self->{link} && ( $self->{link}{options} & ofSelectable ) ) {
     $self->{link}->focus();
   }

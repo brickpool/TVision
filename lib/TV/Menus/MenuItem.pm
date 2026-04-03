@@ -1,6 +1,7 @@
 package TV::Menus::MenuItem;
 # ABSTRACT: Class linking text, hot key, command, and help for use within a menu
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,77 +16,98 @@ our @EXPORT = qw(
   new_TMenuItem
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use Carp ();
+use PerlX::Assert::PP;
+use Scalar::Util qw( looks_like_number );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Views::Const qw( hcNoContext );
 use TV::Views::View;
-use TV::toolkit;
 
 sub TMenuItem() { __PACKAGE__ }
 sub new_TMenuItem { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 has next     => ( is => 'rw' );
-has name     => ( is => 'rw' );
-has command  => ( is => 'rw' );
-has disabled => ( is => 'rw' );
-has keyCode  => ( is => 'rw' );
-has helpCtx  => ( is => 'rw' );
-has param    => ( is => 'rw' );
+has name     => ( is => 'rw', default => sub { die 'required' } );
+has command  => ( is => 'rw', default => 0 );
+has disabled => ( is => 'rw', default => !!0 );
+has keyCode  => ( is => 'rw', default => sub { die 'required' }  );
+has helpCtx  => ( is => 'rw', default => hcNoContext );
+has param    => ( is => 'rw', default => '' );
 has subMenu  => ( is => 'rw' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return check( {
-    # set 'default' values, init_args => undef
-    disabled => { default => !!0, no_override => 1 },
-    # 'required' arguments
-    name    => { required => 1, defined => 1, default => '', strict_type => 1 },
-    keyCode => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    # check 'isa' (note: args can be undefined)
-    command => { default => 0, allow => sub { $_[0] =~ /^\d+$/ } },
-    subMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    helpCtx => { default => hcNoContext, allow => sub { $_[0] =~ /^\d+$/ } },
-    param   => { default => '', strict_type => 1 },
-    next    => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named => [
+      name    => Str,               { alias => 'aName' },
+      keyCode => PositiveOrZeroInt, { alias => 'aKeyCode' },
+      command => PositiveOrZeroInt, { alias => 'aCommand', optional => 1 },
+      subMenu => Maybe[Object],     { alias => 'aSubMenu', optional => 1 },
+      helpCtx => PositiveOrZeroInt, { alias => 'aHelpCtx', optional => 1 },
+      param   => Str,               { alias => 'p',        optional => 1 },
+      next    => Maybe[Object],     { alias => 'aNext',    optional => 1 },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{disabled} = !TView->commandEnabled( $self->{command} );
   return;
 }
 
-sub from {    # $obj ($name, | $command, $keyCode, | $subMenu, $helpCtx, | $param, $next)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 3 && @_ <= 6 );
-  my %args = ();
-  my @params = looks_like_number( $_[2] )
-             ? qw(name command keyCode helpCtx param next)
-             : qw(name keyCode subMenu helpCtx next);
-  @args{@params} = @_;
-  $args{helpCtx} ||= 0;
-  return $class->new( %args );
+sub from {    # $obj ($aName, |$aCommand, $aKeyCode, |$aSubMenu, $aHelpCtx, |$p, |$aNext)
+  if ( looks_like_number $_[3] ) {
+    state $sig = signature(
+      method => 1,
+      pos    => [
+        Str,
+        PositiveOrZeroInt,
+        PositiveOrZeroInt,
+        PositiveOrZeroInt, { default => hcNoContext },
+        Str,               { default => '' },
+        Maybe[Object],     { default => undef },
+      ],
+    );
+    my ( $class, @args ) = $sig->( @_ );
+    return $class->new( name => $args[0], command => $args[1], 
+      keyCode => $args[2], helpCtx => $args[3], param => $args[4], 
+        next => $args[6] );
+  } 
+  else {
+    state $sig = signature(
+      method => 1,
+      pos    => [
+        Str,
+        PositiveOrZeroInt,
+        Maybe[Object],
+        PositiveOrZeroInt, { default => hcNoContext },
+        Maybe[Object],     { default => undef },
+      ],
+    );
+    my ( $class, @args ) = $sig->( @_ );
+    return $class->new( name => $args[0], keyCode => $args[1], 
+      subMenu => $args[2], helpCtx => $args[3], next => $args[4] );
+  }
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   undef $self->{name};
   if ( $self->{command} == 0 ) {
     undef $self->{subMenu};
@@ -94,19 +116,19 @@ sub DEMOLISH {    # void ($in_global_destruction)
     undef $self->{param};
   }
   return;
-} #/ sub DEMOLISH
+}
 
 sub append {    # void ($aNext)
-  my ( $self, $aNext ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $aNext );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $aNext ) = $sig->( @_ );
   $self->{next} = $aNext;
   return;
 }
 
 sub newLine () {    # $menuItem ()
-  assert ( @_ == 0 );
   return TMenuItem->new(
     name    => '',
     command => 0,
@@ -115,7 +137,7 @@ sub newLine () {    # $menuItem ()
     param   => '',
     next    => undef,
   );
-} #/ sub newLine
+}
 
 1
 

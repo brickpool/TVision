@@ -23,6 +23,8 @@ BEGIN {
   $INC{"MyMenuView.pm"} = 1;
 }
 
+my $getRect = sub { goto &TV::Menus::MenuBox::_getRect };
+
 my ( $bounds, $item1, $item2, $menu, $menuBox );
 
 # Test case for the constructor
@@ -51,10 +53,10 @@ subtest 'getItemRect' => sub {
   isa_ok( $rect, TRect, 'Item rect returned' );
 };
 
-# Test case for the getRect class method
-subtest 'getItemRect' => sub {
-  can_ok( TMenuBox, 'getRect' );
-  my $rect = TMenuBox->getRect( $bounds, $menu );
+# Test case for the $getRect class method
+subtest '&$getRect' => sub {
+  can_ok( TMenuBox, '_getRect' );
+  my $rect = TMenuBox->$getRect( $bounds, $menu );
   isa_ok( $rect, TRect, 'TRect returned' );
 };
 

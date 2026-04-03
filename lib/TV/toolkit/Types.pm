@@ -741,9 +741,9 @@ For each type, two function forms may exist:
 
 =over 4
 
-=item * Constructor – returns a type object (e.g. C<Int>)
+=item * Constructor - returns a type object (e.g. C<Int>)
 
-=item * Predicate – low-level boolean checker (e.g. C<is_Int>)
+=item * Predicate - low-level boolean checker (e.g. C<is_Int>)
 
 =back
 
@@ -895,7 +895,7 @@ Checks the referent.
 
 =head1 TYPE RELATIONSHIPS
 
-A simplified, L<Types::Tiny>-compatible parent–child hierarchy is used:
+A simplified, L<Types::Tiny>-compatible parent-child hierarchy is used:
 
   Any
    +-- Item
@@ -978,7 +978,7 @@ Exports all C<is_*> low-level predicate functions.
 
 Exports everything this module provides.
 
-=item * Type‑specific (e.g. C<:Str>, C<:Object>, ...)
+=item * Type-specific (e.g. C<:Str>, C<:Object>, ...)
 
 Each individual type constructor also has its own export group containing: 
 
@@ -1065,6 +1065,8 @@ than this module in most scenarios. However, this also introduces additional
 installation requirements and non-core dependencies.
 
 In contrast, C<TV::toolkit::Types> is:
+
+=over 4
 
 =item * fully pure-Perl
 

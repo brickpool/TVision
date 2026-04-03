@@ -1,5 +1,6 @@
 package TV::App::ProgInit;
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -13,90 +14,72 @@ our @EXPORT = qw(
   new_TProgInit
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw( blessed );
-
+use PerlX::Assert::PP;
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  CodeRef
+  Object
+);
 
 sub TProgInit() { __PACKAGE__ }
 sub new_TProgInit { __PACKAGE__->from(@_) }
 
-# declare attributes
-has createStatusLine => ( is => 'bare' );
-has createMenuBar    => ( is => 'bare' );
-has createDeskTop    => ( is => 'bare' );
+# protected attributes
+has createStatusLine => ( is => 'bare', default => sub { die 'required' } );
+has createMenuBar    => ( is => 'bare', default => sub { die 'required' } );
+has createDeskTop    => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args = check( {
-    cStatusLine => {
-      required    => 1, 
-      defined     => 1, 
-      default     => sub { }, 
-      strict_type => 1,
-    },
-    cMenuBar    => {
-      required    => 1, 
-      defined     => 1, 
-      default     => sub { }, 
-      strict_type => 1,
-    },
-    cDeskTop    => {
-      required    => 1, 
-      defined     => 1, 
-      default     => sub { }, 
-      strict_type => 1,
-    },
-  } => { @_ } ) || Carp::confess( last_error );
-  # 'init_arg' is not equal to the field name
-  $args->{createStatusLine} = delete $args->{cStatusLine};
-  $args->{createMenuBar}    = delete $args->{cMenuBar};
-  $args->{createDeskTop}    = delete $args->{cDeskTop};
+  state $sig = signature(
+    method => 1,
+    named  => [
+      createStatusLine => CodeRef, { alias => 'cStatusLine' },
+      createMenuBar    => CodeRef, { alias => 'cMenuBar' },
+      createDeskTop    => CodeRef, { alias => 'cDeskTop' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
   return $args;
-} #/ sub BUILDARGS
+}
 
 sub from {    # $obj ($cStatusLine, $cMenuBar, $cDeskTop)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 3 );
-  return $class->new(
-    cStatusLine => $_[0],
-    cMenuBar    => $_[0],
-    cDeskTop    => $_[0],
+  state $sig = signature(
+    method => 1,
+    pos    => [CodeRef, CodeRef, CodeRef],
   );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( cStatusLine => $args[0], cMenuBar => $args[1], 
+    cDeskTop => $args[2] );
 }
 
 sub createStatusLine {    # $statusLine ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   my ( $class, $code ) = ( ref $self, $self->{createStatusLine} );
   return $class->$code( $r );
 }
 
 sub createMenuBar {    # $menuBar ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   my ( $class, $code ) = ( ref $self, $self->{createMenuBar} );
   return $class->$code( $r );
 }
 
 sub createDeskTop {    # $deskTop ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   my ( $class, $code ) = ( ref $self, $self->{createDeskTop} );
   return $class->$code( $r );
 }

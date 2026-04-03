@@ -1,15 +1,13 @@
 package TV::Dialogs::HistoryViewer::HistList;
 # ABSTARCT: Implements the behavior of the HistRec list
 
+use 5.010;
 use strict;
 use warnings;
 
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
-
-use PerlX::Assert::PP;
-use Scalar::Util qw( looks_like_number );
 
 use Exporter 'import';
 our @EXPORT_OK = qw(
@@ -19,6 +17,14 @@ our @EXPORT_OK = qw(
   clearHistory
   initHistory
   doneHistory
+);
+
+use PerlX::Assert::PP;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :Int
+  :Str
 );
 
 # declare global variables
@@ -40,6 +46,7 @@ my $curRec;
 
 # Advance curRec to next string with an id of $curId
 $advanceStringPointer = sub {    # void ()
+  assert ( @_ == 0 );
   $curRec++;
   while ( $curRec < $historyUsed && $historyBlock->[$curRec]->{id} != $curId ) {
     $curRec++;
@@ -50,6 +57,7 @@ $advanceStringPointer = sub {    # void ()
 
 # Deletes the current string from the table
 $deleteString = sub {    # void ()
+  assert ( @_ == 0 );
   splice( @$historyBlock, $curRec, 1 ) 
     if $curRec < @$historyBlock;
   $historyUsed = @$historyBlock;
@@ -59,6 +67,9 @@ $deleteString = sub {    # void ()
 # Insert a string into the table
 $insertString = sub {    # void ($id, $str)
   my ( $id, $str ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Int $id );
+  assert ( is_Str $str );
   my $len = length $str;
   my $n = @$historyBlock;
   my $size = 0;
@@ -74,16 +85,18 @@ $insertString = sub {    # void ($id, $str)
 };
 
 $startId = sub {    # void ($id)
+  assert ( @_ == 1 );
+  assert ( is_Int $_[0] );
   $curId = shift;
   $curRec = -1;
   return;
 };
 
 sub historyAdd {    # void ($id, $str|undef)
-  my ( $id, $str ) = @_;
-  assert { @_ == 2 };
-  assert { looks_like_number $id };
-  assert { !defined $str or !ref $str };
+  state $sig = signature(
+    pos => [Int, Maybe[Str]]
+  );
+  my ( $id, $str ) = $sig->( @_ );
 
   return unless defined $str;
   $startId->( $id );
@@ -101,9 +114,10 @@ sub historyAdd {    # void ($id, $str|undef)
 }
 
 sub historyCount {    # $count ($id)
-  my ( $id ) = @_;
-  assert { @_ == 1 };
-  assert { looks_like_number $id };
+  state $sig = signature(
+    pos => [Int]
+  );
+  my ( $id ) = $sig->( @_ );
 
   $startId->( $id );
   my $count = 0;
@@ -116,10 +130,10 @@ sub historyCount {    # $count ($id)
 } #/ sub historyCount
 
 sub historyStr {    # $str ($id, $index)
-  my ( $id, $index ) = @_;
-  assert { @_ == 2 };
-  assert { looks_like_number $id };
-  assert { looks_like_number $index };
+  state $sig = signature(
+    pos => [Int, Int]
+  );
+  my ( $id, $index ) = $sig->( @_ );
 
   $startId->( $id );
   $advanceStringPointer->() for ( 0..$index );
@@ -129,20 +143,29 @@ sub historyStr {    # $str ($id, $index)
 }
 
 sub clearHistory {    # void ()
-  assert { @_ == 0 };
+  state $sig = signature(
+    pos => []
+  );
+  $sig->( @_ );
   $historyBlock = [];
   $historyUsed = @$historyBlock;
   return
 }
 
 sub initHistory {   # void ()
-  assert { @_ == 0 };
+  state $sig = signature(
+    pos => []
+  );
+  $sig->( @_ );
   clearHistory();
   return
 }
 
 sub doneHistory {   # void ()
-  assert { @_ == 0 };
+  state $sig = signature(
+    pos => []
+  );
+  $sig->( @_ );
   $historyBlock = undef;
   $historyUsed = 0;
   return
@@ -156,11 +179,13 @@ __END__
 
 =head1 NAME
 
-TV::Dialogs::HistoryViewer::HistList - manages Turbo Vision-style input history lists
+TV::Dialogs::HistoryViewer::HistList - manages TVision-style input history lists
 
 =head1 SYNOPSIS
 
-  use TV::Dialogs::HistoryViewer::HistList qw(historyAdd historyStr historyCount);
+  use TV::Dialogs::HistoryViewer::HistList qw(
+    historyAdd historyStr historyCount
+  );
 
   historyAdd(1, "hello");
   my $count = historyCount(1);
@@ -168,10 +193,10 @@ TV::Dialogs::HistoryViewer::HistList - manages Turbo Vision-style input history 
 
 =head1 DESCRIPTION
 
-C<HistList> provides a simple history buffer used by Turbo Vision input controls.  
-Entries are grouped by numeric IDs and stored in an internal list structure.  
-The implementation mimics the behavior of the original Turbo Vision history 
-code.  
+C<HistList> provides a simple history buffer used by Turbo Vision input 
+controls. Entries are grouped by numeric IDs and stored in an internal list 
+structure. The implementation mimics the behavior of the original Turbo Vision 
+history code.  
 
 It supports adding entries, retrieving them, counting them, and clearing the 
 buffer. The structure of the history buffer is as follows:

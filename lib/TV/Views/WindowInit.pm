@@ -1,6 +1,7 @@
 package TV::Views::WindowInit;
 # ABSTRACT: A class for initializing a frame for TWindows.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,13 @@ our @EXPORT = qw(
   new_TWindowInit
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw( blessed );
-
+use PerlX::Assert::PP;
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  CodeRef
+  Object
+);
 
 sub TWindowInit() { __PACKAGE__ }
 sub new_TWindowInit { __PACKAGE__->from(@_) }
@@ -32,35 +30,34 @@ sub new_TWindowInit { __PACKAGE__->from(@_) }
 has createFrame => ( is => 'bare' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args = check( {
-    cFrame => {
-      required    => 1,
-      defined     => 1,
-      default     => sub { },
-      strict_type => 1,
-    },
-  } => { @_ } ) || Carp::confess( last_error );
-  # 'init_arg' is not equal to the field name
-  $args->{createFrame} = delete $args->{cFrame};
+  state $sig = signature(
+    method => 1,
+    named  => [
+      createFrame => CodeRef, { alias => 'cFrame' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
   return $args;
 }
 
 sub from {    # $obj ($cFrame)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 1 );
-  return $class->new( cFrame => $_[0] );
+  state $sig = signature(
+    method => 1,
+    pos    => [CodeRef],
+  );
+  my ( $class, $cFrame ) = $sig->( @_ );
+  return $class->new( cFrame => $cFrame );
 }
 
 sub createFrame {    # $frame ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
-  return $self->{createFrame}->( bounds => $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $r ) = $sig->( @_ );
+  my ( $class, $code ) = ( ref $self, $self->{createFrame} );
+  return $class->$code( $r );
 }
 
 1

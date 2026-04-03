@@ -34,8 +34,7 @@ isa_ok( TStaticText->new( bounds => TRect->new(), text => 'text' ),
 isa_ok( TParamText->new( bounds => TRect->new() ), TParamText );
 isa_ok( TLabel->new( bounds => TRect->new(), text => 'text', link => undef ),
   TLabel );
-isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10, 
-  validator => undef ), TInputLine );
+isa_ok( TInputLine->new( bounds => TRect->new(), maxLen => 10, ), TInputLine );
 isa_ok( TSItem->new( value => 'value',  next => undef ), TSItem );
 isa_ok( TCluster->new( bounds => TRect->new(), strings => undef ), TCluster );
 isa_ok( TRadioButtons->new( bounds => TRect->new(), strings => undef ), 

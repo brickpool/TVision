@@ -16,8 +16,6 @@ BEGIN {
     meDoubleClick
   );
   use_ok 'TV::Gadgets::PrintConstants', qw(
-    printFlags
-    printCode
     printKeyCode
     printControlKeyState
     printEventCode
@@ -27,29 +25,32 @@ BEGIN {
   );
 }
 
-subtest 'Test printCode (match)' => sub {
+my $printFlags = sub { goto &TV::Gadgets::PrintConstants::_printFlags };
+my $printCode = sub { goto &TV::Gadgets::PrintConstants::_printCode };
+
+subtest 'Test &$printCode (match)' => sub {
   my $output = '';
   my $os     = IO::Scalar->new( \$output );
-  printCode( $os, kbCtrlA(), { kbCtrlA() => 'kbCtrlA' } );
-  is( $output, "kbCtrlA", 'printCode prints correct name for kbCtrlA' );
+  $printCode->( $os, kbCtrlA(), { kbCtrlA() => 'kbCtrlA' } );
+  is( $output, "kbCtrlA", '&$printCode prints correct name for kbCtrlA' );
 };
 
-subtest 'Test printCode (no match)' => sub {
+subtest 'Test &$printCode (no match)' => sub {
   my $output = '';
   my $os     = IO::Scalar->new( \$output );
-  printCode( $os, 0xFFFF, { kbCtrlA() => 'kbCtrlA' } );
-  like( $output, qr/^0xFFFF/i, 'printCode prints hex for unknown code' );
+  $printCode->( $os, 0xFFFF, { kbCtrlA() => 'kbCtrlA' } );
+  like( $output, qr/^0xFFFF/i, '&$printCode prints hex for unknown code' );
 };
 
-subtest 'Test printFlags' => sub {
+subtest 'Test &$printFlags' => sub {
   my $output = '';
   my $os     = IO::Scalar->new( \$output );
   my %flags =
     ( kbLeftCtrl() => 'kbLeftCtrl', kbRightCtrl() => 'kbRightCtrl' );
   ok( kbLeftCtrl() != kbRightCtrl(), 'kbLeftCtrl != kbRightCtrl' );
-  printFlags( $os, kbLeftCtrl() | kbRightCtrl(), \%flags );
+  $printFlags->( $os, kbLeftCtrl() | kbRightCtrl(), \%flags );
   like( $output, qr/kb(|Left|Right).*kb(|Left|Right)/, 
-    'printFlags prints both flags' );
+    '&$printFlags prints both flags' );
 };
 
 subtest 'Test printKeyCode' => sub {

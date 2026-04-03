@@ -2,6 +2,7 @@
 package TV::Objects::NSSortedCollection;
 # ABSTRACT: Defines the class TNSSortedCollection
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,21 +16,13 @@ our @EXPORT = qw(
   new_TNSSortedCollection
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  readonly
-);
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :types );
 
 use TV::Objects::Const qw( ccNotFound );
 use TV::Objects::NSCollection;
-use TV::toolkit;
 
 sub TNSSortedCollection() { __PACKAGE__ }
 sub new_TNSSortedCollection { __PACKAGE__->from(@_) }
@@ -45,26 +38,15 @@ use vars qw(
   *ITEMS = \%{ TNSCollection . '::ITEMS' };
 }
 
-# declare attributes
-has duplicates => ( is => 'rw' );
-
-sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef,
-    duplicates => { default => !!0, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
-}
+# public attributes
+has duplicates => ( is => 'rw', default => !!0 );
 
 sub search {    # $bool ($key|undef, \$index)
-  my ( $self, $key, $index_ref ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $index_ref and !readonly $$index_ref );
+  state $sig = signature(
+    method => Object,
+    pos    => [Any, ScalarRef],
+  );
+  my ( $self, $key, $index_ref ) = $sig->( @_ );
   my $l   = 0;
   my $h   = $self->{count} - 1;
   my $res = !!0;
@@ -88,9 +70,11 @@ sub search {    # $bool ($key|undef, \$index)
 } #/ sub search
 
 sub indexOf {    # $index ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) ) {
     return ccNotFound;
@@ -106,9 +90,11 @@ sub indexOf {    # $index ($item|undef)
 } #/ sub indexOf
 
 sub insert {    # $index ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   my $i;
   if ( !$self->search( $self->keyOf( $item ), \$i ) || $self->{duplicates} ) {
     $self->atInsert( $i, $item );
@@ -117,15 +103,20 @@ sub insert {    # $index ($item|undef)
 }
 
 sub keyOf {    # $key ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return $item;
 }
 
 sub compare {    # $cmp ($key1, $key2)
-  assert ( @_ == 3 );
-  assert ( blessed shift );
+  state $sig = signature(
+    method => Object,
+    pos    => [Any, Any],
+  );
+  $sig->( @_ );
   return 0;
 }
 

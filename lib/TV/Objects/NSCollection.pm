@@ -1,6 +1,7 @@
 package TV::Objects::NSCollection;
 # ABSTRACT: defines the class TNSCollection
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,14 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Errno qw( EFAULT EINVAL );
 use Hash::Util::FieldHash qw( id );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::Objects::Const qw( 
@@ -33,7 +31,6 @@ use TV::Objects::Const qw(
   maxCollectionSize
 );
 use TV::Objects::Object;
-use TV::toolkit;
 
 sub TNSCollection() { __PACKAGE__ }
 sub new_TNSCollection { __PACKAGE__->from(@_) }
@@ -43,12 +40,12 @@ extends TObject;
 # predeclare global variable
 our %ITEMS = ();
 
-# declare attributes
-has items        => ( is => 'rw' );
-has count        => ( is => 'rw' );
-has limit        => ( is => 'rw' );
-has delta        => ( is => 'rw' );
-has shouldDelete => ( is => 'rw' );
+# protected attributes
+has items        => ( is => 'ro', default => [] );
+has count        => ( is => 'ro', default => 0 );
+has limit        => ( is => 'ro', default => 0 );
+has delta        => ( is => 'ro', default => 0 );
+has shouldDelete => ( is => 'ro', default => 0 );
 
 # predeclare private methods
 my (
@@ -56,44 +53,49 @@ my (
 );
 
 sub BUILDARGS {    # \%args (|%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return check( {
-    items        => { default => [],  no_override => 1 },
-    count        => { default => 0,   no_override => 1 },
-    limit        => { default => 0,   defined => 1, allow => qr/^\d+$/ },
-    delta        => { default => 0,   defined => 1, allow => qr/^\d+$/ },
-    shouldDelete => { default => !!1, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named => [
+      limit => Int, { alias => 'aLimit', default => 0 },
+      delta => Int, { alias => 'aDelta', default => 0 },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
+sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-  assert ( blessed $self );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->setLimit( $self->{limit} );
   return;
 } #/ sub BUILD
 
 sub from {    # $obj ($aLimit, $aDelta)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( limit => $_[0], delta => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos => [Int, Int],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( limit => $args[0], delta => $args[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->shutDown();
   return;
 }
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->{shouldDelete} ) {
     $self->freeAll();
   }
@@ -106,20 +108,22 @@ sub shutDown {    # void ()
 } #/ sub shutDown
 
 sub at {    # $item ($index)
-  my ( $self, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $index ) = $sig->( @_ );
   $self->error( EINVAL, "Index out of bounds" )
     if $index < 0 || $index >= $self->{count};
   return $ITEMS{ $self->{items}->[$index] };
 }
 
 sub atRemove {    # void ($index)
-  my ( $self, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $index ) = $sig->( @_ );
   $self->error( EINVAL, "Index out of bounds" )
     if $index < 0 || $index >= $self->{count};
   $self->{count}--;
@@ -128,10 +132,11 @@ sub atRemove {    # void ($index)
 }
 
 sub atFree {    # void ($index)
-  my ( $self, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $index ) = $sig->( @_ );
   my $item = $self->at( $index );
   $self->atRemove( $index );
   $self->$freeItem( $item );
@@ -139,10 +144,11 @@ sub atFree {    # void ($index)
 }
 
 sub atInsert {    # void ($index, $item|undef)
-  my ( $self, $index, $item ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Item],
+  );
+  my ( $self, $index, $item ) = $sig->( @_ );
   $self->error( EINVAL, "Index out of bounds" )
     if $index < 0;
   $self->setLimit( $self->{count} + $self->{delta} )
@@ -157,10 +163,11 @@ sub atInsert {    # void ($index, $item|undef)
 }
 
 sub atPut {    # void ($index, $item|undef)
-  my ( $self, $index, $item ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Item],
+  );
+  my ( $self, $index, $item ) = $sig->( @_ );
   $self->error( EINVAL, "Index out of bounds" )
     if $index >= $self->{count};
 
@@ -171,35 +178,43 @@ sub atPut {    # void ($index, $item|undef)
 }
 
 sub remove {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->atRemove( $self->indexOf( $item ) );
   return;
 }
 
 sub removeAll {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{count} = 0;
   $self->{items} = [];
   return;
 }
 
 sub free {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->remove( $item );
   $self->$freeItem( $item );
   return;
 }
 
 sub freeAll {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->$freeItem( $self->at( $_ ) ) 
     for 0 .. $self->{count} - 1;
   $self->{count} = 0;
@@ -207,9 +222,11 @@ sub freeAll {    # void ()
 }
 
 sub indexOf {    # $index ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   for my $i ( 0 .. $self->{count} - 1 ) {
     my $id = id($item) || 0;
     return $i if $self->{items}->[$i] eq $id;
@@ -219,28 +236,31 @@ sub indexOf {    # $index ($item|undef)
 }
 
 sub insert {    # $index ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [Item],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   my $loc = $self->{count};
   $self->atInsert( $self->{count}, $item );
   return $loc;
 }
 
 sub error {    # void ($code, $info)
-  my ( $self, $code, $info ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $code );
-  assert ( defined $info and !ref $info );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Str],
+  );
+  my ( $self, $code, $info ) = $sig->( @_ );
   Carp::croak sprintf("Error code: %d, Info: %s\n", $code, $info);
 }
 
 sub firstThat {    # $item|undef (\&Test, $arg|undef)
-  my ( $self, $Test, $arg ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $Test );
+  state $sig = signature(
+    method => Object,
+    pos    => [CodeRef, Any],
+  );
+  my ( $self, $Test, $arg ) = $sig->( @_ );
   my $that;
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
@@ -250,10 +270,11 @@ sub firstThat {    # $item|undef (\&Test, $arg|undef)
 }
 
 sub lastThat {    # $item|undef (\&Test, $arg|undef)
-  my ( $self, $Test, $arg ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $Test );
+  state $sig = signature(
+    method => Object,
+    pos    => [CodeRef, Any],
+  );
+  my ( $self, $Test, $arg ) = $sig->( @_ );
   my $that;
   for my $i ( reverse 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
@@ -263,10 +284,11 @@ sub lastThat {    # $item|undef (\&Test, $arg|undef)
 }
 
 sub forEach {    # void (\&action, $arg|undef)
-  my ( $self, $action, $arg ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $action );
+  state $sig = signature(
+    method => Object,
+    pos    => [CodeRef, Any],
+  );
+  my ( $self, $action, $arg ) = $sig->( @_ );
   for my $i ( 0 .. $self->{count} - 1 ) {
     local $_ = $ITEMS{ $self->{items}->[$i] };
     $action->( $_, $arg );
@@ -275,9 +297,11 @@ sub forEach {    # void (\&action, $arg|undef)
 }
 
 sub pack {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $count = 0;
   for my $i ( 0 .. $self->{count} - 1 ) {
     if ( $ITEMS{ $self->{items}->[$i] } ) {
@@ -296,10 +320,11 @@ sub pack {    # void ()
 }
 
 sub setLimit {    # void ($aLimit)
-  my ( $self, $aLimit ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aLimit );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $aLimit ) = $sig->( @_ );
   $aLimit = $self->{count} if $aLimit < $self->{count};
   $aLimit = maxCollectionSize if $aLimit > maxCollectionSize;
   if ( $aLimit != $self->{limit} ) {
@@ -316,14 +341,18 @@ sub setLimit {    # void ($aLimit)
 } #/ sub setLimit
 
 sub getCount {    # $count ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{count};
 };
 
 $freeItem = sub {
   my ( $self, $item ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   my $id = id($item) || 0;
   delete $ITEMS{ $id } if $id;
   return;

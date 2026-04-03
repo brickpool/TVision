@@ -1,6 +1,7 @@
 package TV::Menus::MenuView;
 # ABSTRACT: Abstract class for menu bars and menu boxes in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,17 +15,15 @@ our @EXPORT = qw(
   new_TMenuView
 );
 
-use Carp ();
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  weaken
+use PerlX::Assert::PP;
+use Scalar::Util qw( weaken );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Drivers::Const qw( 
@@ -47,7 +46,6 @@ use TV::Menus::Const qw(
   :menuAction
   cpMenuView
 );
-use TV::toolkit;
 
 sub TMenuView() { __PACKAGE__ }
 sub name() { 'TMenuView' }
@@ -55,7 +53,7 @@ sub new_TMenuView { __PACKAGE__->from(@_) }
 
 extends TView;
 
-# declare attributes
+# protected attributes
 has parentMenu => ( is => 'bare' );
 has menu       => ( is => 'ro' );
 has current    => ( is => 'bare' );
@@ -85,24 +83,24 @@ my $unlock_value = sub {
 };
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # check 'isa' (note: 'menu' and 'parentMenu' can be undefined)
-    menu       => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    parentMenu => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    # init_args => undef
-    current    => { no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds     => Object,
+      menu       => Object, { optional => 1, alias => 'aMenu' },
+      parentMenu => Object, { optional => 1, alias => 'aParent' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  assert ( !exists $args->{parentMenu} or exists $args->{menu} );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{eventMask} |= evBroadcast;
   weaken( $self->{parentMenu} )        if $self->{parentMenu};
   weaken( $self->{current} )           if $self->{current};
@@ -111,16 +109,21 @@ sub BUILD {    # void (\%args)
   return;
 }
 
-sub from {    # $obj ($bounds, |$aMenu|undef, |$aParent);
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 1 && @_ <= 3 );
-  SWITCH: for ( scalar @_ ) {
-    $_ == 1 and return $class->new( bounds => $_[0] );
-    $_ == 2 and return $class->new(
-      bounds => $_[0], menu => $_[1], parentMenu => undef );
-    $_ == 3 and return $class->new(
-      bounds => $_[0], menu => $_[1], parentMenu => $_[2] );
+sub from {    # $obj ($bounds, |$aMenu, |$aParent);
+  state $sig = signature(
+    method => 1,
+    pos => [
+      Object,
+      Object, { optional => 1 },
+      Object, { optional => 1 },
+    ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  SWITCH: for ( scalar @args ) {
+    $_ == 1 and return $class->new( bounds => $args[0] );
+    $_ == 2 and return $class->new( bounds => $args[0], menu => $args[1] );
+    $_ == 3 and return $class->new( bounds => $args[0], menu => $args[1], 
+      parentMenu => $args[2] );
   }
   return;
 }
@@ -128,7 +131,7 @@ sub from {    # $obj ($bounds, |$aMenu|undef, |$aParent);
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $unlock_value->( $self->{parentMenu} ) if STRICT;
   $unlock_value->( $self->{current} )    if STRICT;
   return;
@@ -141,9 +144,11 @@ sub DEMOLISH {    # void ($in_global_destruction)
 #
 # I<tmnuview.cpp>
 sub execute {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $autoSelect     = !!0;
   my $firstEvent     = !!1;
   my $action         = 0;
@@ -396,10 +401,12 @@ sub execute {    # $int ()
 } #/ sub execute
 
 sub findItem {    # $menuItem|undef ($ch)
-  my ( $self, $ch ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( defined $ch and !ref $ch );
+  state $sig = signature(
+    method => Object,
+    pos    => [Str],
+  );
+  my ( $self, $ch ) = $sig->( @_ );
+  assert ( length $ch == 1 );
   $ch = uc( $ch );
   my $p = $self->{menu}{items};
   while ( $p ) {
@@ -415,17 +422,20 @@ sub findItem {    # $menuItem|undef ($ch)
 } #/ sub findItem
 
 sub getItemRect {    # $rect ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $item or blessed $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return TRect->new();
 }
 
 sub getHelpCtx {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $c = $self;
 
   while ( $c 
@@ -441,12 +451,13 @@ sub getHelpCtx {    # $int ()
     : hcNoContext;
 } #/ sub getHelpCtx
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new( 
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new( 
     data => cpMenuView, 
     size => length( cpMenuView ),
   );
@@ -454,10 +465,11 @@ sub getPalette {    # $palette ()
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   if ( $self->{menu} ) {
     SWITCH: for ( $event->{what} ) {
       $_ == evMouseDown and do {
@@ -499,20 +511,20 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub hotKey {    # $menuItem ($keyCode)
-  my ( $self, $keyCode ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $keyCode );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $keyCode ) = $sig->( @_ );
   return $self->$findHotKey( $self->{menu}{items}, $keyCode );
 }
 
 sub newSubView {    # $menuView ($bounds, $aMenu, $aParentMenu)
-  my ( $self, $bounds, $aMenu, $aParentMenu ) = @_;
-  assert ( @_ == 4 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
-  assert ( !defined $aMenu       or blessed $aMenu );
-  assert ( !defined $aParentMenu or blessed $aParentMenu );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Object, Object],
+  );
+  my ( $self, $bounds, $aMenu, $aParentMenu ) = $sig->( @_ );
   require TV::Menus::MenuBox;
   return TV::Menus::MenuBox->new(
     bounds     => $bounds,
@@ -522,35 +534,51 @@ sub newSubView {    # $menuView ($bounds, $aMenu, $aParentMenu)
 }
 
 sub parentMenu {    # $menuView|undef (|$menuView|undef)
-  my ( $self, $menuView ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $menuView or blessed $menuView );
-  if ( @_ == 2 ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $menuView ) = $sig->( @_ );
+  goto SET if @_ > 1;
+  GET: {
+    return $self->{parentMenu};
+  }
+  SET: {
     $unlock_value->( $self->{parentMenu} ) if STRICT;
     weaken $self->{parentMenu}
       if $self->{parentMenu} = $menuView;
     $lock_value->( $self->{parentMenu} ) if STRICT;
+    return;
   }
-  return $self->{parentMenu};
-} #/ sub parentMenu
+}
 
 sub current {    # $menuItem|undef (|$menuItem|undef)
-  my ( $self, $menuItem ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $menuItem or blessed $menuItem );
-  if ( @_ == 2 ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $menuItem ) = $sig->( @_ );
+  goto SET if @_ > 1;
+  GET: {
+    return $self->{current};
+  }
+  SET: {
     $unlock_value->( $self->{current} ) if STRICT;
     weaken $self->{current}
       if $self->{current} = $menuItem;
     $lock_value->( $self->{current} ) if STRICT;
+    return;
   }
-  return $self->{current};
-} #/ sub current
+}
 
 $nextItem = sub {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   $self->current(
     $self->{current}{next}
       ? $self->{current}{next}
@@ -560,7 +588,9 @@ $nextItem = sub {    # void ()
 };
 
 $prevItem = sub {    # void ()
-  my $self = shift;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   my $p;
 
   no warnings 'uninitialized';
@@ -572,10 +602,13 @@ $prevItem = sub {    # void ()
     $self->$nextItem();
   } while ( $self->{current}{next} != $p );
   return;
-}; #/ $prevItem = sub
+};
 
 $trackKey = sub {    # void ($findNext)
   my ( $self, $findNext ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Bool $findNext );
   return
     unless $self->{current};
 
@@ -592,6 +625,9 @@ $trackKey = sub {    # void ($findNext)
 
 $mouseInOwner = sub {    # $bool ($e)
   my ( $self, $e ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $e );
   if ( !$self->{parentMenu} || $self->{parentMenu}{size}{y} != 1 ) {
     return !!0;
   }
@@ -604,6 +640,9 @@ $mouseInOwner = sub {    # $bool ($e)
 
 $mouseInMenus = sub {    # $bool ($e)
   my ( $self, $e ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $e );
   my $p = $self->{parentMenu};
   while ( $p && !$p->mouseInView( $e->{mouse}{where} ) ) {
     $p = $p->{parentMenu};
@@ -612,8 +651,11 @@ $mouseInMenus = sub {    # $bool ($e)
 };
 
 $trackMouse = sub {    # void ($e, \$mouseActive)
-  my ( $self, $e, $mouseActive_ref ) = @_;
-  alias: for my $mouseActive ( $$mouseActive_ref ) {
+  my ( $self, $e, $mouseActive ) = @_;
+  assert ( @_ == 3 );
+  assert ( is_Object $self );
+  assert ( is_Object $e );
+  assert ( is_ScalarRef $mouseActive );
   my $mouse = $self->makeLocal( $e->{mouse}{where} );
   for (
     $self->current( $self->{menu}{items} );
@@ -622,25 +664,29 @@ $trackMouse = sub {    # void ($e, \$mouseActive)
   ) {
     my $r = $self->getItemRect( $self->{current} );
     if ( $r->contains( $mouse ) ) {
-      $mouseActive = !!1;
+      $$mouseActive = !!1;
       return;
     }
   } #/ for ( $self->{current} ...)
   return;
-  } #/ alias:
 }; #/ sub
 
 $topMenu = sub {    # $menuView ()
-  my $self = shift;
-  my $p    = $self;
+  my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
+  my $p = $self;
   while ( $p->{parentMenu} ) {
     $p = $p->{parentMenu};
   }
   return $p;
 };
 
-$updateMenu = sub {    # $bool ($menu)
+$updateMenu = sub {    # $bool ($menu|undef)
   my ( $self, $menu ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( !defined $menu or is_Object $menu );
   my $res = !!0;
   if ( $menu ) {
     for ( my $p = $menu->{items} ; $p ; $p = $p->{next} ) {
@@ -666,6 +712,9 @@ $updateMenu = sub {    # $bool ($menu)
 
 $do_a_select = sub {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $event );
   $self->putEvent( $event );
   my $cmd = $self->{owner}->execView( $self );
   if ( $cmd && TView->commandEnabled( $cmd ) ) {
@@ -678,8 +727,12 @@ $do_a_select = sub {    # void ($event)
   return;
 }; #/ $do_a_select = sub
 
-$findHotKey = sub {    # $menuItem|undef ($p, $keyCode)
+$findHotKey = sub {    # $menuItem|undef ($p|undef, $keyCode)
   my ( $self, $p, $keyCode ) = @_;
+  assert ( @_ == 3 );
+  assert ( is_Object $self );
+  assert ( !defined $p or is_Object $p );
+  assert ( is_Int $keyCode );
   while ( $p ) {
     if ( $p->{name} ) {
       if ( $p->{command} == 0 ) {

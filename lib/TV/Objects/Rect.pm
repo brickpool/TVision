@@ -1,6 +1,7 @@
 package TV::Objects::Rect;
 # ABSTRACT: defines the class TRect
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -18,17 +19,18 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
-use Scalar::Util qw( 
-  blessed 
-  looks_like_number
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
 );
 
 sub TRect() { __PACKAGE__ }
 sub new_TRect { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 our %HAS; BEGIN {
   %HAS = ( 
     a => sub { TPoint->new() },
@@ -41,53 +43,75 @@ our %HAS; BEGIN {
 # If four arguments I<(ax, ay, bx, by)> are provided, it creates two I<TPoint> 
 # objects for points I<a> and I<b> with the specified coordinates.
 #
-# If two arguments I<(p1, p2)> are provided, it sets points I<a> and I<b> to the
+# If two arguments I<(a, b)> are provided, it sets points I<a> and I<b> to the
 # provided I<TPoint> objects.
 #
 # If no or any other number of arguments are provided, it initializes points 
 # I<a> and I<b> with new I<TPoint> objects with default values.
-sub new {    # \$obj (%)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  assert ( keys( %args ) % 2 == 0 );
-  if ( keys( %args ) == 2 ) {
-    my @params = qw( p1 p2 );
-    assert ( grep( ref $args{$_} => @params ) == @params );
-    $args{a} = TPoint->new( x => $args{p1}{x}, y => $args{p1}{y} );
-    $args{b} = TPoint->new( x => $args{p2}{x}, y => $args{p2}{y} );
-    delete @args{@params};
+sub new {    # \$obj (%args)
+  my ( $class, $self );
+  if ( @_ < 4 ) {
+    state $sig = signature(
+      method => 1,
+      named  => [],
+    );
+    ( $class ) = $sig->( @_ );
+    $self = {
+      a => TPoint->new(),
+      b => TPoint->new(),
+    };
   }
-  elsif ( keys( %args ) == 4 ) {
-    my @params = qw( ax ay bx by );
-    assert ( grep( looks_like_number $args{$_} => @params ) == 4 );
-    $args{a} = TPoint->new( x => $args{ax}, y => $args{ay} );
-    $args{b} = TPoint->new( x => $args{bx}, y => $args{by} );
-    delete @args{@params};
+  elsif ( @_ < 8 ) {
+    state $sig = signature(
+      method => 1,
+      named  => [
+        a => HashLike,
+        b => HashLike,
+      ],
+    );
+    ( $class, my $args ) = $sig->( @_ );
+    $self = {
+      a => TPoint->new( x => $args->{a}{x}, y => $args->{a}{y} ),
+      b => TPoint->new( x => $args->{b}{x}, y => $args->{b}{y} ),
+    };
+  } 
+  else {
+    state $sig = signature(
+      method => 1,
+      named  => [
+        ax => Int,
+        ay => Int,
+        bx => Int,
+        by => Int,
+      ],
+    );
+    ( $class, my $args ) = $sig->( @_ );
+    $self = {
+      a => TPoint->new( x => $args->{ax}, y => $args->{ay} ),
+      b => TPoint->new( x => $args->{bx}, y => $args->{by} ),
+    };
   }
-  my $self = {
-    a => $args{a} || $HAS{a}->(),
-    b => $args{b} || $HAS{b}->(),
-  };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
   return $self;
 } #/ sub new
 
 sub from {    # $obj ($ax, $ay, $bx, $by)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 4 );
-  return $class->new( ax => $_[0], ay => $_[1], bx => $_[2], by => $_[3] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Int, Int, Int, Int],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( ax => $args[0], ay => $args[1], bx => $args[2], 
+    by => $args[3] );
 }
 
 sub assign {    # void ($ax, $ay, $bx, $by)
-  my ( $self, $ax, $ay, $bx, $by ) = @_;
-  assert ( @_ == 5 );
-  assert ( blessed $self );
-  assert ( looks_like_number $ax );
-  assert ( looks_like_number $ay );
-  assert ( looks_like_number $bx );
-  assert ( looks_like_number $by );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Int, Int],
+  );
+  my ( $self, $ax, $ay, $bx, $by ) = $sig->( @_ );
   $self->{a}{x} = $ax;
   $self->{a}{y} = $ay;
   $self->{b}{x} = $bx;
@@ -95,32 +119,36 @@ sub assign {    # void ($ax, $ay, $bx, $by)
   return;
 } #/ sub assign
 
-sub clone {    # $p ($self)
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  my $class = ref $self || $self;
+sub clone {    # $rect ()
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  my $class = ref $self;
   return $class->new(
-    p1 => $self->{a}->clone(),
-    p2 => $self->{b}->clone(),
+    a => $self->{a}->clone(),
+    b => $self->{b}->clone(),
   );
 }
 
 sub dump {    # $str ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
   return Data::Dumper::Dumper $self;
 }
 
 sub move {    # void ($aDX, $aDY)
-  my ( $self, $aDX, $aDY ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aDX );
-  assert ( looks_like_number $aDY );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $aDX, $aDY ) = $sig->( @_ );
   $self->{a}{x} += $aDX;
   $self->{a}{y} += $aDY;
   $self->{b}{x} += $aDX;
@@ -129,11 +157,11 @@ sub move {    # void ($aDX, $aDY)
 }
 
 sub grow {    # void ($aDX, $aDY)
-  my ( $self, $aDX, $aDY ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aDX );
-  assert ( looks_like_number $aDY );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $aDX, $aDY ) = $sig->( @_ );
   $self->{a}{x} -= $aDX;
   $self->{a}{y} -= $aDY;
   $self->{b}{x} += $aDX;
@@ -142,10 +170,11 @@ sub grow {    # void ($aDX, $aDY)
 }
 
 sub intersect {    # void ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   $self->{a}{x} = max( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = max( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = min( $self->{b}{x}, $r->{b}{x} );
@@ -154,10 +183,11 @@ sub intersect {    # void ($r)
 }
 
 sub Union {    # void ($r)
-  my ( $self, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $r );
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike],
+  );
+  my ( $self, $r ) = $sig->( @_ );
   $self->{a}{x} = min( $self->{a}{x}, $r->{a}{x} );
   $self->{a}{y} = min( $self->{a}{y}, $r->{a}{y} );
   $self->{b}{x} = max( $self->{b}{x}, $r->{b}{x} );
@@ -166,10 +196,11 @@ sub Union {    # void ($r)
 }
 
 sub contains {    # $bool ($p)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   return
        $p->{x} >= $self->{a}{x}
     && $p->{x} <  $self->{b}{x}
@@ -177,28 +208,32 @@ sub contains {    # $bool ($p)
     && $p->{y} <  $self->{b}{y};
 }
 
-sub equal {    # $bool ($r)
-  my ( $self, $r ) = @_;
-  assert ( blessed $self );
-  assert ( ref $r );
+sub equal {    # $bool ($r, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
   return
-       $self->{a}{x} == $r->{a}{x}
-    && $self->{a}{y} == $r->{a}{y}
-    && $self->{b}{x} == $r->{b}{x}
-    && $self->{b}{y} == $r->{b}{y};
+       $one->{a}{x} == $two->{a}{x}
+    && $one->{a}{y} == $two->{a}{y}
+    && $one->{b}{x} == $two->{b}{x}
+    && $one->{b}{y} == $two->{b}{y};
 }
 
-sub not_equal {    # $bool ($r)
-  my ( $self, $r ) = @_;
-  assert ( blessed $self );
-  assert ( ref $r );
-  return !$self->equal( $r );
+sub not_equal {    # $bool ($r, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
+  return !equal( $one, $two );
 }
 
-sub isEmpty {    # $bool ($self)
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+sub isEmpty {    # $bool ()
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{a}{x} >= $self->{b}{x} 
       || $self->{a}{y} >= $self->{b}{y};
 }
@@ -209,15 +244,17 @@ use overload
   fallback => 1;
 
 my $mk_accessors = sub {
-  my $pkg = shift;
+  my ( $pkg ) = @_;
+  assert ( @_ == 1 );
+  assert ( defined $pkg );
   no strict 'refs';
   my %HAS = %{"${pkg}::HAS"};
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
-      assert ( blessed $_[0] );
+      assert ( is_Object $_[0] );
       if ( @_ > 1 ) {
-        assert ( blessed $_[1] );
+        assert ( is_Object $_[1] );
         $_[0]->{$field} = $_[1]->clone();
       }
       $_[0]->{$field};

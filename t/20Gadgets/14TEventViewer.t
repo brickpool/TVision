@@ -14,8 +14,11 @@ BEGIN {
     evCommand
   );
   use_ok 'TV::Objects::Rect';
+  use_ok 'TV::TextView::Terminal';
   use_ok 'TV::Gadgets::EventViewer';
 }
+
+my $printEvent = sub { goto &TV::Gadgets::EventViewer::_printEvent };
 
 my $sample_event = TEvent->new(
   what    => evKeyboard,
@@ -76,14 +79,14 @@ subtest 'Text length calculation' => sub {
   is( $text_length, 1, 'Text length is 1 byte for original CP437 charCode' );
 };
 
-subtest 'printEvent output for keyboard event' => sub {
+subtest '&$printEvent output for keyboard event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
     bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
-  $viewer->printEvent( $OUT, $sample_event );
+  $viewer->$printEvent( $OUT, $sample_event );
   close $OUT;
 
   note $output;
@@ -91,16 +94,16 @@ subtest 'printEvent output for keyboard event' => sub {
   like( $output, qr/keyCode/,    'Output contains keyCode field' );
   like( $output, qr/charCode/,   'Output contains charCode field' );
   like( $output, qr/0xC3, 0xB1/, 'Output contains UTF-8 hex bytes for "n~"' );
-}; #/ 'printEvent output for keyboard event' => sub
+}; #/ '&$printEvent output for keyboard event' => sub
 
-subtest 'printEvent output for mouse event' => sub {
+subtest '&$printEvent output for mouse event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
     bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
-  $viewer->printEvent( $OUT, $mouse_event );
+  $viewer->$printEvent( $OUT, $mouse_event );
   close $OUT;
 
   note $output;
@@ -111,16 +114,16 @@ subtest 'printEvent output for mouse event' => sub {
   like( $output, qr/y = 20/,     'Output contains correct Y coordinate' );
   like( $output, qr/eventFlags/, 'Output contains eventFlags field' );
   like( $output, qr/buttons/,    'Output contains buttons field' );
-}; #/ 'printEvent output for mouse event' => sub
+}; #/ '&$printEvent output for mouse event' => sub
 
-subtest 'printEvent output for command event' => sub {
+subtest '&$printEvent output for command event' => sub {
   my $viewer = TV::Gadgets::EventViewer->new(
     bounds   => $bounds,
     bufSize => 10
   );
   my $output = '';
   open( my $OUT, '>', \$output ) or die "Cannot open scalar ref: $!";
-  $viewer->printEvent( $OUT, $command_event );
+  $viewer->$printEvent( $OUT, $command_event );
   close $OUT;
 
   note $output;
@@ -129,6 +132,6 @@ subtest 'printEvent output for command event' => sub {
     'Output contains message event block' );
   like( $output, qr/command = 999/,   'Output contains correct command value' );
   like( $output, qr/infoPtr = 12345/, 'Output contains correct infoPtr value' );
-}; #/ 'printEvent output for command event' => sub
+}; #/ '&$printEvent output for command event' => sub
 
 done_testing();

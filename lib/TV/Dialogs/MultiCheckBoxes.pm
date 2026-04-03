@@ -1,6 +1,7 @@
 package TV::Dialogs::MultiCheckBoxes;
-# ABSTRACT: 
+# ABSTRACT: Multi-state checkbox cluster control based on TCluster
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,20 +16,16 @@ our @EXPORT = qw(
   new_TMultiCheckBoxes
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Dialogs::Cluster;
-use TV::toolkit;
 
 sub TMultiCheckBoxes() { __PACKAGE__ }
 sub name() { 'TMultiCheckBoxes' }
@@ -36,72 +33,83 @@ sub new_TMultiCheckBoxes { __PACKAGE__->from( @_ ) }
 
 extends TCluster;
 
-# declare attributes
-has selRange => ( is => 'ro' );
-has flags    => ( is => 'ro' );
-has states   => ( is => 'ro' );
+# private attributes
+has selRange => ( is => 'bare', default => sub { die 'required' } );
+has flags    => ( is => 'bare', default => sub { die 'required' } );
+has states   => ( is => 'bare', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    selRange => { required => 1, default => 0, strict_type => 1 },
-    flags    => { required => 1, default => 0, strict_type => 1 },
-    states   => { required => 1, defined => 1, allow => sub { !ref $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds   => Object,
+      strings  => Maybe[HashLike], { alias => 'aStrings' },
+      selRange => Int,
+      flags    => PositiveOrZeroInt,
+      states   => Str,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 } #/ sub BUILDARGS
+
+sub from {    # $obj ($bounds, $aStrings|undef, $aSelRange, $aFlags, $aStates)
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Maybe[HashLike], Int, PositiveOrZeroInt, Str],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new(
+    bounds => $args[0], strings => $args[1], selRange => $args[2],
+    flags  => $args[3], states  => $args[4]
+  );
+}
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{states} = undef;
   return;
 }
 
-sub from {    # $obj ($bounds, $aStrings|undef, $aSelRange, $aFlags, $aStates)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 5 );
-  return $class->new(
-    bounds => $_[0], strings => $_[1], selRange => $_[2],
-    flags  => $_[3], states  => $_[4]
-  );
-}
-
 sub dataSize {    # $size ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return 1;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawMultiBox( " [ ] ", $self->{states} );
   return;
 }
 
 sub getData {    # void (\@p)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   $p->[0] = $self->{value};
   $self->drawView();
   return;
 } #/ sub getData
 
 sub multiMark {    # $int ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return ( 
     $self->{value} &
     ( ( $self->{flags} & 0xff ) << ( $item * ( $self->{flags} >> 8 ) ) ) 
@@ -109,10 +117,11 @@ sub multiMark {    # $int ($item)
 }
 
 sub press {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   my $flo = $self->{flags} & 0xff;
   my $fhi = $self->{flags} >> 8;
 
@@ -130,10 +139,11 @@ sub press {    # void ($item)
 } #/ sub press
 
 sub setData {    # void (\@p)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   $self->{value} = 0+ $p->[0];
   $self->drawView();
   return;
@@ -147,7 +157,7 @@ __END__
 
 =head1 NAME
 
-TMultiCheckBoxes - Multi‑state checkbox cluster control based on TCluster
+TMultiCheckBoxes - Multi-state checkbox cluster control based on TCluster
 
 =head1 SYNOPSIS
 
@@ -170,14 +180,14 @@ TMultiCheckBoxes - Multi‑state checkbox cluster control based on TCluster
 
 =head1 DESCRIPTION
 
-C<TMultiCheckBoxes> provides a multi‑state checkbox control where each item can 
+C<TMultiCheckBoxes> provides a multi-state checkbox control where each item can 
 cycle through a configurable number of states.  
 
 The state of each item is stored inside a packed bitfield, with a configurable
 field width and state mask derived from the C<flags> attribute.  
 
 The control inherits its navigation and layout behavior from C<TCluster>, while
-implementing its own multi‑state display and toggling logic.
+implementing its own multi-state display and toggling logic.
 
 =head1 ATTRIBUTES
 
@@ -190,11 +200,11 @@ Defines the number of distinct states each item may cycle through (I<Int>).
 =item flags
 
 Bitfield descriptor controlling how state values are packed (I<Int>):
-low byte = state mask, high byte = bit‑shift step per item.
+low byte = state mask, high byte = bit-shift step per item.
 
 =item states
 
-A string containing the per‑state marker characters used for drawing (I<Str>).
+A string containing the per-state marker characters used for drawing (I<Str>).
 
 =back
 
@@ -204,13 +214,13 @@ A string containing the per‑state marker characters used for drawing (I<Str>).
 
   my $obj = TMultiCheckBoxes->new(%args);
 
-Constructs a new multi‑state checkbox cluster with the specified parameters.
+Constructs a new multi-state checkbox cluster with the specified parameters.
 
 =head2 new
 
   my $obj = TMultiCheckBoxes->new(%args);
 
-Creates a new multi‑state checkbox cluster using the following arguments:
+Creates a new multi-state checkbox cluster using the following arguments:
 
 =over
 
@@ -228,7 +238,7 @@ The number of different states each item may cycle through (I<Int>).
 
 =item flags
 
-A packed integer describing the bit‑mask (low byte) and bit‑shift step (high 
+A packed integer describing the bit-mask (low byte) and bit-shift step (high 
 byte) used for encoding item states (I<Int>).
 
 =item states
@@ -254,7 +264,7 @@ Returns the number of scalars transferred by getData/setData (always 1).
 
   $self->draw();
 
-Renders the multi‑state cluster using the supplied state marker table.
+Renders the multi-state cluster using the supplied state marker table.
 
 =head2 getData
 

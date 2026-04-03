@@ -8,8 +8,7 @@ our @EXPORT = qw(
   TEventQueue
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 
 use TV::Drivers::Const qw( 
   :evXXXX 

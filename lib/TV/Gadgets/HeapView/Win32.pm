@@ -1,6 +1,7 @@
 package TV::Gadgets::HeapView::Win32;
 # ABSTRACT: on Windows, display the virtual memory used by the process
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -8,9 +9,11 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
+
 use Config;
 use PerlX::Assert::PP;
-use Scalar::Util qw( blessed );
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( Object );
 use Win32::API;
 
 use constant PTR_SIZE => $Config{ptrsize};
@@ -52,9 +55,11 @@ BEGIN {
 }
 
 sub heapSize {    # $total ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   alias: for my $totalStr ( $self->{heapStr} ) {
   $totalStr = "     No heap";
 

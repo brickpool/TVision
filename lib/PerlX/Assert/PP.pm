@@ -466,7 +466,7 @@ Examples:
 
 The original L<PerlX::Assert> uses L<Exporter::Tiny> and provides a highly
 flexible import system. This pure-Perl implementation instead exports C<assert>
-directly into the caller’s namespace and performs a compile-time source rewrite.
+directly into the caller's namespace and performs a compile-time source rewrite.
 
 The assertion name must be a single-quoted string, a double-quoted string, or a
 C<q(...)>/C<qq(...)> expression. Other quote-like operators (C<qr>, C<qx>,

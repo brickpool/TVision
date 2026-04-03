@@ -1,6 +1,7 @@
 package TV::Menus::Menu;
 # ABSTRACT: Linked list of TMenuItem records
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,23 +16,20 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  weaken
-);
-
+use PerlX::Assert::PP;
+use Scalar::Util qw( weaken );
 use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
+);
 
 sub TMenu() { __PACKAGE__ }
 sub new_TMenu { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 has items => ( is => 'rw' );
 has deflt => ( is => 'bare' );
 
@@ -46,36 +44,41 @@ my $unlock_value = sub {
 };
 
 sub BUILDARGS {    # \%args (|%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args = check( {
-    items   => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    default => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error );
-  # 'init_arg' is not the same as the field name.
-  $args->{deflt} = delete $args->{default};
+  state $sig = signature(
+    method => 1,
+    named  => [
+      items => Object, { optional => 1, },
+      deflt => Object, { optional => 1, alias => 'default' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
   return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->{items} ||= undef;
-  $self->{deflt} ||= $self->{items};
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  $self->{deflt} //= $self->{items};
   weaken $self->{deflt} if $self->{deflt};
   $lock_value->( $self->{deflt} ) if STRICT;
   return;
 }
 
 sub from {    # $obj (| $itemList, | $TheDefault)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 0 && @_ <= 2 );
-  SWITCH: for ( scalar @_ ) {
+  state $sig = signature(
+    method => 1,
+    pos => [
+      Object, { optional => 1 },
+      Object, { optional => 1 },
+    ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  SWITCH: for ( scalar @args ) {
     $_ == 0 and return $class->new();
-    $_ == 1 and return $class->new( items => $_[0], default => $_[0] );
-    $_ == 2 and return $class->new( items => $_[0], default => $_[1] );
+    $_ == 1 and return $class->new( items => $args[0], default => $args[0] );
+    $_ == 2 and return $class->new( items => $args[0], default => $args[1] );
   }
   return;
 }
@@ -83,7 +86,7 @@ sub from {    # $obj (| $itemList, | $TheDefault)
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   while ( $self->{items} ) {
     my $temp = $self->{items};
     $self->{items} = $self->{items}{next};
@@ -94,18 +97,25 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub deflt {    # $view|undef (|$view|undef)
-  my ( $self, $view ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $view or blessed $view );
-  if ( @_ == 2 ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $view ) = $sig->( @_ );
+  goto SET if @_ > 1;
+  GET: {
+    return $self->{deflt};
+  }
+  SET: {
     $unlock_value->( $self->{deflt} ) if STRICT;
     weaken $self->{deflt}
       if $self->{deflt} = $view;
     $lock_value->( $self->{deflt} ) if STRICT;
+    return;
   }
-  return $self->{deflt};
-} #/ sub deflt
+}
 
 1
 

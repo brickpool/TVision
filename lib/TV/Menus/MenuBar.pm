@@ -1,6 +1,7 @@
 package TV::Menus::MenuBar;
 # ABSTRACT: TMenuBar object manages the menu bar across the top of the app.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,13 @@ our @EXPORT = qw(
   new_TMenuBar
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Drivers::Util qw( cstrlen );
@@ -36,7 +34,6 @@ use TV::Views::Const qw(
   gfGrowHiX
   ofPreProcess
 );
-use TV::toolkit;
 
 sub TMenuBar() { __PACKAGE__ }
 sub name() { 'TMenuBar' }
@@ -45,46 +42,55 @@ sub new_TMenuBar { __PACKAGE__->from(@_) }
 extends TMenuView;
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  check( {
-    # 'required' arguments (note: 'menu' will be checked next)
-    menu => { required => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return $class->SUPER::BUILDARGS( @_ );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds => Object,
+      menu   => Maybe[Object], { alias => 'aMenu' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-  assert ( blessed $self );
-  $self->{menu} = TMenu->new( items => $self->{menu} )
-    if $self->{menu} 
-    && $self->{menu}->isa(TSubMenu);
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_HashRef $args );
+  my $menu = $args->{menu};
+  $self->{menu} = ref $menu && $menu->isa(TSubMenu) 
+    ? TMenu->new( items => $menu )
+    : $menu;
   $self->{growMode} = gfGrowHiX;
   $self->{options} |= ofPreProcess;
   return;
 }
 
-sub from {    # $obj ($bounds, $aMenu|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], menu => $_[1] );
+sub from {    # $obj ($bounds, $aMenu)
+  state $sig = signature(
+    method => 1,
+    pos => [Object, Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], menu => $args[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   undef $self->{menu};
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $color;
   my ( $x, $l );
   my $p;
@@ -126,10 +132,11 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub getItemRect {    # $rect ($item|undef)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $item or blessed $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   my $r = TRect->new( ax => 1, ay => 0, bx => 1, by => 1 );
   my $p = $self->{menu}{items};
   while ( 1 ) {
@@ -144,7 +151,7 @@ sub getItemRect {    # $rect ($item|undef)
     }
     $p = $p->{next};
   }
-} #/ sub getItemRect
+}
 
 1
 
@@ -165,7 +172,7 @@ screen.
 
 =head2 new
 
-  my $menuBar = TMenuBar->new(bounds => $bounds, menu => $aMenu | undef);
+  my $menuBar = TMenuBar->new(bounds => $bounds, menu => $aMenu);
 
 =head2 DESTROY
 
@@ -177,7 +184,7 @@ screen.
 
 =head2 from
 
-  my $menuBar = TMenuBar->from($bounds, $aMenu | undef);
+  my $menuBar = TMenuBar->from($bounds, $aMenu;
 
 =head2 getItemRect
 

@@ -31,12 +31,9 @@ my $menu = new_TMenu(
   new_TMenuItem( 'One', 1, 0x1234 ),
   new_TMenuItem( 'Two', 2, 0x5678 ) 
 );
-my $parent_menu = TMenuView->new(
-  bounds => TRect->new(), menu => $menu, parentMenu => undef 
-);
-my $menu_view = MyMenuView->new(
-  bounds => TRect->new(), menu => $menu, parentMenu => $parent_menu 
-);
+my $parent_menu = TMenuView->new( bounds => TRect->new(), menu => $menu );
+my $menu_view = MyMenuView->new( bounds => TRect->new(), menu => $menu, 
+  parentMenu => $parent_menu );
 isa_ok( $menu_view, TMenuView, 'Object is of class TMenuView' );
 
 # Test object creation without menu and parent

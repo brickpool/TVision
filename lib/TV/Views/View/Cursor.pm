@@ -1,12 +1,17 @@
 package TV::Views::View::Cursor;
 # ABSTRACT: TView resetCursor member functions.
 
+use 5.010;
 use strict;
 use warnings;
 
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
+
+use PerlX::Assert::PP;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :Object );
 
 use TV::Drivers::HardwareInfo;
 use TV::Drivers::Screen;
@@ -18,9 +23,6 @@ my $y = 0;
 
 use subs qw(
   resetCursor
-  computeCaretSize
-  caretCovered
-  decideCaretSize
 );
 
 # import global variables
@@ -32,12 +34,22 @@ use vars qw(
   *cursorLines = \${ TScreen . '::cursorLines' };
 }
 
+my (
+  $computeCaretSize,
+  $caretCovered,
+  $decideCaretSize,
+);
+
 sub resetCursor {    # void ($p)
-  my ( $p ) = @_;
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $p ) = $sig->( @_ );
   $self = $p;
   $x    = $self->{cursor}{x};
   $y    = $self->{cursor}{y};
-  my $caretSize = computeCaretSize();
+  my $caretSize = $computeCaretSize->();
   if ( $caretSize ) {
     THardwareInfo->setCaretPosition( $x, $y );
   }
@@ -45,7 +57,8 @@ sub resetCursor {    # void ($p)
   return;
 } #/ sub resetCursor
 
-sub computeCaretSize {    # $int ()
+$computeCaretSize = sub {    # $int ()
+  assert ( @_ == 0 );
   if ( !( ~$self->{state} & ( sfVisible | sfCursorVis | sfFocused ) ) ) {
     my $v = $self;
     while ( $y >= 0 && $y < $v->{size}{y} 
@@ -55,7 +68,7 @@ sub computeCaretSize {    # $int ()
       $x += $v->{origin}{x};
       if ( $v->owner() ) {
         if ( $v->owner()->{state} & sfVisible ) {
-          if ( caretCovered( $v ) ) {
+          if ( $caretCovered->( $v ) ) {
             last;
           }
           $v = $v->owner();
@@ -65,15 +78,17 @@ sub computeCaretSize {    # $int ()
         }
       } #/ if ( $v->owner() )
       else {
-        return decideCaretSize();
+        return $decideCaretSize->();
       }
     } #/ while ( $y >= 0 && $y < $v...)
   } #/ if ( !( ~$self->{state...}))
   return 0;
-} #/ sub computeCaretSize
+}; #/ sub $computeCaretSize
 
-sub caretCovered {    # $bool ($v)
+$caretCovered = sub {    # $bool ($v)
   my ( $v ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $v );
   my $u = $v->owner()->last()->next();
   for ( ; $u != $v ; $u = $u->next() ) {
     if ( ( $u->{state} & sfVisible )
@@ -84,14 +99,15 @@ sub caretCovered {    # $bool ($v)
     }
   }
   return !!0;
-} #/ sub caretCovered
+}; #/ sub $caretCovered
 
-sub decideCaretSize {    # $int()
+$decideCaretSize = sub {    # $int ()
+  assert ( @_ == 0 );
   if ( $self->{state} & sfCursorIns ) {
     return 100;
   }
   return $cursorLines & 0x0f;
-}
+};
 
 1
 
@@ -99,12 +115,22 @@ __END__
 
 =pod
 
+=head1 NAME
+
+TV::Views::View::Cursor - TView resetCursor member functions.
+
 =head1 DESCRIPTION
 
 TView resetCursor member functions.
 
 The content was taken from the framework
 "A modern port of Turbo Vision 2.0", which is licensed under MIT license.
+
+=head1 METHODS
+
+=head2 resetCursor
+
+  $self->resetCursor();
 
 =head1 SEE ALSO
 

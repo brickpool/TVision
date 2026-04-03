@@ -1,6 +1,7 @@
 package TV::Objects::Point;
 # ABSTRACT: defines the class TPoint
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,18 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
 );
 
 sub TPoint() { __PACKAGE__ }
 sub new_TPoint { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 our %HAS; BEGIN {
   %HAS = ( 
     x => sub { 0 },
@@ -33,87 +35,102 @@ our %HAS; BEGIN {
   );
 }
 
-sub new {    # \$obj (%)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
-  assert ( keys( %args ) % 2 == 0 );
-  assert ( grep( looks_like_number( $_ ), values( %args ) ) == keys( %args ) );
-  my $self = {
-    x => $args{x} || $HAS{x}->(),
-    y => $args{y} || $HAS{y}->(),
-  };
+sub new {    # \$obj (%args)
+  state $sig = signature(
+    method => 1,
+    named  => [
+      x => Int, { default => 0 },
+      y => Int, { default => 0 },
+    ],
+  );
+  my ( $class, $self ) = $sig->( @_ );
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
   return $self;
-} #/ sub new
-
-sub from {    # $obj ($x, $y)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( x => $_[0], y => $_[1] );
 }
 
-sub clone {    # $p ($self)
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+sub from {    # $obj ($x, $y)
+  state $sig = signature(
+    method => 1,
+    pos => [Int, Int],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( x => $args[0], y => $args[1] );
+}
+
+sub clone {    # $p ()
+  state $sig = signature(
+    method => 1,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $class = ref $self || $self;
   return $class->new( %$self );
 }
 
 sub dump {    # $str ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   require Data::Dumper;
   local $Data::Dumper::Sortkeys = 1;
   return Data::Dumper::Dumper $self;
 }
 
-sub add {    # $p ($one, $two)
-  my ( $one, $two ) = @_;
-  assert ( ref $one );
-  assert ( ref $two );
+sub add {    # $p ($one, $two, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
   return TPoint->new( x => $one->{x} + $two->{x}, y => $one->{y} + $two->{y} );
 }
 
-sub subtract {    # $p ($one, $two, | $swap)
-  my ( $one, $two, $swap ) = @_;
-  assert ( ref $one );
-  assert ( ref $two );
-  assert ( !defined $swap or !ref $swap );
+sub subtract {    # $p ($one, $two, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
   ( $one, $two ) = ( $two, $one ) if $swap;
   return TPoint->new( x => $one->{x} - $two->{x}, y => $one->{y} - $two->{y} );
 }
 
-sub equal {    # $bool ($one, $two)
-  my ( $one, $two ) = @_;
-  assert ( ref $one );
-  assert ( ref $two );
+sub equal {    # $bool ($one, $two, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
   return $one->{x} == $two->{x} && $one->{y} == $two->{y};
 }
 
-sub not_equal {    # $bool ($one, $two)
-  my ( $one, $two ) = @_;
-  assert ( ref $one );
-  assert ( ref $two );
+sub not_equal {    # $bool ($one, $two, |$swap)
+  state $sig = signature(
+    pos => [HashLike, HashLike, Bool, { optional => 1 }],
+  );
+  my ( $one, $two, $swap ) = $sig->( @_ );
   return !equal( $one, $two );
 }
 
-sub add_assign {    # $self ($adder)
-  my ( $self, $adder ) = @_;
-  assert ( blessed $self );
-  assert ( ref $adder );
+sub add_assign {    # $self ($adder, |$wap)
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike, Bool, { optional => 1 }],
+  );
+  my ( $self, $adder, $swap ) = $sig->( @_ );
+  assert ( not $swap );
   $self->{x} += $adder->{x};
   $self->{y} += $adder->{y};
   return $self;
 }
 
-sub subtract_assign {    # $self ($subber)
-  my ( $self, $subber ) = @_;
-  assert ( blessed $self );
-  assert ( ref $subber );
+sub subtract_assign {    # $self ($subber, |$wap)
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike, Bool, { optional => 1 }],
+  );
+  my ( $self, $subber, $swap ) = $sig->( @_ );
+  assert ( not $swap );
   $self->{x} -= $subber->{x};
   $self->{y} -= $subber->{y};
   return $self;
@@ -129,15 +146,17 @@ use overload
   fallback => 1;
 
 my $mk_accessors = sub {
-  my $pkg = shift;
+  my ( $pkg ) = @_;
+  assert ( @_ == 1 );
+  assert ( defined $pkg );
   no strict 'refs';
   my %HAS = %{"${pkg}::HAS"};
   for my $field ( keys %HAS ) {
     my $full_name = "${pkg}::$field";
     *$full_name = sub {
-      assert ( blessed $_[0] );
+      assert ( is_Object $_[0] );
       if ( @_ > 1 ) {
-        assert ( looks_like_number $_[1] );
+        assert ( is_Int $_[1] );
         $_[0]->{$field} = $_[1];
       }
       $_[0]->{$field};

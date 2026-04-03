@@ -9,6 +9,9 @@ BEGIN {
   use_ok 'TV::Menus::StatusDef';
 }
 
+my $add_status_def = sub { goto &TV::Menus::StatusDef::_add_status_def };
+my $add_status_item = sub { goto &TV::Menus::StatusDef::_add_status_item };
+
 # Test object creation
 my $s1 = new_TStatusDef( 1, 1 );
 isa_ok( $s1, TStatusDef, 'Object is of class TStatusDef' );
@@ -19,14 +22,14 @@ isa_ok( $s2, TStatusDef, 'Object is of class TStatusDef' );
 my $s3 = TStatusDef->new( min => 3, max => 3 );
 isa_ok( $s3, TStatusDef, 'Object is of class TStatusDef' );
 
-# Test add_status_item method
-can_ok( $s1, 'add_status_item' );
+# Test &$add_status_item method
+can_ok( $s1, '_add_status_item' );
 my $i1 = new_TStatusItem( 'One', 0x1234, 1 );
 my $i2 = new_TStatusItem( 'Two', 0x2345, 2 );
 isa_ok( $i1, TStatusItem, 'Object is of class TStatusItem' );
 isa_ok( $i2, TStatusItem, 'Object is of class TStatusItem' );
 lives_ok { 
-  $s1->add_status_item( $i1 )->add_status_item( $i2 );
+  $s1->$add_status_item( $i1 )->$add_status_item( $i2 );
 } "TStatusItem's correctly added to TStatusDef";
 is( 
   $s1->{items}{next}, 
@@ -34,9 +37,9 @@ is(
  'Second TStatusItem correctly added to TStatusDef'
 );
 
-# Test add_status_def method
-can_ok( $s2, 'add_status_def' );
-$s1->add_status_def( $s3 );
+# Test &$add_status_def method
+can_ok( $s2, '_add_status_def' );
+$s1->$add_status_def( $s3 );
 is( $s1->{next}, $s3, 'TStatusDef correctly added to TStatusDef' );
 
 my $status_def;

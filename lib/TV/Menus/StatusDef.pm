@@ -1,6 +1,7 @@
 package TV::Menus::StatusDef;
 # ABSTRACT: Class linking a range of helps with a list of status line items
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,61 +16,73 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::Menus::StatusItem;
-use TV::toolkit;
 
 sub TStatusDef() { __PACKAGE__ }
 sub new_TStatusDef { __PACKAGE__->from(@_) }
 
-# declare attributes
+# public attributes
 has next  => ( is => 'rw' );
-has min   => ( is => 'rw' );
-has max   => ( is => 'rw' );
+has min   => ( is => 'rw', default => sub { die 'required' } );
+has max   => ( is => 'rw', default => sub { die 'required' } );
 has items => ( is => 'rw' );
 
+# predeclare private methods
+my (
+  $add_status_item,
+  $add_status_def,
+);
+
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return check( {
-    # 'required' arguments
-    min => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    max => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    # check 'isa' (note: 'next' and 'items' can be undefined)
-    next  => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    items => { allow => sub { !defined $_[0] or blessed $_[0] } },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      min   => PositiveOrZeroInt, { alias => 'aMin' },
+      max   => PositiveOrZeroInt, { alias => 'aMax' },
+      items => Object,            { alias => 'someItems', optional => 1 },
+      next  => Object,            { alias => 'aNext',     optional => 1 },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub from {    # $obj ($aMin, $aMax, | $someItems, | $aNext)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 2 && @_ <= 4 );
-  SWITCH: for ( scalar @_ ) {
-    $_ == 2 and return $class->new( min => $_[0], max => $_[1] );
-    $_ == 3 and return $class->new( min => $_[0], max => $_[1], 
-      items => $_[2] );
-    $_ == 4 and return $class->new( min => $_[0], max => $_[1], 
-      items => $_[2], next => $_[3] );
+  state $sig = signature(
+    method => 1,
+    pos    => [
+      PositiveOrZeroInt,
+      PositiveOrZeroInt,
+      Object, { optional => 1 },
+      Object, { optional => 1 },
+    ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  SWITCH: for ( scalar @args ) {
+    $_ == 2 and return $class->new( min => $args[0], max => $args[1] );
+    $_ == 3 and return $class->new( min => $args[0], max => $args[1], 
+      items => $args[2] );
+    $_ == 4 and return $class->new( min => $args[0], max => $args[1], 
+      items => $args[2], next => $args[3] );
   }
   return ;
 }
 
-sub add_status_item {    # $s1 ($s1, $s2)
+sub _add_status_item { goto &$add_status_item }
+$add_status_item = sub {    # $s1 ($s1, $s2, |undef)
   my ( $s1, $s2 ) = @_;
-  assert ( blessed $s1 );
-  assert ( blessed $s2 and $s2->isa( TStatusItem ) );
+  assert ( @_ >= 2 && @_ <= 3 );
+  assert ( is_Object $s1 );
+  assert ( is_Object $s2 and $s2->isa( TStatusItem ) );
   my $def = $s1;
   while ( $def->{next} ) {
     $def = $def->{next};
@@ -85,27 +98,35 @@ sub add_status_item {    # $s1 ($s1, $s2)
     $cur->{next} = $s2;
   }
   return $s1;
-} #/ sub add_status_item
+};
 
-sub add_status_def {    # $s1 ($s1, $s2)
+sub _add_status_def { goto &$add_status_def }
+$add_status_def = sub {    # $s1 ($s1, $s2, |undef)
   my ( $s1, $s2 ) = @_;
-  assert ( blessed $s1 );
-  assert ( blessed $s2 and $s2->isa( TStatusDef ) );
+  assert ( @_ >= 2 && @_ <= 3 );
+  assert ( is_Object $s1 );
+  assert ( is_Object $s2 and $s2->isa( TStatusDef ) );
   my $cur = $s1;
   while ( $cur->{next} ) {
     $cur = $cur->{next};
   }
   $cur->{next} = $s2;
   return $s1;
-}
+};
 
-sub add {    # $s1 ($s1, $s2)
-  assert ( blessed $_[0] );
-  assert ( blessed $_[1] );
-  assert ( not $_[2] );    # test if operands have been swapped
-  blessed( $_[1] ) && $_[1]->isa( TStatusDef )
-    ? goto &add_status_def
-    : goto &add_status_item
+sub add {    # $s1 ($s1, $s2, |$swap)
+  state $sig = signature(
+    pos => [
+      Object,
+      Object,
+      Bool, { optional => 1 } 
+    ],
+  );
+  my ( $s1, $s2, $swap ) = $sig->( @_ );
+  assert ( not $swap );    # test if operands have been swapped
+  $s2->isa( TStatusDef )
+    ? goto &$add_status_def
+    : goto &$add_status_item
 }
 
 use overload

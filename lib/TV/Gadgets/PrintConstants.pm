@@ -1,5 +1,6 @@
 package TV::Gadgets::PrintConstants;
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -10,8 +11,6 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
-  printFlags
-  printCode
   printKeyCode
   printControlKeyState
   printEventCode
@@ -20,9 +19,12 @@ our @EXPORT_OK = qw(
   printMouseEventFlags
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw( looks_like_number );
+use PerlX::Assert::PP;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
+);
 
 use TV::Drivers::Const qw(
   :evXXXX
@@ -152,12 +154,18 @@ my %mouseEventFlags = (
   NMEND(),
 );
 
-sub printFlags {
+my (
+  $printFlags,
+  $printCode,
+);
+
+sub _printFlags { goto &$printFlags }
+$printFlags = sub {
   my ( $os, $flags, $constants ) = @_;
   assert ( @_ == 3 );
-  assert ( ref $os );
-  assert ( looks_like_number $flags );
-  assert ( ref $constants );
+  assert ( is_Object $os );
+  assert ( is_PositiveOrZeroInt $flags );
+  assert ( is_HashRef $constants );
 
   my $foundFlags = 0;
   while ( my ( $value, $name ) = each %$constants ) {
@@ -172,14 +180,15 @@ sub printFlags {
     $os->printf( "0x%04X", $flags & ~$foundFlags );
   }
   return;
-} #/ sub printFlags
+}; #/ sub $printFlags
 
-sub printCode {
+sub _printCode { goto &$printCode }
+$printCode = sub {
   my ( $os, $code, $constants ) = @_;
   assert ( @_ == 3 );
-  assert ( ref $os );
-  assert ( looks_like_number $code );
-  assert ( ref $constants );
+  assert ( is_Object $os );
+  assert ( is_PositiveOrZeroInt $code );
+  assert ( is_HashRef $constants );
 
   if ( exists $constants->{$code} ) {
     $os->print( $constants->{$code} );
@@ -188,41 +197,59 @@ sub printCode {
 
   $os->printf( "0x%04X", $code );
   return;
-} #/ sub printCode
+}; #/ sub $printCode
 
 sub printKeyCode {
-  my ( $os, $keyCode ) = @_;
-  printCode( $os, $keyCode, \%keyCodes );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $keyCode ) = $sig->( @_ );
+  $printCode->( $os, $keyCode, \%keyCodes );
   return;
 }
 
 sub printControlKeyState {
-  my ( $os, $controlKeyState ) = @_;
-  printFlags( $os, $controlKeyState, \%controlKeyStateFlags );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $controlKeyState ) = $sig->( @_ );
+  $printFlags->( $os, $controlKeyState, \%controlKeyStateFlags );
   return;
 }
 
 sub printEventCode {
-  my ( $os, $eventCode ) = @_;
-  printCode( $os, $eventCode, \%eventCodes );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $eventCode ) = $sig->( @_ );
+  $printCode->( $os, $eventCode, \%eventCodes );
   return;
 }
 
 sub printMouseButtonState {
-  my ( $os, $buttonState ) = @_;
-  printFlags( $os, $buttonState, \%mouseButtonFlags );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $buttonState ) = $sig->( @_ );
+  $printFlags->( $os, $buttonState, \%mouseButtonFlags );
   return;
 }
 
 sub printMouseWheelState {
-  my ( $os, $wheelState ) = @_;
-  printFlags( $os, $wheelState, \%mouseWheelFlags );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $wheelState ) = $sig->( @_ );
+  $printFlags->( $os, $wheelState, \%mouseWheelFlags );
   return;
 }
 
 sub printMouseEventFlags {
-  my ( $os, $eventFlags ) = @_;
-  printFlags( $os, $eventFlags, \%mouseEventFlags );
+  state $sig = signature(
+    pos => [ Object, PositiveOrZeroInt ],
+  );
+  my ( $os, $eventFlags ) = $sig->( @_ );
+  $printFlags->( $os, $eventFlags, \%mouseEventFlags );
   return;
 }
 

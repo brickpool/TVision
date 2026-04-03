@@ -90,7 +90,7 @@ sub extends {
   TV::toolkit::LOP->init( caller() )->extend_class( @_ );
 }
 
-# Adds the 'has' keyword to the class
+# Adds the C<has> keyword to the class
 sub _install_has {    # void ($target)
   my ( $proto, $name ) = @_;
   assert ( $proto );
@@ -108,15 +108,17 @@ sub _create_constructor {    # void ($target)
   return;
 }
 
+# L<Class::LOP> classes require class initialization
 sub _init_class {    # void ($target)
   my ( $proto ) = @_;
   assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  $target->warnings_strict();
+  Carp->import( 'verbose' ) if STRICT;    # STRICT enables verbose stack traces
+  $target->warnings_strict();             # enable warnings
   return;
 }
 
-# Injects 'extends' keyword to the class
+# Injects C<extends> keyword to the class
 sub _import_extends {    # void ($target)
   my ( $proto ) = @_;
   assert ( $proto );
@@ -174,19 +176,23 @@ sub _around_hook {    # void ($class, $name, \&code)
   return;
 } #/ sub _around_hook
 
+# We are I<patching> the Moos C<has> arguments to support C<< is => 'bare' >> 
+# and C<< default => scalar|ref >>
 sub _my_moos_has {    # $return (\&orig, $self, @_)
   my ( $orig, $self, %args ) = @_;
   if ( exists $args{is} && $args{is} eq 'bare' ) {
     $args{is} = 'rw';
     $args{_skip_setup} = 1;
   }
-  if ( exists $args{default} && !ref $args{default} ) {
+  if ( exists $args{default} && ref $args{default} ne 'CODE' ) {
     my $default = $args{default};
     $args{default} = sub { $default };
   }
   return $self->$orig( %args );
 } #/ sub _my_moos_has
 
+# Provide an equivalent dump method using L<Data::Dumper>, unless one already 
+# exists
 sub _add_dump {    # void ($target)
   my ( $proto ) = @_;
   assert ( $proto );
@@ -206,6 +212,7 @@ sub _add_dump {    # void ($target)
   return;
 }
 
+# Provide DEMOLISH if it is not available
 sub _add_demolish {    # void ($target)
   my ( $proto ) = @_;
   assert ( $proto );
@@ -280,9 +287,9 @@ keywords and behaviors, including:
 
 =over 4
 
-=item * C<has> – attribute declaration
+=item * C<has> - attribute declaration
 
-=item * C<extends> – simple class inheritance
+=item * C<extends> - simple class inheritance
 
 =item * an optional C<dump> method, unless already present
 
@@ -300,11 +307,11 @@ directly:
 
 =over 4
 
-=item * C<Moos> – primary minimal backend (defaults to this when available)
+=item * C<Moos> - primary minimal backend (defaults to this when available)
 
-=item * C<Moo> – lightweight attribute and method generator
+=item * C<Moo> - lightweight attribute and method generator
 
-=item * C<Moose> – full meta-object system
+=item * C<Moose> - full meta-object system
 
 =back
 

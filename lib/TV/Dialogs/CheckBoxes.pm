@@ -1,6 +1,7 @@
 package TV::Dialogs::CheckBoxes;
-# ABSTRACT: Multi‑item checkbox cluster control based on TCluster
+# ABSTRACT: Multi-item checkbox cluster control based on TCluster
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,15 +16,11 @@ our @EXPORT = qw(
   new_TCheckBoxes
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( Object Int );
 
 use TV::Dialogs::Cluster;
-use TV::toolkit;
 
 sub TCheckBoxes() { __PACKAGE__ }
 sub name() { 'TCheckBoxes' }
@@ -35,26 +32,30 @@ extends TCluster;
 our $button = " [ ] ";
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawMultiBox( $button, " X" );
   return;
 }
 
 sub mark {    # $bool ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return ( $self->{value} & ( 1 << $item ) ) != 0;
 }
 
 sub press {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->{value} = $self->{value} ^ ( 1 << $item );
   return;
 }
@@ -69,17 +70,17 @@ __END__
 
 =head1 NAME
 
-TCheckBoxes - Multi‑item checkbox cluster control based on TCluster
+TCheckBoxes - Multi-item checkbox cluster control based on TCluster
 
 =head1 DESCRIPTION
 
-C<TCheckBoxes> implements a multi‑selection checkbox group where each item can 
+C<TCheckBoxes> implements a multi-selection checkbox group where each item can 
 be toggled independently.  
 
 The control stores all selection states inside a bitmask, with one bit per item.  
 It inherits drawing, navigation and event dispatching logic from C<TCluster>.  
 Only the marking behavior and toggle logic are specialized to support 
-multi‑state selection.
+multi-state selection.
 
 =head1 METHODS
 

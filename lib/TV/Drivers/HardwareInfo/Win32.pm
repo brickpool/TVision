@@ -12,8 +12,7 @@ our @EXPORT_OK = qw(
   THardwareInfo
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use English qw( -no_match_vars );
 use Scalar::Util qw(
   blessed 

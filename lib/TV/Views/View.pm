@@ -1,6 +1,7 @@
 package TV::Views::View;
 # ABSTRACT: Base class for all visual components in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,18 +15,16 @@ our @EXPORT = qw(
   new_TView
 );
 
-use Carp ();
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed 
-  weaken
-  looks_like_number
+use PerlX::Assert::PP;
+use Scalar::Util qw( weaken );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Const qw( INT_MAX );
@@ -52,7 +51,6 @@ use TV::Views::CommandSet;
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::Util qw( message );
-use TV::toolkit;
 
 require TV::Views::View::Cursor;
 require TV::Views::View::Exposed;
@@ -92,18 +90,18 @@ use vars qw(
   *TheTopView = \$TV::Views::Group::TheTopView;
 }
 
-# declare attributes
-has owner     => ( is => 'bare' );
+# public attributes
 has next      => ( is => 'bare' );
-has options   => ( is => 'rw' );
-has state     => ( is => 'rw' );
-has growMode  => ( is => 'rw' );
-has dragMode  => ( is => 'rw' );
-has helpCtx   => ( is => 'rw' );
-has eventMask => ( is => 'rw' );
-has size      => ( is => 'rw' );
-has origin    => ( is => 'rw' );
-has cursor    => ( is => 'rw' );
+has size      => ( is => 'rw', default => sub { TPoint->new } );
+has options   => ( is => 'rw', default => 0 );
+has eventMask => ( is => 'rw', default => evMouseDown | evKeyDown | evCommand );
+has state     => ( is => 'rw', default => sfVisible );
+has origin    => ( is => 'rw', default => sub { TPoint->new } );
+has cursor    => ( is => 'rw', default => sub { TPoint->new } );
+has growMode  => ( is => 'rw', default => 0 );
+has dragMode  => ( is => 'rw', default => dmLimitLoY );
+has helpCtx   => ( is => 'rw', default => hcNoContext );
+has owner     => ( is => 'bare' );
 
 # predeclare private methods
 my (
@@ -123,34 +121,22 @@ my $unlock_value = sub {
 };
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  return check( {
-    # init_args => undef
-    owner     => { no_override => 1 },
-    next      => { no_override => 1 },
-    # set 'default' values, init_args => undef
-    options   => { default => 0,           no_override => 1 },
-    state     => { default => sfVisible,   no_override => 1 },
-    growMode  => { default => 0,           no_override => 1 },
-    dragMode  => { default => dmLimitLoY,  no_override => 1 },
-    helpCtx   => { default => hcNoContext, no_override => 1 },
-    eventMask => {
-      default     => evMouseDown | evKeyDown | evCommand, 
-      no_override => 1,
-    },
-    size      => { default => TPoint->new(), no_override => 1 },
-    origin    => { default => TPoint->new(), no_override => 1 },
-    cursor    => { default => TPoint->new(), no_override => 1 },
-    # 'required' arguments
-    bounds => { required => 1, defined => 1, allow => sub { blessed shift } },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds => Object,
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-  assert ( blessed $self );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_HashRef $args );
   weaken( $self->{owner} ) if $self->{owner};
   weaken( $self->{next} )  if $self->{next};
   $lock_value->( $self->{owner} ) if STRICT;
@@ -160,27 +146,29 @@ sub BUILD {    # void (\%args)
 } #/ sub BUILD
 
 sub from {    # $obj ($bounds)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 1 );
-  return $class->new( bounds => $_[0] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $bounds ) = $sig->( @_ );
+  return $class->new( bounds => $bounds );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $unlock_value->( $self->{owner} ) if STRICT;
   $unlock_value->( $self->{next} )  if STRICT;
   return;
 }
 
 sub sizeLimits {    # void ($min, $max)
-  my ( $self, $min, $max ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $min );
-  assert ( ref $max );
+  state $sig = signature(
+    method => Object,
+    pos    => [HashLike, HashLike],
+  );
+  my ( $self, $min, $max ) = $sig->( @_ );
   $min->{x} = $min->{y} = 0;
   if ( !( $self->{growMode} & gfFixed ) && $self->{owner} ) {
     $max->{x} = $self->{owner}{size}{x};
@@ -193,19 +181,23 @@ sub sizeLimits {    # void ($min, $max)
 } #/ sub sizeLimits
 
 sub getBounds {    # $rect ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return TRect->new(
-    p1 => $self->{origin},
-    p2 => $self->{origin} + $self->{size},
+    a => $self->{origin},
+    b => $self->{origin} + $self->{size},
   );
 }
 
 sub getExtent {    # $rect ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return TRect->new(
     ax => 0,
     ay => 0,
@@ -215,9 +207,11 @@ sub getExtent {    # $rect ()
 }
 
 sub getClipRect {    # $rect ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $clip = $self->getBounds();
   if ( $self->{owner} ) {
     $clip->intersect( $self->{owner}{clip} );
@@ -227,20 +221,22 @@ sub getClipRect {    # $rect ()
 }
 
 sub mouseInView {    # $bool ($mouse)
-  my ( $self, $mouse ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $mouse );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $mouse ) = $sig->( @_ );
   $mouse = $self->makeLocal( $mouse->clone() );
   my $r = $self->getExtent();
   return $r->contains( $mouse );
 }
 
 sub containsMouse {    # $bool ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   return ( $self->{state} & sfVisible )
     && $event->{mouse}
     && $self->mouseInView( $event->{mouse}{where} );
@@ -249,6 +245,10 @@ sub containsMouse {    # $bool ($event)
 # Define the range function
 my $range = sub {    # $ ($val, $min, $max)
   my ( $val, $min, $max ) = @_;
+  assert ( @_ == 3 );
+  assert ( is_Int $val );
+  assert ( is_Int $min );
+  assert ( is_Int $max );
   $min = $max 
     if $min > $max;
   if ( $val < $min ) {
@@ -261,10 +261,11 @@ my $range = sub {    # $ ($val, $min, $max)
 };
 
 sub locate {    # void ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   my ( $min,  $max ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $min, $max );
   $bounds->{b}{x} = $bounds->{a}{x} +
@@ -285,17 +286,12 @@ sub locate {    # void ($bounds)
   return;
 } #/ sub locate
 
-my ( $goLeft, $goRight, $goUp, $goDown, $goCtrlLeft, $goCtrlRight );
-
 sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
-  my ( $self, $event, $mode, $limits, $minSize, $maxSize ) = @_;
-  assert ( @_ == 6 );
-  assert ( blessed $self );
-  assert ( blessed $event );
-  assert ( looks_like_number $mode );
-  assert ( blessed $limits );
-  assert ( blessed $minSize );
-  assert ( blessed $maxSize );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, PositiveOrZeroInt, Object, Object, Object],
+  );
+  my ( $self, $event, $mode, $limits, $minSize, $maxSize ) = $sig->( @_ );
   my $saveBounds;
 
   my ( $p, $s );
@@ -324,12 +320,12 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
     } #/ else [ if ( $mode & dmDragMove)]
   } #/ if ( $event->{what} ==...)
   else {
-    $goLeft      ||= TPoint->new( x => -1, y =>  0 );
-    $goRight     ||= TPoint->new( x =>  1, y =>  0 );
-    $goUp        ||= TPoint->new( x =>  0, y => -1 );
-    $goDown      ||= TPoint->new( x =>  0, y =>  1 );
-    $goCtrlLeft  ||= TPoint->new( x => -8, y =>  0 );
-    $goCtrlRight ||= TPoint->new( x =>  8, y =>  0 );
+    state $goLeft      = TPoint->new( x => -1, y =>  0 );
+    state $goRight     = TPoint->new( x =>  1, y =>  0 );
+    state $goUp        = TPoint->new( x =>  0, y => -1 );
+    state $goDown      = TPoint->new( x =>  0, y =>  1 );
+    state $goCtrlLeft  = TPoint->new( x => -8, y =>  0 );
+    state $goCtrlRight = TPoint->new( x =>  8, y =>  0 );
 
     $saveBounds = $self->getBounds();
     do {
@@ -400,12 +396,11 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
 } #/ sub dragView
 
 sub calcBounds {    # void ($bounds, $delta);
-  my ( $self, undef, $delta ) = @_;
-  alias: for my $bounds ( $_[1] ) {
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
-  assert ( ref $delta );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Object],
+  );
+  my ( $self, $bounds, $delta ) = $sig->( @_ );
 
   my ( $s, $d );
 
@@ -418,7 +413,7 @@ sub calcBounds {    # void ($bounds, $delta);
     }
   };
 
-  $bounds = $self->getBounds();
+  %$bounds = %{ $self->getBounds() };
 
   assert ( $self->{owner} );
   $s = $self->{owner}{size}{x};
@@ -450,25 +445,25 @@ sub calcBounds {    # void ($bounds, $delta);
   $bounds->{b}{y} = $bounds->{a}{y} +
     $range->( $bounds->{b}{y} - $bounds->{a}{y}, $minLim->{y}, $maxLim->{y} );
   return;
-  } #/ alias
 } #/ sub calcBounds
 
 sub changeBounds {    # void ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   $self->setBounds( $bounds );
   $self->drawView();
   return;
 }
 
 sub growTo {    # void ($x, $y)
-  my ( $self, $x, $y ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $x, $y ) = $sig->( @_ );
   my $r = TRect->new(
     ax => $self->{origin}{x},
     ay => $self->{origin}{y},
@@ -480,11 +475,11 @@ sub growTo {    # void ($x, $y)
 } #/ sub growTo
 
 sub moveTo {    # void ($x, $y)
-  my ( $self, $x, $y ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $x, $y ) = $sig->( @_ );
   my $r = TRect->new(
     ax => $x,
     ay => $y,
@@ -496,19 +491,22 @@ sub moveTo {    # void ($x, $y)
 } #/ sub moveTo
 
 sub setBounds {    # void ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   $self->{origin} = $bounds->{a}->clone;
   $self->{size}   = $bounds->{b} - $bounds->{a};
   return;
 }
 
 sub getHelpCtx {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->{state} & sfDragging ) {
     return hcDragging;
   }
@@ -516,17 +514,20 @@ sub getHelpCtx {    # $int ()
 }
 
 sub valid {    # $bool ($command)
-  my ( $self, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  $sig->( @_ );
   return !!1;
 }
 
 sub hide {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->{state} & sfVisible ) {
     $self->setState( sfVisible, !!0 );
   }
@@ -534,9 +535,11 @@ sub hide {    # void ()
 }
 
 sub show {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( ( $self->{state} & sfVisible ) == 0 ) {
     $self->setState( sfVisible, !!1 );
   }
@@ -544,9 +547,11 @@ sub show {    # void ()
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $b = TDrawBuffer->new();
 
   $b->moveChar( 0, ' ', $self->getColor( 1 ), $self->{size}{x} );
@@ -555,9 +560,11 @@ sub draw {    # void ()
 }
 
 sub drawView {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->exposed() ) {
     $self->draw();
     $self->drawCursor();
@@ -566,16 +573,20 @@ sub drawView {    # void ()
 }
 
 sub exposed {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return TV::Views::View::Exposed::L0( $self );
 }
 
 sub focus {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $result = !!1;
 
   if ( !( $self->{state} & ( sfSelected | sfModal ) ) ) {
@@ -598,28 +609,32 @@ sub focus {    # $bool ()
 } #/ sub focus
 
 sub hideCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->setState( sfCursorVis, !!0 );
   return;
 }
 
 sub drawHide {    # void ($lastView|undef)
-  my ( $self, $lastView ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $lastView or blessed $lastView );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $lastView ) = $sig->( @_ );
   $self->drawCursor();
   $self->drawUnderView( ($self->{state} & sfShadow) != 0, $lastView );
   return;
 }
 
 sub drawShow {    # void ($lastView|undef)
-  my ( $self, $lastView ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $lastView or blessed $lastView );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $lastView ) = $sig->( @_ );
   $self->drawView();
   if ( $self->{state} & sfShadow ) {
     $self->drawUnderView( !!1, $lastView );
@@ -628,12 +643,12 @@ sub drawShow {    # void ($lastView|undef)
 }
 
 sub drawUnderRect {    # void ($r, $lastView|undef)
-  my ( $self, $r, $lastView ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( ref $r );
-  assert ( !defined $lastView or blessed $lastView );
-  assert ( blessed $self->{owner} );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Maybe[Object]],
+  );
+  my ( $self, $r, $lastView ) = $sig->( @_ );
+  assert ( is_Object $self->{owner} );
   $self->{owner}{clip}->intersect( $r );
   $self->{owner}->drawSubViews( $self->nextView(), $lastView );
   $self->{owner}{clip} = $self->{owner}->getExtent();
@@ -641,11 +656,11 @@ sub drawUnderRect {    # void ($r, $lastView|undef)
 }
 
 sub drawUnderView {    # void ($doShadow, $lastView|undef)
-  my ( $self, $doShadow, $lastView ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( !defined $doShadow or !ref $doShadow );
-  assert ( !defined $lastView or blessed $lastView );
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool, Maybe[Object]],
+  );
+  my ( $self, $doShadow, $lastView ) = $sig->( @_ );
   my $r = $self->getBounds();
   if ( $doShadow ) {
     $r->{b} += $shadowSize;
@@ -655,61 +670,77 @@ sub drawUnderView {    # void ($doShadow, $lastView|undef)
 }
 
 sub dataSize {    # $size ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return 0;
 }
 
 sub getData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  $sig->( @_ );
   return;
 }
 
 sub setData {    # void ($rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  $sig->( @_ );
   return;
 }
 
 sub awaken {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return;
 }
 
 sub blockCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->setState( sfCursorIns, !!1 );
   return;
 }
 
 sub normalCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->setState( sfCursorIns, !!0 );
   return;
 }
 
 sub resetCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   TV::Views::View::Cursor::resetCursor( $self );
   return;
 }
 
 sub setCursor {    # void ($x, $y)
-  my ( $self, $x, $y ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int],
+  );
+  my ( $self, $x, $y ) = $sig->( @_ );
   $self->{cursor}{x} = $x;
   $self->{cursor}{y} = $y;
   $self->drawCursor();
@@ -717,17 +748,21 @@ sub setCursor {    # void ($x, $y)
 }
 
 sub showCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->setState( sfCursorVis, !!1 );
   return;
 }
 
 sub drawCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( $self->{state} & sfFocused ) {
     $self->resetCursor();
   }
@@ -735,19 +770,22 @@ sub drawCursor {    # void ()
 }
 
 sub clearEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $event->{what}    = evNothing;
   $event->{message} = MessageEvent->new( infoPtr => $self );
   return;
 }
 
 sub eventAvail {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $event = TEvent->new();
   $self->getEvent( $event );
   if ( $event->{what} != evNothing ) {
@@ -757,21 +795,22 @@ sub eventAvail {    # $bool ()
 }
 
 sub getEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
-  if ( $self->{owner} ) {
-    $self->{owner}->getEvent( $event );
-  }
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
+  $self->{owner}->getEvent( $event )
+    if $self->{owner};
   return;
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   if ( $event->{what} == evMouseDown ) {
     if ( !( $self->{state} & ( sfSelected | sfDisabled ) )
       && ( $self->{options} & ofSelectable )
@@ -785,89 +824,97 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub putEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->{owner}->putEvent( $event )
     if $self->{owner};
   return;
 }
 
 sub commandEnabled {    # $bool ($command)
-  my ( $class, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => 1,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $class, $command ) = $sig->( @_ );
   return ( $command > 255 ) || $curCommandSet->has( $command );
 }
 
 sub disableCommands {    # void ($commands)
-  my ( $class, $commands ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( blessed $commands );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $commands ) = $sig->( @_ );
   $commandSetChanged ||= !( $curCommandSet & $commands )->isEmpty();
   $curCommandSet->disableCmd( $commands );
   return;
 }
 
 sub enableCommands {    # void ($commands)
-  my ( $class, $commands ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( blessed $commands );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $commands ) = $sig->( @_ );
   $commandSetChanged ||= ( $curCommandSet & $commands ) != $commands;
   $curCommandSet += $commands;
-  assert ( blessed $curCommandSet );
+  assert ( is_Object $curCommandSet );
   return;
 }
 
 sub disableCommand {    # void ($command)
-  my ( $class, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => 1,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $class, $command ) = $sig->( @_ );
   $commandSetChanged ||= $curCommandSet->has( $command );
   $curCommandSet->disableCmd( $command );
   return;
 }
 
 sub enableCommand {    # void ($command)
-  my ( $class, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => 1,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $class, $command ) = $sig->( @_ );
   $commandSetChanged ||= !$curCommandSet->has( $command );
   $curCommandSet += $command;
   return;
 }
 
 sub getCommands {    # void ($commands)
-  my ( $class, $commands ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( blessed $commands );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $commands ) = $sig->( @_ );
   @$commands = @$curCommandSet;
   return;
 }
 
 sub setCommands {    # void ($commands)
-  my ( $class, $commands ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( blessed $commands );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $commands ) = $sig->( @_ );
   $commandSetChanged ||= $curCommandSet != $commands;
   @$curCommandSet = @$commands;
   return;
 }
 
 sub setCmdState {    # void ($commands, $enable)
-  my ( $class, $commands, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( $class );
-  assert ( blessed $commands );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Bool],
+  );
+  my ( $class, $commands, $enable ) = $sig->( @_ );
   $enable
     ? $class->enableCommands( $commands )
     : $class->disableCommands( $commands );
@@ -875,10 +922,11 @@ sub setCmdState {    # void ($commands, $enable)
 }
 
 sub endModal {    # void ($command)
-  my ( $self, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $command ) = $sig->( @_ );
   if ( $self->TopView() ) {
     $self->TopView()->endModal( $command );
   }
@@ -886,17 +934,20 @@ sub endModal {    # void ($command)
 }
 
 sub execute {    # $cmd ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return cmCancel;
 }
 
 sub getColor {    # $int ($color)
-  my ( $self, $color ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $color );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $color ) = $sig->( @_ );
   my $colorPair = $color >> 8;
 
   if ( $colorPair != 0 ) {
@@ -906,22 +957,24 @@ sub getColor {    # $int ($color)
   $colorPair |= $self->mapColor( $color & 0xff );
 
   return $colorPair;
-} #/ sub getColor
+}
 
-my $palette; 
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new( data => "\0", size => 0 );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new( data => "\0", size => 0 );
   return $palette->clone();
 }
 
 sub mapColor {    # $int ($color)
-  my ( $self, $color ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $color );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $color ) = $sig->( @_ );
 
   return $errorAttr
     unless $color;
@@ -944,17 +997,20 @@ sub mapColor {    # $int ($color)
 } #/ sub mapColor
 
 sub getState {    # $bool ($aState)
-  my ( $self, $aState ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $aState ) = $sig->( @_ );
   return ( $self->{state} & $aState ) == $aState;
 }
 
 sub select {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return
     unless $self->{options} & ofSelectable;
   if ( $self->{options} & ofTopSelect ) {
@@ -967,11 +1023,11 @@ sub select {    # void ()
 } #/ sub select
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
 
   if ( $enable ) {
     $self->{state} |= $aState;
@@ -1023,10 +1079,11 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub keyEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   do {
     $self->getEvent( $event );
   } while ( $event->{what} != evKeyDown );
@@ -1034,11 +1091,11 @@ sub keyEvent {    # void ($event)
 }
 
 sub mouseEvent { # bool ($event, $mask)
-  my ( $self, $event, $mask ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $event );
-  assert ( looks_like_number $mask );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, PositiveOrZeroInt],
+  );
+  my ( $self, $event, $mask ) = $sig->( @_ );
   do {
     $self->getEvent( $event );
   } while ( !( $event->{what} & ( $mask | evMouseUp ) ) );
@@ -1047,10 +1104,11 @@ sub mouseEvent { # bool ($event, $mask)
 }
 
 sub makeGlobal {    # $point ($source)
-  my ( $self, $source ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $source );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $source ) = $sig->( @_ );
   my $temp = $source + $self->{origin};
   my $cur  = $self;
   while ( $cur->{owner} ) {
@@ -1061,10 +1119,11 @@ sub makeGlobal {    # $point ($source)
 } #/ sub makeGlobal
 
 sub makeLocal {    # $point ($source)
-  my ( $self, $source ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $source );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $source ) = $sig->( @_ );
   my $temp = $source - $self->{origin};
   my $cur  = $self;
   while ( $cur->{owner} ) {
@@ -1075,9 +1134,11 @@ sub makeLocal {    # $point ($source)
 } #/ sub makeLocal
 
 sub nextView {    # $view|undef ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   no warnings qw( uninitialized numeric );
   return !$self->{owner} || $self == $self->{owner}{last}
     ? undef
@@ -1085,9 +1146,11 @@ sub nextView {    # $view|undef ()
 }
 
 sub prevView {    # $view|undef ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   no warnings qw( uninitialized numeric );
   return !$self->{owner} || $self == $self->{owner}->first()
     ? undef 
@@ -1095,9 +1158,11 @@ sub prevView {    # $view|undef ()
 }
 
 sub prev {    # $view|undef ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   no warnings qw( uninitialized numeric );
   my $res = $self;
   while ( $res->{next} != $self ) {
@@ -1108,32 +1173,42 @@ sub prev {    # $view|undef ()
 }
 
 sub next {    # $view|undef (|$view|undef)
-  my ( $self, $view ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $view or blessed $view );
-  if ( @_ == 2 ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $view ) = $sig->( @_ );
+  goto SET if @_ > 1;
+  GET: {
+    return $self->{next};
+  }
+  SET: {
     $unlock_value->( $self->{next} ) if STRICT;
     $self->{next} = $view;
     $lock_value->( $self->{next} ) if STRICT;
+    return;
   }
-  return $self->{next};
 } #/ sub next
 
 sub makeFirst {    # $void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->putInFrontOf( $self->{owner}->first() )
     if $self->{owner};
   return;
 }
 
 sub putInFrontOf {    # void ($target|undef)
-  my ( $self, $target ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $target or blessed $target );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $target ) = $sig->( @_ );
   no warnings qw( uninitialized numeric );
 
   if ( $self->{owner}
@@ -1169,9 +1244,11 @@ sub putInFrontOf {    # void ($target|undef)
 } #/ sub putInFrontOf
 
 sub TopView {    # $view ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $TheTopView
     if $TheTopView;
 
@@ -1183,14 +1260,11 @@ sub TopView {    # $view ()
 } #/ sub TopView
 
 sub writeBuf {    # void ($x, $y, $w, $h, $b)
-  my ( $self, $x, $y, $w, $h, $b ) = @_;
-  assert ( @_ == 6 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
-  assert ( looks_like_number $w );
-  assert ( looks_like_number $h );
-  assert ( ref $b );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Int, Int, ArrayLike],
+  );
+  my ( $self, $x, $y, $w, $h, $b ) = $sig->( @_ );
   while ( $h-- > 0 ) {
     $self->$writeView( $x, $y++, $w, $b );
     alias: $b = sub { \@_ }->( @$b[ $w .. $#$b ] );
@@ -1199,19 +1273,20 @@ sub writeBuf {    # void ($x, $y, $w, $h, $b)
 }
 
 my $setCell = sub {    # void ($cell, $ch, $attr)
+  assert ( @_ == 3 );
+  assert ( is_ScalarRef \$_[0] );
+  assert ( is_Int $_[1] );
+  assert ( is_Int $_[2] );
   $_[0] = ( ( $_[2] & 0xff ) << 8 ) | $_[1] & 0xff;
   return;
 };
 
 sub writeChar {    # void ($x, $y, $c, $color, $count)
-  my ( $self, $x, $y, $c, $color, $count ) = @_;
-  assert ( @_ == 6 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
-  assert ( !ref $c and length $c );
-  assert ( looks_like_number $color );
-  assert ( looks_like_number $count );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Str, PositiveOrZeroInt, Int],
+  );
+  my ( $self, $x, $y, $c, $color, $count ) = $sig->( @_ );
   my $attr = $self->mapColor( $color );
   if ( $count > 0 ) {
     $setCell->( my $cell, ord( $c ), $attr );
@@ -1222,14 +1297,11 @@ sub writeChar {    # void ($x, $y, $c, $color, $count)
 }
 
 sub writeLine {    # void ($x, $y, $w, $h, $b)
-  my ( $self, $x, $y, $w, $h, $b ) = @_;
-  assert ( @_ == 6 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
-  assert ( looks_like_number $w );
-  assert ( looks_like_number $h );
-  assert ( ref $b );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Int, Int, ArrayLike],
+  );
+  my ( $self, $x, $y, $w, $h, $b ) = $sig->( @_ );
   while ( $h-- > 0 ) {
     $self->$writeView( $x, $y++, $w, $b );
   }
@@ -1237,13 +1309,11 @@ sub writeLine {    # void ($x, $y, $w, $h, $b)
 }
 
 sub writeStr {    # void ($x, $y, $str, $color)
-  my ( $self, $x, $y, $str, $color ) = @_;
-  assert ( @_ == 5 );
-  assert ( blessed $self );
-  assert ( looks_like_number $x );
-  assert ( looks_like_number $y );
-  assert ( !ref $str );
-  assert ( looks_like_number $color );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int, Int, Str, PositiveOrZeroInt],
+  );
+  my ( $self, $x, $y, $str, $color ) = $sig->( @_ );
   if ( $str ) {
     my $length = length( $str );
     if ( $length > 0 ) {
@@ -1261,23 +1331,32 @@ sub writeStr {    # void ($x, $y, $str, $color)
 } #/ sub writeStr
 
 sub owner {    # $group|undef (|$group|undef)
-  my ( $self, $group ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $group or blessed $group );
-  if ( @_ == 2 ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $group ) = $sig->( @_ );
+  goto SET if @_ > 1;
+  GET: {
+    return $self->{owner};
+  }
+  SET: {
     $unlock_value->( $self->{owner} ) if STRICT;
     weaken $self->{owner}
       if $self->{owner} = $group;
     $lock_value->( $self->{owner} ) if STRICT;
   }
-  return $self->{owner};
-} #/ sub owner
+  return;
+}
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->hide();
   if ( $self->{owner} ) {
     $self->{owner}->remove( $self );
@@ -1288,6 +1367,14 @@ sub shutDown {    # void ()
 
 $moveGrow = sub {
   my ( $self, $p, $s, $limits, $minSize, $maxSize, $mode ) = @_;
+  assert ( @_ == 7 );
+  assert ( is_Object $self );
+  assert ( is_Object $p );
+  assert ( is_Object $s );
+  assert ( is_HashLike $limits );
+  assert ( is_HashLike $minSize );
+  assert ( is_HashLike $maxSize );
+  assert ( is_PositiveOrZeroInt $mode );
 
   $p = $p->clone();
   $s = $s->clone();
@@ -1328,6 +1415,13 @@ $moveGrow = sub {
 
 $change = sub {    # void ($mode, $delta, $p, $s, $ctrlState)
   my ( $self, $mode, $delta, $p, $s, $ctrlState ) = @_;
+  assert ( @_ == 6 );
+  assert ( is_Object $self );
+  assert ( is_PositiveOrZeroInt $mode );
+  assert ( is_Object $delta );
+  assert ( is_Object $p );
+  assert ( is_Object $s );
+  assert ( is_PositiveOrZeroInt $ctrlState );
   if ( ( $mode & dmDragMove ) && !( $ctrlState & !kbShift ) ) {
     $p += $delta;
   }
@@ -1335,10 +1429,16 @@ $change = sub {    # void ($mode, $delta, $p, $s, $ctrlState)
     $s += $delta;
   }
   return;
-}; #/ sub
+};
 
 $writeView = sub {    # void ($x, $y, $count, $b)
   my ( $self, $x, $y, $count, $b ) = @_;
+  assert ( @_ == 5 );
+  assert ( is_Object $self );
+  assert ( is_Int $x );
+  assert ( is_Int $y );
+  assert ( is_Int $count );
+  assert ( is_ArrayLike $b );
   TV::Views::View::Write::L0( $self, $x, $y, $count, $b );
   return;
 };
