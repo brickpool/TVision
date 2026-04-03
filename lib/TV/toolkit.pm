@@ -93,7 +93,7 @@ sub extends {
 # Adds the 'has' keyword to the class
 sub _install_has {    # void ($target)
   my ( $proto, $name ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->have_accessors( 'has' );
   return;
@@ -102,7 +102,7 @@ sub _install_has {    # void ($target)
 # Create a constructor for the specified target
 sub _create_constructor {    # void ($target)
   my ( $proto ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->create_constructor();
   return;
@@ -110,7 +110,7 @@ sub _create_constructor {    # void ($target)
 
 sub _init_class {    # void ($target)
   my ( $proto ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = TV::toolkit::LOP->init( ref $proto || $proto );
   $target->warnings_strict();
   return;
@@ -119,7 +119,7 @@ sub _init_class {    # void ($target)
 # Injects 'extends' keyword to the class
 sub _import_extends {    # void ($target)
   my ( $proto ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = ref $proto || $proto;
   my $me = TV::toolkit::LOP->init( __PACKAGE__ );
   $me->import_methods( $target => 'extends' );
@@ -129,9 +129,9 @@ sub _import_extends {    # void ($target)
 # Adds a new method to an existing class
 sub _create_method {    # void ($class, $name, \&code)
   my ( $class, $name, $code ) = @_;
-  assert { defined $class and !ref $class };
-  assert { defined $name and !ref $name };
-  assert { defined $code and ref $code eq 'CODE' };
+  assert ( defined $class and !ref $class );
+  assert ( defined $name and !ref $name );
+  assert ( defined $code and ref $code eq 'CODE' );
 
   no strict 'refs';
   unless ( %{"${class}::"} ) {
@@ -145,8 +145,8 @@ sub _create_method {    # void ($class, $name, \&code)
 # Remove symbol slot from class
 sub _delete_method {    # void ($class, $name)
   my ( $class, $name ) = @_;
-  assert { defined $class and !ref $class };
-  assert { defined $name and !ref $name };
+  assert ( defined $class and !ref $class );
+  assert ( defined $name and !ref $name );
 
   no strict 'refs';
   if ( exists ${"${class}::"}{$name} ) {
@@ -158,9 +158,9 @@ sub _delete_method {    # void ($class, $name)
 # An around method modifier without checking of an existing method
 sub _around_hook {    # void ($class, $name, \&code)
   my ( $class, $name, $code ) = @_;
-  assert { defined $class and !ref $class };
-  assert { defined $name and !ref $name };
-  assert { defined $code and ref $code eq 'CODE' };
+  assert ( defined $class and !ref $class );
+  assert ( defined $name and !ref $name );
+  assert ( defined $code and ref $code eq 'CODE' );
 
   my $orig = $class->can($name);
   unless ( $orig ) {
@@ -189,7 +189,7 @@ sub _my_moos_has {    # $return (\&orig, $self, @_)
 
 sub _add_dump {    # void ($target)
   my ( $proto ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = ref $proto || $proto;
   _create_method( $target, 
     dump => sub {
@@ -208,7 +208,7 @@ sub _add_dump {    # void ($target)
 
 sub _add_demolish {    # void ($target)
   my ( $proto ) = @_;
-  assert { $proto };
+  assert ( $proto );
   my $target = ref $proto || $proto;
   return if $target->can( 'DESTROY' );
   _create_method( $target, 

@@ -7,11 +7,13 @@ use Test::Exception;
 BEGIN {
   # Force assertions ON
   $ENV{PERL_STRICT} = 1;
+  $ENV{PERLX_ASSERT_PP_FILTER} = 1;
   use_ok 'PerlX::Assert::PP', qw( -check );
 }
 
 ok( $PerlX::Assert::PP::CHECK, '$CHECK is enabled via "-check"' );
 ok( PerlX::Assert::PP::STRICT(), 'STRICT is enabled via %ENV' );
+ok( PerlX::Assert::PP::ASSERT_BLOCK(), 'FILTER is enabled via %ENV' );
 
 subtest 'Simple assertion without a name' => sub {
   my $x;

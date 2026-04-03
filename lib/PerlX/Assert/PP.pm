@@ -4,18 +4,23 @@ package PerlX::Assert::PP;
 use strict;
 use warnings;
 
-our $VERSION   = '0.03';
+our $VERSION   = '0.04';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-use B;
 use Carp ();
-use Filter::Simple;
-use Text::Balanced qw(
+
+our @EXPORT = qw( assert );
+
+# Enables or disables the source filter for block-style assertions
+use constant ASSERT_BLOCK => exists $ENV{PERLX_ASSERT_PP_FILTER} 
+                                 && $ENV{PERLX_ASSERT_PP_FILTER};
+
+use if ASSERT_BLOCK, 'B';
+use if ASSERT_BLOCK, 'Filter::Simple';
+use if ASSERT_BLOCK, 'Text::Balanced', qw(
   extract_quotelike
   extract_codeblock
 );
-
-our @EXPORT = qw( assert );
 
 # Assertions are enabled if either STRICT is true or -check was used
 use constant STRICT => !!grep { exists $ENV{$_} && $ENV{$_} } qw(
@@ -25,6 +30,7 @@ use constant STRICT => !!grep { exists $ENV{$_} && $ENV{$_} } qw(
   RELEASE_TESTING
 );
 
+# Debug mode
 use constant DEBUG => do {
   no warnings 'uninitialized';
   0+( exists $ENV{PERLX_ASSERT_PP_DEBUG} ? $ENV{PERLX_ASSERT_PP_DEBUG} : 0 );
@@ -114,8 +120,13 @@ sub assert ($;$) {
 #   assert "name" { BLOCK };    -> assert "name", do { BLOCK };
 # -------------------------------------------------------------------------
 
-FILTER_ONLY executable => sub {
+FILTER_ONLY( executable => sub {
   my $src = $_;
+
+  unless ( index($src, 'assert') >= 0 ) {
+    DEBUG and warn("quick bailout: no 'assert'\n");
+    return;
+  }
 
   my $scan = mask_strings_and_comments( $src );
   DEBUG & PHASE_MASK and do {
@@ -143,7 +154,7 @@ FILTER_ONLY executable => sub {
     warn "--- DIFF ---\n$diff\n";
     warn "=== END INJECT DEBUG ===\n";
   };
-};
+} ) if ASSERT_BLOCK;
 
 # -------------------------------------------------------------------------
 # Masking: masks all sections of the source string that contain 
@@ -155,7 +166,7 @@ sub mask_strings_and_comments {
   my $out = '';
 
   while ( length $src ) {
-    if ( $src =~ /(["'])|\bq[qwrx]?/ ) {
+    if ( $src =~ /(?<!\w)(["'`]|q[qwxr]?)/ ) {
       my $idx = $-[0];
       DEBUG & PHASE_MASK and do {
         warn "[MASK]: next quote-like at index $idx\n";
@@ -192,7 +203,7 @@ sub mask_strings_and_comments {
   } #/ while ( length $src )
 
   # masking all comments
-  $out =~ s/#.*$/ ' ' x length($&) /egm;
+  $out =~ s{(^|(?<=\s))\#.*$}{ $1 . (' ' x (length($&) - length($1))) }egm;
 
   return $out;
 }
@@ -402,12 +413,27 @@ production.
 
 =head1 FILTER BEHAVIOUR
 
-At compile time, this module installs a L<Filter::Simple> source filter that
-rewrites:
+The environment variable C<PERLX_ASSERT_PP_FILTER> enables or disables a 
+source filter for block-style assertions.
 
+By default, C<PerlX::Assert::PP> operates in a fast, lightweight mode:
+only the expression-style assertions are supported:
+
+  assert EXPR;
+  assert "name", EXPR;
+
+In this mode, no source filter is loaded. This avoids the compile-time
+overhead associated with C<Filter::Simple> and C<Text::Balanced>, and is
+suitable for large code bases or performance-sensitive environments.
+
+If the environment variable C<PERLX_ASSERT_PP_FILTER> is set to a true
+value, the module activates its source filter. This enables the block
+assertion syntax:
+
+  assert { BLOCK };
   assert "name" { BLOCK };
 
-into the form required by the C<($;$)> prototype:
+When enabled, block assertions are rewritten at compile time into:
 
   assert "name", do { BLOCK };
 
@@ -426,6 +452,15 @@ structures. However, as with all source filters, complex quoting constructs,
 macro-like expansions, or heavy syntax extensions may cause unexpected
 behaviour. If a stable, filter-free solution is required, consider using the
 original XS-based L<PerlX::Assert> by Toby Inkster.
+
+B<Note>: that enabling the filter introduces additional compile-time cost,
+because the filter inspects and rewrites the source code. For this
+reason, it is disabled by default.
+
+Examples:
+
+  $ perl script.pl                            # fast mode, no block assertions
+  $ PERLX_ASSERT_PP_FILTER=1 perl script.pl   # block assertions supported
 
 =head1 LIMITATIONS
 

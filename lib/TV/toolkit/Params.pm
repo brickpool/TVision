@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.08';
+our $VERSION   = '0.09';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 # ----------------------------------------------------------------------
@@ -755,6 +755,7 @@ sub _executor_pos_cold {    # \&executor (\%signature)
       $self = shift;
       eval { $method->{check}->( $self, $method->{name} ); 1 }
         or _croak( $@ );
+      $argc--;
       push @out, $self;
     }
 
@@ -765,7 +766,7 @@ sub _executor_pos_cold {    # \&executor (\%signature)
       my $val;
 
       # argument provided?
-      if ( $i + $offset < $argc ) {
+      if ( $i < $argc ) {
         $val = $_[$i];
       }
 
@@ -790,8 +791,8 @@ sub _executor_pos_cold {    # \&executor (\%signature)
 
     # Slurpy: arrayref or hashref of remaining args (empty is allowed)
     my $rest = [];
-    my $slurpy_ofs = $max_arity;
-    my $slurpy_len = $argc - $max_arity;
+    my $slurpy_ofs = scalar @params;
+    my $slurpy_len = $argc - $slurpy_ofs;
 
     if ( $slurpy_len > 0 ) {
       my $slurpy_is_hash = $slurpy->{is_hash};

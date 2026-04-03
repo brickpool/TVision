@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Scalar::Util qw(
@@ -466,8 +466,27 @@ sub Ref (;$) {
       my ( $inner ) = @_;
       return sub {
         my ( $ref ) = @_;
-        return !!0 unless is_Ref( $ref );
-        return !!0 unless $inner->check( $_ );
+        SWITCH: for ( ref $ref ) {
+          /SCALAR/ and do {
+            return !!0 unless $inner->check( $$ref );
+            last;
+          };
+          /ARRAY/ and do {
+            foreach ( @$ref ) { 
+              return !!0 unless $inner->check( $_ );
+            }
+            last;
+          };
+          /HASH/ and do {
+            foreach ( values %$ref ) { 
+              return !!0 unless $inner->check( $_ );
+            }
+            last;
+          };
+          DEFAULT: {
+            return !!0;
+          }
+        };
         return !!1;
       };
     },
@@ -493,7 +512,7 @@ sub ScalarRef (;$) {
       return sub {
         my ( $ref ) = @_;
         return !!0 unless is_ScalarRef( $ref );
-        return !!0 unless $inner->check( $_ );
+        return !!0 unless $inner->check( $$ref );
         return !!1;
       };
     },
