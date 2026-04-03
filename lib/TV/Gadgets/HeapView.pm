@@ -32,9 +32,10 @@ has oldMem  => ( is => 'bare' );
 has newMem  => ( is => 'bare' );
 has heapStr => ( is => 'bare' );
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert { blessed $self };
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( blessed $self );
   $self->{oldMem} = 0;
   $self->{newMem} = $self->heapSize();
   return;
@@ -42,8 +43,8 @@ sub BUILD {    # void (|\%args)
 
 sub draw {    # void ()
   my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  assert ( @_ == 1 );
+  assert ( blessed $self );
 
   my $buf = TDrawBuffer->new();
   my $c   = $self->getColor( 2 );
@@ -56,8 +57,8 @@ sub draw {    # void ()
 
 sub update {    # void ()
   my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  assert ( @_ == 1 );
+  assert ( blessed $self );
 
   if ( ( $self->{newMem} = $self->heapSize() ) != $self->{oldMem} ) {
     $self->{oldMem} = $self->{newMem};

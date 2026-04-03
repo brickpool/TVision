@@ -1,6 +1,7 @@
 package TV::Dialogs::StaticText;
 # ABSTRACT: Displays fixed text inside a Turbo Vision dialog
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,16 +15,12 @@ our @EXPORT = qw(
   new_TStaticText
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  readonly
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::Dialogs::Const qw( cpStaticText );
@@ -31,7 +28,6 @@ use TV::Views::Const qw( gfFixed );
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TStaticText() { __PACKAGE__ }
 sub name() { 'TStaticText' }
@@ -39,46 +35,53 @@ sub new_TStaticText { __PACKAGE__->from(@_) }
 
 extends TView;
 
-# declare attributes
-has text => ( is => 'ro' );
+# protected attributes
+has text => ( is => 'ro', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    text => { required => 1, defined => 1, default => '', strict_type => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+      text   => Str, { alias => 'aText' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{growMode} |= gfFixed;
   return;
 }
 
 sub from {    # $obj ($bounds, $aText)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], text => $_[1] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], text => $args[1] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{text} = undef;
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   my $color;
   my $center;
@@ -143,12 +146,13 @@ sub draw {    # void ()
   return;
 } #/ sub draw
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpStaticText, 
     size => length( cpStaticText ),
   );
@@ -156,20 +160,19 @@ sub getPalette {    # $palette ()
 }
 
 sub getText {    # void (\$s)
-  my ( $self, $s_ref ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $s_ref and !readonly $$s_ref );
-  alias: for my $s ( $$s_ref ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef],
+  );
+  my ( $self, $s ) = $sig->( @_ );
   if ( !$self->{text} ) {
-    $s = '';
+    $$s = '';
   }
   else {
-    $s = substr( $self->{text}, 0, 255 );
+    $$s = substr( $self->{text}, 0, 255 );
   }
   return;
-  } #/ alias: for my $s ( $$s_ref )
-} #/ sub getText
+}
 
 1
 

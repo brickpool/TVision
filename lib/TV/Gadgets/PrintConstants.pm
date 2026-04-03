@@ -20,8 +20,7 @@ our @EXPORT_OK = qw(
   printMouseEventFlags
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
 
 use TV::Drivers::Const qw(

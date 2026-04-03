@@ -1,6 +1,7 @@
 package TV::Dialogs::HistoryViewer;
 # ABSTRACT: THistoryViewer displays and manages input history in dialog boxes
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -17,18 +18,15 @@ our @EXPORT = qw(
 use Carp ();
 use List::Util qw( max );
 use PerlX::Assert::PP;
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  readonly
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
-use TV::Const qw( EOS );
-use TV::Dialogs::Const qw( cpHistoryViewer );
+use TV::Const                            qw( EOS );
+use TV::Dialogs::Const                   qw( cpHistoryViewer );
 use TV::Dialogs::HistoryViewer::HistList qw(
   historyCount
   historyStr
@@ -45,97 +43,109 @@ use TV::Views::Const qw(
 );
 use TV::Views::ListViewer;
 use TV::Views::Palette;
-use TV::toolkit;
 
-sub THistoryViewer() { __PACKAGE__ }
-sub new_THistoryViewer { __PACKAGE__->from(@_) }
+sub THistoryViewer()   { __PACKAGE__ }
+sub new_THistoryViewer { __PACKAGE__->from( @_ ) }
 
 extends TListViewer;
 
-# declare attributes
-has historyId => ( is => 'ro' );
+# protected attributes
+has historyId => ( is => 'ro', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert { $class and !ref $class };
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_, numCols => 1 );
-  my $args2 = check( {
-    # 'required' arguments
-    hScrollBar => { required => 1, allow => sub { blessed $_[0] } },
-    vScrollBar => { required => 1, allow => sub { blessed $_[0] } },
-    historyId  => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds     => Object,
+      hScrollBar => Object,            { alias => 'aHScrollBar' },
+      vScrollBar => Object,            { alias => 'aVScrollBar' },
+      historyId  => PositiveOrZeroInt, { alias => 'aHistoryId' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+  my $args2 = $class->SUPER::BUILDARGS(
+    bounds     => $args1->{bounds},
+    hScrollBar => $args1->{hScrollBar},
+    vScrollBar => $args1->{vScrollBar},
+    numCols    => 1,
+  );
   return { %$args1, %$args2 };
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert { blessed $self };
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->setRange( historyCount( $self->{historyId} ) );
-  $self->focusItem( 1 ) 
+  $self->focusItem( 1 )
     if $self->{range} > 1;
   $self->{hScrollBar}->setRange(
-    0, 
+    0,
     $self->historyWidth() - $self->{size}{x} + 3
   );
   return;
-}
+} #/ sub BUILD
 
 sub from {    # $obj ($bounds, $aHScrollBar, $aVScrollBar, $aHistoryId)
-  my $class = shift;
-  assert { $class and !ref $class };
-  assert { @_ == 4 };
-  return $class->new( bounds => $_[0], hScrollBar => $_[2], vScrollBar => $_[3], 
-    historyId => $_[4] );
-}
+  state $sig = signature(
+    method => 1,
+    pos    => [ Object, Object, Object, PositiveOrZeroInt ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], hScrollBar => $args[1], 
+    vScrollBar => $args[2], historyId  => $args[3] );
+} #/ sub from
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
-  $palette ||= TPalette->new(
-    data => cpHistoryViewer, 
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
+    data => cpHistoryViewer,
     size => length( cpHistoryViewer ),
   );
   return $palette->clone();
-}
+} #/ sub getPalette
 
 sub getText {    # void (\$dest, $item, $maxChars)
-  my ( $self, $dest_ref, $item, $maxChars ) = @_;
-  assert { @_ == 4 };
-  assert { blessed $self };
-  assert { ref $dest_ref and !readonly $$dest_ref };
-  assert { looks_like_number $item };
-  assert { looks_like_number $maxChars };
-  alias: for my $dest ( $$dest_ref ) {
+  state $sig = signature(
+    method => Object,
+    pos    => [ ScalarRef, Int, Int ],
+  );
+  my ( $self, $dest, $item, $maxChars ) = $sig->( @_ );
   my $str = historyStr( $self->{historyId}, $item );
-  $dest = $str ? substr( $str, 0, $maxChars ) : EOS;
+  $$dest = $str ? substr( $str, 0, $maxChars ) : EOS;
   return;
-  } #/ alias: for my $dest ( $$dest_ref )
-}
+} #/ sub getText
 
 sub handleEvent {    # void ($event)
   no warnings 'uninitialized';
-  my ( $self, $event ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { blessed $event };
-  if ( ( $event->{what} == evMouseDown 
-      && ( $event->{mouse}{eventFlags} & meDoubleClick ) )
-    || ( $event->{what} == evKeyDown 
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
+  if (
+    (
+      $event->{what} == evMouseDown && ( $event->{mouse}{eventFlags} & meDoubleClick )
+    )
+    || ( $event->{what} == evKeyDown
       && $event->{keyDown}{keyCode} == kbEnter )
-  ) {
+    )
+  {
     $self->endModal( cmOK );
     $self->clearEvent( $event );
-  }
+  } #/ if ( ( $event->{what} ...))
   elsif (
-      ( $event->{what} == evKeyDown 
-        && $event->{keyDown}{keyCode} == kbEsc )
-    || ( $event->{what} == evCommand 
-        && $event->{message}{command} == cmCancel )
-  ) {
+    ( $event->{what} == evKeyDown && $event->{keyDown}{keyCode} == kbEsc )
+    || ( $event->{what} == evCommand
+      && $event->{message}{command} == cmCancel )
+    )
+  {
     $self->endModal( cmCancel );
     $self->clearEvent( $event );
   }
@@ -143,19 +153,21 @@ sub handleEvent {    # void ($event)
     $self->SUPER::handleEvent( $event );
   }
   return;
-}
+} #/ sub handleEvent
 
 sub historyWidth {    # $width ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
-  my $width = 0;
-  my $count = historyCount( $self->{historyId} );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  my $width    = 0;
+  my $count    = historyCount( $self->{historyId} );
   for ( my $i = 0 ; $i < $count ; $i++ ) {
     my $T = length( historyStr( $self->{historyId}, $i ) );
     $width = max( $width, $T );
   }
-   return $width;
-}
+  return $width;
+} #/ sub historyWidth
 
 1

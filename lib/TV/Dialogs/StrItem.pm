@@ -15,7 +15,7 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
 use Scalar::Util qw(
   blessed
@@ -54,6 +54,8 @@ sub from {    # $item ($aValue, $aNext|undef)
 }
 
 my $mk_ro_accessors = sub {
+  assert ( @_ == 1 );
+  assert ( defined $_[0] );
   my $pkg = shift;
   no strict 'refs';
   my %HAS = %{"${pkg}::HAS"};
@@ -64,8 +66,8 @@ my $mk_ro_accessors = sub {
       assert ( blessed $_[0] );
       $_[0]->{$field};
     };
-  } #/ for my $field ( keys %HAS)
-}; #/ $mk_ro_accessors = sub
+  }
+};
 
 __PACKAGE__->$mk_ro_accessors();
 

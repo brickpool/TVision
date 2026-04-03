@@ -1,6 +1,7 @@
 package TV::Dialogs::Cluster;
 # ABSTRACT: Cluster base control (check/radio style) for Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,17 +16,13 @@ our @EXPORT = qw(
   new_TCluster
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  reftype
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Dialogs::Const qw( cpCluster );
@@ -52,7 +49,6 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TCluster() { __PACKAGE__ }
 sub name() { 'TCluster' }
@@ -71,11 +67,11 @@ use vars qw(
   *specialChars = \${ TView . '::specialChars' };
 }
 
-# declare attributes
-has value      => ( is => 'ro' );
-has enableMask => ( is => 'ro' );
-has sel        => ( is => 'ro' );
-has strings    => ( is => 'ro' );
+# protected attributes
+has value      => ( is => 'ro', default => 0 );
+has enableMask => ( is => 'ro', default => 0xffff_ffff );
+has sel        => ( is => 'ro', default => 0 );
+has strings    => ( is => 'ro', default => sub { die 'required' } );
 
 # predeclare private methods
 my (
@@ -86,25 +82,22 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    value      => { default => 0,           no_override => 1 },
-    enableMask => { default => 0xffff_ffff, no_override => 1 },
-    sel        => { default => 0,           no_override => 1 },
-    strings    => { 
-      required => 1, 
-      allow => sub { !defined $_[0] or reftype $_[0] eq 'HASH' }
-    },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds  => Object,
+      strings => Maybe[HashLike], { alias => 'aStrings' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
 sub BUILD {    # void (\%args)
-  my $self = shift;
-  assert ( blessed $self );
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   my $aStrings = $self->{strings};
 
   $self->{options} = ofSelectable | ofFirstClick | ofPreProcess | ofPostProcess;
@@ -131,45 +124,49 @@ sub BUILD {    # void (\%args)
   return;
 } #/ sub BUILD
 
+sub from {    # $obj ($bounds, $aStrings|undef)
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Maybe[HashLike]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], strings => $args[1] );
+}
+
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{strings} = undef;
   return;
 } #/ sub DEMOLISH
 
-sub from {    # $obj ($bounds, $aStrings|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 2 );
-  return $class->new( bounds => $_[0], strings => $_[1] );
-}
-
 sub dataSize {    # $size ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
   return 1;
 }
 
 sub drawBox {    # void ($icon, $marker)
-  my ( $self, $icon, $marker ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( defined $icon and !ref $icon );
-  assert ( defined $marker and !ref $marker );
+  state $sig = signature(
+    method => Object,
+    pos    => [Str, Str],
+  );
+  my ( $self, $icon, $marker ) = $sig->( @_ );
   my $s = ' ' . substr( $marker, 0, 1 );
   $self->drawMultiBox( $icon, $s );
   return;
 } #/ sub drawBox
 
 sub drawMultiBox {    # void ($icon, $marker)
-  my ( $self, $icon, $marker ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( defined $icon and !ref $icon );
-  assert ( defined $marker and !ref $marker );
+  state $sig = signature(
+    method => Object,
+    pos    => [Str, Str],
+  );
+  my ( $self, $icon, $marker ) = $sig->( @_ );
 
   my $b = TDrawBuffer->new();
   my $color;
@@ -224,10 +221,11 @@ sub drawMultiBox {    # void ($icon, $marker)
 } #/ sub drawMultiBox
 
 sub getData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   $rec->[0] = $self->{value};
   $self->drawView();
   return;
@@ -235,28 +233,35 @@ sub getData {    # void (\@rec)
 
 sub getHelpCtx {    # $ctx ()
   no warnings 'uninitialized';
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{helpCtx} == hcNoContext
     ? hcNoContext
     : $self->{helpCtx} + $self->{sel};
 } #/ sub getHelpCtx
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new( data => cpCluster, size => length( cpCluster ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
+    data => cpCluster, 
+    size => length( cpCluster )
+  );
   return $palette->clone;
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
 
   $self->SUPER::handleEvent( $event );
   return unless $self->{options} & ofSelectable;
@@ -401,53 +406,58 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub mark {    # $bool ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return !!0;
 }
 
 sub multiMark {    # $int ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return $self->mark( $item ) ? 1 : 0;
 }
 
 sub press {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return;
 }
 
 sub movedTo {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return;
 }
 
 sub setData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   $self->{value} = 0+ $rec->[0];
   $self->drawView();
   return;
 } #/ sub setData
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   $self->SUPER::setState( $aState, $enable );
   if ( $aState == sfSelected ) {
     my $i = 0;
@@ -467,11 +477,11 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub setButtonState {    # void ($aMask, $enable)
-  my ( $self, $aMask, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aMask );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aMask, $enable ) = $sig->( @_ );
   if ( !$enable ) {
     $self->{enableMask} &= ~$aMask;
   }
@@ -494,6 +504,9 @@ sub setButtonState {    # void ($aMask, $enable)
 
 $column = sub {    # $col ($item)
   my ( $self, $item ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Int $item );
   if ( $item < $self->{size}{y} ) {
     return 0;
   }
@@ -518,6 +531,9 @@ $column = sub {    # $col ($item)
 
 $findSel = sub {    # $index ($p)
   my ( $self, $p ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $p );
   my $r = $self->getExtent();
   if ( !$r->contains( $p ) ) {
     return -1;
@@ -536,11 +552,18 @@ $findSel = sub {    # $index ($p)
 
 $row = sub {    # $row ($item)
   my ( $self, $item ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Int $item );
   return $item % $self->{size}{y};
 };
 
 $moveSel = sub {    # void ($i, $s)
   my ( $self, $i, $s ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Int $i );
+  assert ( is_Int $s );
   if ( $i <= $self->{strings}->getCount() ) {
     $self->{sel} = $s;
     $self->movedTo( $self->{sel} );
@@ -550,10 +573,11 @@ $moveSel = sub {    # void ($i, $s)
 };
 
 sub buttonState {    # $bool ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return !!0 if $item < 0 || $item >= 32;
   my $mask = ( 1 << $item );
   return !!( $self->{enableMask} & $mask );
@@ -729,11 +753,19 @@ Handles state changes and moves the selection if required.
 
 =back
 
+=head1 CONTRIBUTORS
+
+=over
+
+=item Eric Woodruff
+
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright (c) 1990-1994, 1997 by Borland International
 
-Copyright (c) 2026 the L</AUTHORS> as listed above.
+Copyright (c) 1994, 2026 the L</AUTHORS> and L</CONTRIBUTORS> as listed above.
 
 This software is licensed under the MIT license (see the LICENSE file, which is 
 part of the distribution). 

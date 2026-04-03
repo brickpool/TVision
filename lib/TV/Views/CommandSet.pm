@@ -1,6 +1,7 @@
 package TV::Views::CommandSet;
 # ABSTRACT: A class for managing command sets in Turbo Vision 2.0.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,103 +15,139 @@ our @EXPORT = qw(
   new_TCommandSet
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 sub TCommandSet() { __PACKAGE__ }
 sub new_TCommandSet { __PACKAGE__->from(@_) }
 
 my $loc = sub {    # $int ($cmd)
+  assert ( @_ == 1 );
+  assert ( is_PositiveOrZeroInt $_[0] );
   int( $_[0] / 8 ) % 32;
 };
 
 my $mask = sub {    # $int ($cmd)
+  assert ( @_ == 1 );
+  assert ( is_PositiveOrZeroInt $_[0] );
   1 << ( $_[0] % 8 );
 };
 
 my $disable_cmd = sub {    # void ($cmd)
   my ( $self, $cmd ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_PositiveOrZeroInt $cmd );
   $self->[ $loc->( $cmd ) ] &= ~$mask->( $cmd );
   return;
 };
 
 my $enable_cmd = sub {    # void ($cmd)
   my ( $self, $cmd ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_PositiveOrZeroInt $cmd );
   $self->[ $loc->( $cmd ) ] |= $mask->( $cmd );
   return;
 };
 
 my $disable_cmd_set = sub {    # void ($tc)
   my ( $self, $tc ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $tc );
   $self->[$_] &= ~$tc->[$_] for 0 .. 31;
   return;
 };
 
 my $enable_cmd_set = sub {    # void ($tc)
   my ( $self, $tc ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $tc );
   $self->[$_] |= $tc->[$_] for 0 .. 31;
   return;
 };
 
 sub new {    # $obj (%args)
-  my ( $class, %args ) = @_;
-  assert ( $class and !ref $class );
+  state $sig = signature(
+    method => 1,
+    named => [
+      copy_from => Maybe[Object], { optional => 1 }
+    ],
+  );
+  my ( $class, $args ) = $sig->( @_ );
   my $self = bless [ ( 0 ) x 32 ], $class;
-  @$self = @{ $args{copy_from} }
-    if exists $args{copy_from};
+  @$self = @{ $args->{copy_from} }
+    if defined $args->{copy_from};
   return $self;
-} #/ sub new
+}
 
 sub from {    # $obj (|$tc)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 0 && @_ <= 1 );
+  state $sig = signature(
+    method => 1,
+    pos => [ Object, { optional => 1 } ],
+  );
+  my ( $class, $tc ) = $sig->( @_ );
   SWITCH: for ( scalar @_ ) {
     $_ == 0 and return $class->new();
-    $_ == 1 and return $class->new( copy_from => $_[0] );
+    $_ == 1 and return $class->new( copy_from => $tc );
   }
   return;
 }
 
 sub clone {    # $clone ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => 1,
+    pos => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my @data = @$self;
   return bless [ @data ], ref $self;
 }
 
 sub has {    # $bool ($cmd)
-  my ( $self, $cmd ) = @_;
-  assert ( blessed $self );
-  assert ( looks_like_number $cmd );
+  state $sig = signature(
+    method => Object,
+    pos => [PositiveOrZeroInt],
+  );
+  my ( $self, $cmd ) = $sig->( @_ );
   return ( $self->[ $loc->( $cmd ) ] & $mask->( $cmd ) ) != 0;
 }
 
 sub disableCmd {    # void ($cmd|$tc)
-  assert ( blessed $_[0] );
-  assert ( ref $_[1] or looks_like_number $_[1] );
-  ref $_[1]
+  state $sig = signature(
+    method => Object,
+    pos => [Defined],
+  );
+  my ( $self, $arg ) = $sig->( @_ );
+  ref $arg
     ? goto &$disable_cmd_set
     : goto &$disable_cmd;
 }
 
 sub enableCmd {    # void ($cmd|$tc)
-  assert ( blessed $_[0] );
-  assert ( ref $_[1] or looks_like_number $_[1] );
-  ref $_[1]
+  state $sig = signature(
+    method => Object,
+    pos => [Defined],
+  );
+  my ( $self, $arg ) = $sig->( @_ );
+  ref $arg
     ? goto &$enable_cmd_set
     : goto &$enable_cmd;
 }
 
 sub isEmpty {    # $bool ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos => [],
+  );
+  my ( $self ) = $sig->( @_ );
   for ( 0 .. 31 ) {
     return !!0 if $self->[$_] != 0;
   }
@@ -118,27 +155,30 @@ sub isEmpty {    # $bool ()
 }
 
 sub intersect {    # $tc ($tc1, $tc2)
-  my ( $tc1, $tc2 ) = @_;
-  assert ( blessed $tc1 );
-  assert ( blessed $tc2 );
+  state $sig = signature(
+    pos => [Object, Object, Bool, { optional => 1 }],
+  );
+  my ( $tc1, $tc2 ) = $sig->( @_ );
   my $temp = $tc1->clone();
   $temp->intersect_assign( $tc2 );
   return $temp;
 }
 
 sub union {    # $tc ($tc1, $tc2)
-  my ( $tc1, $tc2 ) = @_;
-  assert ( blessed $tc1 );
-  assert ( blessed $tc2 );
+  state $sig = signature(
+    pos => [Object, Object, Bool, { optional => 1 }],
+  );
+  my ( $tc1, $tc2 ) = $sig->( @_ );
   my $temp = $tc1->clone();
   $temp->union_assign( $tc2 );
   return $temp;
 }
 
 sub equal {    # $bool ($tc1, $tc2)
-  my ( $tc1, $tc2 ) = @_;
-  assert ( blessed $tc1 );
-  assert ( blessed $tc2 );
+  state $sig = signature(
+    pos => [Object, Object, Bool, { optional => 1 }],
+  );
+  my ( $tc1, $tc2 ) = $sig->( @_ );
   for ( 0 .. 31 ) {
     return !!0 if $tc1->[$_] != $tc2->[$_];
   }
@@ -146,46 +186,57 @@ sub equal {    # $bool ($tc1, $tc2)
 }
 
 sub not_equal {    # $bool ($tc1, $tc2)
-  my ( $tc1, $tc2 ) = @_;
-  assert ( blessed $tc1 );
-  assert ( blessed $tc2 );
+  state $sig = signature(
+    pos => [Object, Object, Bool, { optional => 1 }],
+  );
+  my ( $tc1, $tc2 ) = $sig->( @_ );
   return !equal( $tc1, $tc2 );
 }
 
 sub include {    # $self ($cmd|$tc)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->enableCmd(@_); 
+  state $sig = signature(
+    method => Object,
+    pos => [Defined, Bool, { optional => 1 }],
+  );
+  my ( $self, $arg ) = $sig->( @_ );
+  $self->enableCmd( $arg ); 
   return $self;
 }
 
 sub exclude {    # $self ($cmd|$tc)
-  my $self = shift;
-  assert ( blessed $self );
-  $self->disableCmd(@_);
+  state $sig = signature(
+    method => Object,
+    pos => [Defined, Bool, { optional => 1 }],
+  );
+  my ( $self, $arg ) = $sig->( @_ );
+  $self->disableCmd( $arg );
   return $self;
 }
 
 sub intersect_assign {    # $self ($tc)
-  my ( $self, $tc ) = @_;
-  assert ( blessed $self );
-  assert ( blessed $tc );
+  state $sig = signature(
+    pos => [Object, Object],
+  );
+  my ( $self, $tc ) = $sig->( @_ );
   $self->[$_] &= $tc->[$_] for 0 .. 31;
   return $self;
 }
 
 sub union_assign {    # $self ($tc)
-  my ( $self, $tc ) = @_;
-  assert ( blessed $self );
-  assert ( blessed $tc );
+  state $sig = signature(
+    pos => [Object, Object],
+  );
+  my ( $self, $tc ) = $sig->( @_ );
   $self->[$_] |= $tc->[$_] for 0 .. 31;
   return $self;
 }
 
 sub dump {    # $str ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $dump = "$self=";
   $dump .= join ':' => map { sprintf("%02x", $self->[$_]) } 0 .. 31;
   $dump .= "\n";

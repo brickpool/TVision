@@ -1,8 +1,10 @@
 package TV::Dialogs::History;
 # ABSTRACT: A TWindow-based history browser for TVision input controls
 
+use 5.010;
 use strict;
 use warnings;
+use utf8;
 
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -14,17 +16,13 @@ our @EXPORT = qw(
   new_THistory
 );
 
-use Carp ();
 use PerlX::Assert::PP;
-use Params::Check qw(
-  check
-  last_error
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
-use utf8;
 
 use TV::Dialogs::Const qw( 
   cmRecordHistory
@@ -48,7 +46,6 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub THistory() { __PACKAGE__ }
 sub name() { 'THistory' }
@@ -59,62 +56,74 @@ extends TView;
 # declare global variables
 our $icon = "\xDE~\x19~\xDD";    # cp437: "▐~↓~▌"
 
-# declare attributes
-has link      => ( is => 'ro' );
-has historyId => ( is => 'ro' );
+# protected attributes
+has link      => ( is => 'ro', default => sub { die 'required' } );
+has historyId => ( is => 'ro', default => sub { die 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert { $class and !ref $class };
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # 'required' attributes
-    link      => { required => 1, allow => sub { blessed $_[0] } },
-    historyId => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds    => Object,
+      link      => Object,            { alias => 'aLink' },
+      historyId => PositiveOrZeroInt, { alias => 'aHistoryId' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert { blessed $self };
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{options}   |= ofPostProcess;
   $self->{eventMask} |= evBroadcast;
   return;
 }
 
 sub from {    # $obj ($bounds, $aLink, $aHistoryId)
-  my $class = shift;
-  assert { $class and !ref $class };
-  assert { @_ == 3 };
-  return $class->new( bounds => $_[0], link => $_[1], historyId => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Object, PositiveOrZeroInt],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], link => $args[1], 
+    historyId => $args[2] );
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $b = TDrawBuffer->new();
   $b->moveCStr( 0, $icon, $self->getColor( 0x0102 ) );
   $self->writeLine( 0, 0, $self->{size}{x}, $self->{size}{y}, $b );
   return;
 }
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
-  $palette ||= TPalette->new( data => cpHistory, size => length( cpHistory ) );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
+    data => cpHistory,
+    size => length( cpHistory ),
+  );
   return $palette->clone();
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { blessed $event };
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
  
   my $historyWindow;
   my ( $r, $p );
@@ -169,10 +178,11 @@ sub handleEvent {    # void ($event)
 }
 
 sub initHistoryWindow {    # $historyWindow ($bounds)
-  my ( $self, $bounds ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { ref $bounds };
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   my $p = THistoryWindow->new(
     bounds    => $bounds,
     historyId => $self->{historyId},
@@ -182,18 +192,21 @@ sub initHistoryWindow {    # $historyWindow ($bounds)
 }
 
 sub recordHistory {    # void ($s)
-  my ( $self, $s ) = @_;
-  assert { @_ == 2 };
-  assert { blessed $self };
-  assert { defined $s and !ref $s };
+  state $sig = signature(
+    method => Object,
+    pos    => [Str],
+  );
+  my ( $self, $s ) = $sig->( @_ );
   historyAdd( $self->{historyId}, $s );
   return;
 }
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{link} = undef;
   $self->SUPER::shutDown();
   return;

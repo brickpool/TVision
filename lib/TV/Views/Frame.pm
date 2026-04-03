@@ -1,8 +1,10 @@
 package TV::Views::Frame;
 # ABSTRACT: Frame class used by windows in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
+use utf8;
 
 our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
@@ -14,15 +16,15 @@ our @EXPORT = qw(
   new_TFrame
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use Encode qw( encode );
 use List::Util qw( min max );
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  :is
+  :types
 );
-use utf8;
 
 use TV::Drivers::Const qw(
   :evXXXX
@@ -41,7 +43,6 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TFrame() { __PACKAGE__ }
 sub name() { 'TFrame' }
@@ -64,18 +65,21 @@ our $dragIcon   = encode('cp437' => "~─┘~");
 # import frameLine
 require TV::Views::Frame::Line;
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{growMode} = gfGrowHiX | gfGrowHiY;
   $self->{eventMask} |= evBroadcast | evMouseUp;
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my ( $cFrame, $cTitle );
   my ( $f, $i, $l, $width );
   my $b = TDrawBuffer->new();
@@ -158,23 +162,22 @@ sub draw {    # void ()
   return;
 } #/ sub draw
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
-    data => cpFrame, 
-    size => length( cpFrame ),
+  state $sig = signature(
+    method => Object,
+    pos    => [],
   );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new( data => cpFrame, size => length( cpFrame ) );
   return $palette->clone();
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->SUPER::handleEvent( $event );
   if ( $event->{what} == evMouseDown ) {
     my $mouse = $self->makeLocal( $event->{mouse}{where} );
@@ -229,24 +232,24 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   $self->SUPER::setState( $aState, $enable );
   if ( $aState & ( sfActive | sfDragging ) ) {
     $self->drawView();
   }
   return;
-} #/ sub setState
+}
 
 sub dragWindow {    # void ($event, $mode)
-  my ( $self, $event, $mode ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $event );
-  assert ( looks_like_number $mode );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, PositiveOrZeroInt],
+  );
+  my ( $self, $event, $mode ) = $sig->( @_ );
   my $limits = $self->{owner}{owner}->getExtent();
   my ( $min, $max ) = ( TPoint->new(), TPoint->new() );
   $self->{owner}->sizeLimits( $min, $max );
@@ -255,7 +258,7 @@ sub dragWindow {    # void ($event, $mode)
   );
   $self->clearEvent( $event );
   return;
-} #/ sub dragWindow
+}
 
 1
 

@@ -1,6 +1,7 @@
 package TV::Dialogs::InputLine;
 # ABSTRACT: Editable single-line text input control for Turbo Vision dialogs.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,17 +15,14 @@ our @EXPORT = qw(
   new_TInputLine
 );
 
-use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
 use List::Util qw( min max );
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Const qw( EOS );
@@ -51,7 +49,6 @@ use TV::Views::Const qw(
 use TV::Views::DrawBuffer;
 use TV::Views::Palette;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TInputLine() { __PACKAGE__ }
 sub name() { 'TInputLine' }
@@ -65,22 +62,23 @@ use constant CONTROL_Y => 25;
 our $rightArrow = "\x10";
 our $leftArrow  = "\x11";
 
-# declare attributes
-has data        => ( is => 'rw' );
-has maxLen      => ( is => 'ro' );
-has curPos      => ( is => 'rw' );
-has firstPos    => ( is => 'rw' );
-has selStart    => ( is => 'ro' );
-has selEnd      => ( is => 'ro' );
+# public attributes
+has data        => ( is => 'rw', default => '' );
+has maxLen      => ( is => 'ro', default => sub { die 'required' } );
+has curPos      => ( is => 'rw', default => 0 );
+has firstPos    => ( is => 'rw', default => 0 );
+has selStart    => ( is => 'ro', default => 0 );
+has selEnd      => ( is => 'ro', default => 0 );
 
-has validator   => ( is => 'ro' );
-has anchor      => ( is => 'ro' );
-has oldAnchor   => ( is => 'ro' );    # New to save another bit of state info
-has oldData     => ( is => 'ro' );
-has oldCurPos   => ( is => 'ro' );
-has oldFirstPos => ( is => 'ro' );
-has oldSelStart => ( is => 'ro' );
-has oldSelEnd   => ( is => 'ro' );
+# private attributes
+has validator   => ( is => 'bare' );
+has anchor      => ( is => 'bare', default => -1 );
+has oldAnchor   => ( is => 'bare', default => -1 );    # New to save state info
+has oldData     => ( is => 'bare', default => '' );
+has oldCurPos   => ( is => 'bare' );
+has oldFirstPos => ( is => 'bare' );
+has oldSelStart => ( is => 'bare' );
+has oldSelEnd   => ( is => 'bare' );
 
 # predeclare private methods
 my (
@@ -95,52 +93,46 @@ my (
 );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # init_args => undef
-    oldCurPos   => { no_override => 1 },
-    oldFirstPos => { no_override => 1 },
-    oldSelStart => { no_override => 1 },
-    oldSelEnd   => { no_override => 1 },
-    # set 'default' value, init_args => undef
-    data        => { default => '', no_override => 1 },
-    curPos      => { default => 0,  no_override => 1 },
-    firstPos    => { default => 0,  no_override => 1 },
-    selStart    => { default => 0,  no_override => 1 },
-    selEnd      => { default => 0,  no_override => 1 },
-    anchor      => { default => -1, no_override => 1 },
-    oldAnchor   => { default => -1, no_override => 1 },
-    oldData     => { default => '', no_override => 1 },
-    # note: 'validator' can be undef
-    validator => { allow => sub { !defined $_[0] or blessed $_[0] } },
-    # 'required' attributes
-    maxLen => { required => 1, defined => 1, allow => qr/^\d+$/ },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds    => Object,
+      maxLen    => Int,           { alias => 'aMaxLen' },
+      validator => Maybe[Object], { alias => 'aValid', optional => 1 },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{state} |= sfCursorVis;
   $self->{options} |= ofSelectable | ofFirstClick;
   return;
 }
 
 sub from {    # $obj ($bounds, $aMaxLen, |$aValid)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ >= 2 && @_ <= 3 );
-  return $class->new( bounds => $_[0], maxLen => $_[1], validator => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [
+      Object,
+      Int,
+      Maybe[Object], { optional => 1 }
+    ],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], maxLen => $args[1], 
+    validator => $args[2] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{data} = undef;
   $self->{oldData} = undef;
   $self->destroy( $self->{validator} );
@@ -148,9 +140,11 @@ sub DEMOLISH {    # void ($in_global_destruction)
 }
 
 sub dataSize {    # $dSize ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $dSize = 0;
 
   if ( $self->{validator} ) {
@@ -163,9 +157,11 @@ sub dataSize {    # $dSize ()
 } #/ sub dataSize
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   my ( $l, $r );
   my $b = TDrawBuffer->new();
@@ -198,24 +194,27 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub getData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   if ( !$self->{validator}
-    || !$self->{validator}->transfer( $self->{data}, $rec, vtGetData ) )
-  {
+    || !$self->{validator}->transfer( $self->{data}, $rec, vtGetData )
+  ) {
     assert ( $self->dataSize() );
     $rec->[0] = $self->{data};
   }
+  return;
 } #/ sub getData
 
-my $palette;
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $palette ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $palette = TPalette->new(
     data => cpInputLine, 
     size => length( cpInputLine ),
   );
@@ -223,10 +222,11 @@ sub getPalette {    # $palette ()
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   # Home, Left Arrow, Right Arrow, End, Ctrl-Left Arrow, Ctrl-Right Arrow
   my @padKeys = ( 0x47, 0x4b, 0x4d, 0x4f, 0x73, 0x74 );
   $self->SUPER::handleEvent( $event );
@@ -382,10 +382,11 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub selectAll {    # void ($enable)
-  my ( $self, $enable ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $enable or !ref $enable);
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool],
+  );
+  my ( $self, $enable ) = $sig->( @_ );
   $self->{selStart} = 0;
   if ( $enable ) {
     my $len = length( $self->{data} );
@@ -401,13 +402,14 @@ sub selectAll {    # void ($enable)
 } #/ sub selectAll
 
 sub setData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   if ( !$self->{validator}
-    || !$self->{validator}->transfer( $self->{data}, $rec, vtSetData ) )
-  {
+    || !$self->{validator}->transfer( $self->{data}, $rec, vtSetData )
+  ) {
     assert ( $self->dataSize() );
     assert ( defined $rec->[0] and !ref $rec->[0] );
     $self->{data} = substr( $rec->[0], 0, $self->{maxLen} );
@@ -417,25 +419,26 @@ sub setData {    # void (\@rec)
 } #/ sub setData
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   $self->SUPER::setState( $aState, $enable );
   if ( $aState == sfSelected
-    || ( $aState == sfActive && ( $self->{state} & sfSelected ) ) )
-  {
+    || ( $aState == sfActive && ( $self->{state} & sfSelected ) )
+  ) {
     $self->selectAll( $enable );
   }
   return;
 } #/ sub setState
 
 sub setValidator {    # void ($aValid|undef)
-  my ( $self, $aValid ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined or blessed $aValid );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $aValid ) = $sig->( @_ );
   if ( $self->{validator} ) {
     $self->destroy( $self->{validator} );
   }
@@ -445,6 +448,9 @@ sub setValidator {    # void ($aValid|undef)
 
 $canScroll = sub {    # bool ($delta)
   my ( $self, $delta ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Int $delta );
   if ( $delta < 0 ) {
     return $self->{firstPos} > 0;
   }
@@ -458,6 +464,9 @@ $canScroll = sub {    # bool ($delta)
 
 $mouseDelta = sub {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $event );
   my $mouse = $self->makeLocal( $event->{mouse}{where} );
 
   if ( $mouse->{x} <= 0 ) {
@@ -470,6 +479,9 @@ $mouseDelta = sub {    # void ($event)
 
 $mousePos = sub {    # void ($event)
   my ( $self, $event ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $event );
   my $mouse = $self->makeLocal( $event->{mouse}{where} );
   $mouse->{x} = max( $mouse->{x}, 1 );
   my $pos = $mouse->{x} + $self->{firstPos} - 1;
@@ -480,6 +492,8 @@ $mousePos = sub {    # void ($event)
 
 $deleteSelect = sub {    # void ()
   my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   if ( $self->{selStart} < $self->{selEnd} ) {
     substr( $self->{data}, $self->{selStart} ) =
       substr( $self->{data}, $self->{selEnd} );
@@ -490,6 +504,8 @@ $deleteSelect = sub {    # void ()
 
 $adjustSelectBlock = sub {    # void ()
   my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   if ( $self->{anchor} < 0 ) {
     $self->{selStart} = 0;
     $self->{selEnd}   = 0;
@@ -507,6 +523,8 @@ $adjustSelectBlock = sub {    # void ()
 
 $saveState = sub {   # void ()
   my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   if ( $self->{validator} ) {
     $self->{oldData}     = $self->{data};
     $self->{oldCurPos}   = $self->{curPos};
@@ -520,6 +538,8 @@ $saveState = sub {   # void ()
 
 $restoreState = sub {   # void ()
   my ( $self ) = @_;
+  assert ( @_ == 1 );
+  assert ( is_Object $self );
   if ( $self->{validator} ) {
     $self->{data}     = $self->{oldData};
     $self->{curPos}   = $self->{oldCurPos};
@@ -533,8 +553,9 @@ $restoreState = sub {   # void ()
 
 $checkValid = sub {   # $bool ($noAutoFill)
   my ( $self, $noAutoFill ) = @_;
-  assert ( blessed $self );
-  assert ( !defined $noAutoFill or !ref $noAutoFill );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Bool $noAutoFill );
   return !!1 unless $self->{validator};
   my $oldLen = length( $self->{data} );
   my $newData = $self->{data};

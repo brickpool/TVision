@@ -1,6 +1,7 @@
 package TV::Views::Window;
 # ABSTRACT: A base class for managing windows in Turbo Vision 2.0.
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,15 +16,12 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
-use Scalar::Util qw(
-  blessed
-  looks_like_number
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  is_Object
+  :types
 );
 
 use TV::App::Program;
@@ -49,7 +47,6 @@ use TV::Views::Group;
 use TV::Views::Palette;
 use TV::Views::ScrollBar;
 use TV::Views::WindowInit;
-use TV::toolkit;
 
 sub TWindow() { __PACKAGE__ }
 sub name() { 'TWindow' }
@@ -69,37 +66,35 @@ use vars qw(
   *appPalette = \${ TProgram . '::appPalette' };
 }
 
-# declare attributes
-has flags    => ( is => 'rw' );
+# public attributes
+has flags    => ( is => 'rw', default => wfMove | wfGrow | wfClose | wfZoom );
 has zoomRect => ( is => 'rw' );
-has number   => ( is => 'rw' );
-has palette  => ( is => 'rw' );
+has number   => ( is => 'rw', default => sub { 'required' } );
+has palette  => ( is => 'rw', default => wpBlueWindow );
 has frame    => ( is => 'rw' );
-has title    => ( is => 'rw' );
+has title    => ( is => 'rw', default => sub { 'required' } );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = TGroup->BUILDARGS( @_ );
-  my $args2 = check( {
-    # set 'default' values, init_args => undef
-    flags => { 
-      default     => wfMove | wfGrow | wfClose | wfZoom, 
-      no_override => 1,
-    },
-    palette => { default => wpBlueWindow, no_override => 1 },
-    # 'required' arguments
-    number => { required => 1, defined => 1, allow => qr/^\d+$/ },
-    title  => { required => 1, defined => 1, default => '', strict_type => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
+  state $sig = signature(
+    method => 1,
+    named => [
+      bounds => Object,
+      title  => Str, { alias => 'aTitle' },
+      number => Int, { alias => 'aNumber' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args1 ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
+  my $args2 = TGroup->BUILDARGS( bounds => $args1->{bounds} );
   my $args3 = TWindowInit->BUILDARGS( cFrame => $class->can( 'initFrame' ) );
   return { %$args1, %$args2, %$args3 };
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{zoomRect} = $self->getBounds();
 
   $self->{state}   |= sfShadow;
@@ -112,27 +107,33 @@ sub BUILD {    # void (|\%args)
     $self->insert( $self->{frame} );
   }
   return;
-} #/ sub new
+}
 
 sub from {    # $obj ($bounds, $aTitle, $aNumber)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 3 );
-  return $class->new( bounds => $_[0], title => $_[1], number => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, Str, Int],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], title => $args[1], 
+    number => $args[2] );
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
+  assert ( is_Object $self );
   $self->{title} = undef;
   return;
 }
 
 sub close {    # void ()
-  alias: for my $self ( $_[0] ) {    # Maybe we are destroying ourselves
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  alias: for $self ( $_[0] ) {    # Maybe we are destroying ourselves
   if ( $self->valid( cmClose ) ) {
     # so we don't try to use the frame after it's been deleted
     $self->{frame} = undef;
@@ -142,40 +143,43 @@ sub close {    # void ()
   } #/ alias
 }
 
-my ( $blue, $cyan, $gray, @palettes );
 sub getPalette {    # $palette ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $blue ||= TPalette->new(
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  state $blue = TPalette->new(
     data => cpBlueWindow,
     size => length( cpBlueWindow ) 
   );
-  $cyan ||= TPalette->new( 
+  state $cyan = TPalette->new( 
     data => cpCyanWindow,
     size => length( cpCyanWindow ) 
   );
-  $gray ||= TPalette->new( 
+  state $gray = TPalette->new( 
     data => cpGrayWindow,
     size => length( cpGrayWindow ) 
   );
-  @palettes = ( $blue, $cyan, $gray ) unless @palettes;
-  return $palettes[$appPalette]->clone();
+  state $palettes = [ $blue, $cyan, $gray ];
+  return $palettes->[$appPalette]->clone();
 } #/ sub getPalette
 
 sub getTitle {    # $str ($maxSize)
-  my ( $self, $maxSize ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $maxSize );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $maxSize ) = $sig->( @_ );
   return $self->{title};
 }
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   my $limits = TRect->new();
   my ( $min, $max ) = ( TPoint->new(), TPoint->new() );
 
@@ -254,19 +258,20 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub initFrame {    # $frame ($r)
-  my ( $class, $r ) = @_;
-  assert ( @_ == 2 );
-  assert ( $class );
-  assert ( ref $r );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object],
+  );
+  my ( $class, $r ) = $sig->( @_ );
   return TFrame->new( bounds => $r );
 }
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   my $windowCommands = TCommandSet->new();
 
   $self->SUPER::setState( $aState, $enable );
@@ -297,13 +302,13 @@ sub setState {    # void ($aState, $enable)
 } #/ sub setState
 
 sub sizeLimits {    # void ($min, $max)
-  my ( $self, undef, undef ) = @_;
-  alias: for my $min ( $_[1] ) {
-  alias: for my $max ( $_[2] ) {
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $min );
-  assert ( blessed $max );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Object],
+  );
+  my ( $self, $min, $max ) = $sig->( @_ );
+  alias: for $min ( $_[1] ) {
+  alias: for $max ( $_[2] ) {
   $self->SUPER::sizeLimits( $min, $max );
   $min = $minWinSize->clone();
   return;
@@ -311,10 +316,11 @@ sub sizeLimits {    # void ($min, $max)
 }
 
 sub standardScrollBar {    # $scrollBar ($aOptions)
-  my ( $self, $aOptions ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aOptions );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $aOptions ) = $sig->( @_ );
   my $r = $self->getExtent();
   if ( $aOptions & sbVertical ) {
     $r = TRect->new(
@@ -338,9 +344,11 @@ sub standardScrollBar {    # $scrollBar ($aOptions)
 } #/ sub standardScrollBar
 
 sub zoom {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my ( $minSize, $maxSize ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $minSize, $maxSize );
   if ( $self->{size} != $maxSize ) {
@@ -357,9 +365,11 @@ sub zoom {    # void ()
 } #/ sub zoom
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{frame} = undef;
   $self->SUPER::shutDown();
   return;

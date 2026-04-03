@@ -1,6 +1,7 @@
 package TV::Dialogs::ListBox;
 # ABSTRACT: Provides a list box dialog with selection handling
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,20 +16,19 @@ our @EXPORT = qw(
   new_TListBox
 );
 
-use Carp ();
 use Class::Struct;
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-  readonly
+use PerlX::Assert::PP;
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  is_Object
+  :types
 );
 
 use TV::Const qw( EOS );
 use TV::Objects::NSCollection;
 use TV::Views::ListViewer;
-use TV::toolkit;
 
 struct TListBoxRec => [
   items     => TNSCollection,
@@ -41,49 +41,66 @@ sub new_TListBox { __PACKAGE__->from( @_ ) }
 
 extends TListViewer;
 
-# declare attributes
+# protected attributes
 has items => ( is => 'ro' );
 
 sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  return $class->SUPER::BUILDARGS( @_, hScrollBar => undef );
+  state $sig = signature(
+    method => 1,
+    named  => [
+      bounds     => Object,
+      numCols    => PositiveOrZeroInt, { alias => 'aNumCols' },
+      vScrollBar => Maybe[Object],     { alias => 'aScrollBar' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
 }
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert ( blessed $self );
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->setRange( 0 );
   return;
 }
 
 sub from {    # $obj ($bounds, $aNumCols, $aVScrollBar|undef)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  assert ( @_ == 3 );
-  return $class->new( bounds => $_[0], numCols => $_[1], vScrollBar => $_[2] );
+  state $sig = signature(
+    method => 1,
+    pos    => [Object, PositiveOrZeroInt, Maybe[Object]],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( bounds => $args[0], numCols => $args[1], 
+    vScrollBar => $args[2] );
 }
 
 sub list {    # $collection ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{items};
 }
 
-my $size = @{ TListBoxRec->new() };
 sub dataSize {    # $size ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  $sig->( @_ );
+  state $size = @{ TListBoxRec->new() };
   return $size;
 }
 
 sub getData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   my $p = TListBoxRec->new(
     items     => $self->{items},
     selection => $self->{focused},
@@ -93,12 +110,11 @@ sub getData {    # void (\@rec)
 } #/ sub getData
 
 sub getText {    # void (\$dest, $item, $maxChars)
-  my ( $self, $dest_ref, $item, $maxChars ) = @_;
-  assert ( @_ == 4 );
-  assert ( blessed $self );
-  assert ( ref $dest_ref and !readonly $$dest_ref );
-  assert ( looks_like_number $item );
-  assert ( looks_like_number $maxChars );
+  state $sig = signature(
+    method => Object,
+    pos    => [ScalarRef, Int, Int],
+  );
+  my ( $self, $dest_ref, $item, $maxChars ) = $sig->( @_ );
   alias: for my $dest ( $$dest_ref ) {
   if ( $self->{items} ) {
     my $src = $self->{items}->at( $item );
@@ -113,10 +129,11 @@ sub getText {    # void (\$dest, $item, $maxChars)
 } #/ sub getText
 
 sub newList {    # void ($aList)
-  my ( $self, $aList ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $aList );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $aList ) = $sig->( @_ );
   $self->destroy( $self->{items} );
   $self->{items} = $aList;
   if ( $aList ) {
@@ -133,10 +150,11 @@ sub newList {    # void ($aList)
 } #/ sub newList
 
 sub setData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   my $p = TListBoxRec->new();
   @$p = @$rec[ 0 .. $#$p ];
   $self->newList( $p->items );

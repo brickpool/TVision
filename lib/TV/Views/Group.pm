@@ -1,6 +1,7 @@
 package TV::Views::Group;
 # ABSTRACT: Base class for all group components in Turbo Vision
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,16 +16,17 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Params::Check qw(
-  check
-  last_error
-);
+use PerlX::Assert::PP;
 use Scalar::Util qw(
-  blessed
-  looks_like_number
   weaken
   isweak
+);
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw(
+  Maybe
+  :is
+  :types
 );
 
 use TV::Objects::Point;
@@ -44,7 +46,6 @@ use TV::Views::Const qw(
 );
 use TV::Views::CommandSet;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TGroup() { __PACKAGE__ }
 sub name() { 'TGroup' }
@@ -56,14 +57,14 @@ extends TView;
 our $TheTopView;
 our $ownerGroup;
 
-# declare attributes
+# public attributes
+has current   => ( is => 'bare' );
 has last      => ( is => 'ro' );
 has clip      => ( is => 'rw' );
-has phase     => ( is => 'ro' );
-has current   => ( is => 'bare' );
+has phase     => ( is => 'ro', default => phFocused );
 has buffer    => ( is => 'ro' );
-has lockFlag  => ( is => 'rw' );
-has endState  => ( is => 'rw' );
+has lockFlag  => ( is => 'rw', default => 0 );
+has endState  => ( is => 'rw', default => 0 );
 
 # predeclare private methods
 my (
@@ -90,50 +91,34 @@ my $weaken = sub {
   $lock_value->( $_[0] ) if STRICT;
 };
 
-sub BUILDARGS {    # \%args (%args)
-  my $class = shift;
-  assert ( $class and !ref $class );
-  local $Params::Check::PRESERVE_CASE = 1;
-  my $args1 = $class->SUPER::BUILDARGS( @_ );
-  my $args2 = check( {
-    # init_args => undef,
-    last    => { no_override => 1 },
-    clip    => { no_override => 1 },
-    current => { no_override => 1 },
-    buffer  => { no_override => 1 },
-    # set 'default' values, init_args => undef,
-    phase    => { default => phFocused, no_override => 1 },
-    lockFlag => { default => 0, no_override => 1 },
-    endState => { default => 0, no_override => 1 },
-  } => { @_ } ) || Carp::confess( last_error );
-  return { %$args1, %$args2 };
-}
-
-sub BUILD {    # void (|\%args)
+sub BUILD {    # void (\%args)
   my ( $self, $args ) = @_;
-  assert ( blessed $self );
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{eventMask} = 0xffff;
   $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} = $self->getExtent();
   weaken( $self->{current} ) if $self->{current};
   $lock_value->( $self->{current} ) if STRICT;
   return;
-} #/ sub BUILD
+}
 
 sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $in_global_destruction or !ref $in_global_destruction );
+  assert ( is_Object $self );
+  assert ( is_Bool $in_global_destruction );
   $unlock_value->( $self->{current} ) if STRICT;
   $self->shutDown() unless $in_global_destruction;
   return;
 }
 
 sub shutDown {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $p = $self->{last};
   if ( $p ) {
     do {
@@ -154,11 +139,12 @@ sub shutDown {    # void ()
 } #/ sub shutDown
 
 sub execView {    # $int ($p|undef)
-  my ( $self, undef ) = @_;
-  alias: for my $p ( $_[1] ) {
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $p or blessed $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $p ) = $sig->( @_ );
+  alias: for $p ( $_[1] ) {
   return cmCancel
     unless $p;
 
@@ -187,9 +173,11 @@ sub execView {    # $int ($p|undef)
 } #/ sub execView
 
 sub execute {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   do {
     $self->{endState} = 0;
     do {
@@ -202,27 +190,31 @@ sub execute {    # $int ()
     } while ( !$self->{endState} );
   } while ( !$self->valid( $self->{endState} ) );
   return $self->{endState};
-} #/ sub execute
+}
 
 my $doAwaken = sub {    # void ($v, $p)
+  assert ( @_ == 2 );
+  assert ( is_Object $_[0] );
   $_[0]->awaken();
   return;
 };
 
 sub awaken {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
-  $self->forEach( $doAwaken, undef );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
+  $self->forEach( $doAwaken );
   return;
 }
 
 sub insertView {    # void ($p, $Target|undef)
-  my ( $self, $p, $Target ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $p );
-  assert ( !defined $Target or blessed $Target );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Maybe[Object]],
+  );
+  my ( $self, $p, $Target ) = $sig->( @_ );
   $p->owner( $self );
   if ( $Target ) {
     assert ( $Target->{owner} == $self );
@@ -271,10 +263,11 @@ sub insertView {    # void ($p, $Target|undef)
 } #/ sub insertView
 
 sub remove {    # void ($p|undef)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $p or blessed $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   if ( $p ) {
     my $saveState = $p->{state};
     $p->hide();
@@ -295,12 +288,13 @@ sub remove {    # void ($p|undef)
 #
 # I<tgrmv.cpp>
 sub removeView {    # void ($p)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $p );
-  no warnings qw( uninitialized numeric );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   if ( $self->{last} ) {
+    no warnings qw( uninitialized numeric );
     my $s = $self->{last};
 
     # Check if the cycle needs to be weakened again.
@@ -335,9 +329,11 @@ sub removeView {    # void ($p)
 } #/ sub removeView
 
 sub resetCurrent {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->setCurrent( $self->firstMatch( sfVisible, ofSelectable ),
     normalSelect );
   return;
@@ -345,11 +341,11 @@ sub resetCurrent {    # void ()
 
 sub setCurrent {    # void ($p|undef, $mode)
   no warnings qw( uninitialized numeric );
-  my ( $self, $p, $mode ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( !defined $p or blessed $p );
-  assert ( looks_like_number $mode );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object], PositiveOrZeroInt],
+  );
+  my ( $self, $p, $mode ) = $sig->( @_ );
   return 
     if $self->{current} == $p;
 
@@ -368,10 +364,11 @@ sub setCurrent {    # void ($p|undef, $mode)
 } #/ sub setCurrent
 
 sub selectNext {    # void ($forwards)
-  my ( $self, $forwards ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $forwards or !ref $forwards );
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool],
+  );
+  my ( $self, $forwards ) = $sig->( @_ );
   if ( $self->{current} ) {
     my $p = $self->$findNext( $forwards );
     $p->select() if $p;
@@ -379,69 +376,79 @@ sub selectNext {    # void ($forwards)
   return;
 } #/ sub selectNext
 
-sub firstThat {    # $view|undef (\&Test, |$arg|undef)
-  my ( $self, $func, $args ) = @_;
-  assert ( @_ >= 2 && @_ <= 3 );
-  assert ( blessed $self );
-  assert ( ref $func );
-  no warnings qw( uninitialized numeric );
+sub firstThat {    # $view|undef (\&Test, @args)
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      CodeRef, 
+      ArrayRef, { slurpy => 1 }
+    ],
+  );
+  my ( $self, $func, $args ) = $sig->( @_ );
   my $temp = $self->{last};
   return undef
     unless $temp;
 
+  no warnings qw( uninitialized numeric );
   do {
     $temp = $temp->{next};
     return $temp
-      if $func->( $temp, $args );
+      if $func->( $temp, @$args );
   } while ( $temp != $self->{last} );
   return undef;
 } #/ sub firstThat
 
 sub focusNext {    # $bool ($forwards)
-  my ( $self, $forwards ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $forwards or !ref $forwards );
+  state $sig = signature(
+    method => Object,
+    pos    => [Bool],
+  );
+  my ( $self, $forwards ) = $sig->( @_ );
   my $p = $self->$findNext( $forwards );
   return $p ? $p->focus() : !!1;
 }
 
-sub forEach {    # void (\&action, |$arg|undef)
-  my ( $self, $func, $args ) = @_;
-  assert ( @_ >= 2 && @_ <= 3 );
-  assert ( blessed $self );
-  assert ( ref $func );
-  no warnings qw( uninitialized numeric );
+sub forEach {    # void (\&action, @args)
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      CodeRef, 
+      ArrayRef, { slurpy => 1 }
+    ],
+  );
+  my ( $self, $func, $args ) = $sig->( @_ );
   my $term = $self->{last};
   my $temp = $self->{last};
   return 
     unless $temp;
 
+  no warnings qw( uninitialized numeric );
   my $next = $temp->{next};
   do {
     $temp = $next;
     $next = $temp->{next};
-    $func->( $temp, $args );
+    $func->( $temp, @$args );
   } while ( $temp != $term );
   return;
 } #/ sub forEach
 
 sub insert {    # void ($p|undef)
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( !defined $p or blessed $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object]],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   $self->insertBefore( $p, $self->first() );
   return;
 }
 
 sub insertBefore {    # void ($p, $Target|undef)
-  my ( $self, $p, $Target ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $p );
-  assert ( !defined $Target or blessed $Target );
   no warnings qw( uninitialized numeric );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object, Maybe[Object]],
+  );
+  my ( $self, $p, $Target ) = $sig->( @_ );
   if ( $p && !$p->{owner} && ( !$Target || $Target->{owner} == $self ) ) {
     $p->{origin}{x} = ( $self->{size}{x} - $p->{size}{x} ) >> 1
       if $p->{options} & ofCenterX;
@@ -458,10 +465,13 @@ sub insertBefore {    # void ($p, $Target|undef)
 } #/ sub insertBefore
 
 sub current {    # $view|undef (|$view|undef)
-  my ( $self, $view ) = @_;
-  assert ( @_ >= 1 && @_ <= 2 );
-  assert ( blessed $self );
-  assert ( !defined $view or blessed $view );
+  state $sig = signature(
+    method => Object,
+    pos    => [
+      Maybe[Object], { optional => 1 },
+    ],
+  );
+  my ( $self, $view ) = $sig->( @_ );
   if ( @_ == 2 ) {
     $unlock_value->( $self->{current} ) if STRICT;
     weaken $self->{current}
@@ -472,10 +482,11 @@ sub current {    # $view|undef (|$view|undef)
 } #/ sub current
 
 sub at {    # $view|undef ($index)
-  my ( $self, $index ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $index );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $index ) = $sig->( @_ );
   my $temp = $self->{last};
   while ( $index-- > 0 ) {
     $temp = $temp->{next};
@@ -484,15 +495,15 @@ sub at {    # $view|undef ($index)
 } #/ sub at
 
 sub firstMatch {    # $view|undef ($aState, $aOptions)
-  no warnings qw( uninitialized numeric );
-  my ( $self, $aState, $aOptions ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( looks_like_number $aOptions );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, PositiveOrZeroInt],
+  );
+  my ( $self, $aState, $aOptions ) = $sig->( @_ );
   return undef 
     unless $self->{last};
 
+  no warnings qw( uninitialized numeric );
   my $temp = $self->{last};
   while ( 1 ) {
     return $temp
@@ -505,14 +516,15 @@ sub firstMatch {    # $view|undef ($aState, $aOptions)
 } #/ sub firstMatch
 
 sub indexOf {    # $int ($p)
-  no warnings qw( uninitialized numeric );
-  my ( $self, $p ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $p );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $p ) = $sig->( @_ );
   return 0 
     unless $self->{last};
 
+  no warnings qw( uninitialized numeric );
   my $index = 0;
   my $temp  = $self->{last};
   do {
@@ -523,18 +535,28 @@ sub indexOf {    # $int ($p)
 } #/ sub indexOf
 
 sub matches {    # $bool ($p)
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  $sig->( @_ );
   ...
 }
 
 sub first {    # $view|undef ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   return $self->{last} ? $self->{last}{next} : undef;
 }
 
 my $doExpose = sub {    # void ($p, \$enable)
   my ( $p, $enable ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_Bool $enable );
   $p->setState( sfExposed, $$enable )
     if $p->state & sfVisible;
   return;
@@ -542,16 +564,19 @@ my $doExpose = sub {    # void ($p, \$enable)
 
 my $doSetState = sub {    # void ($p, \%b)
   my ( $p, $b ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_HashLike $b );
   $p->setState( $b->{st}, $b->{en} );
   return;
 };
 
 sub setState {    # void ($aState, $enable)
-  my ( $self, $aState, $enable ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( looks_like_number $aState );
-  assert ( !defined $enable or !ref $enable );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt, Bool],
+  );
+  my ( $self, $aState, $enable ) = $sig->( @_ );
   my $sb = {
     st => $aState, 
     en => $enable,
@@ -578,8 +603,11 @@ sub setState {    # void ($aState, $enable)
   return;
 } #/ sub setState
 
-my $doHandleEvent = sub {    # void ($p, \%s)
+my $doHandleEvent = sub {    # void ($p|undef, \%s)
   my ( $p, $s ) = @_;
+  assert ( @_ == 2 );
+  assert ( !defined $p or is_Object $p );
+  assert ( is_HashLike $s );
   return unless $p;
   return
     if ( $p->{state} & sfDisabled )
@@ -596,22 +624,26 @@ my $doHandleEvent = sub {    # void ($p, \%s)
         unless $p->{options} & ofPostProcess;
       last;
     };
-  } #/ SWITCH: for ( $s->{grp}{phase} )
+  }
   $p->handleEvent( $s->{event} )
     if $s->{event}{what} & $p->{eventMask};
   return;
-}; #/ $doHandleEvent = sub
+};
 
 my $hasMouse = sub {    # $bool ($p, $s)
   my ( $p, $s ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_HashLike $s );
   return $p->containsMouse( $s );
 };
 
 sub handleEvent {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   $self->SUPER::handleEvent( $event );
 
   my $hs = { 
@@ -658,21 +690,24 @@ sub handleEvent {    # void ($event)
 } #/ sub handleEvent
 
 sub drawSubViews {    # void ($p|undef, $bottom|undef)
-  my ( $self, $p, $bottom ) = @_;
-  assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( !defined $p or blessed $p );
-  assert ( !defined $bottom or blessed $bottom );
+  state $sig = signature(
+    method => Object,
+    pos    => [Maybe[Object], Maybe[Object]],
+  );
+  my ( $self, $p, $bottom ) = $sig->( @_ );
   no warnings qw( uninitialized numeric );
   while ( $p != $bottom ) {
     $p->drawView();
     $p = $p->nextView();
   }
   return;
-} #/ sub drawSubViews
+}
 
 my $doCalcChange = sub {    # void ($p, $d)
   my ( $p, $d ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_Object $d );
   my $r = TRect->new();
   $p->calcBounds( $r, $d );
   $p->changeBounds( $r );
@@ -680,10 +715,11 @@ my $doCalcChange = sub {    # void ($p, $d)
 };
 
 sub changeBounds {    # void ($self, $bounds)
-  my ( $self, $bounds ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $bounds );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $bounds ) = $sig->( @_ );
   my $d = TPoint->new(
     x => ( $bounds->{b}{x} - $bounds->{a}{x} ) - $self->{size}{x},
     y => ( $bounds->{b}{y} - $bounds->{a}{y} ) - $self->{size}{y},
@@ -704,25 +740,31 @@ sub changeBounds {    # void ($self, $bounds)
   return;
 } #/ sub changeBounds
 
-my $addSubviewDataSize = sub {    # void ($p, $T)
+my $addSubviewDataSize = sub {    # void ($p, \$T)
   my ( $p, $T ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_ScalarRef $T );
   $$T += $p->dataSize();
 };
 
 sub dataSize {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $T = 0;
   $self->forEach( $addSubviewDataSize, \$T );
   return $T;
 }
 
 sub getData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   my $i = 0;
   if ( $self->{last} ) {
     my $v = $self->{last};
@@ -736,10 +778,11 @@ sub getData {    # void (\@rec)
 } #/ sub getData
 
 sub setData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   my $i = 0;
   if ( $self->{last} ) {
     my $v = $self->{last};
@@ -750,12 +793,14 @@ sub setData {    # void (\@rec)
     } while ( $v != $self->{last} );
   }
   return;
-} #/ sub setData
+}
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( !$self->{buffer} ) {
     $self->getBuffer();
     if ( $self->{buffer} ) {
@@ -776,45 +821,54 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub redraw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawSubViews( $self->first(), undef );
   return;
 }
 
 sub lock {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{lockFlag}++ 
     if $self->{buffer} || $self->{lockFlag};
   return;
 }
 
 sub unlock {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawView() 
     if $self->{lockFlag} && --$self->{lockFlag} == 0;
   return;
 }
 
 sub resetCursor {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{current}->resetCursor() 
     if $self->{current};
   return;
 }
 
 sub endModal {    # void ($command)
-  my ( $self, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $command ) = $sig->( @_ );
   if ( $self->{state} & sfModal ) {
     $self->{endState} = $command;
   }
@@ -822,13 +876,14 @@ sub endModal {    # void ($command)
     $self->SUPER::endModal( $command );
   }
   return;
-} #/ sub endModal
+}
 
 sub eventError {    # void ($event)
-  my ( $self, $event ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( blessed $event );
+  state $sig = signature(
+    method => Object,
+    pos    => [Object],
+  );
+  my ( $self, $event ) = $sig->( @_ );
   if ( $self->{owner} ) {
     $self->{owner}->eventError( $event );
   }
@@ -836,27 +891,33 @@ sub eventError {    # void ($event)
 }
 
 sub getHelpCtx {    # $int ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   my $h = hcNoContext;
   $h = $self->{current}->getHelpCtx()
     if $self->{current};
   $h = $self->SUPER::getHelpCtx()
     if $h == hcNoContext;
   return $h;
-} #/ sub getHelpCtx
+}
 
 my $isInvalid = sub {    # $bool ($p, \$command)
   my ( $p, $command ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $p );
+  assert ( is_ScalarRef $command );
   return !$p->valid( $$command );
 };
 
 sub valid {    # $bool ($command)
-  my ( $self, $command ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $command );
+  state $sig = signature(
+    method => Object,
+    pos    => [PositiveOrZeroInt],
+  );
+  my ( $self, $command ) = $sig->( @_ );
   if ( $command == cmReleasedFocus ) {
     if ( $self->{current}
       && ( $self->{current}{options} & ofValidate )
@@ -871,9 +932,11 @@ sub valid {    # $bool ($command)
 }
 
 sub freeBuffer {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   if ( ( $self->{options} & ofBuffered ) && $self->{buffer} ) {
     $self->{buffer} = undef;
   }
@@ -881,18 +944,23 @@ sub freeBuffer {    # void ()
 }
 
 sub getBuffer {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->{buffer} = [ (0) x ( $self->{size}{x} * $self->{size}{y} * 2 ) ]
     if ( $self->{state} & sfExposed )
       && ( $self->{options} & ofBuffered )
       && !$self->{buffer};
   return;
-} #/ sub getBuffer
+}
 
-$focusView = sub {    # void ($p, $enable)
+$focusView = sub {    # void ($p|undef, $enable)
   my ( $self, $p, $enable ) = @_;
+  assert ( @_ == 3 );
+  assert ( !defined $p or is_Object $p );
+  assert ( is_Bool $enable );
   $p->setState( sfFocused, $enable ) 
     if ( $self->{state} & sfFocused ) && $p;
   return;
@@ -901,16 +969,18 @@ $focusView = sub {    # void ($p, $enable)
 $selectView = sub {    # void ($p, $enable)
   my ( $self, $p, $enable ) = @_;
   assert ( @_ == 3 );
-  assert ( blessed $self );
-  assert ( blessed $p );
-  assert ( !defined $enable or !ref $enable );
+  assert ( is_Object $p );
+  assert ( is_Bool $enable );
   $p->setState( sfSelected, $enable )
     if $p;
   return;
-}; #/ sub _selectView
+};
 
 $findNext = sub {
   my ( $self, $forwards ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Bool $forwards );
   my $p      = $self->{current};
   my $result = undef;
   if ( $p ) {
@@ -927,7 +997,7 @@ $findNext = sub {
       if $p != $self->{current};
   } #/ if ( $p )
   return $result;
-}; #/ sub findNext
+};
 
 1
 
@@ -1095,7 +1165,7 @@ Returns the first view that matches the specified state and options.
 
 =head2 firstThat
 
-  my $view | undef = $self->firstThat(\&Test, $arg | undef);
+  my $view | undef = $self->firstThat(\&Test, @args);
 
 Returns the first view that satisfies the specified function.
 
@@ -1107,7 +1177,7 @@ Moves the focus to the next view.
 
 =head2 forEach
 
-  $self->forEach(\&action, $arg | undef);
+  $self->forEach(\&action, @args);
 
 Applies the specified function to each view in the group.
 

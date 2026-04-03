@@ -1,6 +1,7 @@
 package TV::Gadgets::ClockView;
 # ABSTRACT: clock view which display the clock
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -14,13 +15,15 @@ our @EXPORT = qw(
   new_TClockView
 );
 
+use Devel::StrictMode;
 use PerlX::Assert::PP;
 use POSIX qw( strftime );
-use Scalar::Util qw( blessed );
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :Object );
 
 use TV::Views::DrawBuffer;
 use TV::Views::View;
-use TV::toolkit;
 
 sub TClockView() { __PACKAGE__ }
 sub name() { 'TClockView' }
@@ -32,18 +35,21 @@ extends TView;
 has lastTime => ( is => 'bare' );
 has curTime  => ( is => 'bare' );
 
-sub BUILD {    # void (|\%args)
-  my $self = shift;
-  assert { blessed $self };
+sub BUILD {    # void (\%args)
+  my ( $self, $args ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
   $self->{lastTime} = "        ";
   $self->{curTime}  = "        ";
   return;
 }
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   my $buf = TDrawBuffer->new();
   my $c   = $self->getColor( 2 );
@@ -55,9 +61,11 @@ sub draw {    # void ()
 } #/ sub draw
 
 sub update {    # void ()
-  my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
 
   $self->{curTime} = strftime( '%H:%M:%S', localtime );
 

@@ -8,6 +8,7 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
+
 use Config;
 use PerlX::Assert::PP;
 use Scalar::Util qw( blessed );
@@ -53,8 +54,8 @@ BEGIN {
 
 sub heapSize {    # $total ()
   my ( $self ) = @_;
-  assert { @_ == 1 };
-  assert { blessed $self };
+  assert ( @_ == 1 );
+  assert ( blessed $self );
   alias: for my $totalStr ( $self->{heapStr} ) {
   $totalStr = "     No heap";
 

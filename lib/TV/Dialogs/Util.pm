@@ -12,8 +12,7 @@ our @EXPORT_OK = qw(
   nextWord
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
+use Devel::Assert 'on';
 use Scalar::Util qw(
   looks_like_number
 );

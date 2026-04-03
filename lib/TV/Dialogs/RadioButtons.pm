@@ -1,6 +1,7 @@
 package TV::Dialogs::RadioButtons;
 # ABSTRACT: Radio button cluster control based on TCluster
 
+use 5.010;
 use strict;
 use warnings;
 
@@ -15,15 +16,11 @@ our @EXPORT = qw(
   new_TRadioButtons
 );
 
-use Devel::StrictMode;
-use Devel::Assert STRICT ? 'on' : 'off';
-use Scalar::Util qw(
-  blessed
-  looks_like_number
-);
+use TV::toolkit;
+use TV::toolkit::Params qw( signature );
+use TV::toolkit::Types qw( :types );
 
 use TV::Dialogs::Cluster;
-use TV::toolkit;
 
 sub TRadioButtons() { __PACKAGE__ }
 sub name() { 'TRadioButtons' }
@@ -35,44 +32,50 @@ extends TCluster;
 our $button = " ( ) ";
 
 sub draw {    # void ()
-  my ( $self ) = @_;
-  assert ( @_ == 1 );
-  assert ( blessed $self );
+  state $sig = signature(
+    method => Object,
+    pos    => [],
+  );
+  my ( $self ) = $sig->( @_ );
   $self->drawMultiBox( $button, " \x7" );
   return;
 }
 
 sub mark {    # $bool ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   return $item == $self->{value};
 }
 
 sub press {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->{value} = $item;
   return;
 }
 
 sub movedTo {    # void ($item)
-  my ( $self, $item ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( looks_like_number $item );
+  state $sig = signature(
+    method => Object,
+    pos    => [Int],
+  );
+  my ( $self, $item ) = $sig->( @_ );
   $self->{value} = $item;
   return;
 }
 
 sub setData {    # void (\@rec)
-  my ( $self, $rec ) = @_;
-  assert ( @_ == 2 );
-  assert ( blessed $self );
-  assert ( ref $rec );
+  state $sig = signature(
+    method => Object,
+    pos    => [ArrayLike],
+  );
+  my ( $self, $rec ) = $sig->( @_ );
   $self->SUPER::setData($rec);
   $self->{sel} = $self->{value};
   return;
