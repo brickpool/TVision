@@ -8,6 +8,7 @@ BEGIN {
   use_ok 'TV::StdDlg';
 }
 
-isa_ok( new_TSortedListBox(TRect->new(), 0, undef ), TSortedListBox() );
+isa_ok( new_TFileCollection( 0, 0 ), TFileCollection() );
+isa_ok( new_TSortedListBox( TRect->new(), 0, undef ), TSortedListBox() );
 
 done_testing();

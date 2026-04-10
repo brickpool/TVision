@@ -22,6 +22,6 @@ isa_ok( TNSCollection->new(), TNSCollection );
 isa_ok( TNSSortedCollection->new(), TNSSortedCollection );
 isa_ok( TCollection->new(), TCollection );
 isa_ok( TSortedCollection->new(), TSortedCollection );
-isa_ok( TStringCollection->new(), TStringCollection );
+isa_ok( TStringCollection->new( limit => 0, delta => 0 ), TStringCollection );
 
 done_testing();

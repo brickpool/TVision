@@ -18,7 +18,7 @@ my $class = TStringCollection();
 
 ok( $class->can( 'from' ), "$class has from()" );
 
-my $obj = $class->new();
+my $obj = $class->new( limit => 0, delta => 0 );
 isa_ok( $obj, $class, 'new() created object' );
 
 my $obj2 = new_TStringCollection( 0, 0 );

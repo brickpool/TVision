@@ -25,6 +25,14 @@ our %EXPORT_TAGS = (
     cmFileFocused
     cmFileDoubleClicked
   )],
+
+  FA_ => [qw(
+    FA_RDONLY
+    FA_HIDDEN
+    FA_SYSTEM
+    FA_DIREC
+    FA_ARCH
+  )],
 );
 
 # add all the other %EXPORT_TAGS ":class" tags to the ":all" class and
@@ -58,6 +66,16 @@ use constant {
 use constant {
   cmFileFocused       => 102,    # A new file was focused in the TFileList
   cmFileDoubleClicked => 103,    # A file was selected in the TFileList
+};
+
+# Windows-/DOS-Attributes for File Dialogs
+
+use constant {
+  FA_RDONLY => 0x01,
+  FA_HIDDEN => 0x02,
+  FA_SYSTEM => 0x04,
+  FA_DIREC  => 0x10,
+  FA_ARCH   => 0x20,
 };
 
 1

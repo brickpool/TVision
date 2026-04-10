@@ -22,7 +22,7 @@ sub new_TSortedCollection { __PACKAGE__->from(@_) }
 
 extends TNSSortedCollection;
 
-sub compare {    # $cmp ($self, $key1, $key2)
+sub compare {    # $cmp ($key1, $key2)
   return 0;
 }
 

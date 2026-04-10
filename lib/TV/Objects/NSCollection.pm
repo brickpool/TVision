@@ -56,8 +56,8 @@ sub BUILDARGS {    # \%args (|%args)
   state $sig = signature(
     method => 1,
     named => [
-      limit => Int, { alias => 'aLimit', default => 0 },
-      delta => Int, { alias => 'aDelta', default => 0 },
+      limit => Int, { alias => 'aLimit', optional => 1 },
+      delta => Int, { alias => 'aDelta', optional => 1 },
     ],
     caller_level => +1,
   );
@@ -76,10 +76,17 @@ sub BUILD {    # void (\%args)
 sub from {    # $obj ($aLimit, $aDelta)
   state $sig = signature(
     method => 1,
-    pos => [Int, Int],
+    pos => [
+      Int, { optional => 1 },
+      Int, { optional => 1 },
+    ],
   );
   my ( $class, @args ) = $sig->( @_ );
-  return $class->new( limit => $args[0], delta => $args[1] );
+  SWITCH: for ( scalar @args ) {
+    $_ == 0 and return $class->new();
+    $_ == 2 and return $class->new( limit => $args[0], delta => $args[1] );
+  }
+  return;
 }
 
 sub DEMOLISH {    # void ($in_global_destruction)

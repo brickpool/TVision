@@ -17,7 +17,7 @@ our @EXPORT = qw(
 
 use TV::toolkit;
 use TV::toolkit::Params qw( signature );
-use TV::toolkit::Types qw( Object Str );
+use TV::toolkit::Types qw( :types );
 
 use TV::Objects::Const qw( ccNotFound );
 use TV::Objects::SortedCollection;
@@ -27,6 +27,28 @@ sub name() { 'TStringCollection' };
 sub new_TStringCollection { __PACKAGE__->from(@_) }
 
 extends TSortedCollection;
+
+sub BUILDARGS {    # \%args (|%args)
+  state $sig = signature(
+    method => 1,
+    named => [
+      limit => Int, { alias => 'aLimit' },
+      delta => Int, { alias => 'aDelta' },
+    ],
+    caller_level => +1,
+  );
+  my ( $class, $args ) = $sig->( @_ );
+  return $args;
+}
+
+sub from {    # $obj ($aLimit, $aDelta)
+  state $sig = signature(
+    method => 1,
+    pos => [Int, Int],
+  );
+  my ( $class, @args ) = $sig->( @_ );
+  return $class->new( limit => $args[0], delta => $args[1] );
+}
 
 sub compare {    # $cmp ($key1, $key2)
   state $sig = signature(
@@ -52,7 +74,7 @@ TStringCollection - implement a string collection for Turbo Vision.
 In this Perl module, the class I<TStringCollection> is created, which inherits
 from I<TSortedCollection>. 
 
-=head2 Methods
+=head1 METHODS
 
 The method I<compare> has been overridden to suit the comparison of strings. 
 Otherwise, all methods have been adopted unchanged from the parent classes.

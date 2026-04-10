@@ -8,13 +8,13 @@ BEGIN {
 }
 
 is( ccNotFound, -1, 'ccNotFound is -1' );
-isa_ok( TObject->new(), TObject );
-isa_ok( TPoint->new(), TPoint );
-isa_ok( TRect->new(), TRect );
-isa_ok( TNSCollection->new(), TNSCollection );
-isa_ok( TNSSortedCollection->new(), TNSSortedCollection );
-isa_ok( TCollection->new(), TCollection );
-isa_ok( TSortedCollection->new(), TSortedCollection );
-isa_ok( TStringCollection->new(), TStringCollection );
+isa_ok( new_TObject(), TObject );
+isa_ok( new_TPoint( 0, 0 ), TPoint );
+isa_ok( new_TRect( 0, 0, 0, 0 ), TRect );
+isa_ok( new_TNSCollection(), TNSCollection );
+isa_ok( new_TNSSortedCollection(), TNSSortedCollection );
+isa_ok( new_TCollection(), TCollection );
+isa_ok( new_TSortedCollection(), TSortedCollection );
+isa_ok( new_TStringCollection( 0, 0 ), TStringCollection );
 
 done_testing();

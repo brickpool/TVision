@@ -182,18 +182,18 @@ Lists and History
 
 =head3 File/Directory Dialogs
 
-  +-----------------+--------------------------+-----------+
-  | TFileDialog     | (missing)                | [ ]       |
-  | TChDirDialog    | (missing)                | [ ]       |
-  | TFileInputLine  | (missing)                | [ ]       |
-  | TFileList       | (missing)                | [ ]       |
-  | TFileInfoPane   | (missing)                | [ ]       |
-  | TDirListBox     | (missing)                | [ ]       |
-  | TDirEntry       | (missing)                | [ ]       |
-  | TDirCollection  | (missing)                | [ ]       |
-  | TFileCollection | (missing)                | [ ]       |
-  | TSearchRec      | (missing)                | [ ]       |
-  +-----------------+--------------------------+-----------+
+  +-----------------+----------------------------+-----------+
+  | TFileDialog     | (missing)                  | [ ]       |
+  | TChDirDialog    | (missing)                  | [ ]       |
+  | TFileInputLine  | (missing)                  | [ ]       |
+  | TFileList       | (missing)                  | [ ]       |
+  | TFileInfoPane   | (missing)                  | [ ]       |
+  | TDirListBox     | (missing)                  | [ ]       |
+  | TDirEntry       | (missing)                  | [ ]       |
+  | TDirCollection  | (missing)                  | [ ]       |
+  | TFileCollection | TV::StdDlg::FileCollection | [X]       |
+  | TSearchRec      | TV::StdDlg::FileCollection | [X]       |
+  +-----------------+----------------------------+-----------+
 
 =head3 Menu System
 
@@ -320,9 +320,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 138
-  Implemented:                         68
+  Implemented:                         70
   Partial:                              7
-  Missing:                             63
+  Missing:                             61
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
