@@ -20,6 +20,7 @@ use Scalar::Util qw(
   readonly
 );
 use Win32;
+use Win32::API;
 use Win32::Console;
 use Win32::Console::PatchForRT33513;
 use Win32API::File;
@@ -36,6 +37,21 @@ use TV::Drivers::Const qw(
 );
 
 sub THardwareInfo() { __PACKAGE__ }
+
+# We use variables to avoid polluting the namespace when importing Win32 API 
+# functions. 
+my (
+  $GetNumberOfConsoleMouseButtons,
+);
+
+# Load required Windows API functions
+BEGIN {
+  $GetNumberOfConsoleMouseButtons = Win32::API::More->new('kernel32',
+    'BOOL GetNumberOfConsoleMouseButtons(
+      LPDWORD lpNumberOfMouseButtons
+    )'
+  ) or die "Import GetNumberOfConsoleMouseButtons: $^E";
+}
 
 PRIVATE: {
   namespace::sweep->import( -also => [qw(
@@ -442,9 +458,8 @@ sub freeScreenBuffer {  #  void ($class, \@buffer)
 
 sub getButtonCount {    # $num ($class)
   assert ( $_[0] and !ref $_[0] );
-  require Win32Native;
   my $num = 0;
-  Win32Native::GetNumberOfConsoleMouseButtons( $num );
+  $GetNumberOfConsoleMouseButtons->Call( $num );
   return $num;
 }
 
@@ -589,18 +604,5 @@ sub setCritErrorHandler {  # $bool ($class, $install)
 }
 
 my $ctrlBreakHandler = sub { ... };
-
-package Win32Native {
-  use Win32::API;
-  BEGIN {
-    Win32::API::More->Import('kernel32',
-      'BOOL GetNumberOfConsoleMouseButtons(
-        LPDWORD lpNumberOfMouseButtons
-      )'
-    ) or die "Import GetNumberOfConsoleMouseButtons: $^E";
-  }
-
-  $INC{"Win32Native.pm"} = 1;
-}
 
 1

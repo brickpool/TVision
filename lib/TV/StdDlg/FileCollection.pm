@@ -24,8 +24,8 @@ use TV::toolkit::Types qw(
   :types
 );
 
-use TV::StdDlg::Const qw( FA_DIREC );
 use TV::Objects::SortedCollection;
+use TV::StdDlg::Const qw( FA_DIREC );
 
 struct TSearchRec => [
   attr => '$',

@@ -139,7 +139,7 @@ The NS variants of collections are Not Storable.  These are needed for
 internal use in the stream manager.  There are storable variants of each of 
 these classes for use by the rest of the library.
 
-=head2 Methods
+=head1 METHODS
 
 The methods I<new>, I<search>, I<indexOf>, I<insert>, I<keyOf> and I<compare> 
 are implemented to provide the same behavior as in the Borland C++ code. The 
