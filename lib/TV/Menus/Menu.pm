@@ -31,7 +31,7 @@ sub new_TMenu { __PACKAGE__->from(@_) }
 
 # public attributes
 has items => ( is => 'rw' );
-has deflt => ( is => 'bare' );
+has deflt => ( is => 'bare' );    # weak_ref => 1
 
 my $lock_value = sub {
   Internals::SvREADONLY( $_[0] => 1 )

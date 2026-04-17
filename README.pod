@@ -183,17 +183,21 @@ Lists and History
 =head3 File/Directory Dialogs
 
   +-----------------+----------------------------+-----------+
+  | ffblk/find_t    | TV::StdDlg::Dos            | [x]       |
+  | FindFirstRec    | TV::StdDlg::FindFirstRec   | [o]       |
   | TFileDialog     | (missing)                  | [ ]       |
   | TChDirDialog    | (missing)                  | [ ]       |
-  | TFileInputLine  | (missing)                  | [ ]       |
+  | TFileInputLine  | TV::StdDlg::FileInputLine  | [x]       |
   | TFileList       | (missing)                  | [ ]       |
   | TFileInfoPane   | (missing)                  | [ ]       |
   | TDirListBox     | (missing)                  | [ ]       |
   | TDirEntry       | (missing)                  | [ ]       |
   | TDirCollection  | (missing)                  | [ ]       |
-  | TFileCollection | TV::StdDlg::FileCollection | [X]       |
-  | TSearchRec      | TV::StdDlg::FileCollection | [X]       |
+  | TFileCollection | TV::StdDlg::FileCollection | [x]       |
+  | TSearchRec      | TV::StdDlg::FileCollection | [x]       |
   +-----------------+----------------------------+-----------+
+
+Win32 FindFirstRec class, implemented in C<TV::Drivers::FindFirstRec::Win32>.
 
 =head3 Menu System
 
@@ -269,8 +273,7 @@ Lists and History
   | TPuzzleView     | (missing)                | [ ]       |
   +-----------------+--------------------------+-----------+
 
-C<THeapView::heapSize()> for Win32 is implemented in 
-C<TV::Gadgets::HeapView::Win32>.
+Win32 THeapView, implemented in C<TV::Gadgets::HeapView::Win32>.
 
 =head3 Interpretation
 
@@ -319,10 +322,10 @@ The remaining work is concentrated in:
 
 Summary
 
-  Total Borland classes/items tracked: 138
-  Implemented:                         70
-  Partial:                              7
-  Missing:                             61
+  Total Borland classes/items tracked: 141
+  Implemented:                         73
+  Partial:                              8
+  Missing:                             60
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

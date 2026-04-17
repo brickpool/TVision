@@ -279,7 +279,7 @@ TV::Objects::Rect - defines the class TRect
 In this Perl module, the I<TRect> class is created, which contains the same 
 methods as the Borland C++ class. 
 
-=head2 Methods
+=head1 METHODS
 
 The methods I<move>, I<grow>, I<intersect>, I<union>, I<contains>, I<equal>, 
 I<not_equal> and I<isEmpty> are implemented to provide the same behavior as in 

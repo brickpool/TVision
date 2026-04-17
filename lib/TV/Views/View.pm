@@ -101,7 +101,7 @@ has cursor    => ( is => 'rw', default => sub { TPoint->new } );
 has growMode  => ( is => 'rw', default => 0 );
 has dragMode  => ( is => 'rw', default => dmLimitLoY );
 has helpCtx   => ( is => 'rw', default => hcNoContext );
-has owner     => ( is => 'bare' );
+has owner     => ( is => 'bare' );    # weak_ref => 1
 
 # predeclare private methods
 my (
