@@ -15,6 +15,7 @@ use TV::StdDlg::Dos;
 use TV::StdDlg::Util;
 use TV::StdDlg::FileCollection;
 use TV::StdDlg::FileInputLine;
+use TV::StdDlg::FileList;
 use TV::StdDlg::SortedListBox;
 
 sub import {
@@ -25,6 +26,7 @@ sub import {
   TV::StdDlg::Util->import::into( $target, qw( /\S+/ ) );
   TV::StdDlg::FileCollection->import::into( $target );
   TV::StdDlg::FileInputLine->import::into( $target );
+  TV::StdDlg::FileList->import::into( $target );
   TV::StdDlg::SortedListBox->import::into( $target );
 }
 
@@ -36,6 +38,7 @@ sub unimport {
   TV::StdDlg::Util->unimport::out_of( $caller );
   TV::StdDlg::FileCollection->unimport::out_of( $caller );
   TV::StdDlg::FileInputLine->unimport::out_of( $caller );
+  TV::StdDlg::FileList->unimport::out_of( $caller );
   TV::StdDlg::SortedListBox->unimport::out_of( $caller );
 }
 

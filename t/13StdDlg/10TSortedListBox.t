@@ -32,9 +32,7 @@ subtest 'Object creation' => sub {
   is( $listBox->{shiftState},  0, 'shiftState default value' );
 }; #/ 'Object creation' => sub
 
-#
 # newList() test
-#
 subtest 'newList()' => sub {
   my $coll = new_TStringCollection( 5, 5 );
   $coll->insert( $_ ) for qw( apple banana carrot );
@@ -48,9 +46,7 @@ subtest 'newList()' => sub {
   ok( $listBox->{range} >= 0, 'range is set' );
 }; #/ 'newList()' => sub
 
-#
 # getKey() test
-#
 subtest 'getKey()' => sub {
   is( $listBox->getKey( 'abc' ), 'abc', 'getKey returns same string' );
 };

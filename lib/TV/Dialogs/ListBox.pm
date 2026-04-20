@@ -114,19 +114,17 @@ sub getText {    # void (\$dest, $item, $maxChars)
     method => Object,
     pos    => [ScalarRef, Int, Int],
   );
-  my ( $self, $dest_ref, $item, $maxChars ) = $sig->( @_ );
-  alias: for my $dest ( $$dest_ref ) {
+  my ( $self, $dest, $item, $maxChars ) = $sig->( @_ );
   if ( $self->{items} ) {
     my $src = $self->{items}->at( $item );
     $src = '' unless defined $src;
-    $dest = substr( $src, 0, $maxChars );
-  } #/ if ( $self->{items} )
+    $$dest = substr( $src, 0, $maxChars );
+  }
   else {
-    $dest = EOS;
+    $$dest = EOS;
   }
   return;
-  } #/ alias: for my $dest ( $$dest_ref )
-} #/ sub getText
+}
 
 sub newList {    # void ($aList)
   state $sig = signature(

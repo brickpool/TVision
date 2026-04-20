@@ -197,7 +197,7 @@ my (
   $cvtTime,
 );
 
-sub allocate {    # $rec ($fileinfo, $attrib, $pathname)
+sub allocate {    # $rec|undef ($fileinfo, $attrib, $pathname)
   state $sig = signature(
     method => 1,
     pos => [
@@ -252,7 +252,7 @@ sub DESTROY {
   return;
 }
 
-sub get {    # $rec ($fileinfo)
+sub get {    # $rec|undef ($fileinfo)
   state $sig = signature(
     method => 1,
     pos => [

@@ -129,7 +129,7 @@ $isHomeExpand = sub {   # $bool ($path)
   my ( $path ) = @_;
   assert ( @_ == 1 );
   assert ( is_Str $path );
-  my @path = map { substr( $path, $_, 1 ) // '' } 0 .. 1;
+  my @path = ( split( //, $path ), ('') x 2 )[ 0 .. 1 ];
   return $path[0] eq '~' && $isSep->( $path[1] );
 };
 
@@ -137,7 +137,7 @@ $isAbsolute = sub {   # $bool ($path)
   my ( $path ) = @_;
   assert ( @_ == 1 );
   assert ( is_Str $path );
-  my @path = map { substr( $path, $_, 1 ) // '' } 0 .. 2;
+  my @path = ( split( //, $path ), ('') x 3 )[ 0 .. 2 ];
   return $isSep->( $path[0] ) 
       || ( $path[0] && $path[1] eq ':' && $isSep->( $path[2] ) );
 };
@@ -159,7 +159,7 @@ $getPathDrive = sub {    # $int ($path)
   my ( $path ) = @_;
   assert ( @_ == 1 );
   assert ( is_Str $path );
-  my @path = map { substr( $path, $_, 1 ) // '' } 0 .. 1;
+  my @path = ( split( //, $path ), ('') x 2 )[ 0 .. 1 ];
   if ( $path[0] && $path[1] eq ':' ) {
     my $drive = ord( uc $path[0] ) - ord( 'A' );
     if ( 0 <= $drive && $drive <= ord( 'Z' ) - ord( 'A' ) ) {

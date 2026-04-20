@@ -13,6 +13,7 @@ BEGIN {
   use_ok 'TV::StdDlg::FileCollection';    # incl. TSearchRec
   use_ok 'TV::StdDlg::FileInputLine';
   use_ok 'TV::StdDlg::SortedListBox';
+  use_ok 'TV::StdDlg::FileList';
 }
 
 isa_ok( FindFirstRec->allocate( [], 0, '' ), FindFirstRec() );
@@ -24,5 +25,6 @@ isa_ok( TFileInputLine->new( bounds => TRect->new(), maxLen => 10, ),
   TFileInputLine );
 isa_ok( TSortedListBox->new( bounds => TRect->new(), numCols => 0, 
   vScrollBar => undef ), TSortedListBox() );
-
+isa_ok( TFileList->new( bounds => TRect->new(), vScrollBar => undef ), 
+  TFileList() );
 done_testing();

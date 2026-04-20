@@ -188,7 +188,7 @@ Lists and History
   | TFileDialog     | (missing)                  | [ ]       |
   | TChDirDialog    | (missing)                  | [ ]       |
   | TFileInputLine  | TV::StdDlg::FileInputLine  | [x]       |
-  | TFileList       | (missing)                  | [ ]       |
+  | TFileList       | TV::StdDlg::FileList       | [x]       |
   | TFileInfoPane   | (missing)                  | [ ]       |
   | TDirListBox     | (missing)                  | [ ]       |
   | TDirEntry       | (missing)                  | [ ]       |
@@ -323,9 +323,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 141
-  Implemented:                         73
+  Implemented:                         74
   Partial:                              8
-  Missing:                             60
+  Missing:                             59
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.
