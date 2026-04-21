@@ -186,10 +186,10 @@ Lists and History
   | ffblk/find_t    | TV::StdDlg::Dos            | [x]       |
   | FindFirstRec    | TV::StdDlg::FindFirstRec   | [o]       |
   | TFileDialog     | (missing)                  | [ ]       |
-  | TChDirDialog    | (missing)                  | [ ]       |
   | TFileInputLine  | TV::StdDlg::FileInputLine  | [x]       |
   | TFileList       | TV::StdDlg::FileList       | [x]       |
-  | TFileInfoPane   | (missing)                  | [ ]       |
+  | TFileInfoPane   | TV::StdDlg::FileInfoPane   | [x]       |
+  | TChDirDialog    | (missing)                  | [ ]       |
   | TDirListBox     | (missing)                  | [ ]       |
   | TDirEntry       | (missing)                  | [ ]       |
   | TDirCollection  | (missing)                  | [ ]       |
@@ -323,9 +323,9 @@ The remaining work is concentrated in:
 Summary
 
   Total Borland classes/items tracked: 141
-  Implemented:                         74
+  Implemented:                         75
   Partial:                              8
-  Missing:                             59
+  Missing:                             58
 
 B<Notes>: Calculated from the full inventory of ~140 Turbo Vision classes, 
 dialogs, widgets, validators, and subsystems as defined in the mapping list.

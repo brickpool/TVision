@@ -302,7 +302,7 @@ sub next {    # $bool ()
           $cFileName, -1,
           $name, MAXPATH,
           undef, undef );
-        $name =~ s/(?:\x00)+\z//;
+        $name =~ s/\0+\z//;
         $self->{finfo}->[name] = $name;
         return !!1;
       }

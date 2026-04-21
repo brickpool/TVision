@@ -12,5 +12,6 @@ isa_ok( new_TFileCollection( 0, 0 ), TFileCollection() );
 isa_ok( new_TFileInputLine( TRect->new(), 0 ), TFileInputLine() );
 isa_ok( new_TSortedListBox( TRect->new(), 0, undef ), TSortedListBox() );
 isa_ok( new_TFileList( TRect->new(), undef ), TFileList() );
+isa_ok( new_TFileInfoPane( TRect->new() ), TFileInfoPane() );
 
 done_testing();

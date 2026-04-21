@@ -21,7 +21,7 @@ use TV::toolkit;
 use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
-  :is
+  is_Object
   :types
 );
 
@@ -35,6 +35,7 @@ use TV::MsgBox::Const qw(
   mfWarning
 );
 use TV::MsgBox::MsgBoxText qw( messageBox );
+use TV::Objects::Const qw( maxCollectionSize );
 use TV::StdDlg::Const qw(
   cmFileDoubleClicked
   cmFileFocused
@@ -139,6 +140,19 @@ sub newList {    # void ($aList)
   goto &TV::StdDlg::SortedListBox::newList;
 }
 
+@DirSearchRec::ISA = ( 'TSearchRec' );
+
+sub DirSearchRec::readFf_blk {    # void ($f)
+  my ( $self, $f ) = @_;
+  assert ( @_ == 2 );
+  assert ( is_Object $self );
+  assert ( is_Object $f );
+  $self->attr( $f->ff_attrib );
+  $self->time( ( $f->ff_fdate() << 16 ) | $f->ff_ftime );
+  $self->size( $f->ff_fsize );
+  $self->name( $f->ff_name );
+}
+
 sub readDirectory { # void (|$dir, $wildCard)
   state $sig = signature(
     method => Object,
@@ -159,54 +173,46 @@ sub readDirectory { # void (|$dir, $wildCard)
   my $fileList = TFileCollection->new( limit => 5, delta => 5 );
 
   my $res = findfirst( $aWildCard, $s, FA_RDONLY | FA_ARCH );
-  my $p = 1;    # sentinel: true at start
-  while ( $p && $res == 0 ) {
-    if ( ( $s->ff_attrib() & FA_DIREC ) == 0 ) {
-      $p = DirSearchRec->new();
-      if ( $p ) {
-        $p->readFf_blk( $s );
-        $fileList->insert( $p );
-      }
-    }
-    $res = findnext( $s );
+  for ( ; $res == 0; $res = findnext( $s ) ) {
+    next if $s->ff_attrib() & FA_DIREC;
+    last if $fileList->getCount() >= maxCollectionSize;
+
+    my $p = DirSearchRec->new();
+    $p->readFf_blk( $s );
+    $fileList->insert( $p );
   }
 
   fnmerge( $path, $drive, $dir, "*", ".*" );
 
   $res = findfirst( $path, $s, FA_DIREC );
-  while ( $p && $res == 0 ) {
-    if ( ( $s->ff_attrib() & FA_DIREC )
-      && substr( $s->ff_name, 0, 1 ) ne '.'
-    ) {
-      $p = DirSearchRec->new();
-      if ( $p ) {
-        $p->readFf_blk( $s );
-        $fileList->insert( $p );
-      }
-    }
-    $res = findnext( $s );
+  for ( ; $res == 0; $res = findnext( $s ) ) {
+    next unless $s->ff_attrib() & FA_DIREC;
+    next if substr( $s->ff_name, 0, 1 ) eq '.';
+    last if $fileList->getCount() >= maxCollectionSize;
+
+    my $p = DirSearchRec->new();
+    $p->readFf_blk( $s );
+    $fileList->insert( $p );
   }
 
   if ( length $dir > 1 ) {
-    $p = DirSearchRec->new();
-    if ( $p ) {
-      if ( findfirst( $path, $s, FA_DIREC ) == 0
-        && findnext( $s ) == 0
-        && $s->ff_name eq '..'
-      ) {
-        $p->readFf_blk( $s );
-      }
-      else {
-        $p->name( '..' );
-        $p->size( 0 );
-        $p->time( 0x210000 );
-        $p->attr( FA_DIREC );
-      }
-      $fileList->insert( $p );
+    my $p = DirSearchRec->new();
+    if ( findfirst( $path, $s, FA_DIREC ) == 0
+      && findnext( $s ) == 0
+      && $s->ff_name eq '..'
+    ) {
+      $p->readFf_blk( $s );
     }
+    else {
+      $p->name( '..' );
+      $p->size( 0 );
+      $p->time( 0x210000 );
+      $p->attr( FA_DIREC );
+    }
+    $fileList->insert( $p );
   } #/ if ( length( $dir ) > ...)
 
-  unless ( $p ) {
+  if ( $fileList->getCount() >= maxCollectionSize ) {
     messageBox( $tooManyFiles, mfOKButton | mfWarning );
   }
   $self->newList( $fileList );
@@ -267,24 +273,6 @@ sub getKey {    # $key ($s)
   }
   $sR->name( uc $s );
   return $sR;
-}
-
-{
-  package DirSearchRec;
-  use PerlX::Assert::PP;
-  use Scalar::Util qw( blessed );
-  use base 'TSearchRec';
-  sub readFf_blk { # void ($f)
-    my ( $self, $f ) = @_;
-    assert ( @_ == 2 );
-    assert ( blessed $self );
-    assert ( blessed $f );
-    $self->attr( $f->ff_attrib );
-    $self->time( ( $f->ff_fdate() << 16 ) | $f->ff_ftime );
-    $self->size( $f->ff_fsize );
-    $self->name( $f->ff_name );
-  }
-  $INC{"DirSearchRec.pm"} = 1;
 }
 
 1

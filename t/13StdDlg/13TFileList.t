@@ -16,10 +16,7 @@ my $owner;
 
 subtest 'Object creation' => sub {
   my $bounds = TRect->new( ax => 0, ay => 0, bx => 20, by => 10 );
-  $list = TV::StdDlg::FileList->new(
-    bounds     => $bounds,
-    vScrollBar => undef,
-  );
+  $list = TFileList->new( bounds => $bounds, vScrollBar => undef );
   isa_ok( $list, TFileList() );
 
   $owner = TGroup->new( bounds => $bounds);

@@ -13,6 +13,7 @@ our @EXPORT_OK = qw(
 );
 
 our %EXPORT_TAGS = (
+
   cmXXXX => [qw(
     cmFileOpen
     cmFileReplace
@@ -26,6 +27,10 @@ our %EXPORT_TAGS = (
     cmFileDoubleClicked
   )],
 
+  cpXXXX => [qw(
+    cpInfoPane
+  )],
+ 
   FA_ => [qw(
     FA_NORMAL
     FA_RDONLY
@@ -96,6 +101,10 @@ use constant {
   cmFileFocused       => 102,    # A new file was focused in the TFileList
   cmFileDoubleClicked => 103,    # A file was selected in the TFileList
 };
+
+# TFileInfoPane palette layout
+
+use constant cpInfoPane => "\x1E";
 
 # DOS-Attributes for File Dialogs
 
