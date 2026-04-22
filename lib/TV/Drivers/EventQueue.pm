@@ -9,7 +9,7 @@ our @EXPORT = qw(
 );
 
 use PerlX::Assert::PP;
-
+use TV::toolkit::boolean;
 use TV::Drivers::Const qw( 
   :evXXXX 
   :meXXXX
@@ -24,8 +24,8 @@ sub TEventQueue() { __PACKAGE__ }
 # predeclare global variable names
 our $downTicks = 0;
 
-our $mouseEvents  = !!0;
-our $mouseReverse = !!0;
+our $mouseEvents  = false;
+our $mouseReverse = false;
 our $doubleDelay  = 8;
 our $repeatDelay  = 8;
 our $autoTicks    = 0;
@@ -58,7 +58,7 @@ sub resume {    # void ($class)
 
   THardwareInfo->clearPendingEvent();
 
-  $mouseEvents = !!1;
+  $mouseEvents = true;
   eval {
     TMouse->setRange( 
       $TV::Drivers::Screen::screenWidth - 1, 
@@ -82,7 +82,7 @@ my $getMouseState = sub {    # $bool ($class, $ev)
   assert ( ref $ev );
   $ev->{what} = evNothing;
 
-  return !!0 unless THardwareInfo->getMouseEvent( $curMouse );
+  return false unless THardwareInfo->getMouseEvent( $curMouse );
 
   if ( $mouseReverse && $curMouse->{buttons} && $curMouse->{buttons} != 3 ) {
     $curMouse->{buttons} ^= 3;
@@ -91,7 +91,7 @@ my $getMouseState = sub {    # $bool ($class, $ev)
   # Temporarily save tick count when event was read.
   $ticks = THardwareInfo->getTickCount();
   $ev->{mouse} = $curMouse->clone();
-  return !!1;
+  return true;
 }; #/ $getMouseState = sub
 
 sub getMouseEvent {    # void ($class, $ev)

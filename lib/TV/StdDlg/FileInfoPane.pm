@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TFileInfoPane
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types

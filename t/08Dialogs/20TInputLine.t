@@ -19,12 +19,14 @@ BEGIN {
   use_ok 'TV::Drivers::Event';
   use_ok 'TV::Views::Const', qw( :sfXXXX );
   use_ok 'TV::Dialogs::InputLine';
+  require_ok 'TV::toolkit';
 }
 
 # Mock subclass to intercept drawing/UI-related calls
 BEGIN {
   package MyInputLine;
-  use parent 'TV::Dialogs::InputLine';
+  use TV::toolkit;
+  extends 'TV::Dialogs::InputLine';
 
   # Just record that these methods were called; no real UI required
   sub drawView  { ::pass('drawView called') }

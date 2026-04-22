@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TScroller
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -50,7 +48,7 @@ has delta      => ( is => 'rw', default => sub { TPoint->new } );
 
 # protected attributes
 has drawLock   => ( is => 'ro', default => 0 );
-has drawFlag   => ( is => 'ro', default => !!0 );
+has drawFlag   => ( is => 'ro', default => false );
 has hScrollBar => ( is => 'ro', default => sub { die 'required' } );
 has vScrollBar => ( is => 'ro', default => sub { die 'required' } );
 has limit      => ( is => 'ro', default => sub { TPoint->new } );
@@ -71,7 +69,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -105,7 +103,7 @@ sub changeBounds {    # void ($bounds)
   $self->{drawLock}++;
   $self->setLimit( $self->{limit}{x}, $self->{limit}{y} );
   $self->{drawLock}--;
-  $self->{drawFlag} = !!0;
+  $self->{drawFlag} = false;
   $self->drawView();
   return;
 }
@@ -168,7 +166,7 @@ sub scrollDraw {    # void ()
     );
     $self->{delta} = $d;
     if ( $self->{drawLock} ) {
-      $self->{drawFlag} = !!1;
+      $self->{drawFlag} = true;
     }
     else {
       $self->drawView();
@@ -240,7 +238,7 @@ sub checkDraw {    # void ()
   );
   my ( $self ) = $sig->( @_ );
   if ( $self->{drawLock} == 0 && $self->{drawFlag} ) {
-    $self->{drawFlag} = !!0;
+    $self->{drawFlag} = false;
     $self->drawView();
   }
   return;

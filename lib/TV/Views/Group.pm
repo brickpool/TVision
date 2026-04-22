@@ -16,13 +16,11 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use PerlX::Assert::PP;
 use Scalar::Util qw(
   weaken
   isweak
 );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -156,7 +154,7 @@ sub execView {    # $int ($p|undef)
   $self->getCommands( $saveCommands );
   weaken( $TheTopView = $p );
   $p->{options} &= ~ofSelectable;
-  $p->setState( sfModal, !!1 );
+  $p->setState( sfModal, true );
   $self->setCurrent( $p, enterSelect );
   $self->insert( $p )
     unless $saveOwner;
@@ -164,7 +162,7 @@ sub execView {    # $int ($p|undef)
   $self->remove( $p )
     unless $saveOwner;
   $self->setCurrent( $saveCurrent, leaveSelect );
-  $p->setState( sfModal, !!0 );
+  $p->setState( sfModal, false );
   $p->{options} = $saveOptions;
   weaken( $TheTopView = $saveTopView );
   $self->setCommands( $saveCommands );
@@ -350,13 +348,13 @@ sub setCurrent {    # void ($p|undef, $mode)
     if $self->{current} == $p;
 
   $self->lock();
-  $self->$focusView( $self->{current}, !!0 );
-  $self->{current}->setState( sfSelected, !!0 )
+  $self->$focusView( $self->{current}, false );
+  $self->{current}->setState( sfSelected, false )
     if $mode != enterSelect 
     && $self->{current};
-  $p->setState( sfSelected, !!1 ) 
+  $p->setState( sfSelected, true ) 
     if $mode != leaveSelect && $p;
-  $p->setState( sfFocused, !!1 ) 
+  $p->setState( sfFocused, true ) 
     if ( $self->{state} & sfFocused ) && $p;
   $self->current( $p );
   $self->unlock();
@@ -405,7 +403,7 @@ sub focusNext {    # $bool ($forwards)
   );
   my ( $self, $forwards ) = $sig->( @_ );
   my $p = $self->$findNext( $forwards );
-  return $p ? $p->focus() : !!1;
+  return $p ? $p->focus() : true;
 }
 
 sub forEach {    # void (\&action, @args)
@@ -459,7 +457,7 @@ sub insertBefore {    # void ($p, $Target|undef)
     $self->insertView( $p, $Target );
     $p->show()
       if $saveState & sfVisible;
-    $p->setState( sfActive, !!1 )
+    $p->setState( sfActive, true )
       if $saveState & sfActive;
   } #/ if ( $p && !$p->owner(...))
 } #/ sub insertBefore
@@ -929,7 +927,7 @@ sub valid {    # $bool ($command)
       return $self->{current}->valid( $command );
     }
     else {
-      return !!1;
+      return true;
     }
   }
   return !$self->firstThat( $isInvalid, \$command );

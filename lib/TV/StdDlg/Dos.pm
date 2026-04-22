@@ -12,7 +12,7 @@ our @EXPORT_OK = qw(
 );
 
 use Class::Struct;
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( signature );
 use TV::toolkit::Types qw( :types );
 
 use TV::StdDlg::FindFirstRec;

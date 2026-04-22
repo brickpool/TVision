@@ -16,13 +16,11 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use PerlX::Assert::PP;
 use Scalar::Util qw(
   weaken
   isweak
 );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -44,7 +42,7 @@ sub BUILDARGS {    # \%args ()
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return $args ? { %$args } : {};
 }
 
 sub from {    # $obj ();
@@ -57,11 +55,9 @@ sub from {    # $obj ();
 }
 
 sub destroy {    # void ($class|$self, $o|undef)
-  state $sig = signature(
-    method => 1,
-    pos => [Maybe[Item]],
-  );
-  my ( $class, $o ) = $sig->( @_ );
+  my ( $class, $o ) = @_;
+  assert ( defined $class );
+  assert ( !defined $o or is_Object $o );
   $class = ref $class || $class;
   alias: for $o ( $_[1] ) {
   if ( defined $o ) {

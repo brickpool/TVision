@@ -15,10 +15,8 @@ our @EXPORT = qw(
   new_TClockView
 );
 
-use PerlX::Assert::PP;
 use POSIX qw( strftime );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw( :Object );
 
 use TV::Views::DrawBuffer;

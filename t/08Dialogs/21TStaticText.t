@@ -11,12 +11,14 @@ BEGIN {
   use_ok 'TV::Views::Palette';
   use_ok 'TV::Views::View';
   use_ok 'TV::Dialogs::StaticText';
+  require_ok 'TV::toolkit';
 }
 
 # Mock class to intercept writeLine calls
 BEGIN {
   package MyStaticText;
-  use parent 'TV::Dialogs::StaticText';
+  use TV::toolkit;
+  extends 'TV::Dialogs::StaticText';
   our @WRITE_LINES;
   sub writeLine {
     shift;

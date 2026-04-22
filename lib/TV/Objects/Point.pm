@@ -16,9 +16,8 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( :utils );
 use TV::toolkit::Types qw(
   :is
   :types
@@ -39,11 +38,15 @@ sub new {    # \$obj (%args)
   state $sig = signature(
     method => 1,
     named  => [
-      x => Int, { default => 0 },
-      y => Int, { default => 0 },
+      x => Int, { optional => 1 },
+      y => Int, { optional => 1 },
     ],
   );
-  my ( $class, $self ) = $sig->( @_ );
+  my ( $class, $args ) = $sig->( @_ );
+  my $self = {
+    x => $args->{x} // $HAS{x}->(),
+    y => $args->{y} // $HAS{y}->(),
+  };
   bless $self, $class;
   Hash::Util::lock_keys( %$self ) if STRICT;
   return $self;

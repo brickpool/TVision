@@ -16,9 +16,7 @@ our @EXPORT = qw(
   new_THistory
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -71,7 +69,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -156,7 +154,7 @@ sub handleEvent {    # void ($event)
         my $rslt;
         $historyWindow->getSelection( \$rslt );
         $self->{link}{data} = substr( $rslt, 0, $self->{link}{maxLen} );
-        $self->{link}->selectAll( !!1 );
+        $self->{link}->selectAll( true );
         $self->{link}->drawView();
       }
       $self->destroy( $historyWindow );

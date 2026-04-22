@@ -20,12 +20,14 @@ BEGIN {
     cmCancel
   );
   use_ok 'TV::Dialogs::Dialog';
+  require_ok 'TV::toolkit';
 }
 
 # Mock putEvent and clearEvent
 BEGIN {
   package MyDialog;
-  use parent 'TV::Dialogs::Dialog';
+  use TV::toolkit;
+  extends 'TV::Dialogs::Dialog';
   sub putEvent   { ::pass( 'putEvent called' ) }
   sub clearEvent { ::pass( 'clearEvent called' ) }
   $INC{"MyDialog.pm"} = 1;

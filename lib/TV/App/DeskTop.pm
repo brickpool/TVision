@@ -16,10 +16,8 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use Scalar::Util qw( weaken );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   :is
   Object
@@ -163,7 +161,7 @@ sub handleEvent {    # void ($event)
   if ( $event->{what} == evCommand ) {
     SWITCH: for ( $event->{message}{command} ) {
       cmNext == $_ and do {
-        $self->selectNext( !!0 )
+        $self->selectNext( false )
           if $self->valid( cmReleasedFocus );    # <-- Check valid.
         last;
       };

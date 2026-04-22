@@ -8,7 +8,7 @@ BEGIN {
   use_ok 'TV::Objects::Rect';
   use_ok 'TV::TextView::TextDevice';
   use_ok 'TV::Views::ScrollBar';
-  use_ok 'TV::toolkit';
+  require_ok 'TV::toolkit';
 }
 
 # Create a subclass for tests that implements do_sputn
@@ -18,8 +18,8 @@ BEGIN {
 
   extends 'TV::TextView::TextDevice';
 
-  has io   => ( id => 'bare' );
-  has data => ( id => 'ro', default => sub { '' } );
+  has io   => ( is => 'bare' );
+  has data => ( is => 'ro', default => sub { '' } );
 
   sub BUILD    { open( $_[0]->{io}, '>:raw', \$_[0]->{data} ) }
   sub do_sputn { shift->{io}->print(shift); shift }

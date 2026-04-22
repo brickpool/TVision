@@ -19,6 +19,7 @@ use Scalar::Util qw(
   looks_like_number
   readonly
 );
+use TV::toolkit::boolean;
 use Win32;
 use Win32::API;
 use Win32::Console;
@@ -128,10 +129,10 @@ PRIVATE: {
 }
 
 # declare global variables
-our $insertState   = !!1;
+our $insertState   = true;
 our $platform      = '';
 our @consoleHandle = ();
-our $ownsConsole   = !!0;
+our $ownsConsole   = false;
 our $consoleMode   = 0;
 our $pendingEvent  = 0;
 our @irBuffer      = ();
@@ -236,7 +237,7 @@ INIT {
     unless ( $have_console ) {
       Win32::Console::Free();
       Win32::Console::Alloc();
-      $ownsConsole = !!1;
+      $ownsConsole = true;
     }
 
     unless ( $consoleHandle[cnInput] ) {
@@ -507,9 +508,9 @@ sub getMouseEvent {    # $bool ($class, $event)
     $event->{controlKeyState} = $irBuffer[dwControlKeyState2];
 
     $pendingEvent = 0;
-    return !!1;
+    return true;
   } #/ if ( $pendingEvent && ...)
-  return !!0;
+  return false;
 } #/ sub getMouseEvent
 
 sub getKeyEvent {    # $bool ($class, $event)
@@ -564,11 +565,11 @@ sub getKeyEvent {    # $bool ($class, $event)
       }
 
       if ( $event->{keyDown}{keyCode} == kbCtrlC ) {
-        $ctrlBreakHit = !!1;
+        $ctrlBreakHit = true;
       }
 
       $pendingEvent = 0;
-      return !!1;
+      return true;
     } #/ if ( $irBuffer[EventType...])
     elsif ( $irBuffer[EventType] != MOUSE_EVENT ) {
       # Ignore all events except mouse events.  Pending mouse events will
@@ -577,7 +578,7 @@ sub getKeyEvent {    # $bool ($class, $event)
     }
   } #/ if ( $pendingEvent )
 
-  return !!0;
+  return false;
 } #/ sub getKeyEvent
 
 # System functions.
@@ -600,7 +601,7 @@ sub setCritErrorHandler {  # $bool ($class, $install)
   assert ( $_[0] and !ref $_[0] );
   assert ( !defined $_[1] or !ref $_[1] );
   # Handled by Windows
-  return !!1;
+  return true;
 }
 
 my $ctrlBreakHandler = sub { ... };

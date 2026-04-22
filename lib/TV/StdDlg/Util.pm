@@ -16,9 +16,11 @@ our @EXPORT_OK = qw(
   getHomeDir
 );
 
-use PerlX::Assert::PP;
 use Scalar::Util qw( readonly );
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw(
+  :boolean
+  :utils
+);
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -186,7 +188,7 @@ sub getHomeDir {    # $bool ($drive, $dir)
       if ( defined $dir ) {
         $_[1] = $dir = substr( $homepath, 0, MAXDIR );
       }
-      return !!1;
+      return true;
     }
   } 
   else {
@@ -198,10 +200,10 @@ sub getHomeDir {    # $bool ($drive, $dir)
       if ( defined $dir ) {
         $_[1] = $dir = substr( $home, 0, MAXPATH );
       }
-      return !!1;
+      return true;
     }
   }
-  return !!0;
+  return false;
 }
 
 sub getCurDir {    # void ($dir, $drive)

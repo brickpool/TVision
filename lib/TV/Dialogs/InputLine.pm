@@ -16,9 +16,7 @@ our @EXPORT = qw(
 );
 
 use List::Util qw( min max );
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -103,7 +101,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -311,7 +309,7 @@ sub handleEvent {    # void ($event)
             if ( $self->{firstPos} > 0 ) {
               $self->{firstPos}--;
             }
-            $self->$checkValid( !!1 );
+            $self->$checkValid( true );
           } #/ if ( $self->{curPos} >...)
           last;
         };
@@ -323,7 +321,7 @@ sub handleEvent {    # void ($event)
             }
           }
           $self->$deleteSelect();
-          $self->$checkValid( !!1 );
+          $self->$checkValid( true );
           last;
         };
         kbIns == $_ and do {
@@ -340,7 +338,7 @@ sub handleEvent {    # void ($event)
                 substr( $self->{data}, $self->{curPos}, 1, '' );
               }
             }
-            if ( $self->$checkValid( !!1 ) ) {
+            if ( $self->$checkValid( true ) ) {
               my $strlen = length( $self->{data} );
               if ( $strlen < $self->{maxLen} ) {
                 if ( $self->{firstPos} > $self->{curPos} ) {
@@ -354,7 +352,7 @@ sub handleEvent {    # void ($event)
                 substr( $self->{data}, $self->{curPos}, 1 ) = chr( $ch );
                 $self->{curPos}++;
               }
-              $self->$checkValid( !!0 );
+              $self->$checkValid( false );
             } #/ if ( $self->$checkValid...)
           } #/ if ( defined $ch && $ch...)
           elsif ( defined $ch && $ch == CONTROL_Y ) {
@@ -417,7 +415,7 @@ sub setData {    # void (\@rec)
     assert ( defined $rec->[0] and !ref $rec->[0] );
     $self->{data} = substr( $rec->[0], 0, $self->{maxLen} );
   } #/ if ( !$self->{validator...})
-  $self->selectAll( !!1 );
+  $self->selectAll( true );
   return;
 } #/ sub setData
 
@@ -461,7 +459,7 @@ $canScroll = sub {    # bool ($delta)
     return length( $self->{data} ) - $self->{firstPos} + 2 > $self->{size}{x};
   }
   else {
-    return !!0;
+    return false;
   }
 };
 
@@ -559,12 +557,12 @@ $checkValid = sub {   # $bool ($noAutoFill)
   assert ( @_ == 2 );
   assert ( is_Object $self );
   assert ( is_Bool $noAutoFill );
-  return !!1 unless $self->{validator};
+  return true unless $self->{validator};
   my $oldLen = length( $self->{data} );
   my $newData = $self->{data};
   if ( !$self->{validator}->isValidInput( $newData, $noAutoFill ) ) {
     $self->$restoreState();
-    return !!0;
+    return false;
   }
   else {
     if ( length( $newData ) > $self->{maxLen} ) {
@@ -574,7 +572,7 @@ $checkValid = sub {   # $bool ($noAutoFill)
     if ( $self->{curPos} >= $oldLen && length( $self->{data} ) > $oldLen ) {
       $self->{curPos} = length( $self->{data} );
     }
-    return !!1;
+    return true;
   } #/ else [ if ( !$self->{validator...})]
 };
 

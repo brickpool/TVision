@@ -19,8 +19,7 @@ our @EXPORT_OK = qw(
   printMouseEventFlags
 );
 
-use PerlX::Assert::PP;
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( :utils );
 use TV::toolkit::Types qw(
   :is
   :types

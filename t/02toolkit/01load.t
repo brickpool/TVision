@@ -3,27 +3,17 @@ use warnings;
 
 use Test::More;
 
-
 BEGIN {
-  if ( eval { require UNIVERSAL::Object } ) {
-    use_ok 'slots::less';
-    use_ok 'TV::toolkit::LOP::UNIVERSAL::Object';
-  }
-  use_ok 'TV::toolkit::LOP::Class::Fields';
-  if ( eval { require Class::Tiny } ) {
-    use_ok 'TV::toolkit::LOP::Class::Tiny';
-  }
-  if ( eval { require Moo } ) {
-    use_ok 'TV::toolkit::LOP::Moo';
-  }
-  if ( eval { require Moose } ) {
-    use_ok 'TV::toolkit::LOP::Moose';
-  }
-  use_ok 'TV::toolkit::Types';
+  use_ok 'TV::toolkit::boolean';
   use_ok 'TV::toolkit::Params';
-  use_ok 'TV::toolkit::LOP';
-  use_ok 'TV::toolkit::decorators';
+  use_ok 'TV::toolkit::Types';
+  if ( eval { require UNIVERSAL::Object } ) {
+    use_ok 'TV::toolkit::UO::Base';
+    use_ok 'TV::toolkit::UO::Antlers';
+  }
   use_ok 'TV::toolkit';
 }
+
+note $TV::toolkit::name;
 
 done_testing();

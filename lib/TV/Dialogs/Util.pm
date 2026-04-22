@@ -13,7 +13,7 @@ our @EXPORT_OK = qw(
   nextWord
 );
 
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( signature );
 use TV::toolkit::Types qw( Str Int );
 
 sub hotKey ($) {    # $hotkey ($s)

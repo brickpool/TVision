@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TStaticText
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -48,7 +46,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -94,7 +92,7 @@ sub draw {    # void ()
   $l      = length( $s );
   $p      = 0;
   $y      = 0;
-  $center = !!0;
+  $center = false;
   while ( $y < $self->{size}{y} ) {
     $b->moveChar( 0, ' ', $color, $self->{size}{x} );
     if ( $p < $l ) {

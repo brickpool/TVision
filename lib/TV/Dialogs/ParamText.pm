@@ -18,7 +18,6 @@ our @EXPORT = qw(
 
 use Carp ();
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw( :types );
 
 use TV::Dialogs::StaticText;

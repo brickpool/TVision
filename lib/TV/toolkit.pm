@@ -1,32 +1,80 @@
 package TV::toolkit;
 
+use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.07';
+our $VERSION   = '0.08';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use autodie::Scope::Guard ();
-use Carp                  ();
+use Carp ();
 use Devel::StrictMode;
 use Import::Into;
-use Module::Loaded        ();
+use Module::Loaded ();
 use PerlX::Assert::PP;
+use Symbol ();
+
+use Importer ();
+our @EXPORT = qw(
+  true
+  false
+  assert
+  has
+  extends
+  signature
+);
+
+our @EXPORT_OK = qw(
+  is_Moo
+  is_Moos
+  is_Moose
+  is_UNIVERSAL
+);
+
+our %EXPORT_TAGS = (
+  all => [
+    @EXPORT, 
+    @EXPORT_OK
+  ],
+
+  backend => [
+    @EXPORT_OK
+  ],
+
+  boolean => [qw(
+    true
+    false
+  )],
+
+  oo => [qw(
+    has
+    extends
+  )],
+
+  utils => [qw(
+    assert
+    signature
+  )],
+);
 
 BEGIN { $] >= 5.010 ? require mro : require MRO::Compat }
 BEGIN { require Devel::GlobalDestruction unless $] >= 5.014 }
+BEGIN { *PERL_ONLY = $ENV{PERL_ONLY} ? sub() { !!1 } : sub() { !!0 } }
+BEGIN { sub XS_ASSERT () { eval q[ require PerlX::Assert ]; !$@ } }
+BEGIN { sub XS_PARAMS () { eval q[ require Type::Params  ]; !$@ } }
+BEGIN { sub SUB_UTIL  () { eval q[ require Sub::Util     ]; !$@ } }
 
 our $name;
 BEGIN {
-  $name = STRICT ? 'fields' : 'Moos';
-  foreach my $toolkit ( qw( fields Moo Moos Moose UNIVERSAL::Object ) ) {
+  $name = STRICT ? 'UNIVERSAL::Object' : 'Moos';
+  foreach my $toolkit ( qw( Moose Moo Moos UNIVERSAL::Object ) ) {
     if ( Module::Loaded::is_loaded $toolkit ) {
       $name = $toolkit;
       last;
     }
   }
 
-  sub is_fields    (){ $name eq 'fields'            }
   sub is_Moo       (){ $name eq 'Moo'               }
   sub is_Moos      (){ $name eq 'Moos'              }
   sub is_Moose     (){ $name eq 'Moose'             }
@@ -35,41 +83,114 @@ BEGIN {
 
 our %ADDED = ();
 
+my %DEFAULT = (
+  Moose => [qw( extends with has before after around override super augment 
+    inner blessed confess )],
+  Moo => [qw( extends with has before after around )],
+  Moos => [qw( extends with has blessed confess )],
+  'UNIVERSAL::Object' => [qw( extends has blessed confess )],
+);
+
 sub import {
+  my ( $class, @imports ) = @_;
   my $caller = caller();
-  return if $caller eq 'main';
   return if $^H{ __PACKAGE__ . "/$caller" };
 
-  if ( is_Moose ) {
-    require Moose;
-    Moose->import::into( $caller );
-  }
-  elsif ( is_Moo ) {
-    require Moo;
-    Moo->import::into( $caller );
-  }
-  elsif ( is_Moos ) {
-    require Moos;
-    Moos->import::into( $caller );
-    _around_hook( $caller, has => \&_my_moos_has );
-    _add_demolish( 'Moos::Object' ) unless $ADDED{DEMOLISH}++;
-  }
-  else {
-    require TV::toolkit::LOP;
-    _init_class( $caller );
-    _create_constructor( $caller );
-    _install_has( $caller );
-    _import_extends( $caller );
+  # Resolve semantic imports
+  my $exports = Importer->get( $class, @imports );
+  my %want    = map { $_ => 1 } keys %$exports;
+
+  # OO backend routing
+  if ( my @syms = grep { $want{$_} } @{ $DEFAULT{$name} } ) {
+
+    # Note: strict and warnings will also be enabled for caller
+    SWITCH: {
+      is_Moose and do {
+        require Moose;
+        Moose->import::into( $caller, @syms );
+        last;
+      };
+      is_Moo and do {
+        require Moo;
+        Moo->import::into( $caller, @syms );
+        last;
+      };
+      is_Moos and do {
+        require Moos;
+        _my_moos_export( $caller, @syms );
+        _around_hook( $caller, has => \&_my_moos_has ) if $want{has};
+        _add_demolish( 'Moos::Object' ) unless $ADDED{DEMOLISH}++;
+        last;
+      };
+      is_UNIVERSAL and do {
+        require TV::toolkit::UO::Antlers;
+        TV::toolkit::UO::Antlers->import::into( $caller, @syms );
+        last;
+      };
+      DEFAULT: {
+        warn "No backend for TV::toolkit\n";
+        last;
+      }
+    } #/ SWITCH:
+
+  } #/ if ( my @syms = grep {...})
+  
+  # boolean backend routing
+  if ( $want{true} || $want{false} ) {
+    require TV::toolkit::boolean;
+    TV::toolkit::boolean->import::into( $caller, 
+      grep { $want{$_} } qw( true false )
+    );
   }
 
+  # assert routed to backend
+  if ( $want{assert} ) {
+    if ( XS_ASSERT and not PERL_ONLY ) {
+      # suppress void warnings for XS backend
+      warnings->unimport( 'void' );
+      PerlX::Assert->import::into( $caller, 'assert' );
+    }
+    else {
+      PerlX::Assert::PP->import::into( $caller );
+    }
+  }
+
+  # signature routed to backend
+  if ( $want{signature} ) {
+    if ( XS_PARAMS and not PERL_ONLY ) {
+      Type::Params->import::into( $caller, 'signature' );
+    }
+    else {
+      TV::toolkit::Params->import::into( $caller, 'signature' );
+    }
+  }
+
+  # Add a dump method to the class if it doesn't already have one
   $^H{ __PACKAGE__ . "/$caller" } = autodie::Scope::Guard->new(sub {
     _add_dump( $caller ) unless $caller->can( 'dump' );
   });
+
+  # exports living in this module
+  Importer->import_into( $class, $caller, @{ $EXPORT_TAGS{backend} } );
 } #/ sub import
 
 sub unimport {
   my $caller = caller();
   return unless $^H{ __PACKAGE__ . "/$caller" };
+
+  if ( XS_PARAMS and not PERL_ONLY ) {
+    Type::Params->unimport::out_of( $caller );
+  }
+  else {
+    TV::toolkit::Params->unimport::out_of( $caller );
+  }
+  if ( XS_ASSERT and not PERL_ONLY ) {
+    PerlX::Assert->unimport::out_of( $caller );
+  }
+  else {
+    PerlX::Assert::PP->unimport::out_of( $caller );
+  }
+  TV::toolkit::boolean->unimport::out_of( $caller );
   if ( is_Moose ) {
     Moose->unimport::out_of( $caller );
   }
@@ -78,54 +199,43 @@ sub unimport {
   }
   elsif ( is_Moos ) {
     Moos->unimport::out_of( $caller );
-    _delete_method( $caller, $_ ) for qw( has extends with );
   } 
-  else {
-    _delete_method( $caller, $_ ) for qw( has extends );
-  }
+
   $^H{ __PACKAGE__ . "/$caller" } = 0;
 }
 
-sub extends {
-  TV::toolkit::LOP->init( caller() )->extend_class( @_ );
+# Split fully qualified name into package and symbol
+sub _split_fqn {    # ($pkg, $sym) = _split_fqn($fqn)
+  my ( $fqn ) = @_;
+  assert ( defined $fqn && !ref $fqn );
+  my ( $pkg, $sym ) = $fqn =~ m/^(.*)::([^:]+)\z/ 
+                    ? ( $1, $2 ) 
+                    : ( 'main', $fqn );
+  $pkg = 'main' if !defined( $pkg ) || $pkg eq '';
+  return ( $pkg, $sym );
 }
 
-# Adds the C<has> keyword to the class
-sub _install_has {    # void ($target)
-  my ( $proto, $name ) = @_;
-  assert ( $proto );
-  my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  $target->have_accessors( 'has' );
-  return;
-}
+# Get the symbol table hash for a package, or undef if it does not exist
+sub _get_package_stash {    # \%stash|undef ($pkg)
+  my ( $pkg ) = @_;
+  assert ( defined $pkg && !ref $pkg );
 
-# Create a constructor for the specified target
-sub _create_constructor {    # void ($target)
-  my ( $proto ) = @_;
-  assert ( $proto );
-  my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  $target->create_constructor();
-  return;
-}
+  return \%:: if $pkg eq '' || $pkg eq 'main';
 
-# L<Class::LOP> classes require class initialization
-sub _init_class {    # void ($target)
-  my ( $proto ) = @_;
-  assert ( $proto );
-  my $target = TV::toolkit::LOP->init( ref $proto || $proto );
-  Carp->import( 'verbose' ) if STRICT;    # STRICT enables verbose stack traces
-  $target->warnings_strict();             # enable warnings
-  return;
-}
+  $pkg =~ s/::\z//;
+  my @parts = split /::/, $pkg;
+  my $stash = \%::;    # main::
 
-# Injects C<extends> keyword to the class
-sub _import_extends {    # void ($target)
-  my ( $proto ) = @_;
-  assert ( $proto );
-  my $target = ref $proto || $proto;
-  my $me = TV::toolkit::LOP->init( __PACKAGE__ );
-  $me->import_methods( $target => 'extends' );
-  return;
+  no strict 'refs';
+  for my $p (@parts) {
+    return undef if $p eq '';
+    my $key = "${p}::";
+    return undef if !exists $stash->{$key};
+    my $glob = $stash->{$key};
+    my $next = *{$glob}{HASH} or return undef;
+    $stash = $next;
+  }
+  return $stash;
 }
 
 # Adds a new method to an existing class
@@ -134,28 +244,22 @@ sub _create_method {    # void ($class, $name, \&code)
   assert ( defined $class and !ref $class );
   assert ( defined $name and !ref $name );
   assert ( defined $code and ref $code eq 'CODE' );
+  
+  # Build fully-qualified name (keeps $name if already qualified)
+  my $fqn = Symbol::qualify( $name, $class );
+  my ( $pkg, $sym ) = _split_fqn( $fqn );
 
-  no strict 'refs';
-  unless ( %{"${class}::"} ) {
-    warn "Can't create ${name} in ${class}, because ${class} does not exist\n";
+  my $stash = _get_package_stash( $pkg );
+  unless ( defined $stash ) {
+    warn "Cannot add method $fqn to non-existing package $pkg\n";
     return;
   }
-  *{"${class}::${name}"} = $code;
+
+  $code = Sub::Util::set_subname( $fqn, $code ) if SUB_UTIL;    # nicer traces
+  my $glob = Symbol::qualify_to_ref( $sym, $pkg );
+  *{$glob} = $code;   # warns if redefining an existing method
   return;
 } #/ sub _create_method
-
-# Remove symbol slot from class
-sub _delete_method {    # void ($class, $name)
-  my ( $class, $name ) = @_;
-  assert ( defined $class and !ref $class );
-  assert ( defined $name and !ref $name );
-
-  no strict 'refs';
-  if ( exists ${"${class}::"}{$name} ) {
-    delete ${"${class}::"}{$name};
-  }
-  return;
-} #/ sub _delete_method
 
 # An around method modifier without checking of an existing method
 sub _around_hook {    # void ($class, $name, \&code)
@@ -164,15 +268,28 @@ sub _around_hook {    # void ($class, $name, \&code)
   assert ( defined $name and !ref $name );
   assert ( defined $code and ref $code eq 'CODE' );
 
-  my $orig = $class->can($name);
-  unless ( $orig ) {
-    warn "${class}::${name}: cannot wrap non-existing method\n";
+  my $fqn = Symbol::qualify( $name, $class );    # builds full name
+  my ( $pkg, $sym ) = _split_fqn( $fqn );
+
+  my $stash = _get_package_stash( $pkg );
+  unless ( defined $stash ) {
+    warn "Cannot hook method $fqn from non-existing package $pkg\n";
     return;
   }
 
-  no strict 'refs';
+  # glob ref for installation
+  my $glob = Symbol::qualify_to_ref( $sym, $pkg );
+  my $orig = *{$glob}{CODE};
+  unless ( $orig ) {
+    warn "Cannot wrap non-existing method $fqn\n";
+    return;
+  }
+
+  my $wrapper = sub { $code->( $orig, @_ ) };
+  $wrapper = Sub::Util::set_subname( $fqn, $wrapper ) if SUB_UTIL;
+
   no warnings 'redefine';
-  *{"${class}::${name}"} = sub { $code->( $orig, @_ ) };
+  *{$glob} = $wrapper;
   return;
 } #/ sub _around_hook
 
@@ -190,6 +307,24 @@ sub _my_moos_has {    # $return (\&orig, $self, @_)
   }
   return $self->$orig( %args );
 } #/ sub _my_moos_has
+
+# Import only what is requested and not the Moos default
+sub _my_moos_export {    # void ($caller, @names)
+  my ( $caller, @names ) = @_;
+  {
+    no warnings 'redefine';
+    local *Moos::_export = sub { };
+    Moos->import::into( $caller );
+  }
+  my $meta = Moos::Meta::Class->initialize( $caller );
+  for my $name ( @names ) {
+    my $code = Moos->can( $name )
+      or Carp::croak "Moos has no keyword '$name'";
+
+    Moos::_export( $caller, $name => $code, $meta );
+  }
+  return;
+}
 
 # Provide an equivalent dump method using L<Data::Dumper>, unless one already 
 # exists
@@ -253,12 +388,12 @@ TV::toolkit - Unified OO facade using Moos/Moo/Moose when available
 =head1 SYNOPSIS
 
   package Point;
-  use TV::toolkit;
+  use TV::toolkit;   # has extends signature assert true false
 
   has x => ( is => 'rw' );
   has y => ( is => 'rw' );
 
-  no TV::toolkit;  # remove keywords (has, extends)
+  no TV::toolkit;  # remove keywords (has, extends, etc.) from namespace
                    # keep methods (new, dump, DESTROY)
 
   my $p = Point->new( x => 1, y => 2 );
@@ -287,15 +422,24 @@ keywords and behaviors, including:
 
 =over 4
 
+=item * define C<true> and C<false> constants
+
+=item * C<assert> - assertion keyword
+
 =item * C<has> - attribute declaration
 
 =item * C<extends> - simple class inheritance
+
+=item * C<signature> - subroutine signature validation
 
 =item * an optional C<dump> method, unless already present
 
 =item * a C<DESTROY> method that dispatches C<DEMOLISH> in MRO order
 
 =back
+
+Importing of C<blessed> and C<confess> are not provided, but can be imported 
+from L<Scalar::Util> and L<Carp> respectively.
 
 The goal is to provide a predictable minimum OO feature set regardless of
 which backend toolkit is already in use.
@@ -335,6 +479,10 @@ other toolkits are available. It is not intended to be a full object system.
 =item * L<Moose>
 
 =item * L<Devel::StrictMode>
+
+=item * L<Type::Params>
+
+=item * L<PerlX::Assert>
 
 =back
 

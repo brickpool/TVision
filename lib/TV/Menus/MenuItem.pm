@@ -17,10 +17,8 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   is_Object
@@ -37,7 +35,7 @@ sub new_TMenuItem { __PACKAGE__->from(@_) }
 has next     => ( is => 'rw' );
 has name     => ( is => 'rw', default => sub { die 'required' } );
 has command  => ( is => 'rw', default => 0 );
-has disabled => ( is => 'rw', default => !!0 );
+has disabled => ( is => 'rw', default => false );
 has keyCode  => ( is => 'rw', default => sub { die 'required' }  );
 has helpCtx  => ( is => 'rw', default => hcNoContext );
 has param    => ( is => 'rw', default => '' );
@@ -58,7 +56,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)

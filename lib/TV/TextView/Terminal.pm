@@ -17,9 +17,7 @@ our @EXPORT = qw(
 
 require bytes;
 use List::Util qw( min max );
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -58,7 +56,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -316,10 +314,10 @@ my $findLfBackwards = sub {    # $bool ($buffer, $pos, $count)
   # Post: 'pos' points to the last checked character.
   ++$pos;
   do {
-    return !!1 
+    return true 
       if substr( $buffer, --$pos, 1 ) eq "\n";
   } while ( --$count > 0 );
-  return !!0;
+  return false;
   } #/ alias: for my $pos ( $_[1] )
 };
 

@@ -16,11 +16,9 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use Errno qw( EFAULT EINVAL );
 use Hash::Util::FieldHash qw( id );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -62,7 +60,7 @@ sub BUILDARGS {    # \%args (|%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)

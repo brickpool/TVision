@@ -16,7 +16,7 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types

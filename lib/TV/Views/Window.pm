@@ -16,9 +16,7 @@ our @EXPORT = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -235,12 +233,12 @@ sub handleEvent {    # void ($event)
   elsif ( $event->{what} == evKeyDown ) {
     SWITCH: for ( $event->{keyDown}{keyCode} ) {
       kbTab == $_ and do {
-        $self->focusNext( !!0 );
+        $self->focusNext( false );
         $self->clearEvent( $event );
         last;
       };
       kbShiftTab == $_ and do {
-        $self->focusNext( !!1 );
+        $self->focusNext( true );
         $self->clearEvent( $event );
         last;
       };

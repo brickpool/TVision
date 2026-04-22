@@ -8,6 +8,8 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
+use TV::toolkit::boolean;
+
 use Exporter 'import';
 
 our @EXPORT_OK = qw(
@@ -15,7 +17,7 @@ our @EXPORT_OK = qw(
 );
 
 sub lowMemory () {    # $bool ()
-  !!0;
+  false;
 }
 
 1

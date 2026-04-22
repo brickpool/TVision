@@ -6,7 +6,15 @@ use Test::Exception;
 
 BEGIN {
   require_ok 'Moos';
-  use_ok 'TV::toolkit';
+  use_ok 'TV::toolkit', qw( /^is_/ signature );
+}
+
+BEGIN {
+  package Export::Ok;
+  use Scalar::Util qw( blessed );
+  use TV::toolkit;
+  assert ( TV::toolkit::is_Moos );
+  $INC{"Export/Ok.pm"} = 1;
 }
 
 BEGIN {
@@ -33,36 +41,40 @@ BEGIN {
   $INC{"Point3D.pm"} = 1;
 }
 
-is $TV::toolkit::name, 'Moos', 'Toolkit is Moos';
-ok TV::toolkit::is_Moos(), 'TV::toolkit::is_Moos is set to true';
+use_ok 'Export::Ok';
+use_ok 'Point';
+use_ok 'Point3D';
+
+note "Toolkit is $TV::toolkit::name";
+
+subtest 'Import' => sub {
+  ok( main->can('is_Moos'), 'symbol is_Moos exists' );
+  ok( main->can('signature'), 'signature is imported' );
+  ok is_Moos(), 'is_Moos is set to true';
+
+  ok( Export::Ok->can( 'blessed' ), 'blessed was not deleted' );
+  ok( !Export::Ok->can( 'confess' ), 'confess was not imported' );
+  can_ok( 'Export::Ok', $_ ) for qw( true false has extends signature );
+};
 
 subtest 'Point' => sub {
-  plan tests => 3 + 1;
+  plan tests => 6 + 1;
   my $point = Point->new( x => 2, y => 3 );
   isa_ok( $point, 'Point', 'Object is of class Point' );
   is_deeply( $point, { x => 2, y => 3 }, 'point is set correctly' );
   can_ok( $point, 'dump' );
+  can_ok( $point, $_ ) for qw( x y );
+  ok( !Point->can( 'z' ), "!Point->can('z')" );
 };
 
 subtest 'Point3D' => sub {
-  plan tests => 4 + 2;
+  plan tests => 7 + 2;
   my $point = Point3D->new( x => 1, y => 2, z => 3 );
   isa_ok( $point, 'Point3D', 'Object is of class Point3D' );
   is_deeply( $point, { x => 1, y => 2, z => 3 }, 'point is set correctly' );
   can_ok( $point, 'dump' );
+  can_ok( $point, $_ ) for qw( x y z );
   is( $point->dump(), "custom", 'existing dump method preserved' );
-};
-
-subtest 'install and remove keywords' => sub {
-  my $point = Point->new( x => 2, y => 3 );
-  can_ok( $point, qw( x y ) );
-  ok( !Point->can( 'z' ), "!Point->can('z')" );
-
-  $point = Point3D->new( x => 1, y => 2, z => 3 );
-  can_ok( $point, qw( x y z ) );
-
-  ok( !$point->can( 'has' ), "'has' removed after no TV::toolkit" );
-  ok( !$point->can( 'extends' ), "'extends' removed after no TV::toolkit" );
 };
 
 subtest 'create_method redefine warns' => sub {

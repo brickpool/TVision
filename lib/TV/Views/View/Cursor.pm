@@ -9,8 +9,10 @@ our $VERSION = '2.000_001';
 $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
-use PerlX::Assert::PP;
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw(
+  :boolean
+  :utils
+);
 use TV::toolkit::Types qw( :Object );
 
 use TV::Drivers::HardwareInfo;
@@ -95,10 +97,10 @@ $caretCovered = sub {    # $bool ($v)
       && ( $u->{origin}{y} <= $y && $y < $u->{origin}{y} + $u->{size}{y} )
       && ( $u->{origin}{x} <= $x && $x < $u->{origin}{x} + $u->{size}{x} ) 
     ) {
-      return !!1;
+      return true;
     }
   }
-  return !!0;
+  return false;
 }; #/ sub $caretCovered
 
 $decideCaretSize = sub {    # $int ()

@@ -12,6 +12,7 @@ our @EXPORT = qw(
 use Devel::StrictMode;
 use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
+use TV::toolkit::boolean;
 
 use TV::Drivers::HardwareInfo;
 
@@ -19,8 +20,8 @@ sub THWMouse() { __PACKAGE__ }
 
 # predeclare global variable names
 our $buttonCount      = 0;
-our $handlerInstalled = !!0;
-our $noMouse          = !!0;
+our $handlerInstalled = false;
+our $noMouse          = false;
 
 INIT {
   THWMouse->resume();
@@ -71,7 +72,7 @@ sub suspend {    # void ($class)
   my $class = shift;
   assert ( $class and !ref $class );
   $class->hide();
-  $buttonCount = !!0;
+  $buttonCount = false;
   return;
 }
 
@@ -85,7 +86,7 @@ sub resume {    # void ($class)
 
 sub inhibit {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
-  $noMouse = !!1;
+  $noMouse = true;
   return;
 }
 

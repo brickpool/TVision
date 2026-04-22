@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TLabel
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   is_Object
@@ -64,7 +62,7 @@ use vars qw(
 
 # protected attributes
 has link  => ( is => 'ro', default => sub { die 'required' } );
-has light => ( is => 'ro', default => !!0 );
+has light => ( is => 'ro', default => false );
 
 # predeclare private methods
 my (
@@ -82,7 +80,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)

@@ -16,9 +16,7 @@ our @EXPORT = qw(
   new_TNSSortedCollection
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw( :types );
 
 use TV::Objects::Const qw( ccNotFound );
@@ -39,7 +37,7 @@ use vars qw(
 }
 
 # public attributes
-has duplicates => ( is => 'rw', default => !!0 );
+has duplicates => ( is => 'rw', default => false );
 
 sub search {    # $bool ($key|undef, \$index)
   state $sig = signature(
@@ -49,7 +47,7 @@ sub search {    # $bool ($key|undef, \$index)
   my ( $self, $key, $index_ref ) = $sig->( @_ );
   my $l   = 0;
   my $h   = $self->{count} - 1;
-  my $res = !!0;
+  my $res = false;
   while ( $l <= $h ) {
     my $i = ( $l + $h ) >> 1;
     my $item = $ITEMS{ $self->{items}->[$i] };
@@ -60,7 +58,7 @@ sub search {    # $bool ($key|undef, \$index)
     else {
       $h = $i - 1;
       if ( $c == 0 ) {
-        $res = !!1;
+        $res = true;
         $l   = $i unless $self->{duplicates};
       }
     }

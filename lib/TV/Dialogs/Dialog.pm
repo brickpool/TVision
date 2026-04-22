@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TDialog
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -176,7 +174,7 @@ sub valid {    # $bool ($command)
   );
   my ( $self, $command ) = $sig->( @_ );
   return $command == cmCancel
-    ? !!1
+    ? true
     : $self->SUPER::valid( $command );
 }
 

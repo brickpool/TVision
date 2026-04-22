@@ -9,6 +9,7 @@ $VERSION =~ tr/_//d;
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Scalar::Util qw( weaken );
+use TV::toolkit::boolean;
 
 use TV::Views::Const qw(
   sfExposed
@@ -36,9 +37,9 @@ use subs qw(
 
 sub L0 {    # $bool ($dest)
   my ( $dest ) = @_;
-  return !!0
+  return false
     unless $dest->{state} & sfExposed;
-  return !!0
+  return false
     if 0 >= $dest->{size}{x} || 0 >= $dest->{size}{y};
   return L1( $dest );
 }
@@ -50,17 +51,17 @@ sub L1 {    # $bool ($dest)
     $eax = $i;
     $ebx = 0;
     $ecx = $dest->{size}{x};
-    return !!1
+    return true
       unless L11( $dest );
     $i++;
   } while ( $i < $dest->{size}{y} );
-  return !!0;
+  return false;
 } #/ sub L1
 
 sub L10 {    # $bool ($dest)
   my ( $dest ) = @_;
   my $owner = $dest->owner();
-  return !!0
+  return false
     if $owner->{buffer}
     || $owner->{lockFlag};
   return L11( $owner );
@@ -73,11 +74,11 @@ sub L11 {    # $bool ($dest)
   $ebx += $dest->{origin}{x};
   $ecx += $dest->{origin}{x};
   my $owner = $dest->owner();
-  return !!0
+  return false
     unless $owner;
-  return !!1
+  return true
     if $eax < $owner->{clip}{a}{y};
-  return !!1
+  return true
     if $eax >= $owner->{clip}{b}{y};
   return L12( $owner )
     if $ebx >= $owner->{clip}{a}{x};
@@ -95,7 +96,7 @@ sub L12 {    # $bool ($owner)
 
 sub L13 {    # $bool ($owner)
   my ( $owner ) = @_;
-  return !!1
+  return true
     if $ebx >= $ecx;
   return L20( $owner->last() );
 }
@@ -127,7 +128,7 @@ sub L21 {    # $bool ($next)
   $ebx = $esi;
   return L20( $next )
     if $ebx < $ecx;
-  return !!1;
+  return true;
 } #/ sub L21
 
 sub L22 {    # $bool ($next)
@@ -155,7 +156,7 @@ sub L23 {    # $bool ($next)
   weaken( $target = $_target );
   return L20( $next )
     if $b;
-  return !!0;
+  return false;
 } #/ sub L23
 
 1

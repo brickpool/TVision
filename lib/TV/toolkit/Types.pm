@@ -753,7 +753,7 @@ Parametric usage
 Using types with L<TV::toolkit::Params> signatures
 
   use TV::toolkit::Types qw( :Int );
-  use TV::toolkit::Params qw( signature );
+  use Type::Params qw( signature );
   
   sub add_numbers {
     state $sig = signature(

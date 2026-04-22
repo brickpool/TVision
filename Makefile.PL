@@ -17,12 +17,11 @@ WriteMakefile(
   },
   PREREQ_PM => {
     'autodie::Scope::Guard' => 0,
-    'base'                  => 0,
     'Carp'                  => 1.01,
-    'Class::LOP'            => 0.003,
     'Class::Struct'         => 0,
     'Devel::StrictMode'     => 0.003,
     'Encode'                => 0,
+    'Importer'              => 0.026,
     'Import::Into'          => 1.002005,
     'List::Util'            => 1.33,
     'Module::Loaded'        => 0,

@@ -11,14 +11,15 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use PerlX::Assert::PP;
+use TV::toolkit::boolean;
 
 use TV::Drivers::HardwareInfo;
 
 sub TSystemError() { __PACKAGE__ }
 
 # Global variables
-our $ctrlBreakHit  = !!0;
-our $saveCtrlBreak = !!0;
+our $ctrlBreakHit  = false;
+our $saveCtrlBreak = false;
 
 INIT {
   TSystemError->resume();
@@ -30,13 +31,13 @@ END {
 
 sub resume {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
-  THardwareInfo->setCtrlBrkHandler( !!1 ) unless STRICT;
+  THardwareInfo->setCtrlBrkHandler( true ) unless STRICT;
   return;
 }
 
 sub suspend {    # void ($class)
   assert ( $_[0] and !ref $_[0] );
-  THardwareInfo->setCtrlBrkHandler( !!0 ) unless STRICT;
+  THardwareInfo->setCtrlBrkHandler( false ) unless STRICT;
   return;
 }
 

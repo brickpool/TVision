@@ -20,13 +20,11 @@ our @EXPORT_OK = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use Scalar::Util qw(
   weaken
   isweak
 );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -308,7 +306,7 @@ sub idle {    # void ()
 
   if ( $commandSetChanged ) {
     message( $self, evBroadcast, cmCommandSetChanged, 0 );
-    $commandSetChanged = !!0;
+    $commandSetChanged = false;
   }
   return;
 }
@@ -327,7 +325,7 @@ sub initScreen { # void ()
       $shadowSize->{x} = 2;
     }
     $shadowSize->{y} = 1;
-    $showMarkers = !!0;
+    $showMarkers = false;
     if ( ( $screenMode & 0x00FF ) == smBW80 ) {
       $appPalette = apBlackWhite;
     }
@@ -338,7 +336,7 @@ sub initScreen { # void ()
   else {
     $shadowSize->{x} = 0;
     $shadowSize->{y} = 0;
-    $showMarkers     = !!1;
+    $showMarkers     = true;
     $appPalette      = apMonochrome;
   }
   return;

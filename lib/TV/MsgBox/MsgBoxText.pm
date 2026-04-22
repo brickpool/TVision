@@ -15,9 +15,11 @@ our @EXPORT_OK = qw(
 );
 
 use Carp ();
-use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw(
+  :boolean
+  :utils
+);
 use TV::toolkit::Types qw( :types );
 
 use TV::App::Program qw(
@@ -145,7 +147,7 @@ sub messageBoxRect {    # $command ($r, $msg|$aOptions, $aOptions|$fmt, @list)
     $x += $buttonList[$i]->{size}{x} + 2;
   }
 
-  $dialog->selectNext( !!0 );
+  $dialog->selectNext( false );
 
   $ccode = $application->execView( $dialog );
 
@@ -214,7 +216,7 @@ sub inputBoxRect {    # $command ($bounds, $Title, $aLabel, \@s, $limit)
 
   $r->{a}{x} += 12;
   $r->{b}{x} += 12;
-  $dialog->selectNext( !!0 );
+  $dialog->selectNext( false );
   $dialog->setData( $s );
   $c = $application->execView( $dialog );
   if ( $c != cmCancel ) {

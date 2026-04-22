@@ -15,10 +15,8 @@ our @EXPORT = qw(
   new_TMenuBox
 );
 
-use PerlX::Assert::PP;
 use List::Util qw( max );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is

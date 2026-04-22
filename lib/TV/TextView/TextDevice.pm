@@ -16,9 +16,7 @@ our @EXPORT = qw(
 );
 
 require bytes;
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -34,12 +32,12 @@ sub new_TTextDevice { __PACKAGE__->from(@_) }
 extends TScroller;
 
 # protected attributes
-has opened    => ( is => 'ro', default => !!1 );
+has opened    => ( is => 'ro', default => true );
 
 # private attributes
 has egress    => ( is => 'bare', default => '' );
 has esize     => ( is => 'bare', default => 2048 );
-has autoflush => ( is => 'bare', default => !!0 );
+has autoflush => ( is => 'bare', default => false );
 
 # predeclare private methods
 my (
@@ -107,7 +105,7 @@ sub close {    # $success ()
   my ( $self ) = $sig->( @_ );
   return unless $self->opened();
   my $r = $self->flush();
-  $self->{opened} = !!0;
+  $self->{opened} = false;
   return $r;
 }
 

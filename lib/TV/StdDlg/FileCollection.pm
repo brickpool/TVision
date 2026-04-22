@@ -16,9 +16,7 @@ our @EXPORT = qw(
 );
 
 use Class::Struct;
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   is_Object
   :types
@@ -56,7 +54,7 @@ sub BUILDARGS {    # \%args (|%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub from {    # $obj ($aLimit, $aDelta)

@@ -16,10 +16,8 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use PerlX::Assert::PP;
 use Scalar::Util qw( weaken );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -94,7 +92,7 @@ sub BUILDARGS {    # \%args (%args)
   );
   my ( $class, $args ) = $sig->( @_ );
   assert ( !exists $args->{parentMenu} or exists $args->{menu} );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -149,8 +147,8 @@ sub execute {    # $int ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  my $autoSelect     = !!0;
-  my $firstEvent     = !!1;
+  my $autoSelect     = false;
+  my $firstEvent     = true;
   my $action         = 0;
   my $result         = 0;
   my $itemShown      = undef;
@@ -158,7 +156,7 @@ sub execute {    # $int ()
   my $lastTargetItem = undef;
   my $r              = TRect->new();
   my $e              = TEvent->new();
-  my $mouseActive    = !!0;
+  my $mouseActive    = false;
 
   $self->current( $self->{menu}{deflt} );
   $mouseActive = 0;
@@ -255,7 +253,7 @@ sub execute {    # $int ()
               $self->$trackKey( $key == kbDown );
             }
             elsif ( $e->{keyDown}{keyCode} == kbDown ) {
-              $autoSelect = !!1;
+              $autoSelect = true;
             }
             last;
           };
@@ -273,13 +271,13 @@ sub execute {    # $int ()
           $key == kbEnd and do {
             if ( $self->{size}{y} != 1 ) {
               $self->current( $self->{menu}{items} );
-              $self->$trackKey( !!0 )
+              $self->$trackKey( false )
                 if $e->{keyDown}{keyCode} == kbEnd;
             }
             last;
           };
           $key == kbEnter and do {
-            $autoSelect = !!1 
+            $autoSelect = true 
               if $self->{size}{y} == 1;
             $action = doSelect;
             last;
@@ -306,7 +304,7 @@ sub execute {    # $int ()
               }
             }
             elsif ( $target == $self ) {
-              $autoSelect = !!1 
+              $autoSelect = true 
                 if $self->{size}{y} == 1;
               $action = doSelect;
               $self->current( $p );
@@ -322,7 +320,7 @@ sub execute {    # $int ()
       };
       $_ == evCommand and do {
         if ( $e->{message}{command} == cmMenu ) {
-          $autoSelect = !!0;
+          $autoSelect = false;
           $lastTargetItem = undef;
           $action = doReturn
             if $self->{parentMenu};
@@ -384,7 +382,7 @@ sub execute {    # $int ()
       $result = 0;
     }
 
-    $firstEvent = !!0;
+    $firstEvent = false;
   } while ( $action != doReturn );
 
   if ( $e->{what} != evNothing
@@ -629,7 +627,7 @@ $mouseInOwner = sub {    # $bool ($e)
   assert ( is_Object $self );
   assert ( is_Object $e );
   if ( !$self->{parentMenu} || $self->{parentMenu}{size}{y} != 1 ) {
-    return !!0;
+    return false;
   }
   else {
     my $mouse = $self->{parentMenu}->makeLocal( $e->{mouse}{where} );
@@ -664,7 +662,7 @@ $trackMouse = sub {    # void ($e, \$mouseActive)
   ) {
     my $r = $self->getItemRect( $self->{current} );
     if ( $r->contains( $mouse ) ) {
-      $$mouseActive = !!1;
+      $$mouseActive = true;
       return;
     }
   } #/ for ( $self->{current} ...)
@@ -687,12 +685,12 @@ $updateMenu = sub {    # $bool ($menu|undef)
   assert ( @_ == 2 );
   assert ( is_Object $self );
   assert ( !defined $menu or is_Object $menu );
-  my $res = !!0;
+  my $res = false;
   if ( $menu ) {
     for ( my $p = $menu->{items} ; $p ; $p = $p->{next} ) {
       if ( $p->{name} ) {
         if ( $p->{command} == 0 ) {
-          $res = !!1
+          $res = true
             if $p->{subMenu}
             && $self->$updateMenu( $p->{subMenu} );
         }
@@ -701,7 +699,7 @@ $updateMenu = sub {    # $bool ($menu|undef)
           no warnings 'uninitialized';
           if ( $p->{disabled} == $commandState ) {
             $p->{disabled} = !$commandState;
-            $res = !!1;
+            $res = true;
           }
         }
       } #/ if ( $p->{name} )

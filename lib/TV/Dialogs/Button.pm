@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TButton
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   :is
   :types
@@ -74,7 +72,7 @@ has title     => ( is => 'ro', default => sub { die 'required' } );
 # protected attributes
 has command   => ( is => 'ro', default => sub { die 'required' } );
 has flags     => ( is => 'ro', default => sub { die 'required' } );
-has amDefault => ( is => 'ro', default => !!0 );
+has amDefault => ( is => 'ro', default => false );
 
 # predeclare private methods
 my (
@@ -95,7 +93,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -135,7 +133,7 @@ sub draw {    # void ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  $self->drawState( !!0 );
+  $self->drawState( false );
   return;
 }
 
@@ -259,7 +257,7 @@ sub handleEvent {    # void ($event)
     evMouseDown == $_ and do {
      if ( ( $self->{state} & sfDisabled ) == 0 ) {
         $clickRect->{b}{x}++;
-        my $down = !!0;
+        my $down = false;
         do {
           $mouse = $self->makeLocal( $event->{mouse}{where} );
           if ( !$down != !$clickRect->contains( $mouse ) ) {
@@ -269,7 +267,7 @@ sub handleEvent {    # void ($event)
         } while ( $self->mouseEvent( $event, evMouseMove ) );
         if ( $down ) {
           $self->press();
-          $self->drawState( !!0 );
+          $self->drawState( false );
         }
       } #/ if ( ( $self->{state} ...))
       $self->clearEvent( $event );
@@ -315,7 +313,7 @@ sub handleEvent {    # void ($event)
         cmCommandSetChanged == $_ and do {
           $self->setState(
             sfDisabled,
-            !TView->commandEnabled( $self->{command} ) ? !!1 : !!0
+            !TView->commandEnabled( $self->{command} ) ? true : false
           );
           $self->drawView();
           last;
@@ -382,7 +380,7 @@ sub setState { # void ($aState, $enable)
     if ( !$enable ) {
       # BUG FIX - EFW - Thu 10/19/95
       $self->{state} &= ~sfFocused;
-      $self->makeDefault( !!0 );
+      $self->makeDefault( false );
     }
     $self->drawView();
   }

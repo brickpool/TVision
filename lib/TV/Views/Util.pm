@@ -14,7 +14,7 @@ our @EXPORT_OK = qw(
   message
 );
 
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :types

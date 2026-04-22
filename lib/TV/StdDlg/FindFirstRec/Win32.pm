@@ -11,12 +11,14 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 
 require bytes;
 use Hash::Util::FieldHash qw( fieldhash );
-use PerlX::Assert::PP;
 use Scalar::Util qw(
   refaddr
   weaken
 );
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw(
+  :boolean
+  :utils
+);
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -284,7 +286,7 @@ sub next {    # $bool ()
     }
     elsif ( !$FindNextFileW->Call( $self->{hFindFile}, $findData ) ) {
       $self->$close();
-      return !!0;
+      return false;
     }
 
     if ( $self->{hFindFile} != INVALID_HANDLE_VALUE ) {
@@ -304,11 +306,11 @@ sub next {    # $bool ()
           undef, undef );
         $name =~ s/\0+\z//;
         $self->{finfo}->[name] = $name;
-        return !!1;
+        return true;
       }
     }
     else {
-      return !!0;
+      return false;
     }
   }
 }
@@ -317,7 +319,7 @@ $open = sub {    # $bool ()
   my ( $self ) = @_;
   assert ( @_ == 1 );
   assert ( is_Object $self );
-  return !!1;
+  return true;
 };
 
 $close = sub {    # void ()

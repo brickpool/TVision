@@ -19,9 +19,8 @@ our @EXPORT = qw(
 );
 
 use Devel::StrictMode;
-use PerlX::Assert::PP;
 use if STRICT => 'Hash::Util';
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw( :utils );
 use TV::toolkit::Types qw(
   :is
   :types
@@ -57,8 +56,8 @@ sub new {    # \$obj (%args)
     );
     ( $class ) = $sig->( @_ );
     $self = {
-      a => TPoint->new(),
-      b => TPoint->new(),
+      a => $HAS{a}->(),
+      b => $HAS{b}->(),
     };
   }
   elsif ( @_ < 8 ) {

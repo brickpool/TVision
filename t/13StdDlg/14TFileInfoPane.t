@@ -9,7 +9,7 @@ BEGIN {
   use_ok 'TV::Views::Group';
   use_ok 'TV::StdDlg::FileInfoPane';
   use_ok 'TV::StdDlg::FileCollection';   # incl. TSearchRec
-  use_ok 'TV::toolkit';
+  require_ok 'TV::toolkit';
 }
 
 BEGIN {
@@ -25,7 +25,8 @@ BEGIN {
 BEGIN {
   package MyFileInfoPane;
   use TV::StdDlg::FileInfoPane;
-  use base 'TV::StdDlg::FileInfoPane';
+  use TV::toolkit;
+  extends 'TV::StdDlg::FileInfoPane';
   sub writeLine { }
   $INC{"MyFileInfoPane.pm"} = 1;
 }

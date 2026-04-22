@@ -15,9 +15,7 @@ our @EXPORT = qw(
   new_TStatusItem
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   is_Object
@@ -45,7 +43,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub from {    # $obj ($aText, $key, $cmd, |$aNext)

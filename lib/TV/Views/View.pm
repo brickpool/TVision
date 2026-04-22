@@ -17,10 +17,8 @@ our @EXPORT = qw(
 
 use Devel::StrictMode;
 use List::Util qw( min max );
-use PerlX::Assert::PP;
 use Scalar::Util qw( weaken );
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -65,10 +63,10 @@ extends TObject;
 # declare global variables
 our $shadowSize        = TPoint->new( x => 2, y => 1 );
 our $shadowAttr        = 0x08;
-our $showMarkers       = !!0;
+our $showMarkers       = false;
 our $specialChars      = [ "\xAF", "\xAE", "\x1A", "\x1B", ' ', ' ' ];
 our $errorAttr         = 0xcf;
-our $commandSetChanged = !!0;
+our $commandSetChanged = false;
 our $curCommandSet     = do {    # initCommands
   my $temp = TCommandSet->new();
   for ( my $i = 0 ; $i < 256 ; $i++ ) {
@@ -129,7 +127,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -295,7 +293,7 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
   my $saveBounds;
 
   my ( $p, $s );
-  $self->setState( sfDragging, !!1 );
+  $self->setState( sfDragging, true );
 
   if ( $event->{what} == evMouseDown ) {
     if ( $mode & dmDragMove ) {
@@ -392,7 +390,7 @@ sub dragView {    # void ($event, $mode, $limits, $minSize, $maxSize)
       $self->locate( $saveBounds );
     }
   } #/ else [ if ( $event->{what} ==...)]
-  $self->setState( sfDragging, !!0 );
+  $self->setState( sfDragging, false );
 } #/ sub dragView
 
 sub calcBounds {    # void ($bounds, $delta);
@@ -519,7 +517,7 @@ sub valid {    # $bool ($command)
     pos    => [PositiveOrZeroInt],
   );
   $sig->( @_ );
-  return !!1;
+  return true;
 }
 
 sub hide {    # void ()
@@ -529,7 +527,7 @@ sub hide {    # void ()
   );
   my ( $self ) = $sig->( @_ );
   if ( $self->{state} & sfVisible ) {
-    $self->setState( sfVisible, !!0 );
+    $self->setState( sfVisible, false );
   }
   return;
 }
@@ -541,7 +539,7 @@ sub show {    # void ()
   );
   my ( $self ) = $sig->( @_ );
   if ( ( $self->{state} & sfVisible ) == 0 ) {
-    $self->setState( sfVisible, !!1 );
+    $self->setState( sfVisible, true );
   }
   return;
 }
@@ -587,7 +585,7 @@ sub focus {    # $bool ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  my $result = !!1;
+  my $result = true;
 
   if ( !( $self->{state} & ( sfSelected | sfModal ) ) ) {
     if ( $self->{owner} ) {
@@ -600,7 +598,7 @@ sub focus {    # $bool ()
           $self->select();
         }
         else {
-          return !!0;
+          return false;
         }
       } #/ if ( $result )
     } #/ if ( $self->{owner} )
@@ -614,7 +612,7 @@ sub hideCursor {    # void ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  $self->setState( sfCursorVis, !!0 );
+  $self->setState( sfCursorVis, false );
   return;
 }
 
@@ -637,7 +635,7 @@ sub drawShow {    # void ($lastView|undef)
   my ( $self, $lastView ) = $sig->( @_ );
   $self->drawView();
   if ( $self->{state} & sfShadow ) {
-    $self->drawUnderView( !!1, $lastView );
+    $self->drawUnderView( true, $lastView );
   }
   return;
 }
@@ -711,7 +709,7 @@ sub blockCursor {    # void ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  $self->setState( sfCursorIns, !!1 );
+  $self->setState( sfCursorIns, true );
   return;
 }
 
@@ -721,7 +719,7 @@ sub normalCursor {    # void ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  $self->setState( sfCursorIns, !!0 );
+  $self->setState( sfCursorIns, false );
   return;
 }
 
@@ -753,7 +751,7 @@ sub showCursor {    # void ()
     pos    => [],
   );
   my ( $self ) = $sig->( @_ );
-  $self->setState( sfCursorVis, !!1 );
+  $self->setState( sfCursorVis, true );
   return;
 }
 
@@ -1061,7 +1059,7 @@ sub setState {    # void ($aState, $enable)
       last;
     };
     sfShadow == $_ and do {
-      $self->drawUnderView( !!1, undef );
+      $self->drawUnderView( true, undef );
       last;
     };
     sfFocused == $_ and do {

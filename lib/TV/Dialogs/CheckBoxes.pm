@@ -17,7 +17,6 @@ our @EXPORT = qw(
 );
 
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw( Object Int );
 
 use TV::Dialogs::Cluster;

@@ -10,6 +10,7 @@ our @EXPORT = qw(
 
 use PerlX::Assert::PP;
 use Scalar::Util qw( looks_like_number );
+use TV::toolkit::boolean;
 
 use TV::Drivers::Const qw( :smXXXX );
 use TV::Drivers::Display;
@@ -25,11 +26,11 @@ our $startupCursor  = 0;
 our $screenMode     = 0;
 our $screenWidth    = 0;
 our $screenHeight   = 0;
-our $hiResScreen    = !!0;
-our $checkSnow      = !!1;
+our $hiResScreen    = false;
+our $checkSnow      = true;
 our $screenBuffer   = [];
 our $cursorLines    = 0;
-our $clearOnSuspend = !!1;
+our $clearOnSuspend = true;
 
 INIT {
   $startupMode   = TScreen->getCrtMode();

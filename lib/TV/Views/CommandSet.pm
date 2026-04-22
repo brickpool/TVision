@@ -15,8 +15,10 @@ our @EXPORT = qw(
   new_TCommandSet
 );
 
-use PerlX::Assert::PP;
-use TV::toolkit::Params qw( signature );
+use TV::toolkit qw(
+  :boolean
+  :utils
+);
 use TV::toolkit::Types qw(
   :is
   :types
@@ -148,9 +150,9 @@ sub isEmpty {    # $bool ()
   );
   my ( $self ) = $sig->( @_ );
   for ( 0 .. 31 ) {
-    return !!0 if $self->[$_] != 0;
+    return false if $self->[$_] != 0;
   }
-  return !!1;
+  return true;
 }
 
 sub intersect {    # $tc ($tc1, $tc2, |$wap)
@@ -181,9 +183,9 @@ sub equal {    # $bool ($tc1, $tc2, |$wap)
   );
   my ( $tc1, $tc2, $swap ) = $sig->( @_ );
   for ( 0 .. 31 ) {
-    return !!0 if $tc1->[$_] != $tc2->[$_];
+    return false if $tc1->[$_] != $tc2->[$_];
   }
-  return !!1;
+  return true;
 }
 
 sub not_equal {    # $bool ($tc1, $tc2, |$wap)

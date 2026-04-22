@@ -16,9 +16,7 @@ our @EXPORT = qw(
   new_TCluster
 );
 
-use PerlX::Assert::PP;
 use TV::toolkit;
-use TV::toolkit::Params qw( signature );
 use TV::toolkit::Types qw(
   Maybe
   :is
@@ -91,7 +89,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
-  return $args;
+  return { %$args };
 }
 
 sub BUILD {    # void (\%args)
@@ -411,7 +409,7 @@ sub mark {    # $bool ($item)
     pos    => [Int],
   );
   my ( $self, $item ) = $sig->( @_ );
-  return !!0;
+  return false;
 }
 
 sub multiMark {    # $int ($item)
@@ -578,7 +576,7 @@ sub buttonState {    # $bool ($item)
     pos    => [Int],
   );
   my ( $self, $item ) = $sig->( @_ );
-  return !!0 if $item < 0 || $item >= 32;
+  return false if $item < 0 || $item >= 32;
   my $mask = ( 1 << $item );
   return !!( $self->{enableMask} & $mask );
 } #/ sub buttonState
