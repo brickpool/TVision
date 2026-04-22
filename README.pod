@@ -185,16 +185,16 @@ Lists and History
   +-----------------+----------------------------+-----------+
   | ffblk/find_t    | TV::StdDlg::Dos            | [x]       |
   | FindFirstRec    | TV::StdDlg::FindFirstRec   | [o]       |
-  | TFileDialog     | (missing)                  | [ ]       |
+  | TSearchRec      | TV::StdDlg::FileCollection | [x]       |
+  | TFileCollection | TV::StdDlg::FileCollection | [x]       |
   | TFileInputLine  | TV::StdDlg::FileInputLine  | [x]       |
   | TFileList       | TV::StdDlg::FileList       | [x]       |
   | TFileInfoPane   | TV::StdDlg::FileInfoPane   | [x]       |
-  | TChDirDialog    | (missing)                  | [ ]       |
-  | TDirListBox     | (missing)                  | [ ]       |
+  | TFileDialog     | (missing)                  | [ ]       |
   | TDirEntry       | (missing)                  | [ ]       |
   | TDirCollection  | (missing)                  | [ ]       |
-  | TFileCollection | TV::StdDlg::FileCollection | [x]       |
-  | TSearchRec      | TV::StdDlg::FileCollection | [x]       |
+  | TDirListBox     | (missing)                  | [ ]       |
+  | TChDirDialog    | (missing)                  | [ ]       |
   +-----------------+----------------------------+-----------+
 
 Win32 FindFirstRec class, implemented in C<TV::Drivers::FindFirstRec::Win32>.

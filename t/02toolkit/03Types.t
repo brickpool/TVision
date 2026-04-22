@@ -8,9 +8,22 @@ use TV::toolkit::Types qw(
   Any Item Undef Defined Value Bool Str ClassName
   Num Int PositiveInt PositiveOrZeroInt
   Object Ref ScalarRef ArrayRef HashRef CodeRef GlobRef FileHandle
-  Maybe
+  Maybe InstanceOf
   :is
 );
+
+#use Types::Standard qw( InstanceOf Str );
+
+BEGIN {
+  package Foo;
+  $INC{"Foo.pm"} = 1;
+}
+
+BEGIN {
+  package Bar;
+  our @ISA = qw( Foo );
+  $INC{"Bar.pm"} = 1;
+}
 
 sub type_api_ok {
   my ($type, $name, $parent_name) = @_;
@@ -233,21 +246,23 @@ subtest 'Num / Int / PositiveInt / PositiveOrZeroInt' => sub {
 };
 
 subtest 'Ref/ScalarRef/ArrayRef/HashRef/CodeRef/GlobRef/Object' => sub {
-  my $ref_t   = Ref();
-  my $sref_t  = ScalarRef();
-  my $aref_t  = ArrayRef();
-  my $href_t  = HashRef();
-  my $code_t  = CodeRef();
-  my $glob_t  = GlobRef();
-  my $obj_t   = Object;
+  my $ref_t      = Ref();
+  my $sref_t     = ScalarRef();
+  my $aref_t     = ArrayRef();
+  my $href_t     = HashRef();
+  my $code_t     = CodeRef();
+  my $glob_t     = GlobRef();
+  my $obj_t      = Object();
+  my $instance_t = InstanceOf();
 
-  type_api_ok( $ref_t,  'Ref',      'Defined' );
-  type_api_ok( $sref_t, 'ScalarRef','Ref' );
-  type_api_ok( $aref_t, 'ArrayRef', 'Ref' );
-  type_api_ok( $href_t, 'HashRef',  'Ref' );
-  type_api_ok( $code_t, 'CodeRef',  'Ref' );
-  type_api_ok( $glob_t, 'GlobRef',  'Ref' );
-  type_api_ok( $obj_t,  'Object',   'Ref' );
+  type_api_ok( $ref_t,      'Ref',        'Defined' );
+  type_api_ok( $sref_t,     'ScalarRef',  'Ref' );
+  type_api_ok( $aref_t,     'ArrayRef',   'Ref' );
+  type_api_ok( $href_t,     'HashRef',    'Ref' );
+  type_api_ok( $code_t,     'CodeRef',    'Ref' );
+  type_api_ok( $glob_t,     'GlobRef',    'Ref' );
+  type_api_ok( $obj_t,      'Object',     'Ref' );
+  type_api_ok( $instance_t, 'InstanceOf', 'Object' );
 
   my $scalar = 10;
   my $sref   = \$scalar;
@@ -312,6 +327,14 @@ subtest 'Ref/ScalarRef/ArrayRef/HashRef/CodeRef/GlobRef/Object' => sub {
     reject    => [ $sref, $aref, $href, $code, $glob, 1 ],
     predicate => \&is_Object,
   );
+
+  behavior_ok(
+    type      => $instance_t,
+    name      => 'InstanceOf',
+    accept    => [ $obj ],
+    reject    => [ $sref, $aref, $href, $code, $glob, 1 ],
+    predicate => \&is_Object,
+  );
 };
 
 subtest 'FileHandle' => sub {
@@ -343,6 +366,24 @@ subtest 'Parametric types: Maybe[Int] and ArrayRef[Int]' => sub {
   ok( $aref_of_int->check( [ 1, 2, 3 ] ), 'ArrayRef[Int] accepts all Int' );
   ok( !$aref_of_int->check( [ 1, "x", 3 ] ),
     'ArrayRef[Int] rejects non-Int element' );
+};
+
+subtest 'Parametric types: InstanceOf[..]' => sub {
+  my $obj   = InstanceOf( [''] );
+  my $foo   = InstanceOf( ['Foo'] );
+  my $union = InstanceOf( [ 'Foo', 'Baz' ] );
+
+  type_api_ok( $obj,   $obj->name,   'Object' );
+  type_api_ok( $foo,   $foo->name,   'Object' );
+  type_api_ok( $union, $union->name, 'Object' );
+
+  ok( $obj->check( bless( {} ) ),          'InstanceOf[""] accepts main' );
+  ok( $foo->check( bless( {}, 'Foo' ) ),   'InstanceOf["Foo"] accepts Foo' );
+  ok( $foo->check( bless( {}, 'Bar' ) ),   'InstanceOf["Foo"] accepts Bar' );
+  ok( $union->check( bless( {}, 'Foo' ) ), 'InstanceOf[..] accepts Foo' );
+  ok( !$foo->check( bless( {} ) ),         'InstanceOf["Foo"] rejects non-Foo');
+  ok( !$foo->check( 'x' ),                 'InstanceOf["Foo"] rejects string' );
+  ok( !$union->check( bless( {} ) ),       'InstanceOf[..] rejects non-Foo' );
 };
 
 done_testing();

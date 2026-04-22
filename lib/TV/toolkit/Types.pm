@@ -5,7 +5,7 @@ use 5.010;
 use strict;
 use warnings;
 
-our $VERSION   = '0.06';
+our $VERSION   = '0.07';
 our $AUTHORITY = 'cpan:BRICKPOOL';
 
 use Scalar::Util qw(
@@ -23,6 +23,7 @@ use Exporter 'import';
 
 our @EXPORT_OK = qw(
   Maybe
+  InstanceOf
 );
 
 our %EXPORT_TAGS = (
@@ -46,11 +47,11 @@ our %EXPORT_TAGS = (
 
   # Special Types
   ClassName         => [qw( ClassName         is_ClassName         )],
-	PositiveInt       => [qw( PositiveInt       is_PositiveInt       )],
-	PositiveOrZeroInt => [qw( PositiveOrZeroInt is_PositiveOrZeroInt )],
-	FileHandle        => [qw( FileHandle        is_FileHandle        )],
-	ArrayLike         => [qw( ArrayLike         is_ArrayLike         )],
-	HashLike          => [qw( HashLike          is_HashLike          )],
+  PositiveInt       => [qw( PositiveInt       is_PositiveInt       )],
+  PositiveOrZeroInt => [qw( PositiveOrZeroInt is_PositiveOrZeroInt )],
+  FileHandle        => [qw( FileHandle        is_FileHandle        )],
+  ArrayLike         => [qw( ArrayLike         is_ArrayLike         )],
+  HashLike          => [qw( HashLike          is_HashLike          )],
 
   # Additional groups
   types => [qw(
@@ -449,15 +450,15 @@ sub Maybe ($) {
 }
 
 sub Ref (;$) {
-  my ( $param ) = @_;
   my $type = $TYPES{Ref} ||= TV::Type::Object->new(
     name       => 'Ref',
     parent     => Defined,
     constraint => \&is_Ref,
     inlined    => sub { "!!ref($_[1])" },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
+  my ( $param ) = @_;
   return _param_type(
     name      => 'Ref',
     param      => $param, 
@@ -494,15 +495,15 @@ sub Ref (;$) {
 }
 
 sub ScalarRef (;$) {
-  my ( $param ) = @_;
   my $type = $TYPES{ScalarRef} ||= TV::Type::Object->new(
     name       => 'ScalarRef',
     parent     => Ref,
     constraint => \&is_ScalarRef,
     inlined    => sub { "ref($_[1]) eq 'SCALAR' || ref($_[1]) eq 'REF'" },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
+  my ( $param ) = @_;
   return _param_type(
     name       => 'ScalarRef',
     param      => $param, 
@@ -520,18 +521,18 @@ sub ScalarRef (;$) {
 }
 
 sub ArrayRef (;$) {
-  my ( $param ) = @_;
-  my $type = $TYPES{ArrayRef} ||= TV::Type::Object->new( 
-    name       => 'ArrayRef', 
+  my $type = $TYPES{ArrayRef} ||= TV::Type::Object->new(
+    name       => 'ArrayRef',
     parent     => Ref,
     constraint => \&is_ArrayRef,
     inlined    => sub { "ref($_[1]) eq 'ARRAY'" },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
+  my ( $param ) = @_;
   return _param_type( 
-    name       => 'ArrayRef', 
-    param      => $param, 
+    name       => 'ArrayRef',
+    param      => $param,
     parent     => $type,
     constraint_generator => sub {
       my ( $inner ) = @_;
@@ -548,18 +549,18 @@ sub ArrayRef (;$) {
 }
 
 sub HashRef (;$) {
-  my ( $param ) = @_;
   my $type = $TYPES{HashRef} ||= TV::Type::Object->new(
     name       => 'HashRef',
     parent     => Ref,
     constraint => \&is_HashRef,
     inlined    => sub { "ref($_[1]) eq 'HASH'" },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
+  my ( $param ) = @_;
   return _param_type( 
-    name       => 'HashRef', 
-    param      => $param, 
+    name       => 'HashRef',
+    param      => $param,
     parent     => $type,
     constraint_generator => sub {
       my ( $inner ) = @_;
@@ -576,20 +577,20 @@ sub HashRef (;$) {
 }
 
 sub ArrayLike (;$) {
-  my ( $param ) = @_;
-  my $type = $TYPES{ArrayLike} ||= TV::Type::Object->new( 
-    name       => 'ArrayLike', 
+  my $type = $TYPES{ArrayLike} ||= TV::Type::Object->new(
+    name       => 'ArrayLike',
     parent     => Ref,
     constraint => \&is_ArrayLike,
     inlined    => sub { 
       "do { require Scalar::Util; Scalar::Util::reftype($_[1]) eq 'ARRAY' }"
     },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
-  return _param_type( 
-    name       => 'ArrayLike', 
-    param      => $param, 
+  my ( $param ) = @_;
+  return _param_type(
+    name       => 'ArrayLike',
+    param      => $param,
     parent     => $type,
     constraint_generator => sub {
       my ( $inner ) = @_;
@@ -606,7 +607,6 @@ sub ArrayLike (;$) {
 }
 
 sub HashLike (;$) {
-  my ( $param ) = @_;
   my $type = $TYPES{HashLike} ||= TV::Type::Object->new(
     name       => 'HashLike',
     parent     => Ref,
@@ -615,10 +615,11 @@ sub HashLike (;$) {
       "do { require Scalar::Util; Scalar::Util::reftype($_[1]) eq 'HASH' }"
     },
   );
+  return $type unless @_;
 
-  return $type unless defined $param;
+  my ( $param ) = @_;
   return _param_type( 
-    name       => 'HashLike', 
+    kind       => 'HashLike', 
     param      => $param, 
     parent     => $type,
     constraint_generator => sub {
@@ -631,6 +632,48 @@ sub HashLike (;$) {
         }
         return !!1;
       };
+    },
+  );
+}
+
+sub InstanceOf (;$) {
+  my $type = $TYPES{InstanceOf} ||= TV::Type::Object->new(
+    name       => 'InstanceOf',
+    parent     => Object,
+    constraint => \&is_Object,
+    inlined    => sub { 
+      "do { require Scalar::Util; Scalar::Util::blessed($_[1]) }"
+    },
+  );
+  return $type unless @_;
+
+  my ( $param ) = @_;
+  Carp::croak "Expects param to be an array reference"
+    unless is_ArrayRef( $param );
+  Carp::croak "Expects a string as inner type"
+    if grep { not is_Str( $_ ) } @$param;
+
+  # If only one parameter is given, we can generate a simple type
+  if ( @$param == 1 ) {
+    my $class = shift @$param;
+    return $TYPES{CLASS}{$class} ||= TV::Type::Object->new(
+      name       => $class,
+      parent     => Object,
+      constraint => sub { $_->isa( $class ) },
+      inlined    => sub {
+        "do { require Scalar::Util; " .
+            "Scalar::Util::blessed($_[1]) && $_[1]->isa(q[$class]) }"
+      },
+    );
+  }
+
+  # Generate a union type that accepts any of the given classes
+  my @classes = @$param;
+  return TV::Type::Object->new(
+    name       => '__ANON__',
+    parent     => Object,
+    constraint => sub {
+      !! grep { $_[0]->isa( $_ ) } @classes;
     },
   );
 }
@@ -867,7 +910,7 @@ Accepts array and blessed array references.
 
 =head2 Parameterized Types
 
-All parameterized types accept exactly one constraint as parameter:
+The following parameterized types accept exactly one constraint as parameter:
 
 =over 4
 
@@ -890,6 +933,16 @@ Checks each hash I<value> (keys are not verified).
 =item * C<ScalarRef[$type]>
 
 Checks the referent.
+
+=back
+
+Additional parameterized types:
+
+=over 4
+
+=item * C<Instance[$packages]>
+
+Checks whether at least one package is an object instance of these classes.
 
 =back
 
@@ -916,6 +969,7 @@ A simplified, L<Types::Tiny>-compatible parent-child hierarchy is used:
         |         +-- CodeRef
         |         +-- GlobRef
         |         +-- Object
+        |              +-- InstanceOf
         |         +-- FileHandle
         |         +-- ArrayLike
         |         +-- HashLike
