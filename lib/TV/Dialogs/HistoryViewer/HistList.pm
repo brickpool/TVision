@@ -98,17 +98,17 @@ sub historyAdd {    # void ($id, $str|undef)
   my ( $id, $str ) = $sig->( @_ );
 
   return unless defined $str;
-  $startId->( $id );
+  &$startId( $id );
 
   # Delete duplicates
-  $advanceStringPointer->();
+  &$advanceStringPointer();
   while ( $curRec >= 0 ) {
-    $deleteString->()
+    &$deleteString()
       if $str eq $historyBlock->[$curRec]->{str};
-    $advanceStringPointer->();
+    &$advanceStringPointer();
   }
 
-  $insertString->( $id, $str );
+  &$insertString( $id, $str );
   return;
 }
 
@@ -118,12 +118,12 @@ sub historyCount {    # $count ($id)
   );
   my ( $id ) = $sig->( @_ );
 
-  $startId->( $id );
+  &$startId( $id );
   my $count = 0;
-  $advanceStringPointer->();
+  &$advanceStringPointer();
   while ( $curRec >= 0 ) {
     $count++;
-    $advanceStringPointer->();
+    &$advanceStringPointer();
   }
   return $count;
 } #/ sub historyCount
@@ -134,8 +134,8 @@ sub historyStr {    # $str ($id, $index)
   );
   my ( $id, $index ) = $sig->( @_ );
 
-  $startId->( $id );
-  $advanceStringPointer->() for ( 0..$index );
+  &$startId( $id );
+  &$advanceStringPointer() for ( 0..$index );
   return $curRec >= 0
     ? $historyBlock->[$curRec]->{str}
     : '';

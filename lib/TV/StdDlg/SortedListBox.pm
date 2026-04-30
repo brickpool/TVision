@@ -118,7 +118,7 @@ sub handleEvent {    # void ($event)
       $self->list()->search( $k, \$value );
       if ( $value < $self->{range} ) {
         $self->getText( \$newString, $value, 255 );
-        if ( $equal->( $curString, $newString, $self->{searchPos} + 1 ) ) {
+        if ( &$equal( $curString, $newString, $self->{searchPos} + 1 ) ) {
           if ( $value != $oldValue ) {
             $self->focusItem( $value );
             $self->setCursor(

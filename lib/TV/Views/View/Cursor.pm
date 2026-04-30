@@ -51,7 +51,7 @@ sub resetCursor {    # void ($p)
   $self = $p;
   $x    = $self->{cursor}{x};
   $y    = $self->{cursor}{y};
-  my $caretSize = $computeCaretSize->();
+  my $caretSize = &$computeCaretSize();
   if ( $caretSize ) {
     THardwareInfo->setCaretPosition( $x, $y );
   }
@@ -70,7 +70,7 @@ $computeCaretSize = sub {    # $int ()
       $x += $v->{origin}{x};
       if ( $v->owner() ) {
         if ( $v->owner()->{state} & sfVisible ) {
-          if ( $caretCovered->( $v ) ) {
+          if ( &$caretCovered( $v ) ) {
             last;
           }
           $v = $v->owner();
@@ -80,7 +80,7 @@ $computeCaretSize = sub {    # $int ()
         }
       } #/ if ( $v->owner() )
       else {
-        return $decideCaretSize->();
+        return &$decideCaretSize();
       }
     } #/ while ( $y >= 0 && $y < $v...)
   } #/ if ( !( ~$self->{state...}))

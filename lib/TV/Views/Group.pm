@@ -84,9 +84,9 @@ my $unlock_value = sub {
 
 my $weaken = sub {
   # warn join(',' => caller()), "\n";
-  $unlock_value->( $_[0] ) if STRICT;
+  &$unlock_value( $_[0] ) if STRICT;
   weaken $_[0];
-  $lock_value->( $_[0] ) if STRICT;
+  &$lock_value( $_[0] ) if STRICT;
 };
 
 sub BUILD {    # void (\%args)
@@ -97,7 +97,7 @@ sub BUILD {    # void (\%args)
   $self->{options} |= ofSelectable | ofBuffered;
   $self->{clip} = $self->getExtent();
   weaken( $self->{current} ) if $self->{current};
-  $lock_value->( $self->{current} ) if STRICT;
+  &$lock_value( $self->{current} ) if STRICT;
   return;
 }
 
@@ -106,7 +106,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
   assert ( @_ == 2 );
   assert ( is_Object $self );
   assert ( is_Bool $in_global_destruction );
-  $unlock_value->( $self->{current} ) if STRICT;
+  &$unlock_value( $self->{current} ) if STRICT;
   $self->shutDown() unless $in_global_destruction;
   return;
 }
@@ -238,7 +238,7 @@ sub insertView {    # void ($p, $Target|undef)
     */ if 0;
 
     # Set new weak reference if necessary
-    $weaken->( $self->{last}->prev()->{next} ) if $weak_cycle;
+    &$weaken( $self->{last}->prev()->{next} ) if $weak_cycle;
   }
   else {
     if ( !$self->{last} ) {
@@ -251,7 +251,7 @@ sub insertView {    # void ($p, $Target|undef)
     $self->{last} = $p;
 
     # Set new weak reference
-    $weaken->( $p->prev()->{next} );
+    &$weaken( $p->prev()->{next} );
   } #/ else [ if ( $Target ) ]
   q/*
     require Devel::Cycle; 
@@ -306,7 +306,7 @@ sub removeView {    # void ($p)
     $s->next( $p->{next} );
 
     # Weaken the {next} field of the removed entry.
-    $weaken->( $p->{next} ) unless isweak $p->{next};
+    &$weaken( $p->{next} ) unless isweak $p->{next};
 
     if ( $p == $self->{last} ) {
       if ( $p == $p->{next} ) {
@@ -317,7 +317,7 @@ sub removeView {    # void ($p)
     } 
 
     # Set new weak reference if necessary
-    $weaken->( $self->{last}->prev()->{next} ) if $weak_cycle;
+    &$weaken( $self->{last}->prev()->{next} ) if $weak_cycle;
     q/*
       require Devel::Cycle; 
       warn $_ if local $_ = Devel::Cycle::find_cycle( $p );
@@ -475,10 +475,10 @@ sub current {    # $view|undef (|$view|undef)
     return $self->{current};
   }
   SET: {
-    $unlock_value->( $self->{current} ) if STRICT;
+    &$unlock_value( $self->{current} ) if STRICT;
     weaken $self->{current}
       if $self->{current} = $view;
-    $lock_value->( $self->{current} ) if STRICT;
+    &$lock_value( $self->{current} ) if STRICT;
     return;
   }
 }
@@ -658,7 +658,7 @@ sub handleEvent {    # void ($event)
     $self->forEach( $doHandleEvent, $hs );
 
     $self->{phase} = phFocused;
-    $doHandleEvent->( $self->{current}, $hs );
+    &$doHandleEvent( $self->{current}, $hs );
 
     $self->{phase} = phPostProcess;
     $self->forEach( $doHandleEvent, $hs );
@@ -670,7 +670,7 @@ sub handleEvent {    # void ($event)
       my $p = $self->firstThat( $hasMouse, $event );
       if ( $p ) {
         # we have a view; send event to it
-        $doHandleEvent->( $p, $hs );
+        &$doHandleEvent( $p, $hs );
       }
       elsif ( $event->{what} == evMouseDown ) {
         # it was a mouse click and we don't have a view,

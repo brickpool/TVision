@@ -69,7 +69,7 @@ BEGIN {
         new_TStatusDef( 0, 0xFFFF ) +
           new_TStatusItem( '~Alt+X~ Exit', kbAltX, cmQuit ) +
           new_TStatusItem( '~F10~ Menu', kbF10, cmMenu ) +
-          new_TStatusItem( '~F1~ Help',  kbF1,  cmHelp )
+          new_TStatusItem( '~F1~ Help', kbF1, cmHelp )
       );
   }
 

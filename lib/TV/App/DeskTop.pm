@@ -210,7 +210,7 @@ my $mostEqualDivisors = sub {    # void ($n, $x, $y, $favorY)
   assert ( is_Bool $favorY );
   alias: for $x ( $_[1] ) {
   alias: for $y ( $_[2] ) {
-  my $i = $iSqr->( $n );
+  my $i = &$iSqr( $n );
   $i++
     if $n % $i != 0 && $n % ( $i + 1 ) == 0;
   $i = int( $n / $i )
@@ -264,15 +264,15 @@ my $calcTileRect = sub {    # $rect ($pos, $r)
     $x = int( ( $pos - $d ) / ( $numRows + 1 ) ) + ( $numCols - $leftOver );
     $y = ( $pos - $d ) % ( $numRows + 1 );
   }
-  $nRect->{a}{x} = $dividerLoc->( $r->{a}{x}, $r->{b}{x}, $numCols, $x );
-  $nRect->{b}{x} = $dividerLoc->( $r->{a}{x}, $r->{b}{x}, $numCols, $x + 1 );
+  $nRect->{a}{x} = &$dividerLoc( $r->{a}{x}, $r->{b}{x}, $numCols, $x );
+  $nRect->{b}{x} = &$dividerLoc( $r->{a}{x}, $r->{b}{x}, $numCols, $x + 1 );
   if ( $pos >= $d ) {
-    $nRect->{a}{y} = $dividerLoc->( $r->{a}{y}, $r->{b}{y}, $numRows + 1, $y  );
-    $nRect->{b}{y} = $dividerLoc->( $r->{a}{y}, $r->{b}{y}, $numRows + 1, $y+1);
+    $nRect->{a}{y} = &$dividerLoc( $r->{a}{y}, $r->{b}{y}, $numRows + 1, $y  );
+    $nRect->{b}{y} = &$dividerLoc( $r->{a}{y}, $r->{b}{y}, $numRows + 1, $y+1);
   }
   else {
-    $nRect->{a}{y} = $dividerLoc->( $r->{a}{y}, $r->{b}{y}, $numRows, $y );
-    $nRect->{b}{y} = $dividerLoc->( $r->{a}{y}, $r->{b}{y}, $numRows, $y + 1 );
+    $nRect->{a}{y} = &$dividerLoc( $r->{a}{y}, $r->{b}{y}, $numRows, $y );
+    $nRect->{b}{y} = &$dividerLoc( $r->{a}{y}, $r->{b}{y}, $numRows, $y + 1 );
   }
   return $nRect;
 }; #/ $calcTileRect = sub
@@ -283,7 +283,7 @@ my $doTile = sub {    # void ($p, $r)
   assert ( is_Object $p );
   assert ( is_Object $r );
   if ( $p->$Tileable() ) {
-    my $rect = $calcTileRect->( $tileNum, $r );
+    my $rect = &$calcTileRect( $tileNum, $r );
     $p->locate( $rect );
     $tileNum--;
   }
@@ -299,7 +299,7 @@ sub tile {    # void ($r)
   $numTileable = 0;
   $self->forEach( $doCountTileable, undef );
   if ( $numTileable > 0 ) {
-    $mostEqualDivisors->( $numTileable, $numCols, $numRows,
+    &$mostEqualDivisors( $numTileable, $numCols, $numRows,
       !$self->{tileColumnsFirst} );
     if ( ( ( $r->{b}{x} - $r->{a}{x} ) / $numCols == 0 )
       || ( ( $r->{b}{y} - $r->{a}{y} ) / $numRows == 0 ) )

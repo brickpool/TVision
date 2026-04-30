@@ -102,8 +102,8 @@ sub BUILD {    # void (\%args)
   $self->{eventMask} |= evBroadcast;
   weaken( $self->{parentMenu} )        if $self->{parentMenu};
   weaken( $self->{current} )           if $self->{current};
-  $lock_value->( $self->{parentMenu} ) if STRICT;
-  $lock_value->( $self->{current} )    if STRICT;
+  &$lock_value( $self->{parentMenu} ) if STRICT;
+  &$lock_value( $self->{current} )    if STRICT;
   return;
 }
 
@@ -130,8 +130,8 @@ sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
   assert ( is_Object $self );
-  $unlock_value->( $self->{parentMenu} ) if STRICT;
-  $unlock_value->( $self->{current} )    if STRICT;
+  &$unlock_value( $self->{parentMenu} ) if STRICT;
+  &$unlock_value( $self->{current} )    if STRICT;
   return;
 }
 
@@ -544,10 +544,10 @@ sub parentMenu {    # $menuView|undef (|$menuView|undef)
     return $self->{parentMenu};
   }
   SET: {
-    $unlock_value->( $self->{parentMenu} ) if STRICT;
+    &$unlock_value( $self->{parentMenu} ) if STRICT;
     weaken $self->{parentMenu}
       if $self->{parentMenu} = $menuView;
-    $lock_value->( $self->{parentMenu} ) if STRICT;
+    &$lock_value( $self->{parentMenu} ) if STRICT;
     return;
   }
 }
@@ -565,10 +565,10 @@ sub current {    # $menuItem|undef (|$menuItem|undef)
     return $self->{current};
   }
   SET: {
-    $unlock_value->( $self->{current} ) if STRICT;
+    &$unlock_value( $self->{current} ) if STRICT;
     weaken $self->{current}
       if $self->{current} = $menuItem;
-    $lock_value->( $self->{current} ) if STRICT;
+    &$lock_value( $self->{current} ) if STRICT;
     return;
   }
 }

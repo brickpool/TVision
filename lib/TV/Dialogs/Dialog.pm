@@ -15,6 +15,7 @@ our @EXPORT = qw(
   new_TDialog
 );
 
+use Carp ();
 use TV::toolkit;
 use TV::toolkit::Types qw(
   is_Object
@@ -60,6 +61,7 @@ sub BUILDARGS {    # \%args (%args)
     caller_level => +1,
   );
   my ( $class, $args ) = $sig->( @_ );
+  local $Carp::CarpLevel = $Carp::CarpLevel + 1;
   return $class->SUPER::BUILDARGS(
     bounds => $args->{bounds}, 
     title  => $args->{title}, 

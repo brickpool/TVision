@@ -65,7 +65,7 @@ sub destroy {    # void ($class|$self, $o|undef)
     $o->shutDown();
     for ( keys %$o ) {
       if ( ref $o->{$_} && !isweak $o->{$_} ) {
-        $unlock_value->( $o->{$_} ) if STRICT;
+        &$unlock_value( $o->{$_} ) if STRICT;
         weaken $o->{$_};
       }
     }

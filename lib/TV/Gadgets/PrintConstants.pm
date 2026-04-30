@@ -203,7 +203,7 @@ sub printKeyCode {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $keyCode ) = $sig->( @_ );
-  $printCode->( $os, $keyCode, \%keyCodes );
+  &$printCode( $os, $keyCode, \%keyCodes );
   return;
 }
 
@@ -212,7 +212,7 @@ sub printControlKeyState {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $controlKeyState ) = $sig->( @_ );
-  $printFlags->( $os, $controlKeyState, \%controlKeyStateFlags );
+  &$printFlags( $os, $controlKeyState, \%controlKeyStateFlags );
   return;
 }
 
@@ -221,7 +221,7 @@ sub printEventCode {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $eventCode ) = $sig->( @_ );
-  $printCode->( $os, $eventCode, \%eventCodes );
+  &$printCode( $os, $eventCode, \%eventCodes );
   return;
 }
 
@@ -230,7 +230,7 @@ sub printMouseButtonState {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $buttonState ) = $sig->( @_ );
-  $printFlags->( $os, $buttonState, \%mouseButtonFlags );
+  &$printFlags( $os, $buttonState, \%mouseButtonFlags );
   return;
 }
 
@@ -239,7 +239,7 @@ sub printMouseWheelState {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $wheelState ) = $sig->( @_ );
-  $printFlags->( $os, $wheelState, \%mouseWheelFlags );
+  &$printFlags( $os, $wheelState, \%mouseWheelFlags );
   return;
 }
 
@@ -248,7 +248,7 @@ sub printMouseEventFlags {
     pos => [ Object, PositiveOrZeroInt ],
   );
   my ( $os, $eventFlags ) = $sig->( @_ );
-  $printFlags->( $os, $eventFlags, \%mouseEventFlags );
+  &$printFlags( $os, $eventFlags, \%mouseEventFlags );
   return;
 }
 

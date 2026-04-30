@@ -6,7 +6,7 @@ use Test::Exception;
 
 BEGIN {
   require_ok 'Moos';
-  use_ok 'TV::toolkit', qw( /^is_/ signature );
+  use_ok 'TV::toolkit', qw( /^is_/ signature assert );
 }
 
 BEGIN {
@@ -87,6 +87,14 @@ subtest 'create_method redefine warns' => sub {
     $warning, qr/Subroutine Point3D::z redefined/,
     'Perl redefine warning triggered'
   );
+};
+
+subtest 'assert' => sub {
+  no TV::toolkit;
+  use TV::toolkit qw( assert );
+  lives_ok { assert( 1 == 1 ) } 'assert does not die on true condition';
+  throws_ok { assert( 1 == 0 ) } qr/Assertion failed/, 
+    'assert dies on false condition';
 };
 
 done_testing();

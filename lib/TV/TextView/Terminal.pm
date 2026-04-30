@@ -336,7 +336,7 @@ sub prevLines {    # $offset ($pos, $lines)
       my $count = ( $pos >= $self->{queBack}
                   ? $pos - $self->{queBack}
                   : $pos ) + 1;
-      --$lines if $findLfBackwards->( $self->{buffer}, $pos, $count );
+      --$lines if &$findLfBackwards( $self->{buffer}, $pos, $count );
     } while ( $lines > 0 );
     $self->bufInc( \$pos );
   } #/ if ( $lines > 0 && $pos...)

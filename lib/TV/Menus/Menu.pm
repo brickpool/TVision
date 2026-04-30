@@ -60,7 +60,7 @@ sub BUILD {    # void (\%args)
   assert ( is_Object $self );
   $self->{deflt} //= $self->{items};
   weaken $self->{deflt} if $self->{deflt};
-  $lock_value->( $self->{deflt} ) if STRICT;
+  &$lock_value( $self->{deflt} ) if STRICT;
   return;
 }
 
@@ -90,7 +90,7 @@ sub DEMOLISH {    # void ($in_global_destruction)
     $self->{items} = $self->{items}{next};
     undef $temp;
   }
-  $unlock_value->( $self->{deflt} ) if STRICT;
+  &$unlock_value( $self->{deflt} ) if STRICT;
   return;
 }
 
@@ -107,10 +107,10 @@ sub deflt {    # $view|undef (|$view|undef)
     return $self->{deflt};
   }
   SET: {
-    $unlock_value->( $self->{deflt} ) if STRICT;
+    &$unlock_value( $self->{deflt} ) if STRICT;
     weaken $self->{deflt}
       if $self->{deflt} = $view;
-    $lock_value->( $self->{deflt} ) if STRICT;
+    &$lock_value( $self->{deflt} ) if STRICT;
     return;
   }
 }

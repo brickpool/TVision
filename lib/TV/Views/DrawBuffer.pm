@@ -77,7 +77,7 @@ sub putAttribute {    # void ($indent, $attr)
     pos    => [PositiveOrZeroInt, PositiveOrZeroInt],
   );
   my ( $self, $indent, $attr ) = $sig->( @_ );
-  $setAttr->( $self->[$indent], $attr );
+  &$setAttr( $self->[$indent], $attr );
   return;
 }
 
@@ -88,7 +88,7 @@ sub putChar {    # void ($indent, $c)
   );
   my ( $self, $indent, $c ) = $sig->( @_ );
   assert ( length $c );
-  $setChar->( $self->[$indent], ord( $c ) );
+  &$setChar( $self->[$indent], ord( $c ) );
   return;
 }
 
@@ -106,7 +106,7 @@ sub moveBuf {    # void ($indent, \@source, $attr, $count)
 
   if ( $attr ) {
     for ( my $i = 0 ; $i < $count ; $i++ ) {
-      $setCell->( $self->[ $indent + $i ], $getChar->( $source->[$i] ), $attr );
+      &$setCell( $self->[ $indent + $i ], &$getChar( $source->[$i] ), $attr );
     }
   }
   else {
@@ -129,14 +129,14 @@ sub moveChar {    # void ($indent, $c, $attr, $count)
   while ( $count-- ) {
     if ( $attr ) {
       if ( $c ) {
-        $setCell->( $self->[ $dest++ ], ord( $c ), $attr );
+        &$setCell( $self->[ $dest++ ], ord( $c ), $attr );
       } 
       else {
-        $setAttr->( $self->[ $dest++ ], $attr );
+        &$setAttr( $self->[ $dest++ ], $attr );
       }
     }
     else {
-      $setChar->( $self->[ $dest++ ], ord( $c ) );
+      &$setChar( $self->[ $dest++ ], ord( $c ) );
     }
   }
   return;
@@ -158,7 +158,7 @@ sub moveCStr {    # void ($indent, $str, $attrs)
       $toggle  = 1 - $toggle;
     }
     else {
-      $setCell->( $self->[ $dest++ ], ord( $c ), $curAttr );
+      &$setCell( $self->[ $dest++ ], ord( $c ), $curAttr );
     }
   } #/ foreach my $c ( split //, $str)
   return;
@@ -174,10 +174,10 @@ sub moveStr {    # void ($indent, $str, $attrs)
   my $dest = $indent;
   foreach my $c ( split //, $str ) {
     if ( $attrs ) {
-      $setCell->( $self->[ $dest++ ], ord( $c ), $attrs );
+      &$setCell( $self->[ $dest++ ], ord( $c ), $attrs );
     }
     else {
-      $setChar->( $self->[ $dest++ ], ord( $c ) );
+      &$setChar( $self->[ $dest++ ], ord( $c ) );
     }
   }
 }

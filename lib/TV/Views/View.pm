@@ -137,8 +137,8 @@ sub BUILD {    # void (\%args)
   assert ( is_HashRef $args );
   weaken( $self->{owner} ) if $self->{owner};
   weaken( $self->{next} )  if $self->{next};
-  $lock_value->( $self->{owner} ) if STRICT;
-  $lock_value->( $self->{next} )  if STRICT;
+  &$lock_value( $self->{owner} ) if STRICT;
+  &$lock_value( $self->{next} )  if STRICT;
   $self->setBounds( $args->{bounds} );
   return;
 } #/ sub BUILD
@@ -156,8 +156,8 @@ sub DEMOLISH {    # void ($in_global_destruction)
   my ( $self, $in_global_destruction ) = @_;
   assert ( @_ == 2 );
   assert ( is_Object $self );
-  $unlock_value->( $self->{owner} ) if STRICT;
-  $unlock_value->( $self->{next} )  if STRICT;
+  &$unlock_value( $self->{owner} ) if STRICT;
+  &$unlock_value( $self->{next} )  if STRICT;
   return;
 }
 
@@ -267,9 +267,9 @@ sub locate {    # void ($bounds)
   my ( $min,  $max ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $min, $max );
   $bounds->{b}{x} = $bounds->{a}{x} +
-    $range->( $bounds->{b}{x} - $bounds->{a}{x}, $min->{x}, $max->{x} );
+    &$range( $bounds->{b}{x} - $bounds->{a}{x}, $min->{x}, $max->{x} );
   $bounds->{b}{y} = $bounds->{a}{y} +
-    $range->( $bounds->{b}{y} - $bounds->{a}{y}, $min->{y}, $max->{y} );
+    &$range( $bounds->{b}{y} - $bounds->{a}{y}, $min->{y}, $max->{y} );
   my $r = $self->getBounds();
   if ( $bounds != $r ) {
     $self->changeBounds( $bounds );
@@ -418,30 +418,30 @@ sub calcBounds {    # void ($bounds, $delta);
   $d = $delta->{x};
 
   if ( $self->{growMode} & gfGrowLoX ) {
-    $grow->( $bounds->{a}{x} );
+    &$grow( $bounds->{a}{x} );
   }
 
   if ( $self->{growMode} & gfGrowHiX ) {
-    $grow->( $bounds->{b}{x} );
+    &$grow( $bounds->{b}{x} );
   }
 
   $s = $self->{owner}{size}{y};
   $d = $delta->{y};
 
   if ( $self->{growMode} & gfGrowLoY ) {
-    $grow->( $bounds->{a}{y} );
+    &$grow( $bounds->{a}{y} );
   }
 
   if ( $self->{growMode} & gfGrowHiY ) {
-    $grow->( $bounds->{b}{y} );
+    &$grow( $bounds->{b}{y} );
   }
 
   my ( $minLim, $maxLim ) = ( TPoint->new(), TPoint->new() );
   $self->sizeLimits( $minLim, $maxLim );
   $bounds->{b}{x} = $bounds->{a}{x} +
-    $range->( $bounds->{b}{x} - $bounds->{a}{x}, $minLim->{x}, $maxLim->{x} );
+    &$range( $bounds->{b}{x} - $bounds->{a}{x}, $minLim->{x}, $maxLim->{x} );
   $bounds->{b}{y} = $bounds->{a}{y} +
-    $range->( $bounds->{b}{y} - $bounds->{a}{y}, $minLim->{y}, $maxLim->{y} );
+    &$range( $bounds->{b}{y} - $bounds->{a}{y}, $minLim->{y}, $maxLim->{y} );
   return;
 } #/ sub calcBounds
 
@@ -1183,9 +1183,9 @@ sub next {    # $view|undef (|$view|undef)
     return $self->{next};
   }
   SET: {
-    $unlock_value->( $self->{next} ) if STRICT;
+    &$unlock_value( $self->{next} ) if STRICT;
     $self->{next} = $view;
-    $lock_value->( $self->{next} ) if STRICT;
+    &$lock_value( $self->{next} ) if STRICT;
     return;
   }
 } #/ sub next
@@ -1287,7 +1287,7 @@ sub writeChar {    # void ($x, $y, $c, $color, $count)
   my ( $self, $x, $y, $c, $color, $count ) = $sig->( @_ );
   my $attr = $self->mapColor( $color );
   if ( $count > 0 ) {
-    $setCell->( my $cell, ord( $c ), $attr );
+    &$setCell( my $cell, ord( $c ), $attr );
     my $buf = [ ( $cell ) x $count ];
     $self->$writeView( $x, $y, $count, $buf );
   }
@@ -1319,7 +1319,7 @@ sub writeStr {    # void ($x, $y, $str, $color)
       my $buf  = [ ( 0 ) x maxViewWidth ];
       my $i    = 0;
       foreach my $c ( split //, $str ) {
-        $setCell->( $buf->[$i], ord( $c ), $attr );
+        &$setCell( $buf->[$i], ord( $c ), $attr );
         $i++;
       }
       $self->$writeView( $x, $y, $length, $buf );
@@ -1341,10 +1341,10 @@ sub owner {    # $group|undef (|$group|undef)
     return $self->{owner};
   }
   SET: {
-    $unlock_value->( $self->{owner} ) if STRICT;
+    &$unlock_value( $self->{owner} ) if STRICT;
     weaken $self->{owner}
       if $self->{owner} = $group;
-    $lock_value->( $self->{owner} ) if STRICT;
+    &$lock_value( $self->{owner} ) if STRICT;
   }
   return;
 }

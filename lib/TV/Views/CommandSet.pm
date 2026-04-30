@@ -44,7 +44,7 @@ my $disable_cmd = sub {    # void ($cmd)
   assert ( @_ == 2 );
   assert ( is_Object $self );
   assert ( is_PositiveOrZeroInt $cmd );
-  $self->[ $loc->( $cmd ) ] &= ~$mask->( $cmd );
+  $self->[ &$loc( $cmd ) ] &= ~ &$mask( $cmd );
   return;
 };
 
@@ -53,7 +53,7 @@ my $enable_cmd = sub {    # void ($cmd)
   assert ( @_ == 2 );
   assert ( is_Object $self );
   assert ( is_PositiveOrZeroInt $cmd );
-  $self->[ $loc->( $cmd ) ] |= $mask->( $cmd );
+  $self->[ &$loc( $cmd ) ] |= &$mask( $cmd );
   return;
 };
 
@@ -118,7 +118,7 @@ sub has {    # $bool ($cmd)
     pos => [PositiveOrZeroInt],
   );
   my ( $self, $cmd ) = $sig->( @_ );
-  return ( $self->[ $loc->( $cmd ) ] & $mask->( $cmd ) ) != 0;
+  return ( $self->[ &$loc( $cmd ) ] & &$mask( $cmd ) ) != 0;
 }
 
 sub disableCmd {    # void ($cmd|$tc)

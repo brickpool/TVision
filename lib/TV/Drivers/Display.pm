@@ -31,7 +31,7 @@ INIT {
 sub updateIntlChars {    # void ($class)
   my $class = shift;
   assert ( $class and !ref $class );
-  my $cp = $getCodePage->();
+  my $cp = &$getCodePage();
   # Some 8-bit code pages are supported directly.
   return 
     if $cp =~ /^(437|720|737|775|850|852|855|857|858|859|860|861|862|863|865)$/
