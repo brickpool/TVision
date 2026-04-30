@@ -10,27 +10,31 @@ BEGIN {
   use_ok 'TV::StdDlg::Dos';               # incl. ffblk and find_t
   use_ok 'TV::StdDlg::Dir';
   use_ok 'TV::StdDlg::Util', qw( fexpand );
+  use_ok 'TV::StdDlg::SortedListBox';
   use_ok 'TV::StdDlg::FileCollection';    # incl. TSearchRec
   use_ok 'TV::StdDlg::FileInputLine';
-  use_ok 'TV::StdDlg::SortedListBox';
   use_ok 'TV::StdDlg::FileList';
   use_ok 'TV::StdDlg::FileInfoPane';
   use_ok 'TV::StdDlg::FileDialog';
+  use_ok 'TV::StdDlg::DirEntry';
+  use_ok 'TV::StdDlg::DirCollection';
 }
 
 isa_ok( FindFirstRec->allocate( [], 0, '' ), FindFirstRec() );
 isa_ok( ffblk->new(), 'ffblk' );
 isa_ok( find_t->new(), 'find_t' );
 isa_ok( TSearchRec->new(), 'TSearchRec' );
+isa_ok( TSortedListBox->new( bounds => TRect->new(), numCols => 0, 
+  vScrollBar => undef ), TSortedListBox() );
 isa_ok( TFileCollection->new( limit => 0, delta => 0 ), TFileCollection );
 isa_ok( TFileInputLine->new( bounds => TRect->new(), maxLen => 10, ), 
   TFileInputLine );
-isa_ok( TSortedListBox->new( bounds => TRect->new(), numCols => 0, 
-  vScrollBar => undef ), TSortedListBox() );
 isa_ok( TFileList->new( bounds => TRect->new(), vScrollBar => undef ), 
   TFileList() );
 isa_ok( TFileInfoPane->new( bounds => TRect->new() ), TFileInfoPane() );
 isa_ok( TFileDialog->new( wildCard => '*.t', title => '', inputName => '', 
   options => 0, histId => 0 ), TFileDialog() );
+isa_ok( TDirEntry->new( displayText => '', directory => '' ), TDirEntry() );
+isa_ok( TDirCollection->new( limit => 0, delta => 0 ), TDirCollection() );
 
 done_testing();

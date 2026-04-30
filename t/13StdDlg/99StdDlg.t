@@ -14,5 +14,7 @@ isa_ok( new_TSortedListBox( TRect->new(), 0, undef ), TSortedListBox() );
 isa_ok( new_TFileList( TRect->new(), undef ), TFileList() );
 isa_ok( new_TFileInfoPane( TRect->new() ), TFileInfoPane() );
 isa_ok( new_TFileDialog( '*.t', '', '', 0, 0 ), TFileDialog() );
+isa_ok( new_TDirEntry( '', '' ), TDirEntry() );
+isa_ok( new_TDirCollection( 0, 0 ), TDirCollection() );
 
 done_testing();

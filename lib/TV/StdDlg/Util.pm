@@ -188,7 +188,14 @@ sub driveValid {    # $bool ($drive)
     pos => [Str],
   );
   my ( $drive ) = $sig->( @_ );
-  ...
+  $drive = uc( $drive );
+  assert ( $drive =~ /^[A-Z]$/ );
+  my $mask = 1 << ( ord( $drive ) - ord( 'A' ) );
+  if ( $^O eq 'MSWin32' && eval { require Win32API::File; !$@ } ) {
+    return ( Win32API::File::GetLogicalDrives() & $mask ) != 0;
+  }
+  my $path = "$drive:/";
+  return -d $path;
 }
 
 sub isDir {    # $bool ($str)
@@ -312,7 +319,7 @@ sub fexpand {    # void ($rpath, |$relativeTo)
   state $sig = signature( 
     pos => [
       Str, 
-      Str => { optional => 1 },
+      Str, { optional => 1 },
     ],
   );
   my ( $rpath, $relativeTo ) = $sig->( @_ );
