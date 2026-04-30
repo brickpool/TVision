@@ -15,6 +15,7 @@ BEGIN {
   use_ok 'TV::StdDlg::SortedListBox';
   use_ok 'TV::StdDlg::FileList';
   use_ok 'TV::StdDlg::FileInfoPane';
+  use_ok 'TV::StdDlg::FileDialog';
 }
 
 isa_ok( FindFirstRec->allocate( [], 0, '' ), FindFirstRec() );
@@ -29,5 +30,7 @@ isa_ok( TSortedListBox->new( bounds => TRect->new(), numCols => 0,
 isa_ok( TFileList->new( bounds => TRect->new(), vScrollBar => undef ), 
   TFileList() );
 isa_ok( TFileInfoPane->new( bounds => TRect->new() ), TFileInfoPane() );
+isa_ok( TFileDialog->new( wildCard => '*.t', title => '', inputName => '', 
+  options => 0, histId => 0 ), TFileDialog() );
 
 done_testing();

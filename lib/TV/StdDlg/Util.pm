@@ -12,8 +12,17 @@ our $AUTHORITY = 'cpan:BRICKPOOL';
 use Exporter 'import';
 our @EXPORT_OK = qw(
   fexpand
+  driveValid
+  isDir
+  pathValid
+  validFileName
   getCurDir
   getHomeDir
+  isWild
+);
+
+our %EXPORT_TAGS = (
+  all => \@EXPORT_OK,
 );
 
 use Scalar::Util qw( readonly );
@@ -29,13 +38,16 @@ use TV::toolkit::Types qw(
 
 use TV::StdDlg::Const qw(
   DIRECTORY
+  FA_DIREC
   :MAX
 );
+use TV::StdDlg::Dos;    #  ffblk
 use TV::StdDlg::Dir qw(
-  fnsplit
-  fnmerge
-  getdisk
   getcurdir
+  getdisk
+  findfirst
+  fnmerge
+  fnsplit
 );
 
 my (
@@ -72,14 +84,14 @@ $squeeze = sub {   # void ($path)
 
   while ( length $src ) {
     if ( $last eq '\\' ) {
-      $skip->( $src, '\\' );    # skip repeated '\'
+      &$skip( $src, '\\' );    # skip repeated '\'
     }
     if ( ( !$last || $last eq '\\' ) && substr( $src, 0, 1 ) eq '.' ) {
       substr( $src, 0, 1, '' );
 
       # have a '.' or '.\'
       if ( !length( $src ) || substr( $src, 0, 1 ) eq '\\' ) {
-        $skip->( $src, '\\' );
+        &$skip( $src, '\\' );
       }
 
       # have a '..' or '..\'
@@ -89,7 +101,7 @@ $squeeze = sub {   # void ($path)
 
         # skip the following '.'
         substr( $src, 0, 1, '' );
-        $skip->( $src, '\\' );
+        &$skip( $src, '\\' );
 
         # back up to previous '\'
         substr( $dest, -1, 1, '' ) if length( $dest );
@@ -132,7 +144,7 @@ $isHomeExpand = sub {   # $bool ($path)
   assert ( @_ == 1 );
   assert ( is_Str $path );
   my @path = ( split( //, $path ), ('') x 2 )[ 0 .. 1 ];
-  return $path[0] eq '~' && $isSep->( $path[1] );
+  return $path[0] eq '~' && &$isSep( $path[1] );
 };
 
 $isAbsolute = sub {   # $bool ($path)
@@ -140,8 +152,8 @@ $isAbsolute = sub {   # $bool ($path)
   assert ( @_ == 1 );
   assert ( is_Str $path );
   my @path = ( split( //, $path ), ('') x 3 )[ 0 .. 2 ];
-  return $isSep->( $path[0] ) 
-      || ( $path[0] && $path[1] eq ':' && $isSep->( $path[2] ) );
+  return &$isSep( $path[0] ) 
+      || ( $path[0] && $path[1] eq ':' && &$isSep( $path[2] ) );
 };
 
 $addFinalSep = sub {    # void ($path, $size)
@@ -170,6 +182,69 @@ $getPathDrive = sub {    # $int ($path)
   }
   return -1;
 };
+
+sub driveValid {    # $bool ($drive)
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $drive ) = $sig->( @_ );
+  ...
+}
+
+sub isDir {    # $bool ($str)
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $str ) = $sig->( @_ );
+  my $ff = ffblk->new();
+  return findfirst( $str, $ff, FA_DIREC ) == 0
+      && ( $ff->ff_attrib() & FA_DIREC ) != 0;
+}
+
+sub pathValid {    # $bool ($path)
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $path ) = $sig->( @_ );
+  my $expPath = $path;
+  fexpand( $expPath ); 
+  my $len = length( $expPath );
+  if ( $len <= 3 ) {
+    return driveValid( substr( $expPath, 0, 1 ) );
+  }
+
+  $expPath =~ s/\\$//;
+  
+  return isDir( $expPath );
+}
+
+sub validFileName {    # $bool ($fileName)
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $fileName ) = $sig->( @_ );
+
+  state $illegalChars = qr/[;,=+<>|"\[\] \\]/;
+
+  my $path = '';
+  my $dir = '';
+  my $name = '';
+  my $ext = '';
+
+  fnsplit( $fileName, $path, $dir, $name, $ext );
+  $path .= $dir;
+  return false 
+    if $dir ne ''
+    && !pathValid( $path );
+
+  my $ext1 = $ext ne '' ? substr( $ext, 1 ) : '';
+  return false
+    if $name =~ $illegalChars
+    || $ext1 =~ $illegalChars
+    || index( $ext1, '.' ) != -1;
+
+  return true;
+}
 
 sub getHomeDir {    # $bool ($drive, $dir)
   state $sig = signature(
@@ -225,6 +300,14 @@ sub getCurDir {    # void ($dir, $drive)
   return;
 }
 
+sub isWild {
+  state $sig = signature(
+    pos => [Str],
+  );
+  my ( $f ) = $sig->( @_ );
+  return $f =~ /[?*]/;
+}
+
 sub fexpand {    # void ($rpath, |$relativeTo)
   state $sig = signature( 
     pos => [
@@ -236,7 +319,7 @@ sub fexpand {    # void ($rpath, |$relativeTo)
   assert ( not readonly $_[0] );
   unless ( defined $relativeTo ) {
     $relativeTo = '';
-    getCurDir( $relativeTo, $getPathDrive->($rpath) );
+    getCurDir( $relativeTo, &$getPathDrive($rpath) );
   }
   my $fn = {
     drive => '',
@@ -248,8 +331,8 @@ sub fexpand {    # void ($rpath, |$relativeTo)
 
   my $drv;
   # Prioritize drive letter in 'rpath'.
-  if ( ( $drv = $getPathDrive->( $rpath ) ) == -1 
-    && ( $drv = $getPathDrive->( $relativeTo ) ) == -1 
+  if ( ( $drv = &$getPathDrive( $rpath ) ) == -1 
+    && ( $drv = &$getPathDrive( $relativeTo ) ) == -1 
   ) {
     $drv = getdisk();
   }
@@ -257,9 +340,9 @@ sub fexpand {    # void ($rpath, |$relativeTo)
   $fn->{drive} .= ':';
 
   my $flags = fnsplit( $rpath, undef, $fn->{dir}, $fn->{file}, $fn->{ext} );
-  if ( ( $flags & DIRECTORY ) == 0 || !$isSep->( substr $fn->{dir}, 0, 1 ) ) {
+  if ( ( $flags & DIRECTORY ) == 0 || !&$isSep( substr $fn->{dir}, 0, 1 ) ) {
     my $rbase = '';
-    if ( $isHomeExpand->( $fn->{dir} ) && getHomeDir( $fn->{drive}, $rbase ) ) {
+    if ( &$isHomeExpand( $fn->{dir} ) && getHomeDir( $fn->{drive}, $rbase ) ) {
       # Home expansion. Overwrite drive if necessary.
       # 'dir' begins with "~/" or "~\", so we can reuse the separator.
       $rbase .= substr( $fn->{dir}, 1 );
@@ -267,7 +350,7 @@ sub fexpand {    # void ($rpath, |$relativeTo)
     }
     else {
       # If 'rpath' is relative but contains a drive letter, just swap drives.
-      if ( $getPathDrive->( $rpath ) != -1 ) {
+      if ( &$getPathDrive( $rpath ) != -1 ) {
         if ( getcurdir( $drv + 1, $rbase ) != 0 ) {
           $rbase = '';
         }
@@ -275,25 +358,25 @@ sub fexpand {    # void ($rpath, |$relativeTo)
       else {
         # Expand 'relativeTo'.
         $rbase = substr( $relativeTo, 0, MAXPATH );
-        if ( !$isAbsolute->( $rbase ) ) {
+        if ( !&$isAbsolute( $rbase ) ) {
           my $curpath = '';
           getCurDir( $curpath, $drv );
           fexpand( $rbase, $curpath );
         }
 
         # Skip drive letter in 'rbase' (remove "C:")
-        if ( $getPathDrive->( $rbase ) != -1 ) {
+        if ( &$getPathDrive( $rbase ) != -1 ) {
           substr( $rbase, 0, 2, '' );
         }
       }
 
       # Ensure 'rbase' ends with a separator.
-      $addFinalSep->( $rbase, MAXPATH );
+      &$addFinalSep( $rbase, MAXPATH );
       $rbase .= $fn->{dir};
       $rbase = substr( $rbase, 0, MAXDIR ) if length $rbase > MAXDIR;
-    } #/ else [ if ( $isHomeExpand->( $fn->{dir}...))]
+    } #/ else [ if ( &$isHomeExpand( $fn->{dir}...))]
 
-    if ( !$isSep->( substr( $rbase, 0, 1 ) ) ) {
+    if ( !&$isSep( substr( $rbase, 0, 1 ) ) ) {
       $fn->{dir} = substr( '\\' . $rbase, 0, MAXDIR );
     }
     else {
@@ -302,7 +385,7 @@ sub fexpand {    # void ($rpath, |$relativeTo)
   } #/ if ( ( ( $flags & $DIRECTORY...)))
 
   $fn->{dir} =~ tr{/}{\\};
-  $squeeze->( $fn->{dir} );
+  &$squeeze( $fn->{dir} );
   fnmerge( $path, $fn->{drive}, $fn->{dir}, $fn->{file}, $fn->{ext} );
   $path = uc $path;
   $_[0] = $rpath = substr( $path, 0, MAXPATH );

@@ -130,7 +130,7 @@ sub getText {    # void (\$dest, $item, $maxChars)
   assert ( is_Object $f );
   $$dest = substr( $f->name(), 0, $maxChars );
   $$dest .= "\\"
-    if f->attr & FA_DIREC;
+    if $f->attr() & FA_DIREC;
   return;
 }
 
@@ -151,7 +151,7 @@ sub DirSearchRec::readFf_blk {    # void ($f)
   $self->name( $f->ff_name );
 }
 
-sub readDirectory { # void (|$dir, $wildCard)
+sub readDirectory {    # void (|$dir, $wildCard)
   state $sig = signature(
     method => Object,
     pos => [

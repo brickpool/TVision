@@ -14,6 +14,7 @@ use TV::StdDlg::Dir;
 use TV::StdDlg::Dos;
 use TV::StdDlg::Util;
 use TV::StdDlg::FileCollection;
+use TV::StdDlg::FileDialog;
 use TV::StdDlg::FileInfoPane;
 use TV::StdDlg::FileInputLine;
 use TV::StdDlg::FileList;
@@ -26,6 +27,7 @@ sub import {
   TV::StdDlg::Dir->import::into( $target, qw( /\S+/ ) );
   TV::StdDlg::Util->import::into( $target, qw( /\S+/ ) );
   TV::StdDlg::FileCollection->import::into( $target );
+  TV::StdDlg::FileDialog->import::into( $target );
   TV::StdDlg::FileInfoPane->import::into( $target );
   TV::StdDlg::FileInputLine->import::into( $target );
   TV::StdDlg::FileList->import::into( $target );
@@ -39,6 +41,7 @@ sub unimport {
   TV::StdDlg::Dir->unimport::out_of( $caller );
   TV::StdDlg::Util->unimport::out_of( $caller );
   TV::StdDlg::FileCollection->unimport::out_of( $caller );
+  TV::StdDlg::FileDialog->unimport::out_of( $caller );
   TV::StdDlg::FileInfoPane->unimport::out_of( $caller );
   TV::StdDlg::FileInputLine->unimport::out_of( $caller );
   TV::StdDlg::FileList->unimport::out_of( $caller );

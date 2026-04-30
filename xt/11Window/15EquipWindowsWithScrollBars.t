@@ -105,7 +105,7 @@ BEGIN {
   }
 
   sub initStatusLine {
-    my ($class, $r) = @_;
+    my ( $class, $r ) = @_;
     $r->{a}{y} = $r->{b}{y} - 1;
     return
       new_TStatusLine( $r,
@@ -117,7 +117,7 @@ BEGIN {
   }
 
   sub initMenuBar {
-    my ($class, $r) = @_;
+    my ( $class, $r ) = @_;
     $r->{b}{y} = $r->{a}{y} + 1;
     return 
       new_TMenuBar( $r,

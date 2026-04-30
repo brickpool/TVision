@@ -17,6 +17,10 @@ our @EXPORT_OK = qw(
   getcurdir
 );
 
+our %EXPORT_TAGS = (
+  all => \@EXPORT_OK,
+);
+
 use Cwd qw(
   getcwd
   getdcwd

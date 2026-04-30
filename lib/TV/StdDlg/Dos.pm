@@ -11,6 +11,10 @@ our @EXPORT_OK = qw(
   _dos_findnext
 );
 
+our %EXPORT_TAGS = (
+  all => \@EXPORT_OK,
+);
+
 use Class::Struct;
 use TV::toolkit qw( signature );
 use TV::toolkit::Types qw( :types );

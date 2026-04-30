@@ -31,6 +31,15 @@ our %EXPORT_TAGS = (
     cpInfoPane
   )],
  
+  fdXXXX => [qw(
+    fdOKButton
+    fdOpenButton
+    fdReplaceButton
+    fdClearButton
+    fdHelpButton
+    fdNoLoadDir
+  )],
+
   FA_ => [qw(
     FA_NORMAL
     FA_RDONLY
@@ -105,6 +114,21 @@ use constant {
 # TFileInfoPane palette layout
 
 use constant cpInfoPane => "\x1E";
+
+# TFileDialog options
+
+use constant {
+  fdOKButton      => 0x0001,    # Put an OK button in the dialog
+  fdOpenButton    => 0x0002,    # Put an Open button in the dialog
+  fdReplaceButton => 0x0004,    # Put a Replace button in the dialog
+  fdClearButton   => 0x0008,    # Put a Clear button in the dialog
+  fdHelpButton    => 0x0010,    # Put a Help button in the dialog
+  fdNoLoadDir     => 0x0100,    # Do not load the current directory
+                                # contents into the dialog at BUILD.
+                                # This means you intend to change the
+                                # wildCard by using setData or store
+                                # the dialog on a stream.
+};
 
 # DOS-Attributes for File Dialogs
 
